@@ -774,55 +774,49 @@ function imgDocId(key){return String(key).replace(/[^a-zA-Z0-9._-]+/g,'_').slice
 function detectCt(u8){if(u8&&u8[0]===0x89&&u8[1]===0x50)return 'image/png';if(u8&&u8[0]===0xff&&u8[1]===0xd8)return 'image/jpeg';return 'application/octet-stream';}
 function u8ToB64(u8){let s='',CHUNK=0x8000;for(let i=0;i<u8.length;i+=CHUNK){s+=String.fromCharCode.apply(null,u8.subarray(i,i+CHUNK));}return btoa(s);}
 function b64ToU8(b64){const bin=atob(b64);const out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;}
+function withTimeout(promise,ms,label){
+  return new Promise((resolve,reject)=>{
+    const t=setTimeout(()=>reject(new Error('timeout '+(label||'')+' '+ms+'ms')),ms);
+    Promise.resolve(promise).then(v=>{clearTimeout(t);resolve(v);},e=>{clearTimeout(t);reject(e);});
+  });
+}
 async function cloudPush(){
   if(!fbReady)return {ok:false,reason:'no-firebase'};
   if(typeof navigator!=='undefined'&&navigator.onLine===false)return {ok:false,reason:'offline'};
   try{
-    // ONLY collection expFenix / Storage prefix exp-fenix/
-    await fbFs.collection('expFenix').doc('globals').set(Object.assign(plain(G),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
-    await fbFs.collection('expFenix').doc('draft').set(Object.assign(plain(D),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
+    // ONLY collection expFenix — images in Firestore subcollection (no Storage wait)
+    await withTimeout(
+      fbFs.collection('expFenix').doc('globals').set(Object.assign(plain(G),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()})),
+      10000,'globals');
+    await withTimeout(
+      fbFs.collection('expFenix').doc('draft').set(Object.assign(plain(D),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()})),
+      10000,'draft');
     let prevMap={};
-    try{const prev=await fbFs.collection('expFenix').doc('imgs').get();if(prev.exists)prevMap=(prev.data()||{}).map||{};}catch(_){}
+    try{const prev=await withTimeout(fbFs.collection('expFenix').doc('imgs').get(),8000,'imgs-get');if(prev.exists)prevMap=(prev.data()||{}).map||{};}catch(_){}
     const map={};
     const filesCol=fbFs.collection('expFenix').doc('imgs').collection('files');
     for(const key of Object.keys(IMG)){
       const bytes=IMG[key];if(!bytes||!bytes.length)continue;
       const prev=prevMap[key];
-      if(!imgDirty.has(key)&&prev&&prev.size===bytes.length&&(prev.via||prev.url||prev.path)){map[key]=prev;continue;}
+      if(!imgDirty.has(key)&&prev&&prev.size===bytes.length&&(prev.via||prev.docId)){map[key]=prev;continue;}
       const ct=detectCt(bytes);
-      const path=imgStoragePath(key);
       const docId=imgDocId(key);
-      let meta={path,size:bytes.length,contentType:ct,via:'firestore'};
-      // Prefer Firestore base64 for cross-browser reliability (no Storage rules / CORS). Cap ~750KB per image.
-      if(bytes.length<=750000){
-        await filesCol.doc(docId).set({b64:u8ToB64(bytes),contentType:ct,size:bytes.length,key,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-        meta.via='firestore';meta.docId=docId;
-      } else {
-        // Large: Storage exp-fenix/ only
-        const ref=fbSt.ref().child(path);
-        await ref.put(new Blob([bytes],{type:ct}),{contentType:ct});
-        meta.url=await ref.getDownloadURL();
-        meta.via='storage';
-        try{await filesCol.doc(docId).delete();}catch(_){}
+      if(bytes.length>900000){
+        return {ok:false,reason:'imagen demasiado grande para la nube ('+key+'). Usa una de menos de ~700 KB'};
       }
-      // Best-effort Storage mirror for mid-size images (ignore failures)
-      if(bytes.length<=750000){
-        try{
-          const ref=fbSt.ref().child(path);
-          await ref.put(new Blob([bytes],{type:ct}),{contentType:ct});
-          meta.url=await ref.getDownloadURL();
-        }catch(err){console.warn('storage mirror skip',key,err);}
-      }
-      map[key]=meta;
+      await withTimeout(
+        filesCol.doc(docId).set({b64:u8ToB64(bytes),contentType:ct,size:bytes.length,key,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),
+        20000,'img-'+key);
+      map[key]={size:bytes.length,contentType:ct,via:'firestore',docId:docId};
     }
     for(const key of Object.keys(prevMap)){
       if(!IMG[key]){
-        const prev=prevMap[key];
-        if(prev&&prev.path){try{await fbSt.ref().child(prev.path).delete();}catch(_){}}
-        try{await filesCol.doc(imgDocId(key)).delete();}catch(_){}
+        try{await withTimeout(filesCol.doc(imgDocId(key)).delete(),5000,'del-'+key);}catch(_){}
       }
     }
-    await fbFs.collection('expFenix').doc('imgs').set({map,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await withTimeout(
+      fbFs.collection('expFenix').doc('imgs').set({map,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),
+      10000,'imgs-meta');
     imgDirty.clear();
     return {ok:true,imgs:Object.keys(map).length};
   }catch(e){console.warn('cloudPush',e);return {ok:false,reason:(e&&e.code)||(e&&e.message)||String(e)};}
@@ -832,11 +826,11 @@ async function cloudPull(){
   if(typeof navigator!=='undefined'&&navigator.onLine===false)return null;
   try{
     // ONLY collection expFenix
-    const [gSnap,dSnap,iSnap]=await Promise.all([
+    const [gSnap,dSnap,iSnap]=await withTimeout(Promise.all([
       fbFs.collection('expFenix').doc('globals').get(),
       fbFs.collection('expFenix').doc('draft').get(),
       fbFs.collection('expFenix').doc('imgs').get()
-    ]);
+    ]),12000,'pull-docs');
     if(!gSnap.exists&&!dSnap.exists&&!iSnap.exists)return null;
     const out={globals:null,draft:null,imgs:{},imgCount:0,hadDocs:true};
     if(gSnap.exists){const g=Object.assign({},gSnap.data()||{});delete g.updatedAt;out.globals=g;}
@@ -846,40 +840,32 @@ async function cloudPull(){
     for(const key of Object.keys(map)){
       const meta=map[key]||{};
       try{
-        let u8=null;
-        if(meta.via==='firestore'||meta.docId){
-          const ds=await filesCol.doc(meta.docId||imgDocId(key)).get();
-          if(ds.exists&&ds.data()&&ds.data().b64)u8=b64ToU8(ds.data().b64);
+        const ds=await withTimeout(filesCol.doc(meta.docId||imgDocId(key)).get(),10000,'pull-'+key);
+        if(ds.exists&&ds.data()&&ds.data().b64){
+          const u8=b64ToU8(ds.data().b64);
+          if(u8&&u8.length){out.imgs[key]=u8;out.imgCount++;}
         }
-        if(!u8&&meta.url){
-          const resp=await fetch(meta.url);if(resp.ok)u8=new Uint8Array(await resp.arrayBuffer());
-        }
-        if(!u8&&meta.path){
-          try{
-            const url=await fbSt.ref().child(meta.path).getDownloadURL();
-            const resp=await fetch(url);if(resp.ok)u8=new Uint8Array(await resp.arrayBuffer());
-          }catch(_){}
-        }
-        // last resort: try firestore file doc even if via said storage
-        if(!u8){
-          const ds=await filesCol.doc(imgDocId(key)).get();
-          if(ds.exists&&ds.data()&&ds.data().b64)u8=b64ToU8(ds.data().b64);
-        }
-        if(u8&&u8.length){out.imgs[key]=u8;out.imgCount++;}
       }catch(err){console.warn('img pull',key,err);}
     }
     return out;
   }catch(e){console.warn('cloudPull',e);return null;}
 }
 function guardar(){ setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setTimeout(async()=>{
-  const ok=await DB.set('draft',D)&&await DB.set('globals',G);
-  for(const k of Object.keys(IMG)){try{await DB.set('img:'+k,IMG[k]);}catch(_){}}
-  const cloud=await cloudPush();
+  let ok=false;
+  try{
+    ok=!!(await DB.set('draft',D)&&await DB.set('globals',G));
+    for(const k of Object.keys(IMG)){try{await DB.set('img:'+k,IMG[k]);}catch(_){}}
+    if(ok) setEstado('Guardado en este navegador · subiendo a la nube…');
+  }catch(e){console.warn('local save',e); setEstado('Error al guardar en el navegador'); refrescar(); return;}
+  let cloud={ok:false,reason:'?'};
+  try{ cloud=await withTimeout(cloudPush(),45000,'cloudPush'); }
+  catch(e){ cloud={ok:false,reason:(e&&e.message)||String(e)}; }
   if(cloud.ok) setEstado('Sincronizado con la nube'+(cloud.imgs!=null?' · '+cloud.imgs+' img':''));
   else if(!ok) setEstado('No se pudo guardar (almacenamiento no disponible)');
   else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
   else if(cloud.reason==='offline'||(typeof navigator!=='undefined'&&!navigator.onLine)) setEstado('Solo local (sin conexión)');
-  else setEstado('Solo local · error nube: '+String(cloud.reason||'').slice(0,90));
+  else setEstado('Solo local · error nube: '+String(cloud.reason||'').slice(0,100));
+  refrescar();
 },400); refrescar(); }
 
 // ---------- imágenes ----------
