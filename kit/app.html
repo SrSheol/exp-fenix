@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FenixMex · Expedientes NOM-020-STPS-2011</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vino:#5c1016; --vino-2:#7d1a22; --oro:#a8822f; --oro-2:#d9b25c;
+  --tinta:#23262b; --tinta-2:#4b5059; --gris:#8a9099; --linea:#d9dce1; --lienzo:#eceef1; --papel:#ffffff;
+  --cat1:#3d6f8f; --cat2:#a8822f; --cat3:#8c1c24; --ok:#2f6b47; --warn:#9a6a00; --err:#b3261e;
+  --r:6px;
+  --sans:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --cond:"Barlow Condensed","Barlow",system-ui,"Arial Narrow",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh}
+body{font-family:var(--sans);font-size:15px;line-height:1.45;color:var(--tinta);background:var(--lienzo);
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--oro);outline-offset:2px}
+.top{position:sticky;top:0;z-index:20;background:var(--vino);color:#fff;display:flex;align-items:center;gap:16px;padding:10px 20px;border-bottom:3px solid var(--oro)}
+.top .marca{font-family:var(--cond);font-weight:700;font-size:22px;letter-spacing:.02em}
+.top .marca small{display:block;font-family:var(--sans);font-weight:500;font-size:12px;opacity:.8;letter-spacing:0}
+.top .sp{flex:1}
+.top .estado{font-size:13px;opacity:.85}
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;max-width:1280px;margin:0 auto;padding:24px 20px 80px}
+nav.rail{position:sticky;top:78px;align-self:start}
+nav.rail a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:var(--r);color:var(--tinta-2);text-decoration:none;font-weight:500}
+nav.rail a b{font-family:var(--cond);font-size:18px;color:var(--gris);width:18px}
+nav.rail a:hover{background:#fff}
+nav.rail a .chk{margin-left:auto;font-size:12px}
+nav.rail .resumen{margin-top:18px;padding:14px;background:#fff;border-radius:var(--r);border:1px solid var(--linea);font-size:13px}
+nav.rail .resumen .n{font-family:var(--cond);font-size:34px;font-weight:700;color:var(--vino);line-height:1}
+main section{background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);margin-bottom:24px}
+section>header{display:flex;align-items:baseline;gap:12px;padding:16px 22px;border-bottom:1px solid var(--linea)}
+section>header h2{margin:0;font-family:var(--cond);font-weight:700;font-size:24px;color:var(--vino)}
+section>header p{margin:0;color:var(--tinta-2);font-size:14px}
+section>header .num{font-family:var(--cond);font-size:24px;color:var(--oro);font-weight:700}
+.cuerpo{padding:20px 22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px 18px}
+.grid .ancho{grid-column:1/-1}
+.campo label{display:block;font-size:13px;font-weight:600;color:var(--tinta-2);margin-bottom:4px}
+.campo label .req{color:var(--vino)}
+.campo input,.campo select{width:100%;padding:8px 10px;border:1px solid #c5c9cf;border-radius:5px;background:#fff;min-height:38px}
+.campo input:hover{border-color:#a9aeb6}
+.campo input[aria-invalid=true]{border-color:var(--err);background:#fff7f6}
+.campo .ayuda{font-size:12px;color:var(--gris);margin-top:3px}
+.img{display:flex;gap:12px;align-items:center;padding:10px;border:1px dashed #b9bec6;border-radius:var(--r);background:#fafbfc;min-height:74px}
+.img .thumb{width:110px;height:54px;border:1px solid var(--linea);border-radius:4px;background:#fff center/contain no-repeat;flex:none;display:grid;place-items:center;font-size:11px;color:var(--gris)}
+.img .acc{display:flex;flex-direction:column;gap:6px;min-width:0}
+.img .acc strong{font-size:13px}
+.img .acc span{font-size:12px;color:var(--gris)}
+.fila{display:flex;gap:8px;flex-wrap:wrap}
+.btn{text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:5px;border:1px solid #b9bec6;background:#fff;cursor:pointer;font-weight:500;min-height:36px}
+.btn:hover{border-color:var(--tinta-2)}
+.btn.prim{background:var(--vino);border-color:var(--vino);color:#fff}
+.btn.prim:hover{background:var(--vino-2)}
+.btn.oro{background:var(--oro);border-color:var(--oro);color:#fff}
+.btn.chico{padding:4px 10px;min-height:30px;font-size:13px}
+.btn.peligro{color:var(--err)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.sub{font-family:var(--cond);font-weight:600;font-size:17px;color:var(--tinta);margin:22px 0 10px;border-top:1px solid var(--linea);padding-top:14px}
+.sub:first-child{margin-top:0;border-top:0;padding-top:0}
+/* equipos */
+.equipo{border:1px solid var(--linea);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.equipo>.cab{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#f7f8f9;cursor:pointer}
+.equipo>.cab h3{margin:0;font-size:16px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.equipo>.cab h3 small{font-weight:500;color:var(--gris);margin-left:8px}
+.equipo>.cab .idx{font-family:var(--cond);font-weight:700;font-size:22px;color:var(--gris);width:28px}
+.equipo.cerrado>.det{display:none}
+.equipo>.det{padding:18px 16px}
+.cat{display:flex;align-items:center;gap:10px;flex:none}
+.cat .sello{font-family:var(--cond);font-weight:700;font-size:20px;color:#fff;border-radius:4px;padding:2px 10px;min-width:54px;text-align:center}
+.cat .sello.c1{background:var(--cat1)} .cat .sello.c2{background:var(--cat2)} .cat .sello.c3{background:var(--cat3)} .cat .sello.c0{background:#b9bec6}
+.escala{width:150px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--cat1) 0 41.6%,var(--cat2) 41.6% 66.6%,var(--cat3) 66.6%);position:relative}
+.escala i{position:absolute;top:-4px;width:3px;height:16px;background:var(--tinta);border-radius:2px;transform:translateX(-1px);transition:left .25s}
+.escala-lbl{font-size:11px;color:var(--gris);position:relative;width:150px;height:14px}.escala-lbl span{position:absolute;transform:translateX(-50%)}.escala-lbl span:first-child{transform:none}.escala-lbl span:last-child{transform:translateX(-100%)}
+.esp{overflow-x:auto}
+.esp table{border-collapse:collapse;font-size:13px}
+.esp th,.esp td{border:1px solid var(--linea);padding:2px 4px;text-align:center}
+.esp th{background:#f3f4f6;font-weight:600}
+.esp input{width:74px;border:0;padding:5px 4px;text-align:right;background:transparent}
+.esp input:focus{background:#fffbe9}
+.esp tfoot td{font-weight:600;background:#faf6ea}
+.aviso{padding:12px 14px;border-radius:var(--r);font-size:14px;margin-bottom:14px}
+.aviso.err{background:#fcebea;color:#7d1c16;border:1px solid #efc2bf}
+.aviso.warn{background:#fdf5e1;color:#6b4a00;border:1px solid #edd9a4}
+.aviso.ok{background:#e8f3ec;color:#1f4b31;border:1px solid #b8d8c4}
+.aviso ul{margin:6px 0 0 18px;padding:0}
+.plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.plan div{border:1px solid var(--linea);border-radius:var(--r);padding:12px}
+.plan div b{display:block;font-family:var(--cond);font-size:28px;color:var(--vino);line-height:1.1}
+.plan div span{font-size:13px;color:var(--tinta-2)}
+.barra{height:8px;background:#e3e5e8;border-radius:4px;overflow:hidden;margin:12px 0}
+.barra i{display:block;height:100%;width:0;background:var(--oro);transition:width .2s}
+.archivos{list-style:none;margin:0;padding:0}
+.archivos li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--linea)}
+.archivos li .nom{flex:1;min-width:0;word-break:break-all;font-weight:500}
+.archivos li .tam{font-size:12px;color:var(--gris)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--tinta);color:#fff;padding:10px 16px;border-radius:6px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90vw}
+.toast.ver{opacity:1}
+.oculto{display:none!important}
+@media (max-width:900px){.shell{grid-template-columns:1fr}nav.rail{position:static;display:flex;flex-wrap:wrap;gap:4px}nav.rail .resumen{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<!-- Firebase compat SDK (sync cloud; IndexedDB queda como caché offline) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+<div class="top">
+  <div class="marca">FenixMex<small>Expedientes NOM-020-STPS-2011</small></div>
+  <div class="sp"></div>
+  <div class="estado" id="estadoGuardado">Cargando…</div>
+</div>
+<div class="shell">
+  <nav class="rail" aria-label="Secciones">
+    <a href="#s-globales"><b>1</b>Activos globales<span class="chk" id="chk1"></span></a>
+    <a href="#s-datos"><b>2</b>Datos generales<span class="chk" id="chk2"></span></a>
+    <a href="#s-equipos"><b>3</b>Lista de equipos<span class="chk" id="chk3"></span></a>
+    <a href="#s-generar"><b>4</b>Generación<span class="chk" id="chk4"></span></a>
+    <div class="resumen"><div class="n" id="rsPaginas">—</div>páginas estimadas del expediente<div style="margin-top:8px" id="rsCat"></div></div>
+  </nav>
+  <main>
+    <section id="s-globales">
+      <header><span class="num">1</span><h2>Activos globales</h2><p>Se guardan en este navegador y se reutilizan en todos los expedientes.</p></header>
+      <div class="cuerpo">
+        <div class="grid">
+          <div class="img" data-img="g:logoFenix" data-label="Logo FenixMex" data-hint="Opcional. Sin logo se usa el de la plantilla."></div>
+          <div class="img" data-img="g:firmaPnd1" data-label="Firma 1 PND (Elaboró)" data-hint="PNG con fondo transparente"></div>
+          <div class="img" data-img="g:firmaPnd2" data-label="Firma 2 PND (Revisó y aprobó)" data-hint="PNG con fondo transparente"></div>
+          <div class="img" data-img="g:firmanteIzquierdoFirma" data-label="Firma del firmante izquierdo" data-hint="Dictamen Cat II, plano y bitácoras"></div>
+        </div>
+        <div class="grid" style="margin-top:16px">
+          <div class="campo"><label for="g_fin">Firmante izquierdo — nombre <span class="req">*</span></label><input id="g_fin" data-g="firmanteIzquierdoNombre" data-mayus></div>
+          <div class="campo"><label for="g_fic">Cédula profesional del firmante</label><input id="g_fic" data-g="firmanteIzquierdoCedula" inputmode="numeric"><div class="ayuda">Se imprime en el plano y memoria de cálculo.</div></div>
+          <div class="campo"><label for="g_p1">Técnico PND — Elaboró</label><input id="g_p1" data-g="pnd1Nombre" data-mayus></div>
+          <div class="campo"><label for="g_p2">Técnico PND — Revisó y aprobó</label><input id="g_p2" data-g="pnd2Nombre" data-mayus></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-datos">
+      <header><span class="num">2</span><h2>Datos generales</h2><p>Datos del centro de trabajo para este expediente.</p></header>
+      <div class="cuerpo">
+        <div class="sub">Empresa</div>
+        <div class="grid">
+          <div class="campo ancho"><label for="d_rsp">Razón social propietario <span class="req">*</span></label><input id="d_rsp" data-d="razonSocialPropietario" data-mayus></div>
+          <div class="campo ancho"><label for="d_rsu">Razón social usuario <span class="req">*</span></label><input id="d_rsu" data-d="razonSocialUsuario" data-mayus><div class="ayuda">Se copia del propietario mientras no la edites. Es la que se imprime en el expediente.</div></div>
+          <div class="campo"><label for="d_rfc">RFC de la empresa <span class="req">*</span></label><input id="d_rfc" data-d="rfcEmpresa" data-mayus maxlength="13"><div class="ayuda">Hoja DC-3</div></div>
+          <div class="campo ancho"><label for="d_dom">Domicilio (ubicado en) <span class="req" id="domReq">*</span></label><input id="d_dom" data-d="domicilio"><div class="ayuda">Aparece en el plano y memoria de cálculo; obligatorio si hay equipos categoría II.</div></div>
+        </div>
+        <div class="sub">Representante legal</div>
+        <div class="grid">
+          <div class="campo"><label for="d_rep">Nombre <span class="req">*</span></label><input id="d_rep" data-d="representanteLegalNombre" data-mayus></div>
+          <div class="img" data-img="d:representanteLegalFirma" data-label="Firma del representante legal" data-hint="DC-3 y dictámenes Cat II"></div>
+        </div>
+        <div class="sub">Testigo 1 — revisó y aprobó</div>
+        <div class="grid">
+          <div class="campo"><label for="d_t1">Nombre <span class="req">*</span></label><input id="d_t1" data-d="testigo1Nombre" data-mayus></div>
+          <div class="campo"><label for="d_t1c">CURP <span class="req">*</span></label><input id="d_t1c" data-d="testigo1Curp" data-mayus maxlength="18"></div>
+          <div class="img" data-img="d:testigo1Firma" data-label="Firma testigo 1" data-hint="PNG con fondo transparente"></div>
+        </div>
+        <div class="sub">Testigo 2 — elaboró / responsable</div>
+        <div class="grid">
+          <div class="campo"><label for="d_t2">Nombre <span class="req">*</span></label><input id="d_t2" data-d="testigo2Nombre" data-mayus></div>
+          <div class="img" data-img="d:testigo2Firma" data-label="Firma testigo 2" data-hint="PNG con fondo transparente"></div>
+        </div>
+        <div class="sub">Tríptico</div>
+        <div class="grid">
+          <div class="img" data-img="d:fotoFachada" data-label="Foto de la fachada (opcional)" data-hint="Si no se carga, el espacio queda en blanco"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-equipos">
+      <header><span class="num">3</span><h2>Lista de equipos</h2><p>La categoría se calcula con la presión de calibración.</p></header>
+      <div class="cuerpo">
+        <div id="listaEquipos"></div>
+        <div class="fila"><button class="btn prim" id="btnAgregar" type="button">+ Agregar equipo</button></div>
+      </div>
+    </section>
+
+    <section id="s-generar">
+      <header><span class="num">4</span><h2>Generación</h2><p>Expediente carta y, por cada equipo categoría II, previo y dictamen A4.</p></header>
+      <div class="cuerpo">
+        <div id="validacion"></div>
+        <div class="plan" id="plan"></div>
+        <div class="fila">
+          <button class="btn prim" id="btnZip" type="button">Generar y descargar todo (ZIP)</button>
+          <button class="btn" id="btnGenerar" type="button">Generar sin descargar</button>
+        </div>
+        <div class="barra oculto" id="barra"><i></i></div>
+        <div id="progTxt" style="font-size:13px;color:var(--tinta-2)"></div>
+        <ul class="archivos" id="archivos"></ul>
+        <div class="sub">Borrador</div>
+        <div class="fila">
+          <button class="btn chico" id="btnExport" type="button">Exportar borrador (.json)</button>
+          <label class="btn chico" for="fImport">Importar borrador<input id="fImport" type="file" accept=".json,application/json" class="oculto"></label>
+          <button class="btn chico" id="btnEjemplo" type="button">Cargar datos de ejemplo</button>
+          <button class="btn chico peligro" id="btnNuevo" type="button">Nuevo expediente</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>/*LIB_PDFLIB*/</script>
+<script>/*LIB_FONTKIT*/</script>
+<script>/*LIB_JSZIP*/</script>
+<script>/*ENGINE*/</script>
+<script>/*ASSETS*/</script>
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const MAX_IMG=4*1024*1024;
+const DEF_EQ={nombre:'COMPRESOR DE AIRE NO.1',numeroSerie:'',tag:'COM-01',clasificacion:'',fluido:'AIRE',capacidadVolumetrica:'',presionOperacion:'',presionCalibracion:'',presionDiseno:'',presionTrabajoMaxPermitida:'',presionPruebaHidrostatica:'',tempDiseno:'55',tempOperacion:'28',tipoDispositivoRelevo:'VALVULA DE SEGURIDAD',dimensionesRelevo:'',numDispositivosRelevo:'1',ubicacion:'CUARTO DE MÁQUINAS',diametroInteriorMm:'',marca:'',modelo:'S/D',anioFabricacion:'',materialCuerpo:'SAE-J403-1008',materialTapa:'SAE-J403-1008',tipoTapas:'SEMIELIPSOIDAL',pndSuperficial:'PARTICULAS MAGNETICAS (MT)',pndVolumetrica:'ULTRASONIDO INDUSTRIAL (UT)',fechaPnd:'',codigoMemoriaCalculo:'',folio:''};
+const DEF_G={firmanteIzquierdoNombre:'JOSE MARTINEZ ARGUETA',firmanteIzquierdoCedula:'14204870',pnd1Nombre:'JOSE MARTINEZ ARGUETA',pnd2Nombre:'CARLOS AARON CLORIO HERRERA'};
+const EQ_CAMPOS=[
+ ['Identificación'],
+ ['nombre','Nombre del equipo',{req:1,mayus:1,ancho:1}],['numeroSerie','Número de serie',{req:1,mayus:1}],['tag','TAG',{req:1,mayus:1}],
+ ['fluido','Fluido(s) manejado(s)',{req:1,mayus:1}],['ubicacion','Ubicación',{req:1,mayus:1}],['marca','Marca',{mayus:1}],['modelo','Modelo',{mayus:1}],['anioFabricacion','Año de fabricación',{num:0,ayuda:'Vacío = S/D'}],['diametroInteriorMm','Diámetro interior (mm)',{num:1}],
+ ['Presiones y temperaturas'],
+ ['presionOperacion','Presión de operación (kg/cm²)',{req:1,num:1}],['presionCalibracion','Presión de calibración (kg/cm²)',{req:1,num:1,ayuda:'Define la categoría'}],['presionDiseno','Presión de diseño (kg/cm²)',{req:1,num:1}],['presionTrabajoMaxPermitida','Presión de trabajo máx. permitida (kg/cm²)',{req:1,num:1}],['presionPruebaHidrostatica','Presión de prueba hidrostática (kg/cm²)',{req:1,num:1}],['capacidadVolumetrica','Capacidad volumétrica (m³)',{req:1,num:1,ayuda:'Se imprime con 3 decimales'}],['tempDiseno','Temperatura de diseño (°C)',{req:1,num:1}],['tempOperacion','Temperatura de operación (°C)',{req:1,num:1}],
+ ['Dispositivo de relevo'],
+ ['tipoDispositivoRelevo','Tipo de dispositivo de relevo',{req:1,mayus:1}],['dimensionesRelevo','Tipo / dimensiones (ficha técnica)',{mayus:1,ayuda:'Ej. TIPO ARGOLLA, Ø 6 mm'}],['numDispositivosRelevo','Número de dispositivos',{req:1,num:0}],
+ ['Construcción y pruebas'],
+ ['materialCuerpo','Material del cuerpo',{mayus:1}],['materialTapa','Material de la tapa',{mayus:1}],['tipoTapas','Tipo de tapas',{mayus:1}],['pndSuperficial','PND superficial',{mayus:1}],['pndVolumetrica','PND volumétrica',{mayus:1}],
+ ['fechaPnd','Fecha PND',{req:1,date:1,ayuda:'Todas las fechas del expediente se derivan de aquí'}],['codigoMemoriaCalculo','Código memoria de cálculo',{req:1,mayus:1,ayuda:'También es el No. de reporte de prueba'}]
+];
+let G=Object.assign({},DEF_G), D=null, IMG={}, dirtyT=null;
+const uid=()=>Math.random().toString(36).slice(2,10);
+function nuevoEquipo(){return Object.assign({id:uid()},JSON.parse(JSON.stringify(DEF_EQ)),{espEnv:Array(16).fill(''),espSup:Array(16).fill(''),espInf:Array(16).fill('')});}
+function nuevoDraft(){return {razonSocialPropietario:'',razonSocialUsuario:'',usuarioEditado:false,rfcEmpresa:'',domicilio:'',representanteLegalNombre:'',testigo1Nombre:'',testigo1Curp:'',testigo2Nombre:'',equipos:[nuevoEquipo()]};}
+
+// ---------- IndexedDB + Firebase ----------
+// ONLY expFenix / exp-fenix — nunca tocar quiniela, forge, pendientes u otras rutas.
+const firebaseConfig={
+  apiKey:'AIzaSyAtZpRO-Gy59prAeKjpaAs_p-qqxuM9jMo',
+  authDomain:'quiniela-3c8fa.firebaseapp.com',
+  projectId:'quiniela-3c8fa',
+  storageBucket:'quiniela-3c8fa.firebasestorage.app',
+  messagingSenderId:'321094792504',
+  appId:'1:321094792504:web:532ba43015d1557a7cfdcd'
+};
+let fbReady=false, fbFs=null, fbSt=null;
+const imgDirty=new Set();
+try{
+  if(typeof firebase!=='undefined'){
+    if(!firebase.apps||!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    fbFs=firebase.firestore();
+    fbSt=firebase.storage();
+    fbReady=true;
+  }
+}catch(e){console.warn('Firebase init',e);fbReady=false;}
+
+const DB={db:null,
+ open(){return new Promise((res,rej)=>{let q;try{q=indexedDB.open('fenixmex-nom020',1);}catch(e){return res(null);}q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>{this.db=q.result;res(this.db)};q.onerror=()=>res(null);});},
+ get(k){return new Promise(res=>{if(!this.db)return res(undefined);try{const r=this.db.transaction('kv').objectStore('kv').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>res(undefined);}catch(e){res(undefined)}});},
+ set(k,v){return new Promise(res=>{if(!this.db)return res(false);try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>res(false);}catch(e){res(false)}});},
+ del(k){return new Promise(res=>{if(!this.db)return res(false);try{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=()=>res(true);t.onerror=()=>res(false);}catch(e){res(false)}});}
+};
+function setEstado(msg){const el=$('#estadoGuardado');if(el)el.textContent=msg;}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('ver');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('ver'),3200);}
+function plain(o){try{return JSON.parse(JSON.stringify(o));}catch(e){return o;}}
+function imgStoragePath(key){return 'exp-fenix/imgs/'+String(key).replace(/[^a-zA-Z0-9._-]+/g,'_');}
+function detectCt(u8){if(u8&&u8[0]===0x89&&u8[1]===0x50)return 'image/png';if(u8&&u8[0]===0xff&&u8[1]===0xd8)return 'image/jpeg';return 'application/octet-stream';}
+async function cloudPush(){
+  if(!fbReady)return {ok:false,reason:'no-firebase'};
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return {ok:false,reason:'offline'};
+  try{
+    // ONLY collection expFenix
+    await fbFs.collection('expFenix').doc('globals').set(Object.assign(plain(G),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
+    await fbFs.collection('expFenix').doc('draft').set(Object.assign(plain(D),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
+    let prevMap={};
+    try{const prev=await fbFs.collection('expFenix').doc('imgs').get();if(prev.exists)prevMap=(prev.data()||{}).map||{};}catch(_){}
+    const map={};
+    for(const key of Object.keys(IMG)){
+      const bytes=IMG[key];if(!bytes||!bytes.length)continue;
+      const prev=prevMap[key];
+      if(!imgDirty.has(key)&&prev&&prev.size===bytes.length&&(prev.url||prev.path)){map[key]=prev;continue;}
+      const path=imgStoragePath(key); // ONLY prefix exp-fenix/
+      const ct=detectCt(bytes);
+      const ref=fbSt.ref().child(path);
+      await ref.put(bytes,{contentType:ct});
+      const url=await ref.getDownloadURL();
+      map[key]={path,url,size:bytes.length,contentType:ct};
+    }
+    for(const key of Object.keys(prevMap)){
+      if(!IMG[key]&&prevMap[key]&&prevMap[key].path){
+        try{await fbSt.ref().child(prevMap[key].path).delete();}catch(_){}
+      }
+    }
+    await fbFs.collection('expFenix').doc('imgs').set({map,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    imgDirty.clear();
+    return {ok:true};
+  }catch(e){console.warn('cloudPush',e);return {ok:false,reason:(e&&e.message)||String(e)};}
+}
+async function cloudPull(){
+  if(!fbReady)return null;
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return null;
+  try{
+    // ONLY collection expFenix
+    const [gSnap,dSnap,iSnap]=await Promise.all([
+      fbFs.collection('expFenix').doc('globals').get(),
+      fbFs.collection('expFenix').doc('draft').get(),
+      fbFs.collection('expFenix').doc('imgs').get()
+    ]);
+    if(!gSnap.exists&&!dSnap.exists)return null;
+    const out={globals:null,draft:null,imgs:{}};
+    if(gSnap.exists){const g=Object.assign({},gSnap.data()||{});delete g.updatedAt;out.globals=g;}
+    if(dSnap.exists){const d=Object.assign({},dSnap.data()||{});delete d.updatedAt;out.draft=d;}
+    const map=(iSnap.exists&&iSnap.data()&&iSnap.data().map)||{};
+    for(const key of Object.keys(map)){
+      const meta=map[key]||{};
+      try{
+        let url=meta.url;
+        if(!url&&meta.path)url=await fbSt.ref().child(meta.path).getDownloadURL();
+        if(!url)continue;
+        const resp=await fetch(url);if(!resp.ok)continue;
+        out.imgs[key]=new Uint8Array(await resp.arrayBuffer());
+      }catch(err){console.warn('img pull',key,err);}
+    }
+    return out;
+  }catch(e){console.warn('cloudPull',e);return null;}
+}
+function guardar(){ setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setTimeout(async()=>{
+  const ok=await DB.set('draft',D)&&await DB.set('globals',G);
+  const cloud=await cloudPush();
+  if(cloud.ok) setEstado('Sincronizado con la nube');
+  else if(!ok) setEstado('No se pudo guardar (almacenamiento no disponible)');
+  else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
+  else if(cloud.reason==='offline'||(typeof navigator!=='undefined'&&!navigator.onLine)) setEstado('Solo local (sin conexión)');
+  else setEstado('Solo local · error nube: '+String(cloud.reason||'').slice(0,70));
+},400); refrescar(); }
+
+
+// ---------- imágenes ----------
+function renderImg(box){
+  const key=box.dataset.img, bytes=IMG[key];
+  box.innerHTML='';
+  const th=document.createElement('div');th.className='thumb';
+  if(bytes){const u=URL.createObjectURL(new Blob([bytes]));th.style.backgroundImage=`url("${u}")`;} else th.textContent='Sin imagen';
+  const acc=document.createElement('div');acc.className='acc';
+  acc.innerHTML=`<strong>${box.dataset.label}</strong><span>${box.dataset.hint||''}</span>`;
+  const f=document.createElement('div');f.className='fila';
+  const id='f_'+key.replace(/[^\w]/g,'_');
+  f.innerHTML=`<label class="btn chico" for="${id}">${bytes?'Reemplazar':'Cargar'}<input id="${id}" type="file" accept="image/png,image/jpeg" class="oculto"></label>`+(bytes?'<button type="button" class="btn chico peligro">Quitar</button>':'');
+  acc.appendChild(f);box.append(th,acc);
+  $('input',f).addEventListener('change',async ev=>{const file=ev.target.files[0];if(!file)return;
+    if(file.size>MAX_IMG){toast('La imagen supera 4 MB. Redúcela e inténtalo de nuevo.');return;}
+    const buf=new Uint8Array(await file.arrayBuffer());
+    const ok=(buf[0]===0x89&&buf[1]===0x50)||(buf[0]===0xff&&buf[1]===0xd8);
+    if(!ok){toast('Formato no válido: usa PNG o JPG.');return;}
+    IMG[key]=buf;await DB.set('img:'+key,buf);imgDirty.add(key);renderImg(box);guardar();toast('Imagen guardada');});
+  const q=$('.peligro',f); if(q) q.addEventListener('click',async()=>{delete IMG[key];await DB.del('img:'+key);imgDirty.add(key);renderImg(box);guardar();});
+}
+function initImgs(root){$$('.img[data-img]',root).forEach(renderImg);}
+
+// ---------- datos ----------
+function mayus(el){el.addEventListener('blur',()=>{const v=el.value.toUpperCase();if(v!==el.value){el.value=v;el.dispatchEvent(new Event('input'));}});}
+function initDatos(){
+  $$('[data-g]').forEach(el=>{el.value=G[el.dataset.g]||'';el.addEventListener('input',()=>{G[el.dataset.g]=el.value;guardar();});if(el.hasAttribute('data-mayus'))mayus(el);});
+  $$('[data-d]').forEach(el=>{el.value=D[el.dataset.d]||'';if(el.hasAttribute('data-mayus'))mayus(el);
+    el.addEventListener('input',()=>{const k=el.dataset.d;
+      if(k==='razonSocialPropietario'&&!D.usuarioEditado){D.razonSocialUsuario=el.value;$('#d_rsu').value=el.value;}
+      if(k==='razonSocialUsuario')D.usuarioEditado=el.value!==D.razonSocialPropietario;
+      D[k]=el.value;guardar();});});
+}
+
+// ---------- equipos ----------
+const Fx=()=>window.FXEngine;
+function catDe(e){return e.clasificacion||Fx().categoria(e.presionCalibracion);}
+function catSugerida(e){return Fx().categoria(e.presionCalibracion);}
+function renderEquipos(){
+  const box=$('#listaEquipos');box.innerHTML='';
+  D.equipos.forEach((e,i)=>box.appendChild(tarjeta(e,i)));
+}
+function tarjeta(e,i){
+  const el=document.createElement('div');el.className='equipo'+(e._cerrado?' cerrado':'');el.dataset.id=e.id;
+  el.innerHTML=`<div class="cab" tabindex="0" role="button" aria-expanded="${!e._cerrado}"><span class="idx">${i+1}</span><h3></h3>
+   <div class="cat"><div><div class="escala" aria-hidden="true"><i></i></div><div class="escala-lbl"><span style="left:0">0</span><span style="left:41.6%">5</span><span style="left:66.6%">8</span><span style="left:100%">12+</span></div></div><span class="sello"></span></div></div>
+   <div class="det"><div class="grid gcampos"></div>
+   <div class="sub">Clasificación y folio</div>
+   <div class="grid"><div class="campo"><label>Categoría NOM-020</label><select data-k="clasificacion"><option value="">Automática</option><option>I</option><option>II</option><option>III</option></select><div class="ayuda catAyuda"></div></div>
+   <div class="campo folioBox"><label>Folio del dictamen Cat II <span class="req">*</span></label><input data-k="folio" inputmode="numeric"><div class="ayuda">El previo siempre imprime FOLIO xxx.</div></div></div>
+   <div class="sub">Espesores PND (mm) — puntos 1 a 16</div>
+   <div class="esp"></div>
+   <div class="sub">Fotografía de la placa (opcional)</div>
+   <div class="grid"><div class="img" data-img="e:${e.id}:fotoPlaca" data-label="Placa de datos" data-hint="Sin foto se imprime SIN FOTO"></div></div>
+   <div class="sub">Acciones</div>
+   <div class="fila"><button type="button" class="btn chico" data-a="arriba">Subir</button><button type="button" class="btn chico" data-a="abajo">Bajar</button><button type="button" class="btn chico" data-a="dup">Duplicar</button><button type="button" class="btn chico peligro" data-a="del">Eliminar</button></div></div>`;
+  const g=$('.gcampos',el);
+  for(const c of EQ_CAMPOS){
+    if(c.length===1){const s=document.createElement('div');s.className='sub ancho';s.textContent=c[0];g.appendChild(s);continue;}
+    const [k,lbl,o]=c;const id='e_'+e.id+'_'+k;const d=document.createElement('div');d.className='campo'+(o.ancho?' ancho':'');
+    d.innerHTML=`<label for="${id}">${lbl}${o.req?' <span class="req">*</span>':''}</label><input id="${id}" data-k="${k}" ${o.date?'type="date"':''} ${o.num!=null?'inputmode="decimal"':''}>${o.ayuda?`<div class="ayuda">${o.ayuda}</div>`:''}`;
+    g.appendChild(d); if(o.mayus) mayus($('input',d));
+  }
+  $$('[data-k]',el).forEach(inp=>{inp.value=e[inp.dataset.k]??'';inp.addEventListener('input',()=>{e[inp.dataset.k]=inp.value;actCab(el,e);guardar();});inp.addEventListener('change',()=>{e[inp.dataset.k]=inp.value;actCab(el,e);guardar();});});
+  // espesores
+  const cols=[['espEnv','Envolvente'],['espSup','Tapa superior / izquierda'],['espInf','Tapa inferior / derecha']];
+  let h='<table><thead><tr><th>Punto</th>'+cols.map(c=>`<th>${c[1]}</th>`).join('')+'</tr><tr><th></th>'+cols.map(c=>`<th><button type="button" class="btn chico" data-fill="${c[0]}">Rellenar</button></th>`).join('')+'</tr></thead><tbody>';
+  for(let r=0;r<16;r++)h+=`<tr><td>${r+1}</td>`+cols.map(c=>`<td><input aria-label="${c[1]} punto ${r+1}" data-esp="${c[0]}" data-r="${r}" inputmode="decimal" value="${e[c[0]][r]||''}"></td>`).join('')+'</tr>';
+  h+='</tbody><tfoot><tr><td>Esp. mínimo</td>'+cols.map(c=>`<td data-min="${c[0]}"></td>`).join('')+'</tr></tfoot></table>';
+  $('.esp',el).innerHTML=h;
+  $$('[data-esp]',el).forEach(inp=>inp.addEventListener('input',()=>{e[inp.dataset.esp][+inp.dataset.r]=inp.value;actMin(el,e);guardar();}));
+  $$('[data-fill]',el).forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fill;const v=prompt('Valor para los 16 puntos (mm):',e[k][0]||'');if(v==null)return;e[k]=Array(16).fill(v.trim());$$(`[data-esp="${k}"]`,el).forEach(x=>x.value=v.trim());actMin(el,e);guardar();}));
+  $('.cab',el).addEventListener('click',()=>{e._cerrado=!e._cerrado;el.classList.toggle('cerrado',e._cerrado);$('.cab',el).setAttribute('aria-expanded',!e._cerrado);guardar();});
+  $('.cab',el).addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();$('.cab',el).click();}});
+  $$('[data-a]',el).forEach(b=>b.addEventListener('click',async()=>{const a=b.dataset.a,ix=D.equipos.indexOf(e);
+    if(a==='del'){if(D.equipos.length===1){toast('El expediente necesita al menos un equipo.');return;} if(!confirm(`¿Eliminar ${e.nombre||'este equipo'}?`))return; D.equipos.splice(ix,1); delete IMG['e:'+e.id+':fotoPlaca']; await DB.del('img:e:'+e.id+':fotoPlaca');}
+    if(a==='arriba'&&ix>0)[D.equipos[ix-1],D.equipos[ix]]=[D.equipos[ix],D.equipos[ix-1]];
+    if(a==='abajo'&&ix<D.equipos.length-1)[D.equipos[ix+1],D.equipos[ix]]=[D.equipos[ix],D.equipos[ix+1]];
+    if(a==='dup'){const c=JSON.parse(JSON.stringify(e));c.id=uid();c._cerrado=false;c.folio='';D.equipos.splice(ix+1,0,c);}
+    renderEquipos();initImgs($('#listaEquipos'));guardar();}));
+  actCab(el,e);actMin(el,e);
+  return el;
+}
+function actCab(el,e){
+  const t=$('.cab h3',el);t.textContent=e.nombre||'Equipo sin nombre';const sm=document.createElement('small');sm.textContent=[e.tag,e.numeroSerie&&('N/S '+e.numeroSerie)].filter(Boolean).join(' · ');t.appendChild(sm);
+  const c=catDe(e),s=$('.sello',el);s.textContent=c?('CAT '+c):'CAT —';s.className='sello '+({I:'c1',II:'c2',III:'c3'}[c]||'c0');
+  const p=parseFloat(String(e.presionCalibracion).replace(',','.'));$('.escala i',el).style.left=(isNaN(p)?0:Math.min(100,p/12*100))+'%';
+  const sug=catSugerida(e);$('.catAyuda',el).textContent=e.clasificacion?(sug&&sug!==e.clasificacion?`Manual. Por presión corresponde ${sug}.`:'Asignada manualmente.'):(sug?`Automática: ${sug} (I < 5, II 5–8, III > 8 kg/cm²)`:'Captura la presión de calibración.');
+  $('.folioBox',el).classList.toggle('oculto',c!=='II');
+}
+function actMin(el,e){for(const k of ['espEnv','espSup','espInf']){const v=e[k].map(x=>parseFloat(String(x).replace(',','.'))).filter(x=>!isNaN(x));$(`[data-min="${k}"]`,el).textContent=v.length?Math.min(...v).toFixed(2):'—';}}
+
+// ---------- validación ----------
+function validar(){
+  const err=[],warn=[];const hayII=D.equipos.some(e=>catDe(e)==='II');
+  const req=[['razonSocialUsuario','Razón social usuario'],['razonSocialPropietario','Razón social propietario'],['rfcEmpresa','RFC'],['representanteLegalNombre','Representante legal'],['testigo1Nombre','Testigo 1'],['testigo1Curp','CURP testigo 1'],['testigo2Nombre','Testigo 2']];
+  req.forEach(([k,l])=>{if(!String(D[k]||'').trim())err.push(`Falta: ${l}.`);});
+  if(D.testigo1Curp&&!/^[A-Z0-9]{18}$/.test(D.testigo1Curp))warn.push('La CURP del testigo 1 no tiene 18 caracteres.');
+  if(D.rfcEmpresa&&!/^[A-ZÑ&0-9]{12,13}$/.test(D.rfcEmpresa))warn.push('El RFC debe tener 12 o 13 caracteres.');
+  if(hayII&&!String(D.domicilio||'').trim())err.push('Falta: Domicilio (obligatorio con equipos categoría II).');
+  if(!G.firmanteIzquierdoNombre)err.push('Falta: nombre del firmante izquierdo (activos globales).');
+  [['representanteLegalFirma','firma del representante legal','d:'],['testigo1Firma','firma del testigo 1','d:'],['testigo2Firma','firma del testigo 2','d:'],['firmaPnd1','firma 1 PND','g:'],['firmaPnd2','firma 2 PND','g:'],['firmanteIzquierdoFirma','firma del firmante izquierdo','g:']].forEach(([k,l,p])=>{if(!IMG[p+k])warn.push(`Sin ${l}: el espacio quedará vacío.`);});
+  const tags={};
+  D.equipos.forEach((e,i)=>{const n=`Equipo ${i+1}`;
+    for(const c of EQ_CAMPOS){if(c.length<3)continue;const [k,l,o]=c;const v=String(e[k]??'').trim();
+      if(o.req&&!v)err.push(`${n}: falta ${l}.`);
+      else if(v&&o.num!=null&&isNaN(parseFloat(v.replace(',','.'))))err.push(`${n}: ${l} debe ser numérico.`);}
+    if(e.fechaPnd&&!/^\d{4}-\d{2}-\d{2}$/.test(e.fechaPnd))err.push(`${n}: fecha PND no válida.`);
+    if(catDe(e)==='II'&&!String(e.folio||'').trim())err.push(`${n}: falta el folio del dictamen Cat II.`);
+    if(!catDe(e))err.push(`${n}: no se puede determinar la categoría.`);
+    const t=(e.tag||'').trim().toUpperCase();if(t){if(tags[t])warn.push(`TAG repetido: ${t}.`);tags[t]=1;}
+    ['espEnv','espSup','espInf'].forEach(k=>{if(e[k].filter(x=>String(x).trim()).length<16)warn.push(`${n}: espesores incompletos (${k==='espEnv'?'envolvente':k==='espSup'?'tapa superior':'tapa inferior'}).`);});
+  });
+  return {err,warn};
+}
+function refrescar(){
+  if(!D)return;
+  const {err,warn}=validar();
+  const v=$('#validacion');
+  v.innerHTML=(err.length?`<div class="aviso err"><strong>Corrige antes de generar (${err.length})</strong><ul>${err.slice(0,14).map(x=>`<li>${esc(x)}</li>`).join('')}${err.length>14?`<li>…y ${err.length-14} más</li>`:''}</ul></div>`:'<div class="aviso ok">Todo listo para generar.</div>')+
+    (warn.length?`<div class="aviso warn"><strong>Avisos (${warn.length})</strong><ul>${warn.slice(0,10).map(x=>`<li>${esc(x)}</li>`).join('')}${warn.length>10?`<li>…y ${warn.length-10} más</li>`:''}</ul></div>`:'');
+  $('#btnZip').disabled=$('#btnGenerar').disabled=!!err.length;
+  let pags='—';try{pags=Fx().estimatePages(stGen(),window.FX_ASSETS.map);}catch(e){}
+  const c={I:0,II:0,III:0};D.equipos.forEach(e=>{const k=catDe(e);if(c[k]!=null)c[k]++;});
+  $('#rsPaginas').textContent=pags;$('#rsCat').textContent=`Cat I: ${c.I} · Cat II: ${c.II} · Cat III: ${c.III}`;
+  $('#plan').innerHTML=`<div><b>${pags}</b><span>páginas del expediente (carta)</span></div><div><b>${D.equipos.length}</b><span>equipos</span></div><div><b>${c.II*2}</b><span>PDF Cat II (previo + dictamen, A4)</span></div><div><b>${c.III}</b><span>certificados de válvula (Cat III)</span></div>`;
+  $('#domReq').classList.toggle('oculto',!D.equipos.some(e=>catDe(e)==='II'));
+  const ok1=!!G.firmanteIzquierdoNombre,ok2=!err.some(x=>x.startsWith('Falta')),ok3=!err.some(x=>x.startsWith('Equipo'));
+  $('#chk1').textContent=ok1?'✓':'';$('#chk2').textContent=ok2?'✓':'';$('#chk3').textContent=ok3?'✓':'';$('#chk4').textContent=!err.length?'✓':'';
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- generación ----------
+function stGen(){
+  const eqs=D.equipos.map(e=>Object.assign({},e,{clasificacion:catDe(e),fotoPlaca:IMG['e:'+e.id+':fotoPlaca']||null}));
+  return Object.assign({},D,G,{equipos:eqs,representanteLegalFirma:IMG['d:representanteLegalFirma']||null,testigo1Firma:IMG['d:testigo1Firma']||null,testigo2Firma:IMG['d:testigo2Firma']||null,fotoFachada:IMG['d:fotoFachada']||null});
+}
+let ASSETS=null;
+function b64(s){const bin=atob(s);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+function assets(){
+  if(ASSETS)return ASSETS;const A=window.FX_ASSETS;const fonts={};for(const k in A.fonts)fonts[k]=b64(A.fonts[k]);
+  ASSETS={tplExp:b64(A.tplExp),tplPrevio:b64(A.tplPrevio),tplDict:b64(A.tplDict),fonts,map:A.map};return ASSETS;
+}
+let SALIDA=[];
+async function generar(zip){
+  const {err}=validar();if(err.length){toast('Hay datos pendientes; revisa la sección 4.');return;}
+  const bz=$('#btnZip'),bg=$('#btnGenerar');bz.disabled=bg.disabled=true;
+  const barra=$('#barra');barra.classList.remove('oculto');const bi=$('i',barra);const txt=$('#progTxt');
+  SALIDA.forEach(f=>URL.revokeObjectURL(f.url));SALIDA=[];$('#archivos').innerHTML='';
+  try{
+    const A=Object.assign({},assets(),{globals:{logoFenix:IMG['g:logoFenix']||null,firmaPnd1:IMG['g:firmaPnd1']||null,firmaPnd2:IMG['g:firmaPnd2']||null,firmanteIzquierdoFirma:IMG['g:firmanteIzquierdoFirma']||null}});
+    const st=stGen();const rs=Fx().sanitizeName(st.razonSocialUsuario);
+    txt.textContent='Generando expediente…';
+    const r=await Fx().buildExpediente(st,A,p=>{bi.style.width=Math.round(p*80)+'%';});
+    SALIDA.push({nombre:`EXP_${rs}.pdf`,bytes:r.bytes,det:`${r.pages} páginas · Carta`});
+    const cat2=st.equipos.map((e,i)=>({e,i:i+1})).filter(x=>x.e.clasificacion==='II');
+    let k=0;
+    for(const q of cat2){
+      const tag=Fx().sanitizeName(q.e.tag||('EQ'+q.i));
+      txt.textContent=`Generando Cat II ${tag}…`;
+      SALIDA.push({nombre:`previo_${tag}_${rs}.pdf`,bytes:await Fx().buildCat2('previo',st,q.e,q.i,A),det:'1 página · A4'});
+      SALIDA.push({nombre:`dictamen_${tag}_${rs}.pdf`,bytes:await Fx().buildCat2('dictamen',st,q.e,q.i,A),det:'1 página · A4'});
+      k++;bi.style.width=(80+Math.round(k/cat2.length*18))+'%';
+    }
+    SALIDA.forEach(f=>f.url=URL.createObjectURL(new Blob([f.bytes],{type:'application/pdf'})));
+    bi.style.width='100%';txt.textContent=`Listo: ${SALIDA.length} archivo(s).`;
+    listar();
+    if(zip){
+      const z=new JSZip();SALIDA.forEach(f=>z.file(f.nombre,f.bytes));
+      const blob=await z.generateAsync({type:'blob',compression:'STORE'});
+      descargar(blob,`EXPEDIENTE_${rs}.zip`);
+    }
+  }catch(e){console.error(e);txt.textContent='';toast('Error al generar: '+(e&&e.message||e));}
+  finally{bz.disabled=bg.disabled=false;setTimeout(()=>barra.classList.add('oculto'),1200);}
+}
+function descargar(blob,nombre){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);}
+function listar(){
+  const ul=$('#archivos');ul.innerHTML='';
+  SALIDA.forEach(f=>{const li=document.createElement('li');li.innerHTML=`<span class="nom">${esc(f.nombre)}<br><span class="tam">${f.det} · ${(f.bytes.length/1048576).toFixed(2)} MB</span></span>`;
+    const ab=document.createElement('a');ab.className='btn chico';ab.href=f.url;ab.target='_blank';ab.rel='noopener';ab.textContent='Abrir';
+    const db=document.createElement('button');db.type='button';db.className='btn chico oro';db.textContent='Descargar';db.onclick=()=>descargar(new Blob([f.bytes],{type:'application/pdf'}),f.nombre);
+    li.append(ab,db);ul.appendChild(li);});
+}
+
+// ---------- borrador ----------
+function u8ToB64(u){let s='';const c=0x8000;for(let i=0;i<u.length;i+=c)s+=String.fromCharCode.apply(null,u.subarray(i,i+c));return btoa(s);}
+async function exportar(){
+  const imgs={};for(const k in IMG)if(!k.startsWith('g:'))imgs[k]=u8ToB64(IMG[k]);
+  descargar(new Blob([JSON.stringify({version:1,draft:D,imgs})],{type:'application/json'}),`borrador_${Fx().sanitizeName(D.razonSocialUsuario)}.json`);
+}
+async function importar(file){
+  try{const j=JSON.parse(await file.text());if(!j.draft||!Array.isArray(j.draft.equipos))throw 0;
+    for(const k of Object.keys(IMG))if(!k.startsWith('g:')){delete IMG[k];await DB.del('img:'+k);}
+    D=j.draft;for(const k in (j.imgs||{})){IMG[k]=b64(j.imgs[k]);await DB.set('img:'+k,IMG[k]);}
+    montar();guardar();toast('Borrador importado');}
+  catch(e){toast('El archivo no es un borrador válido.');}
+}
+async function nuevo(){
+  if(!confirm('¿Iniciar un expediente nuevo? Se borrarán los datos generales y equipos (los activos globales se conservan).'))return;
+  for(const k of Object.keys(IMG))if(!k.startsWith('g:')){delete IMG[k];await DB.del('img:'+k);}
+  D=nuevoDraft();montar();guardar();
+}
+function ejemplo(){
+  if(!confirm('¿Reemplazar los datos actuales con el ejemplo de SERVICIO LOMAS ESTRELLA?'))return;
+  D={razonSocialPropietario:'SERVICIO LOMAS ESTRELLA, S.A. DE C.V',razonSocialUsuario:'SERVICIO LOMAS ESTRELLA, S.A. DE C.V',usuarioEditado:false,rfcEmpresa:'SLE020225076',domicilio:'AV. TLAHUAC NO. 4344, LOMAS ESTRELLA, Iztapalapa, 09890, Ciudad de México',representanteLegalNombre:'HERNANDEZ CASTILLO GEORGINA',testigo1Nombre:'POSADAS LOPEZ MANUEL EUSEBIO',testigo1Curp:'POLM700205HDFSPN00',testigo2Nombre:'ROBERTO GARCIA GARCIA',
+   equipos:[Object.assign(nuevoEquipo(),{nombre:'COMPRESOR DE AIRE NO.1',numeroSerie:'1628',tag:'COM-01',fluido:'AIRE',capacidadVolumetrica:'0.500',presionOperacion:'9.00',presionCalibracion:'10.50',presionDiseno:'12.00',presionTrabajoMaxPermitida:'18.65',presionPruebaHidrostatica:'13.20',tempDiseno:'55',tempOperacion:'28',tipoDispositivoRelevo:'VALVULA DE SEGURIDAD',dimensionesRelevo:'TIPO ARGOLLA, Ø 6 mm',numDispositivosRelevo:'1',ubicacion:'CUARTO ELECTRICO',marca:'ALANSA',anioFabricacion:'2002',fechaPnd:'2026-07-17',codigoMemoriaCalculo:'RSP-020-034-2026',espEnv:Array(16).fill('4.40'),espSup:Array(16).fill('4.30'),espInf:Array(16).fill('4.30')})]};
+  montar();guardar();toast('Ejemplo cargado');
+}
+function montar(){initDatos();renderEquipos();initImgs(document);refrescar();}
+
+// ---------- arranque ----------
+(async()=>{
+  await DB.open();
+  setEstado('Cargando…');
+  let fromCloud=false;
+  const remote=await cloudPull();
+  if(remote){
+    fromCloud=true;
+    if(remote.globals){G=Object.assign({},DEF_G,remote.globals);await DB.set('globals',G);}
+    else {const g=await DB.get('globals');if(g)G=Object.assign({},DEF_G,g);}
+    if(remote.draft&&Array.isArray(remote.draft.equipos)&&remote.draft.equipos.length){D=remote.draft;await DB.set('draft',D);}
+    else {const d=await DB.get('draft');D=d&&Array.isArray(d.equipos)&&d.equipos.length?d:nuevoDraft();}
+    for(const k of Object.keys(remote.imgs||{})){IMG[k]=remote.imgs[k];await DB.set('img:'+k,IMG[k]);}
+  }else{
+    const g=await DB.get('globals');if(g)G=Object.assign({},DEF_G,g);
+    const d=await DB.get('draft');D=d&&Array.isArray(d.equipos)&&d.equipos.length?d:nuevoDraft();
+  }
+  D.equipos.forEach(e=>{for(const k in DEF_EQ)if(e[k]==null)e[k]=DEF_EQ[k];['espEnv','espSup','espInf'].forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});if(!e.id)e.id=uid();});
+  const keys=['g:logoFenix','g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma','d:fotoFachada',...D.equipos.map(e=>'e:'+e.id+':fotoPlaca')];
+  for(const k of keys){if(IMG[k])continue;const v=await DB.get('img:'+k);if(v)IMG[k]=v instanceof Uint8Array?v:new Uint8Array(v);}
+  montar();
+  if(fromCloud) setEstado('Sincronizado con la nube');
+  else if(!DB.db) setEstado('Sin almacenamiento: los datos no se conservarán');
+  else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
+  else setEstado('Solo local (sin conexión)');
+
+  $('#btnAgregar').addEventListener('click',()=>{D.equipos.forEach(e=>e._cerrado=true);const n=nuevoEquipo();n.nombre=`COMPRESOR DE AIRE NO.${D.equipos.length+1}`;n.tag=`COM-${String(D.equipos.length+1).padStart(2,'0')}`;D.equipos.push(n);renderEquipos();initImgs($('#listaEquipos'));guardar();$('.equipo:last-child').scrollIntoView({behavior:'smooth',block:'start'});});
+  $('#btnZip').addEventListener('click',()=>generar(true));
+  $('#btnGenerar').addEventListener('click',()=>generar(false));
+  $('#btnExport').addEventListener('click',exportar);
+  $('#fImport').addEventListener('change',ev=>{const f=ev.target.files[0];if(f)importar(f);ev.target.value='';});
+  $('#btnNuevo').addEventListener('click',nuevo);
+  $('#btnEjemplo').addEventListener('click',ejemplo);
+})();
+})();
+</script>
+</body>
+</html>
