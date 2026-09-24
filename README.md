@@ -68,3 +68,8 @@ match /b/{bucket}/o {
 ## Offline
 
 Sin red, la app sigue funcionando con IndexedDB (`fenixmex-nom020`). Al recuperar conexión, el siguiente guardado intenta subir a la nube.
+
+
+## Tema
+
+Botón **Oscuro / Claro** en la barra superior. Por defecto inicia en modo oscuro; la preferencia se guarda en `localStorage` (`fenixmex-theme`). Solo afecta la UI, no los PDF.
