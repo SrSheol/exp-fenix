@@ -65,6 +65,17 @@ match /b/{bucket}/o {
 - `kit/` — fuentes (`app.html`, `engine.js`) + zip de construcción
 - `samples/` — un PDF de ejemplo (Cat. II); no se suben los expedientes grandes
 
+
+## Qué se guarda dónde (multi-usuario)
+
+| Dato | Dónde |
+|------|--------|
+| Activos globales (logo, firmas PND, firmante izquierdo + textos globales) | **Firebase** `expFenix/globals` + `expFenix/imgs` (compartido) |
+| Datos del expediente (empresa, testigos, equipos, fotos de ese caso) | **Solo este navegador** (IndexedDB) |
+| PDF / ZIP generados | **No se suben**; se descargan en la PC |
+
+Varias personas pueden usar la misma página a la vez sin pisarse el borrador. No se acumulan expedientes en el plan gratis de Firebase.
+
 ## Offline
 
 Sin red, la app sigue funcionando con IndexedDB (`fenixmex-nom020`). Al recuperar conexión, el siguiente guardado intenta subir a la nube.

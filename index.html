@@ -166,7 +166,7 @@ html[data-theme="dark"] .btn.oro{color:#1a1208}
   </nav>
   <main>
     <section id="s-globales">
-      <header><span class="num">1</span><h2>Activos globales</h2><p>Se sincronizan en la nube (Firebase) y se reutilizan en todos los expedientes y PCs.</p></header>
+      <header><span class="num">1</span><h2>Activos globales</h2><p>Compartidos en la nube para todo el equipo. El resto del expediente solo se guarda en este navegador.</p></header>
       <div class="cuerpo">
         <div class="grid">
           <div class="img" data-img="g:logoFenix" data-label="Logo FenixMex" data-hint="Opcional. Sin logo se usa el de la plantilla."></div>
@@ -771,6 +771,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('ver');cle
 function plain(o){try{return JSON.parse(JSON.stringify(o));}catch(e){return o;}}
 function imgStoragePath(key){return 'exp-fenix/imgs/'+String(key).replace(/[^a-zA-Z0-9._-]+/g,'_');}
 function imgDocId(key){return String(key).replace(/[^a-zA-Z0-9._-]+/g,'_').slice(0,700);}
+function isGlobalImgKey(key){return String(key).startsWith('g:');}
 function detectCt(u8){if(u8&&u8[0]===0x89&&u8[1]===0x50)return 'image/png';if(u8&&u8[0]===0xff&&u8[1]===0xd8)return 'image/jpeg';return 'application/octet-stream';}
 function u8ToB64(u8){let s='',CHUNK=0x8000;for(let i=0;i<u8.length;i+=CHUNK){s+=String.fromCharCode.apply(null,u8.subarray(i,i+CHUNK));}return btoa(s);}
 function b64ToU8(b64){const bin=atob(b64);const out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;}
@@ -780,64 +781,72 @@ function withTimeout(promise,ms,label){
     Promise.resolve(promise).then(v=>{clearTimeout(t);resolve(v);},e=>{clearTimeout(t);reject(e);});
   });
 }
+/** Cloud = SOLO activos globales compartidos (G + imgs g:*).
+ *  Borrador del expediente (D, firmas testigos, fotos equipo) = solo IndexedDB local.
+ *  Así varias personas no se pisan y no se acumulan expedientes en el plan gratis. */
 async function cloudPush(){
   if(!fbReady)return {ok:false,reason:'no-firebase'};
   if(typeof navigator!=='undefined'&&navigator.onLine===false)return {ok:false,reason:'offline'};
   try{
-    // ONLY collection expFenix — images in Firestore subcollection (no Storage wait)
+    // ONLY collection expFenix — globals only
     await withTimeout(
       fbFs.collection('expFenix').doc('globals').set(Object.assign(plain(G),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()})),
       10000,'globals');
-    await withTimeout(
-      fbFs.collection('expFenix').doc('draft').set(Object.assign(plain(D),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()})),
-      10000,'draft');
+    // Best-effort: remove legacy shared draft so it stops overwriting people
+    try{await withTimeout(fbFs.collection('expFenix').doc('draft').delete(),5000,'del-draft');}catch(_){}
+
     let prevMap={};
     try{const prev=await withTimeout(fbFs.collection('expFenix').doc('imgs').get(),8000,'imgs-get');if(prev.exists)prevMap=(prev.data()||{}).map||{};}catch(_){}
     const map={};
     const filesCol=fbFs.collection('expFenix').doc('imgs').collection('files');
+    // Keep non-global entries that might still be in map? Drop them from cloud to save quota.
     for(const key of Object.keys(IMG)){
+      if(!isGlobalImgKey(key))continue;
       const bytes=IMG[key];if(!bytes||!bytes.length)continue;
       const prev=prevMap[key];
       if(!imgDirty.has(key)&&prev&&prev.size===bytes.length&&(prev.via||prev.docId)){map[key]=prev;continue;}
       const ct=detectCt(bytes);
       const docId=imgDocId(key);
       if(bytes.length>900000){
-        return {ok:false,reason:'imagen demasiado grande para la nube ('+key+'). Usa una de menos de ~700 KB'};
+        return {ok:false,reason:'imagen global demasiado grande ('+key+'). Usa < ~700 KB'};
       }
       await withTimeout(
         filesCol.doc(docId).set({b64:u8ToB64(bytes),contentType:ct,size:bytes.length,key,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),
         20000,'img-'+key);
       map[key]={size:bytes.length,contentType:ct,via:'firestore',docId:docId};
     }
+    // Delete removed global imgs + purge legacy non-global cloud imgs
     for(const key of Object.keys(prevMap)){
-      if(!IMG[key]){
-        try{await withTimeout(filesCol.doc(imgDocId(key)).delete(),5000,'del-'+key);}catch(_){}
+      const goneGlobal=isGlobalImgKey(key)&&!IMG[key];
+      const legacy=!isGlobalImgKey(key);
+      if(goneGlobal||legacy){
+        try{await withTimeout(filesCol.doc(prevMap[key].docId||imgDocId(key)).delete(),5000,'del-'+key);}catch(_){}
       }
     }
     await withTimeout(
       fbFs.collection('expFenix').doc('imgs').set({map,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),
       10000,'imgs-meta');
-    imgDirty.clear();
-    return {ok:true,imgs:Object.keys(map).length};
+    // clear dirty only for globals we handled
+    [...imgDirty].forEach(k=>{if(isGlobalImgKey(k))imgDirty.delete(k);});
+    return {ok:true,imgs:Object.keys(map).length,scope:'globals'};
   }catch(e){console.warn('cloudPush',e);return {ok:false,reason:(e&&e.code)||(e&&e.message)||String(e)};}
 }
 async function cloudPull(){
   if(!fbReady)return null;
   if(typeof navigator!=='undefined'&&navigator.onLine===false)return null;
   try{
-    // ONLY collection expFenix
-    const [gSnap,dSnap,iSnap]=await withTimeout(Promise.all([
+    // ONLY globals + global images — never draft
+    const [gSnap,iSnap]=await withTimeout(Promise.all([
       fbFs.collection('expFenix').doc('globals').get(),
-      fbFs.collection('expFenix').doc('draft').get(),
       fbFs.collection('expFenix').doc('imgs').get()
-    ]),12000,'pull-docs');
-    if(!gSnap.exists&&!dSnap.exists&&!iSnap.exists)return null;
+    ]),12000,'pull-globals');
+    if(!gSnap.exists&&!iSnap.exists)return null;
     const out={globals:null,draft:null,imgs:{},imgCount:0,hadDocs:true};
     if(gSnap.exists){const g=Object.assign({},gSnap.data()||{});delete g.updatedAt;out.globals=g;}
-    if(dSnap.exists){const d=Object.assign({},dSnap.data()||{});delete d.updatedAt;out.draft=d;}
     const map=(iSnap.exists&&iSnap.data()&&iSnap.data().map)||{};
     const filesCol=fbFs.collection('expFenix').doc('imgs').collection('files');
     for(const key of Object.keys(map)){
+      if(!isGlobalImgKey(key))continue;
       const meta=map[key]||{};
       try{
         const ds=await withTimeout(filesCol.doc(meta.docId||imgDocId(key)).get(),10000,'pull-'+key);
@@ -855,12 +864,12 @@ function guardar(){ setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setT
   try{
     ok=!!(await DB.set('draft',D)&&await DB.set('globals',G));
     for(const k of Object.keys(IMG)){try{await DB.set('img:'+k,IMG[k]);}catch(_){}}
-    if(ok) setEstado('Guardado en este navegador · subiendo a la nube…');
+    if(ok) setEstado('Guardado en este navegador · sincronizando globales…');
   }catch(e){console.warn('local save',e); setEstado('Error al guardar en el navegador'); refrescar(); return;}
   let cloud={ok:false,reason:'?'};
   try{ cloud=await withTimeout(cloudPush(),45000,'cloudPush'); }
   catch(e){ cloud={ok:false,reason:(e&&e.message)||String(e)}; }
-  if(cloud.ok) setEstado('Sincronizado con la nube'+(cloud.imgs!=null?' · '+cloud.imgs+' img':''));
+  if(cloud.ok) setEstado('Globales en la nube'+(cloud.imgs!=null?' · '+cloud.imgs+' img':'')+' · expediente solo aquí');
   else if(!ok) setEstado('No se pudo guardar (almacenamiento no disponible)');
   else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
   else if(cloud.reason==='offline'||(typeof navigator!=='undefined'&&!navigator.onLine)) setEstado('Solo local (sin conexión)');
@@ -1087,9 +1096,12 @@ function montar(){initDatos();renderEquipos();initImgs(document);refrescar();}
     fromCloud=true; cloudImgs=remote.imgCount||0;
     if(remote.globals){G=Object.assign({},DEF_G,remote.globals);await DB.set('globals',G);}
     else {const g=await DB.get('globals');if(g)G=Object.assign({},DEF_G,g);}
-    if(remote.draft&&Array.isArray(remote.draft.equipos)&&remote.draft.equipos.length){D=remote.draft;await DB.set('draft',D);}
-    else {const d=await DB.get('draft');D=d&&Array.isArray(d.equipos)&&d.equipos.length?d:nuevoDraft();}
-    for(const k of Object.keys(remote.imgs||{})){IMG[k]=remote.imgs[k];await DB.set('img:'+k,IMG[k]);}
+    // Expediente (draft) SIEMPRE local — no se lee de la nube
+    const d=await DB.get('draft');D=d&&Array.isArray(d.equipos)&&d.equipos.length?d:nuevoDraft();
+    for(const k of Object.keys(remote.imgs||{})){
+      if(!String(k).startsWith('g:'))continue;
+      IMG[k]=remote.imgs[k];await DB.set('img:'+k,IMG[k]);
+    }
   }else{
     const g=await DB.get('globals');if(g)G=Object.assign({},DEF_G,g);
     const d=await DB.get('draft');D=d&&Array.isArray(d.equipos)&&d.equipos.length?d:nuevoDraft();
@@ -1098,7 +1110,7 @@ function montar(){initDatos();renderEquipos();initImgs(document);refrescar();}
   const keys=['g:logoFenix','g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma','d:fotoFachada',...D.equipos.map(e=>'e:'+e.id+':fotoPlaca')];
   for(const k of keys){if(IMG[k])continue;const v=await DB.get('img:'+k);if(v)IMG[k]=v instanceof Uint8Array?v:new Uint8Array(v);}
   montar();
-  if(fromCloud) setEstado('Sincronizado con la nube'+(cloudImgs?' · '+cloudImgs+' img':''));
+  if(fromCloud) setEstado('Globales en la nube'+(cloudImgs?' · '+cloudImgs+' img':'')+' · expediente solo aquí');
   else if(!DB.db) setEstado('Sin almacenamiento: los datos no se conservarán');
   else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
   else setEstado('Solo local (sin datos en la nube aún)');
