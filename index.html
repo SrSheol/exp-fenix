@@ -166,7 +166,7 @@ html[data-theme="dark"] .btn.oro{color:#1a1208}
   </nav>
   <main>
     <section id="s-globales">
-      <header><span class="num">1</span><h2>Activos globales</h2><p>Se guardan en este navegador y se reutilizan en todos los expedientes.</p></header>
+      <header><span class="num">1</span><h2>Activos globales</h2><p>Se sincronizan en la nube (Firebase) y se reutilizan en todos los expedientes y PCs.</p></header>
       <div class="cuerpo">
         <div class="grid">
           <div class="img" data-img="g:logoFenix" data-label="Logo FenixMex" data-hint="Opcional. Sin logo se usa el de la plantilla."></div>
@@ -770,37 +770,62 @@ function setEstado(msg){const el=$('#estadoGuardado');if(el)el.textContent=msg;}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('ver');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('ver'),3200);}
 function plain(o){try{return JSON.parse(JSON.stringify(o));}catch(e){return o;}}
 function imgStoragePath(key){return 'exp-fenix/imgs/'+String(key).replace(/[^a-zA-Z0-9._-]+/g,'_');}
+function imgDocId(key){return String(key).replace(/[^a-zA-Z0-9._-]+/g,'_').slice(0,700);}
 function detectCt(u8){if(u8&&u8[0]===0x89&&u8[1]===0x50)return 'image/png';if(u8&&u8[0]===0xff&&u8[1]===0xd8)return 'image/jpeg';return 'application/octet-stream';}
+function u8ToB64(u8){let s='',CHUNK=0x8000;for(let i=0;i<u8.length;i+=CHUNK){s+=String.fromCharCode.apply(null,u8.subarray(i,i+CHUNK));}return btoa(s);}
+function b64ToU8(b64){const bin=atob(b64);const out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;}
 async function cloudPush(){
   if(!fbReady)return {ok:false,reason:'no-firebase'};
   if(typeof navigator!=='undefined'&&navigator.onLine===false)return {ok:false,reason:'offline'};
   try{
-    // ONLY collection expFenix
+    // ONLY collection expFenix / Storage prefix exp-fenix/
     await fbFs.collection('expFenix').doc('globals').set(Object.assign(plain(G),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     await fbFs.collection('expFenix').doc('draft').set(Object.assign(plain(D),{updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     let prevMap={};
     try{const prev=await fbFs.collection('expFenix').doc('imgs').get();if(prev.exists)prevMap=(prev.data()||{}).map||{};}catch(_){}
     const map={};
+    const filesCol=fbFs.collection('expFenix').doc('imgs').collection('files');
     for(const key of Object.keys(IMG)){
       const bytes=IMG[key];if(!bytes||!bytes.length)continue;
       const prev=prevMap[key];
-      if(!imgDirty.has(key)&&prev&&prev.size===bytes.length&&(prev.url||prev.path)){map[key]=prev;continue;}
-      const path=imgStoragePath(key); // ONLY prefix exp-fenix/
+      if(!imgDirty.has(key)&&prev&&prev.size===bytes.length&&(prev.via||prev.url||prev.path)){map[key]=prev;continue;}
       const ct=detectCt(bytes);
-      const ref=fbSt.ref().child(path);
-      await ref.put(bytes,{contentType:ct});
-      const url=await ref.getDownloadURL();
-      map[key]={path,url,size:bytes.length,contentType:ct};
+      const path=imgStoragePath(key);
+      const docId=imgDocId(key);
+      let meta={path,size:bytes.length,contentType:ct,via:'firestore'};
+      // Prefer Firestore base64 for cross-browser reliability (no Storage rules / CORS). Cap ~750KB per image.
+      if(bytes.length<=750000){
+        await filesCol.doc(docId).set({b64:u8ToB64(bytes),contentType:ct,size:bytes.length,key,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        meta.via='firestore';meta.docId=docId;
+      } else {
+        // Large: Storage exp-fenix/ only
+        const ref=fbSt.ref().child(path);
+        await ref.put(new Blob([bytes],{type:ct}),{contentType:ct});
+        meta.url=await ref.getDownloadURL();
+        meta.via='storage';
+        try{await filesCol.doc(docId).delete();}catch(_){}
+      }
+      // Best-effort Storage mirror for mid-size images (ignore failures)
+      if(bytes.length<=750000){
+        try{
+          const ref=fbSt.ref().child(path);
+          await ref.put(new Blob([bytes],{type:ct}),{contentType:ct});
+          meta.url=await ref.getDownloadURL();
+        }catch(err){console.warn('storage mirror skip',key,err);}
+      }
+      map[key]=meta;
     }
     for(const key of Object.keys(prevMap)){
-      if(!IMG[key]&&prevMap[key]&&prevMap[key].path){
-        try{await fbSt.ref().child(prevMap[key].path).delete();}catch(_){}
+      if(!IMG[key]){
+        const prev=prevMap[key];
+        if(prev&&prev.path){try{await fbSt.ref().child(prev.path).delete();}catch(_){}}
+        try{await filesCol.doc(imgDocId(key)).delete();}catch(_){}
       }
     }
     await fbFs.collection('expFenix').doc('imgs').set({map,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
     imgDirty.clear();
-    return {ok:true};
-  }catch(e){console.warn('cloudPush',e);return {ok:false,reason:(e&&e.message)||String(e)};}
+    return {ok:true,imgs:Object.keys(map).length};
+  }catch(e){console.warn('cloudPush',e);return {ok:false,reason:(e&&e.code)||(e&&e.message)||String(e)};}
 }
 async function cloudPull(){
   if(!fbReady)return null;
@@ -812,19 +837,35 @@ async function cloudPull(){
       fbFs.collection('expFenix').doc('draft').get(),
       fbFs.collection('expFenix').doc('imgs').get()
     ]);
-    if(!gSnap.exists&&!dSnap.exists)return null;
-    const out={globals:null,draft:null,imgs:{}};
+    if(!gSnap.exists&&!dSnap.exists&&!iSnap.exists)return null;
+    const out={globals:null,draft:null,imgs:{},imgCount:0,hadDocs:true};
     if(gSnap.exists){const g=Object.assign({},gSnap.data()||{});delete g.updatedAt;out.globals=g;}
     if(dSnap.exists){const d=Object.assign({},dSnap.data()||{});delete d.updatedAt;out.draft=d;}
     const map=(iSnap.exists&&iSnap.data()&&iSnap.data().map)||{};
+    const filesCol=fbFs.collection('expFenix').doc('imgs').collection('files');
     for(const key of Object.keys(map)){
       const meta=map[key]||{};
       try{
-        let url=meta.url;
-        if(!url&&meta.path)url=await fbSt.ref().child(meta.path).getDownloadURL();
-        if(!url)continue;
-        const resp=await fetch(url);if(!resp.ok)continue;
-        out.imgs[key]=new Uint8Array(await resp.arrayBuffer());
+        let u8=null;
+        if(meta.via==='firestore'||meta.docId){
+          const ds=await filesCol.doc(meta.docId||imgDocId(key)).get();
+          if(ds.exists&&ds.data()&&ds.data().b64)u8=b64ToU8(ds.data().b64);
+        }
+        if(!u8&&meta.url){
+          const resp=await fetch(meta.url);if(resp.ok)u8=new Uint8Array(await resp.arrayBuffer());
+        }
+        if(!u8&&meta.path){
+          try{
+            const url=await fbSt.ref().child(meta.path).getDownloadURL();
+            const resp=await fetch(url);if(resp.ok)u8=new Uint8Array(await resp.arrayBuffer());
+          }catch(_){}
+        }
+        // last resort: try firestore file doc even if via said storage
+        if(!u8){
+          const ds=await filesCol.doc(imgDocId(key)).get();
+          if(ds.exists&&ds.data()&&ds.data().b64)u8=b64ToU8(ds.data().b64);
+        }
+        if(u8&&u8.length){out.imgs[key]=u8;out.imgCount++;}
       }catch(err){console.warn('img pull',key,err);}
     }
     return out;
@@ -832,12 +873,13 @@ async function cloudPull(){
 }
 function guardar(){ setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setTimeout(async()=>{
   const ok=await DB.set('draft',D)&&await DB.set('globals',G);
+  for(const k of Object.keys(IMG)){try{await DB.set('img:'+k,IMG[k]);}catch(_){}}
   const cloud=await cloudPush();
-  if(cloud.ok) setEstado('Sincronizado con la nube');
+  if(cloud.ok) setEstado('Sincronizado con la nube'+(cloud.imgs!=null?' · '+cloud.imgs+' img':''));
   else if(!ok) setEstado('No se pudo guardar (almacenamiento no disponible)');
   else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
   else if(cloud.reason==='offline'||(typeof navigator!=='undefined'&&!navigator.onLine)) setEstado('Solo local (sin conexión)');
-  else setEstado('Solo local · error nube: '+String(cloud.reason||'').slice(0,70));
+  else setEstado('Solo local · error nube: '+String(cloud.reason||'').slice(0,90));
 },400); refrescar(); }
 
 // ---------- imágenes ----------
@@ -1053,10 +1095,10 @@ function montar(){initDatos();renderEquipos();initImgs(document);refrescar();}
 (async()=>{
   await DB.open();
   setEstado('Cargando…');
-  let fromCloud=false;
+  let fromCloud=false; let cloudImgs=0;
   const remote=await cloudPull();
   if(remote){
-    fromCloud=true;
+    fromCloud=true; cloudImgs=remote.imgCount||0;
     if(remote.globals){G=Object.assign({},DEF_G,remote.globals);await DB.set('globals',G);}
     else {const g=await DB.get('globals');if(g)G=Object.assign({},DEF_G,g);}
     if(remote.draft&&Array.isArray(remote.draft.equipos)&&remote.draft.equipos.length){D=remote.draft;await DB.set('draft',D);}
@@ -1070,10 +1112,10 @@ function montar(){initDatos();renderEquipos();initImgs(document);refrescar();}
   const keys=['g:logoFenix','g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma','d:fotoFachada',...D.equipos.map(e=>'e:'+e.id+':fotoPlaca')];
   for(const k of keys){if(IMG[k])continue;const v=await DB.get('img:'+k);if(v)IMG[k]=v instanceof Uint8Array?v:new Uint8Array(v);}
   montar();
-  if(fromCloud) setEstado('Sincronizado con la nube');
+  if(fromCloud) setEstado('Sincronizado con la nube'+(cloudImgs?' · '+cloudImgs+' img':''));
   else if(!DB.db) setEstado('Sin almacenamiento: los datos no se conservarán');
   else if(!fbReady) setEstado('Solo local (Firebase no disponible)');
-  else setEstado('Solo local (sin conexión)');
+  else setEstado('Solo local (sin datos en la nube aún)');
   $('#btnAgregar').addEventListener('click',()=>{D.equipos.forEach(e=>e._cerrado=true);const n=nuevoEquipo();n.nombre=`COMPRESOR DE AIRE NO.${D.equipos.length+1}`;n.tag=`COM-${String(D.equipos.length+1).padStart(2,'0')}`;D.equipos.push(n);renderEquipos();initImgs($('#listaEquipos'));guardar();$('.equipo:last-child').scrollIntoView({behavior:'smooth',block:'start'});});
   $('#btnZip').addEventListener('click',()=>generar(true));
   $('#btnGenerar').addEventListener('click',()=>generar(false));
