@@ -43,6 +43,20 @@
     };
   }
 
+  // ---- reglas de negocio (parche 2026-09) ----
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/\s+/g, ' ').trim();
+  const RX_COMPRESOR = /\bCOMPRESOR(?:A|ES)?\s+(?:DE\s+)?AIRE\b/;
+  function esCompresor(nombre) { return RX_COMPRESOR.test(norm(nombre)); }
+  const RELEVO_COMPRESOR = 'VÁLVULA DE SEGURIDAD TIPO ARGOLLA, Ø 6mm';
+  // Hoja 23: compresor = 3 renglones (el "1" de manómetro/válvula siempre es 1); otro equipo = solo su nombre.
+  function items23(e) {
+    const n = String(e.nombre || '').trim();
+    if (!n) return [];
+    return esCompresor(n) ? [n, 'MANOMETRO 1 - ' + n, 'VALVULA DE SEGURIDAD 1 - ' + n] : [n];
+  }
+  // Hoja 109: se incluye (una sola vez) si hay al menos un equipo Cat III.
+  function incluye109(cats) { return cats.some(c => c === 'III'); }
+
   function minOf(arr) {
     const v = (arr || []).map(num).filter(x => x != null);
     return v.length ? Math.min(...v) : null;
@@ -59,7 +73,8 @@
       pdis: fx(e.presionDiseno, 2), pmax: fx(e.presionTrabajoMaxPermitida, 2), phid: fx(e.presionPruebaHidrostatica, 2),
       tdis: fx(e.tempDiseno, 2), top: fx(e.tempOperacion, 2),
       relevo: e.tipoDispositivoRelevo || '',
-      relevoFicha: [e.tipoDispositivoRelevo, e.dimensionesRelevo].filter(x => x && String(x).trim()).join(', '),
+      relevoFicha: esCompresor(e.nombre) ? RELEVO_COMPRESOR : [e.tipoDispositivoRelevo, e.dimensionesRelevo].filter(x => x && String(x).trim()).join(', '),
+      comp: esCompresor(e.nombre),
       ndisp: String(e.numDispositivosRelevo ?? ''), ubic: e.ubicacion || '',
       anio: (e.anioFabricacion || '').trim() || 'S/D', anioSD: (e.anioFabricacion || '').trim() || 'S/D',
       marca: e.marca || '', modelo: e.modelo || '',
@@ -115,7 +130,13 @@
     chunk(eqs, map.spec.p6.maxRows).forEach((c, k) => add(6, { rows: c, rowStart: k * map.spec.p6.maxRows }));
     add(7);
     eqs.forEach(q => { for (let t = 8; t <= 18; t++) add(t, q); });
-    add(19); each(20); add(21); add(22); each(23);
+    add(19); each(20); add(21); add(22);
+    { // Hoja 23 compartida: se llena por ítems y se duplica cuando se acaban los renglones (no se parte un equipo).
+      const cap = (map.spec.p23 && map.spec.p23.y.length - 1) || 7, pgs = []; let cur = [];
+      for (const q of eqs) { const its = items23(q.e); if (cur.length && cur.length + its.length > cap) { pgs.push(cur); cur = []; } cur = cur.concat(its); }
+      pgs.push(cur);
+      pgs.forEach(its => add(23, { items23: its }));
+    }
     for (let t = 24; t <= 43; t++) add(t);
     each(44); add(45); each(46); add(47); each(48);
     for (let t = 49; t <= 61; t++) add(t);
@@ -124,7 +145,8 @@
     add(67); each(68); add(69);
     eqs.forEach(q => { for (let t = 70; t <= 75; t++) add(t, q); });
     for (let t = 76; t <= 101; t++) add(t);
-    each(102); add(103); add(104); add(105); each(106); each(107); each(108); add(109);
+    each(102); add(103); add(104); add(105); each(106); each(107); each(108);
+    if (incluye109(eqs.map(q => equipoCtx(q.e, q.i).cat))) add(109);
     return seq;
   }
 
@@ -201,7 +223,11 @@
       return;
     }
     let iw = W, ih = W / ar; if (ih > H) { ih = H; iw = H * ar; }
-    page.drawImage(img, { x: slot.x + (W - iw) / 2, y: y0 + (H - ih) / 2, width: iw, height: ih });
+    let x = slot.x + (W - iw) / 2, y = y0 + (H - ih) / 2;
+    if (slot.va === 'b') y = y0;               // firma pegada al nombre (base de la casilla)
+    else if (slot.va === 't') y = y0 + H - ih;
+    if (slot.clip) x = Math.max(slot.clip[0], Math.min(x, slot.clip[1] - iw)); // nunca cruzar los bordes de la celda
+    page.drawImage(img, { x, y, width: iw, height: ih });
   }
 
   function color(c) { const { rgb } = L(); return c ? rgb(c[0], c[1], c[2]) : rgb(0, 0, 0); }
@@ -212,17 +238,68 @@
     const font = await kit.font(fd.f);
     if (fd.wipe) page.drawRectangle({ x: fd.wipe[0], y: fd.wipe[1] + dy, width: fd.wipe[2], height: fd.wipe[3], color: rgb(1, 1, 1) });
     const text = safeText(interp(fd.k, ctx)).replace(/\s+$/, '');
+    if (fd.t === 'fit') return drawFitText(page, font, fd, interp(fd.k, ctx).split('\n').map(x => safeText(x).trim()).join('\n'), dy);
     if (fd.t === 'blk') return drawBlock(page, font, fd, text, dy);
     if (fd.t === 'flow') return drawFlow(page, font, fd, text, dy);
     if (!text.trim()) return;
     let size = fd.s;
     let w = font.widthOfTextAtSize(text, size);
-    if (fd.mw && w > fd.mw) { size = Math.max(size * 0.55, size * fd.mw / w); w = font.widthOfTextAtSize(text, size); }
+    if (fd.mw && w > fd.mw) { size = Math.max(size * 0.35, size * fd.mw / w); w = font.widthOfTextAtSize(text, size); }
     const ang = (fd.r || 0) * Math.PI / 180, ux = Math.cos(ang), uy = Math.sin(ang);
     let x = fd.x, y = fd.y + dy;
     if (fd.a === 'c') { x = (fd.x + fd.ex) / 2 - ux * w / 2; y = (fd.y + fd.ey) / 2 + dy - uy * w / 2; }
     else if (fd.a === 'r') { x = fd.ex - ux * w; y = fd.ey + dy - uy * w; }
     page.drawText(text, { x, y, size, font, color: color(fd.c), rotate: degrees(fd.r || 0), ySkew: degrees(fd.sk || 0) });
+  }
+
+  // ---- texto ajustado a celda: margen, corte solo entre palabras, reduce tamaño hasta caber, centrado vertical ----
+  function fitLayout(font, text, fd) {
+    const [x0, y0, x1, y1] = fd.box, px = fd.pad == null ? 3 : fd.pad, py = fd.padY == null ? 1.2 : fd.padY;
+    const W = x1 - x0 - 2 * px, H = y1 - y0 - 2 * py, lhf = fd.lh || 1.12, maxL = fd.ml || 99;
+    const slant = fd.sk ? Math.tan(fd.sk * Math.PI / 180) * 0.7 : 0;
+    const wAt = (t, s) => font.widthOfTextAtSize(t, s) + slant * s;
+    const paras = String(text).split('\n').map(x => x.trim()).filter(Boolean);
+    const lay = s => {
+      const out = [];
+      for (const p of paras) {
+        let cur = '';
+        for (const w of p.split(/\s+/)) {
+          if (wAt(w, s) > W) {
+            // nunca partir una palabra; solo se permite cortar después de un guion (NOM-020-/STPS-2011)
+            const parts = w.match(/[^-]+-?|-/g) || [w]; if (parts.length < 2) return null;
+            if (cur) { out.push(cur); cur = ''; }
+            for (const pc of parts) { if (wAt(pc, s) > W) return null; const t = cur + pc; if (!cur || wAt(t, s) <= W) cur = t; else { out.push(cur); cur = pc; } }
+            continue;
+          }
+          const t = cur ? cur + ' ' + w : w;
+          if (!cur || wAt(t, s) <= W) cur = t; else { out.push(cur); cur = w; }
+        }
+        if (cur) out.push(cur);
+      }
+      return out;
+    };
+    let s = fd.s;
+    for (;;) {
+      const L = lay(s);
+      if (L && L.length <= maxL && (L.length - 1) * s * lhf + 0.95 * s <= H) return { s, lines: L, px, lhf };
+      if (s <= 3) return { s, lines: L || paras, px, lhf };
+      s = Math.max(3, s * 0.96);
+    }
+  }
+
+  function drawFitText(page, font, fd, text, dy) {
+    if (!text.trim()) return;
+    const { pushGraphicsState, popGraphicsState, setTextRenderingMode, TextRenderingMode, setLineWidth, degrees } = L();
+    const { s, lines, px, lhf } = fitLayout(font, text, fd);
+    const [x0, y0, x1, y1] = fd.box, lh = s * lhf, tan = fd.sk ? Math.tan(fd.sk * Math.PI / 180) : 0;
+    let base = (y0 + y1) / 2 + dy + (lines.length - 1) * lh / 2 - 0.34 * s;
+    if (fd.bold) page.pushOperators(pushGraphicsState(), setTextRenderingMode(TextRenderingMode.FillAndOutline), setLineWidth(fd.bold));
+    lines.forEach((ln, k) => {
+      const w = font.widthOfTextAtSize(ln, s), a = fd.a || 'c';
+      const x = a === 'l' ? x0 + px : a === 'r' ? x1 - px - w - tan * 0.7 * s : (x0 + x1) / 2 - w / 2 - tan * 0.35 * s;
+      page.drawText(ln, { x, y: base - k * lh, size: s, font, color: color(fd.c), ySkew: degrees(fd.sk || 0) });
+    });
+    if (fd.bold) page.pushOperators(popGraphicsState());
   }
 
   function wrap(font, text, size, maxW) {
@@ -327,6 +404,66 @@
     prependFills(doc, page, rects);
   }
 
+  // Hoja 6: reescribe encabezados que se cortaban a media palabra / tocaban bordes
+  async function specialP6Header(page, kit, map) {
+    const h = map.spec.p6hdr; if (!h) return;
+    const { rgb } = L(), f = await kit.font(h.f);
+    for (const c of h.cells) {
+      page.drawRectangle({ x: c.x0 + h.inset, y: h.y0 + h.inset, width: c.x1 - c.x0 - 2 * h.inset, height: h.y1 - h.y0 - 2 * h.inset, color: rgb(...h.fill) });
+      drawFitText(page, f, { box: [c.x0, h.y0, c.x1, h.y1], s: c.s || h.s, pad: h.pad, padY: h.padY, sk: h.sk, bold: h.bold, lh: 1.08 }, c.t, 0);
+    }
+  }
+
+  // Hoja 23: columna ÍTEM (7 renglones por hoja)
+  async function specialP23(page, kit, map, it) {
+    const s = map.spec.p23, f = await kit.font(s.f);
+    (it.items23 || []).forEach((txt, k) => {
+      if (k >= s.y.length - 1) return;
+      drawFitText(page, f, { box: [s.x0, s.y[k + 1], s.x1, s.y[k]], s: s.size, pad: s.pad, padY: 2, ml: 4, sk: 0 }, safeText(txt), 0);
+    });
+  }
+
+  // Hoja 66 (Cat III): CERTIFICADO No. XXX-XXXXX y NUMERO DE SERIE XXXXXX, aleatorios y sin repetir en la corrida
+  function makeUnique() {
+    const used = new Set();
+    const dig = n => { let s = ''; const a = new Uint32Array(n); (root.crypto && root.crypto.getRandomValues) ? root.crypto.getRandomValues(a) : a.forEach((_, i) => a[i] = Math.floor(Math.random() * 4294967295)); for (let i = 0; i < n; i++) s += String(a[i] % 10); return s; };
+    return (fmt) => { for (let t = 0; t < 1000; t++) { const v = fmt.replace(/X/g, () => dig(1)); if (!used.has(v)) { used.add(v); return v; } } throw new Error('sin combinaciones'); };
+  }
+  async function specialP66(doc, page, kit, map, ids) {
+    const s = map.spec.p66, { rgb, StandardFonts } = L();
+    kit.std = kit.std || {};
+    const fnt = async k => kit.std[k] || (kit.std[k] = await doc.embedFont(StandardFonts[k]));
+    for (const key of ['cert', 'serie']) {
+      const c = s[key], txt = ids[key], f = await fnt(c.font);
+      page.drawRectangle({ x: c.wipe[0], y: c.wipe[1], width: c.wipe[2], height: c.wipe[3], color: rgb(1, 1, 1) });
+      page.drawText(txt, { x: c.x, y: c.y, size: c.size, font: f, color: rgb(c.c, c.c, c.c) });
+    }
+  }
+
+  // Hoja 94: teléfonos capturados (vacío = se conserva el de la plantilla)
+  async function specialP94(page, kit, map, st) {
+    const s = map.spec.p94, { rgb } = L(), f = await kit.font(s.f);
+    for (const r of s.rows) {
+      const v = safeText(String(st[r.key] || '').trim()); if (!v) continue;
+      page.drawRectangle({ x: s.x0, y: r.y0, width: s.x1 - s.x0, height: r.h, color: rgb(1, 1, 1) });
+      let size = s.size; const w = f.widthOfTextAtSize(v, size); if (w > s.mw) size = size * s.mw / w;
+      page.drawText(v, { x: s.tx, y: r.y0 + s.base, size, font: f, color: rgb(0, 0, 0) });
+    }
+  }
+
+  // Hoja 98: fecha fija 2026-01-01 en los dos bloques (De … a …)
+  async function specialP98(page, kit, map) {
+    const s = map.spec.p98, { rgb } = L(), f = await kit.font(s.f);
+    for (const cells of s.groups) {
+      s.digits.split('').forEach((d, i) => {
+        const x0 = cells[i], x1 = cells[i + 1];
+        page.drawRectangle({ x: x0 + s.inset, y: s.y0, width: x1 - x0 - 2 * s.inset, height: s.y1 - s.y0, color: rgb(1, 1, 1) });
+        const w = f.widthOfTextAtSize(d, s.size);
+        page.drawText(d, { x: (x0 + x1) / 2 - w / 2, y: s.base, size: s.size, font: f, color: rgb(s.c, s.c, s.c) });
+      });
+    }
+  }
+
   async function specialP96(page, kit, map, ctx) {
     const s = map.spec.p96, f = await kit.font(s.f);
     const put = (str, cells) => {
@@ -377,12 +514,21 @@
     const pages = seq.map(it => { if (!used.has(it.tp)) { used.add(it.tp); return orig[it.tp - 1]; } return clonePage(doc, orig[it.tp - 1]); });
     pages.forEach(p => doc.addPage(p));
     const roleBytes = { t1: st.testigo1Firma, t2: st.testigo2Firma, rep: st.representanteLegalFirma, fi: A.globals.firmanteIzquierdoFirma, pnd1: A.globals.firmaPnd1, pnd2: A.globals.firmaPnd2, fachada: st.fotoFachada };
+    const uniq = makeUnique(), ids66 = new Map();
     for (let n = 0; n < seq.length; n++) {
       const it = seq[n], page = pages[n], tp = it.tp;
       const ctx = Object.assign({}, base, { e: it.e ? equipoCtx(it.e, it.i) : {}, d: it.e ? dates(it.e.fechaPnd) : base.g, i: it.i || '' });
       const fields = byPage[tp] || [];
       if (tp === 3) await specialP3(page, kit, map, base, it);
-      if (tp === 6) await specialP6(doc, page, kit, map, base, it, fields.filter(f => f.row));
+      if (tp === 6) { await specialP6Header(page, kit, map); await specialP6(doc, page, kit, map, base, it, fields.filter(f => f.row)); }
+      if (tp === 23) await specialP23(page, kit, map, it);
+      if (tp === 66 && it.e) {
+        const k = it.e.id || it.i;
+        if (!ids66.has(k)) ids66.set(k, { cert: uniq(map.spec.p66.cert.fmt), serie: uniq(map.spec.p66.serie.fmt) });
+        await specialP66(doc, page, kit, map, ids66.get(k));
+      }
+      if (tp === 94) await specialP94(page, kit, map, st);
+      if (tp === 98) await specialP98(page, kit, map);
       if (tp === 44) await specialP44(doc, page, kit, map, ctx);
       if (tp === 68) specialP68(doc, page, map, ctx);
       if (tp === 96) await specialP96(page, kit, map, ctx);
@@ -394,9 +540,10 @@
       for (const sl of imgByPage[tp] || []) {
         let bytes, key;
         if (sl.role === 'placa') { bytes = it.e && it.e.fotoPlaca; key = 'placa:' + (it.e && it.e.id); }
+        else if (/^muestra[1-4]$/.test(sl.role)) { const n = +sl.role.slice(7); bytes = it.e && it.e.muestras && it.e.muestras[n - 1]; key = sl.role + ':' + (it.e && it.e.id); }
         else { bytes = roleBytes[sl.role]; key = sl.role; }
         const im = await img(key, bytes);
-        if (im) drawFit(page, im, sl, sl.shift ? dy : 0, { white: sl.role === 'placa' || sl.role === 'fachada' });
+        if (im) drawFit(page, im, sl, sl.shift ? dy : 0, { white: sl.role === 'placa' || sl.role === 'fachada' || sl.role.startsWith('muestra') });
       }
       if (onProgress && n % 8 === 0) { onProgress(n / seq.length); await new Promise(r => setTimeout(r, 0)); }
     }
@@ -428,5 +575,5 @@
 
   function estimatePages(st, map) { return planExp(st, map.exp).length; }
 
-  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, estimatePages, planExp, titleCase };
+  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, estimatePages, planExp, titleCase, esCompresor, items23, incluye109 };
 })(typeof window !== 'undefined' ? window : globalThis);
