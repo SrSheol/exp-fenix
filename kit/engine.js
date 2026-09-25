@@ -47,7 +47,19 @@
   const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/\s+/g, ' ').trim();
   const RX_COMPRESOR = /\bCOMPRESOR(?:A|ES)?\s+(?:DE\s+)?AIRE\b/;
   function esCompresor(nombre) { return RX_COMPRESOR.test(norm(nombre)); }
-  const RELEVO_COMPRESOR = 'VÁLVULA DE SEGURIDAD TIPO ARGOLLA, Ø 6mm';
+  // Hoja 10 / 66 (parche v3): tipo y diámetro de la válvula de seguridad vienen de la captura, para todos los equipos.
+  const TIPOS_VALVULA = ['SILBATO', 'CAMPANA', 'ARGOLLA'];
+  const KPA = 98.07; // kPa por kg/cm² (hoja 66)
+  const fmtMiles = (n, d) => { const [a, b] = n.toFixed(d).split('.'); return a.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (b ? '.' + b : ''); };
+  const kpa = v => { const n = num(v); return n == null ? '' : fmtMiles(n * KPA, 2); };
+  function valvula(e) {
+    const comp = esCompresor(e.nombre);
+    let tipo = norm(e.tipoValvula);
+    if (!TIPOS_VALVULA.includes(tipo)) tipo = e.tipoValvula == null && comp ? 'ARGOLLA' : 'SILBATO'; // borradores previos a v3: el compresor conserva ARGOLLA Ø 6
+    let d = e.diametroValvulaMm == null ? (comp ? '6' : '') : String(e.diametroValvulaMm);
+    d = d.replace(',', '.').replace(/\s*mm$/i, '').trim();
+    return { tipo, diam: d, ficha: 'VÁLVULA DE SEGURIDAD TIPO ' + tipo + (d ? ', Ø ' + d + 'mm' : '') };
+  }
   // Hoja 23: compresor = 3 renglones (el "1" de manómetro/válvula siempre es 1); otro equipo = solo su nombre.
   function items23(e) {
     const n = String(e.nombre || '').trim();
@@ -65,6 +77,7 @@
   function equipoCtx(e, i) {
     const pcal = num(e.presionCalibracion);
     const cat = e.clasificacion || categoria(e.presionCalibracion);
+    const vv = valvula(e);
     const o = {
       nombre: (e.nombre || '').trim(), ns: (e.numeroSerie || '').trim(), tag: (e.tag || '').trim(),
       cat, fluido: e.fluido || '',
@@ -73,7 +86,9 @@
       pdis: fx(e.presionDiseno, 2), pmax: fx(e.presionTrabajoMaxPermitida, 2), phid: fx(e.presionPruebaHidrostatica, 2),
       tdis: fx(e.tempDiseno, 2), top: fx(e.tempOperacion, 2),
       relevo: e.tipoDispositivoRelevo || '',
-      relevoFicha: esCompresor(e.nombre) ? RELEVO_COMPRESOR : [e.tipoDispositivoRelevo, e.dimensionesRelevo].filter(x => x && String(x).trim()).join(', '),
+      relevoFicha: vv.ficha, valvTipo: vv.tipo, valvDiam: vv.diam,
+      tmax1: fx(e.tempDiseno, 1), pmaxKpa: kpa(e.presionTrabajoMaxPermitida),
+      pdisp: fx(e.presionDisparo, 2), pdispKpa: kpa(e.presionDisparo), parr: fx(e.presionArranque, 2),
       comp: esCompresor(e.nombre),
       ndisp: String(e.numDispositivosRelevo ?? ''), ubic: e.ubicacion || '',
       anio: (e.anioFabricacion || '').trim() || 'S/D', anioSD: (e.anioFabricacion || '').trim() || 'S/D',
@@ -99,7 +114,7 @@
     const eqs = st.equipos || [];
     const maxF = eqs.map(e => e.fechaPnd).filter(parseFecha).sort().pop() || '';
     return {
-      rs: st.razonSocialUsuario || '', rsp: st.razonSocialPropietario || '', rfc: st.rfcEmpresa || '',
+      rs: st.razonSocialUsuario || '', rsp: st.razonSocialPropietario || '', rfc: String(st.rfcEmpresa || '').replace(/\s+/g, '').slice(0, 12),
       dom: st.domicilio || '', rep: st.representanteLegalNombre || '',
       t1: st.testigo1Nombre || '', t1curp: st.testigo1Curp || '', t2: st.testigo2Nombre || '',
       fi: st.firmanteIzquierdoNombre || '', fiCed: st.firmanteIzquierdoCedula || '', fiT: titleCase(st.firmanteIzquierdoNombre || ''),
@@ -145,7 +160,7 @@
     add(67); each(68); add(69);
     eqs.forEach(q => { for (let t = 70; t <= 75; t++) add(t, q); });
     for (let t = 76; t <= 101; t++) add(t);
-    each(102); add(103); add(104); add(105); each(106); each(107); each(108);
+    each(102); add(103); add(104); add(105); each(106); add(107); each(108); // hoja 107: una sola vez por expediente
     if (incluye109(eqs.map(q => equipoCtx(q.e, q.i).cat))) add(109);
     return seq;
   }
@@ -429,7 +444,7 @@
     const dig = n => { let s = ''; const a = new Uint32Array(n); (root.crypto && root.crypto.getRandomValues) ? root.crypto.getRandomValues(a) : a.forEach((_, i) => a[i] = Math.floor(Math.random() * 4294967295)); for (let i = 0; i < n; i++) s += String(a[i] % 10); return s; };
     return (fmt) => { for (let t = 0; t < 1000; t++) { const v = fmt.replace(/X/g, () => dig(1)); if (!used.has(v)) { used.add(v); return v; } } throw new Error('sin combinaciones'); };
   }
-  async function specialP66(doc, page, kit, map, ids) {
+  async function specialP66(doc, page, kit, map, ids, ctx) {
     const s = map.spec.p66, { rgb, StandardFonts } = L();
     kit.std = kit.std || {};
     const fnt = async k => kit.std[k] || (kit.std[k] = await doc.embedFont(StandardFonts[k]));
@@ -437,6 +452,16 @@
       const c = s[key], txt = ids[key], f = await fnt(c.font);
       page.drawRectangle({ x: c.wipe[0], y: c.wipe[1], width: c.wipe[2], height: c.wipe[3], color: rgb(1, 1, 1) });
       page.drawText(txt, { x: c.x, y: c.y, size: c.size, font: f, color: rgb(c.c, c.c, c.c) });
+    }
+    // v3: Ø de conexión, temperatura máx., presión máx. de operación y presión de disparo (+ kPa ×98.07) desde la captura
+    for (const c of s.vals || []) {
+      const txt = safeText(interp(c.k, ctx)).trim(), f = await fnt(c.font);
+      page.drawRectangle({ x: c.wipe[0], y: c.wipe[1], width: c.wipe[2], height: c.wipe[3], color: rgb(1, 1, 1) });
+      if (!txt) continue;
+      let size = c.size, w = f.widthOfTextAtSize(txt, size);
+      if (c.mw && w > c.mw) { size *= c.mw / w; w = f.widthOfTextAtSize(txt, size); }
+      const x = c.a === 'r' ? c.x - w : c.a === 'c' ? c.x - w / 2 : c.x;
+      page.drawText(txt, { x, y: c.y, size, font: f, color: rgb(c.c, c.c, c.c) });
     }
   }
 
@@ -470,7 +495,63 @@
       const chars = String(str || '').toUpperCase().replace(/\s+/g, '').split('').slice(0, cells.length);
       chars.forEach((ch, i) => { const t = safeText(ch); const w = f.widthOfTextAtSize(t, s.size); page.drawText(t, { x: cells[i][0] - w / 2, y: cells[i][1], size: s.size, font: f }); });
     };
-    put(ctx.t1curp, s.curp); put(ctx.rfc, s.rfc);
+    put(ctx.t1curp, s.curp); put(String(ctx.rfc || '').slice(0, 12), s.rfc.slice(0, 12)); // RFC: máximo 12 caracteres
+  }
+
+  // ---------- parches de plantilla en tiempo de ejecución (v3) ----------
+  const toLatin1 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return s; };
+  const fromLatin1 = s => { const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 0xff; return u; };
+  // Reescribe operadores de texto dentro del flujo de contenido de una hoja (lo comparten sus clones). Si no encuentra el patrón, no toca nada.
+  function patchContent(doc, page, reps) {
+    const { PDFName, PDFArray, PDFRawStream, decodePDFRawStream } = L();
+    const ctx = doc.context, c = page.node.get(PDFName.of('Contents'));
+    const refs = c instanceof PDFArray ? c.asArray() : c ? [c] : [];
+    let hits = 0;
+    for (const ref of refs) {
+      const obj = ctx.lookup(ref);
+      if (!(obj instanceof PDFRawStream)) continue;
+      let src; try { src = toLatin1(decodePDFRawStream(obj).decode()); } catch (e) { continue; }
+      let out = src; for (const [rx, to] of reps) out = out.replace(rx, to);
+      if (out !== src) { ctx.assign(ref, ctx.flateStream(fromLatin1(out))); hits++; }
+    }
+    return hits;
+  }
+  // Sustituye imágenes de la plantilla (por tamaño en píxeles) por un XObject vacío.
+  function blankImages(doc, dimsList) {
+    const { PDFName, PDFRawStream } = L(), ctx = doc.context, hit = [];
+    for (const [ref, obj] of ctx.enumerateIndirectObjects()) {
+      if (!(obj instanceof PDFRawStream)) continue;
+      const d = obj.dict; if (d.get(PDFName.of('Subtype')) !== PDFName.of('Image')) continue;
+      const W = d.get(PDFName.of('Width')), H = d.get(PDFName.of('Height'));
+      if (W && H && dimsList.some(([w, h]) => W.asNumber() === w && H.asNumber() === h)) hit.push(ref);
+    }
+    for (const ref of hit) ctx.assign(ref, ctx.stream('', { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, 1, 1] }));
+    return hit.length;
+  }
+  function templateFixes(doc, orig, map) {
+    const t = map.spec.tplfix || {};
+    // Hoja 4: "TEXO DE REFENCIA" → "TEXTO DE REFERENCIA" (misma fuente embebida, recentrado)
+    if (orig[3]) patchContent(doc, orig[3], [[/257\.88\s+674\.52\s+Tm\s*\[\(T\)[^\]]*?\(A\)\]\s*TJ/, (t.p4x || '248.41') + ' 674.52 Tm [(TEXTO DE REFERENCIA)]TJ']]);
+    // Hoja 9 (y sus clones): el número de control STPS queda en blanco, sin texto oculto
+    if (orig[8]) patchContent(doc, orig[8], [[/\[\(EN\)[^\]]*?\(MITE\)\]\s*TJ/g, '[]TJ']]);
+    // Hoja 72: imagen "RMC Servicios de Ingeniería, S. de R.L. de C.V." bajo el logo
+    blankImages(doc, t.blankImgs || [[553, 29]]);
+  }
+
+  // Hoja 74: si una columna viene de "Rellenar" (16 valores iguales = B), cada celda imprime B + {0.00…0.03} al azar; al menos una queda en B.
+  function rnd(n) { const a = new Uint32Array(1); if (root.crypto && root.crypto.getRandomValues) root.crypto.getRandomValues(a); else a[0] = Math.floor(Math.random() * 4294967295); return a[0] % n; }
+  function jitterCol(arr) {
+    const v = (arr || []).map(num);
+    if (v.length < 16 || v.slice(0, 16).some(x => x == null) || v.slice(0, 16).some(x => Math.abs(x - v[0]) > 1e-9)) return null;
+    const baseC = Math.ceil(v[0] * 100 - 1e-6), keep = rnd(16);
+    return Array.from({ length: 16 }, (_, j) => ((baseC + (j === keep ? 0 : rnd(4))) / 100).toFixed(2));
+  }
+  function esp74(e) {
+    const o = {};
+    for (const [k, src] of [['env', e.espEnv], ['sup', e.espSup], ['inf', e.espInf]]) {
+      const j = jitterCol(src); if (j) j.forEach((x, i) => { o[k + (i + 1)] = x; });
+    }
+    return o;
   }
 
   // ---------- logo ----------
@@ -509,23 +590,25 @@
     const base = baseCtx(st);
     const seq = planExp(st, map);
     const orig = doc.getPages();
+    templateFixes(doc, orig, map);
     for (let i = orig.length - 1; i >= 0; i--) doc.removePage(i);
     const used = new Set();
     const pages = seq.map(it => { if (!used.has(it.tp)) { used.add(it.tp); return orig[it.tp - 1]; } return clonePage(doc, orig[it.tp - 1]); });
     pages.forEach(p => doc.addPage(p));
     const roleBytes = { t1: st.testigo1Firma, t2: st.testigo2Firma, rep: st.representanteLegalFirma, fi: A.globals.firmanteIzquierdoFirma, pnd1: A.globals.firmaPnd1, pnd2: A.globals.firmaPnd2, fachada: st.fotoFachada };
-    const uniq = makeUnique(), ids66 = new Map();
+    const uniq = makeUnique(), ids66 = new Map(), jit74 = new Map();
     for (let n = 0; n < seq.length; n++) {
       const it = seq[n], page = pages[n], tp = it.tp;
       const ctx = Object.assign({}, base, { e: it.e ? equipoCtx(it.e, it.i) : {}, d: it.e ? dates(it.e.fechaPnd) : base.g, i: it.i || '' });
       const fields = byPage[tp] || [];
+      if (tp === 74 && it.e) { const k = it.e.id || it.i; if (!jit74.has(k)) jit74.set(k, esp74(it.e)); Object.assign(ctx.e, jit74.get(k)); }
       if (tp === 3) await specialP3(page, kit, map, base, it);
       if (tp === 6) { await specialP6Header(page, kit, map); await specialP6(doc, page, kit, map, base, it, fields.filter(f => f.row)); }
       if (tp === 23) await specialP23(page, kit, map, it);
       if (tp === 66 && it.e) {
         const k = it.e.id || it.i;
         if (!ids66.has(k)) ids66.set(k, { cert: uniq(map.spec.p66.cert.fmt), serie: uniq(map.spec.p66.serie.fmt) });
-        await specialP66(doc, page, kit, map, ids66.get(k));
+        await specialP66(doc, page, kit, map, ids66.get(k), ctx);
       }
       if (tp === 94) await specialP94(page, kit, map, st);
       if (tp === 98) await specialP98(page, kit, map);
@@ -573,7 +656,19 @@
     return s || 'SIN_NOMBRE';
   }
 
+  // v3: nombres de archivo con espacios ("EXP FOCAS INDUSTRIALES SA DE CV"), sin guiones bajos
+  function fileName(s) {
+    s = String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    s = s.replace(/[\/\\?%*:|"<>\u0000-\u001f]/g, ' ').replace(/[.,]+/g, '').replace(/[;_]+/g, ' ').replace(/\s+/g, ' ').trim();
+    return s;
+  }
+  function nombresArchivo(rs, tag) {
+    const R = fileName(rs) || 'SIN NOMBRE', T = fileName(tag);
+    const j = (...a) => a.filter(Boolean).join(' ');
+    return { exp: j('EXP', R) + '.pdf', zip: j('EXP', R) + '.zip', previo: j('PREVIO', T, R) + '.pdf', dictamen: j('DICTAMEN', T, R) + '.pdf' };
+  }
+
   function estimatePages(st, map) { return planExp(st, map.exp).length; }
 
-  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, estimatePages, planExp, titleCase, esCompresor, items23, incluye109 };
+  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, fileName, nombresArchivo, estimatePages, planExp, titleCase, esCompresor, items23, incluye109, valvula, jitterCol, KPA, TIPOS_VALVULA };
 })(typeof window !== 'undefined' ? window : globalThis);
