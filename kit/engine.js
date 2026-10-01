@@ -467,6 +467,33 @@
     const dig = n => { let s = ''; const a = new Uint32Array(n); (root.crypto && root.crypto.getRandomValues) ? root.crypto.getRandomValues(a) : a.forEach((_, i) => a[i] = Math.floor(Math.random() * 4294967295)); for (let i = 0; i < n; i++) s += String(a[i] % 10); return s; };
     return (fmt) => { for (let t = 0; t < 1000; t++) { const v = fmt.replace(/X/g, () => dig(1)); if (!used.has(v)) { used.add(v); return v; } } throw new Error('sin combinaciones'); };
   }
+  // Hoja 66 (v5): el valor del renglón NOMBRE es texto de la plantilla (fuente C0_6, glyphs del escaneo).
+  // Se borra y se vuelve a escribir con los mismos glyphs; solo cambia la palabra del tipo (SILBATO | CAMPANA | ARGOLLA).
+  // Si la hoja no trae esa fuente, se escribe en Times con el mismo tamaño, gris y posición.
+  function fuenteTpl(page, nm) {
+    const { PDFName, PDFDict } = L();
+    try {
+      const res = page.node.Resources(); const fd = res && res.lookup(PDFName.of('Font'), PDFDict);
+      const f = fd && fd.lookup(PDFName.of(nm.font), PDFDict); if (!f) return false;
+      const bf = f.get(PDFName.of('BaseFont')); return !!bf && decodeURIComponent(String(bf).replace(/#/g, '%')).includes(nm.base);
+    } catch (err) { return false; }
+  }
+  async function nombreP66(doc, page, nm, tipo, fnt) {
+    if (!nm) return;
+    const P = L(), { rgb } = P;
+    page.drawRectangle({ x: nm.wipe[0], y: nm.wipe[1], width: nm.wipe[2], height: nm.wipe[3], color: rgb(1, 1, 1) });
+    if (!TIPOS_VALVULA.includes(tipo)) tipo = 'SILBATO';
+    if (nm.tipos && nm.tipos[tipo] && fuenteTpl(page, nm)) {
+      const ops = [P.pushGraphicsState(), P.beginText(), P.setFillingGrayscaleColor(nm.g), P.setFontAndSize(nm.font, nm.size)];
+      for (const [x, tc, hex] of nm.words.concat([[nm.tx, nm.tc, nm.tipos[tipo]]])) ops.push(P.setCharacterSpacing(tc), P.setTextMatrix(1, 0, 0, 1, x, nm.y), P.showText(P.PDFHexString.of(hex)));
+      ops.push(P.endText(), P.popGraphicsState());
+      page.pushOperators(...ops);
+      return;
+    }
+    const fb = nm.fb, f = await fnt(fb.font), txt = safeText(fb.k.replace('{TIPO}', tipo));
+    let size = fb.size; const w = f.widthOfTextAtSize(txt, size); if (fb.mw && w > fb.mw) size *= fb.mw / w;
+    page.drawText(txt, { x: fb.x, y: nm.y, size, font: f, color: rgb(fb.c, fb.c, fb.c) });
+  }
   async function specialP66(doc, page, kit, map, ids, ctx) {
     const s = map.spec.p66, { rgb, StandardFonts } = L();
     kit.std = kit.std || {};
@@ -476,6 +503,8 @@
       page.drawRectangle({ x: c.wipe[0], y: c.wipe[1], width: c.wipe[2], height: c.wipe[3], color: rgb(1, 1, 1) });
       page.drawText(txt, { x: c.x, y: c.y, size: c.size, font: f, color: rgb(c.c, c.c, c.c) });
     }
+    // v5: renglón "NOMBRE : VÁLVULA SEGURIDAD TIPO …" con el tipo elegido en la captura
+    await nombreP66(doc, page, s.nombre, (ctx.e && ctx.e.valvTipo) || 'SILBATO', fnt);
     // v3: Ø de conexión, temperatura máx., presión máx. de operación y presión de disparo (+ kPa ×98.07) desde la captura
     for (const c of s.vals || []) {
       const txt = safeText(interp(c.k, ctx)).trim(), f = await fnt(c.font);
@@ -526,6 +555,12 @@
     const { rgb } = L(), f = await kit.font(s.f), C = s.cols;
     const wipe = (a, b, top, bot) => page.drawRectangle({ x: a + s.ins, y: bot + s.ins, width: b - a - 2 * s.ins, height: top - bot - 2 * s.ins, color: rgb(1, 1, 1) });
     for (const [t, m, b] of s.days) for (const [top, bot] of [[t, m], [m, b]]) for (const k of ['hora', 'elem', 'res', 'nom']) wipe(C[k][0], C[k][1], top, bot);
+    // v5: los borrados se comen parte de las reglas de la tabla; se redibuja la cuadrícula completa al grosor de la hoja (0.86 pt)
+    const gr = s.grid;
+    if (gr) {
+      for (const [x0, y] of gr.h) page.drawRectangle({ x: x0, y, width: gr.x1 - x0, height: gr.lw, color: rgb(0, 0, 0) });
+      for (const [x, y0, y1] of gr.v) page.drawRectangle({ x, y: y0, width: gr.lw, height: y1 - y0, color: rgb(0, 0, 0) });
+    }
     const txt = (t, x, y, size) => page.drawText(safeText(t), { x, y, size, font: f, color: rgb(0, 0, 0) });
     const nombre = async (k, top, bot) => { const v = String(ctx[k] || '').trim(); if (v) drawFitText(page, f, { box: [C.nom[0], bot, C.nom[1], top], s: s.nomSize, pad: 3, padY: 0.8, ml: 2, a: 'c' }, safeText(v), 0); };
     const wd = ctx.d && ctx.d.wd != null ? ctx.d.wd : -1;
@@ -614,6 +649,10 @@
     if (orig[3]) patchContent(doc, orig[3], [[/257\.88\s+674\.52\s+Tm\s*\[\(T\)[^\]]*?\(A\)\]\s*TJ/, (t.p4x || '248.41') + ' 674.52 Tm [(TEXTO DE REFERENCIA)]TJ']]);
     // Hoja 9 (y sus clones): el número de control STPS queda en blanco, sin texto oculto
     if (orig[8]) patchContent(doc, orig[8], [[/\[\(EN\)[^\]]*?\(MITE\)\]\s*TJ/g, '[]TJ']]);
+    // Hoja 66 (v5): se vacían en la plantilla los textos fijos que el motor borra y reescribe (NOMBRE de la válvula, disparo, cierre,
+    // certificado y serie), para que no quede texto oculto duplicado debajo de los borrados. Cada uno es un bloque BT…ET aislado.
+    const strip66 = (map.spec.p66 && map.spec.p66.strip) || [];
+    if (orig[65] && strip66.length) patchContent(doc, orig[65], strip66.map(xy => [new RegExp('(' + xy.trim().replace(/\./g, '\\.').replace(/\s+/g, '\\s+') + '\\s+TD)[^E]*?(?=ET)'), '$1 ']));
     // Hoja 72: imagen "RMC Servicios de Ingeniería, S. de R.L. de C.V." bajo el logo
     blankImages(doc, t.blankImgs || [[553, 29]]);
   }
