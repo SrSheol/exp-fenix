@@ -161,10 +161,14 @@
     eqs.forEach(q => { for (let t = 8; t <= 18; t++) add(t, q); });
     add(19); each(20); add(21); add(22);
     { // Hoja 23 compartida: se llena por ítems y se duplica cuando se acaban los renglones (no se parte un equipo).
+      // v7: cada renglón lleva su equipo (ref23) para leer el programa de calibración de ESE equipo.
       const cap = (map.spec.p23 && map.spec.p23.y.length - 1) || 7, pgs = []; let cur = [];
-      for (const q of eqs) { const its = items23(q.e); if (cur.length && cur.length + its.length > cap) { pgs.push(cur); cur = []; } cur = cur.concat(its); }
+      for (const q of eqs) {
+        const its = items23(q.e).map((t, k) => ({ t, e: q.e, k, comp: esCompresor(q.e.nombre) }));
+        if (cur.length && cur.length + its.length > cap) { pgs.push(cur); cur = []; } cur = cur.concat(its);
+      }
       pgs.push(cur);
-      pgs.forEach(its => add(23, { items23: its }));
+      pgs.forEach(r => add(23, { items23: r.map(x => x.t), ref23: r }));
     }
     for (let t = 24; t <= 43; t++) add(t);
     each(44); add(45); each(46); add(47); each(48);
@@ -443,20 +447,36 @@
     }
   }
 
-  // Hoja 23: columna ÍTEM (7 renglones por hoja). v4: cada ítem lleva su par gris (P) / negro (R) en Enero, semana 1,
-  // igual que el que trae la plantilla en el primer renglón.
+  // Hoja 23 (v7): columna ÍTEM (7 renglones por hoja) + marcas del programa por renglón.
+  //  · Compresor, renglón MANÓMETRO: gris (P) en noviembre, semana 1. Sin negro. El programa no lo mueve.
+  //  · Compresor, renglón VÁLVULA: gris (P) + negro (R) en enero, semana 1 (sin programa) o en el mes y semana de
+  //    e.fechaProgramaCalibracion (día 1–7 → 1, 8–14 → 2, 15–21 → 3, 22–fin → 4). Solo cuentan mes y día; el año no.
+  //  · Otro equipo (un solo renglón): gris + negro en enero, semana 1, como en v4.
+  // Antes de dibujar se blanquean las 48 celdas P y R de los 7 renglones (sin tocar las líneas), para no dejar
+  // marcas de la plantilla (enero en el renglón 1, noviembre en el renglón 2) en renglones que no les corresponden.
+  const P23_LX = [255.59, 276.05, 296.51, 316.97, 337.43, 357.89, 378.34, 398.83, 419.29, 439.75, 460.2, 480.66, 501.12, 521.58, 542.04, 562.52, 582.98, 603.44, 623.9, 644.36, 664.82, 685.28, 705.74, 726.22, 746.68, 767.14, 787.6, 808.06, 828.52, 848.98, 869.43, 889.92, 910.38, 930.84, 951.3, 971.75, 992.21, 1012.67, 1033.13, 1053.61, 1074.07, 1094.53, 1114.99, 1135.45, 1155.91, 1176.37, 1196.83, 1217.31, 1237.77];
+  function semana23(d) { return d <= 7 ? 1 : d <= 14 ? 2 : d <= 21 ? 3 : 4; }
+  function marca23(r) { // → { m, w, p, r } (mes 1–12, semana 1–4, dibuja gris, dibuja negro)
+    if (r && r.comp && r.k === 0) return { m: 11, w: 1, p: true, r: false };
+    if (r && r.comp && r.k === 1) { const f = parseFecha(r.e && r.e.fechaProgramaCalibracion); return f && f.M >= 1 && f.M <= 12 ? { m: f.M, w: semana23(f.D), p: true, r: true } : { m: 1, w: 1, p: true, r: true }; }
+    return { m: 1, w: 1, p: true, r: true };
+  }
   async function specialP23(doc, page, kit, map, it) {
     const s = map.spec.p23, f = await kit.font(s.f), mk = s.mk, { rgb } = L();
-    // La plantilla trae rellenos blancos sobre los renglones 2 y 4–7, así que las marcas se dibujan encima,
-    // dentro de la celda (sin tocar las líneas de la cuadrícula).
-    const box = (y0, y1, c) => page.drawRectangle({ x: mk.x, y: y0, width: mk.w, height: y1 - y0, color: rgb(c[0], c[1], c[2]) });
+    const lx = (mk && mk.lx && mk.lx.length === 49) ? mk.lx : P23_LX, lw = (mk && mk.lw) || 0.984;
+    const celda = (m, w) => { const i = (m - 1) * 4 + (w - 1); return { x: lx[i] + lw, w: lx[i + 1] - lx[i] - lw }; };
+    const box = (c, y0, y1, col) => page.drawRectangle({ x: c.x, y: y0, width: c.w, height: y1 - y0, color: rgb(col[0], col[1], col[2]) });
+    if (mk && mk.rows) {
+      const W = [1, 1, 1];
+      mk.rows.forEach(([top, mid, bot]) => { for (let i = 0; i < 48; i++) { const c = celda(1 + (i >> 2), 1 + (i & 3)); box(c, mid + mk.lb, top - mk.lt, W); box(c, bot + mk.lb, mid - mk.lt, W); } });
+    }
     (it.items23 || []).forEach((txt, k) => {
       if (k >= s.y.length - 1) return;
       drawFitText(page, f, { box: [s.x0, s.y[k + 1], s.x1, s.y[k]], s: s.size, pad: s.pad, padY: 2, ml: 4, sk: 0 }, safeText(txt), 0);
       if (mk && mk.rows[k]) {
-        const [top, mid, bot] = mk.rows[k];
-        box(mid + mk.lb, top - mk.lt, mk.p);
-        box(bot + mk.lb, mid - mk.lt, mk.r);
+        const [top, mid, bot] = mk.rows[k], q = marca23(it.ref23 && it.ref23[k]), c = celda(q.m, q.w);
+        if (q.p) box(c, mid + mk.lb, top - mk.lt, mk.p);
+        if (q.r) box(c, bot + mk.lb, mid - mk.lt, mk.r);
       }
     });
   }
@@ -799,5 +819,5 @@
 
   function estimatePages(st, map) { return planExp(st, map.exp).length; }
 
-  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, fileName, nombresArchivo, estimatePages, planExp, titleCase, esCompresor, items23, incluye109, valvula, jitterCol, KPA, TIPOS_VALVULA, periodo96, razonSocial };
+  root.FXEngine = { semana23, marca23, buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, fileName, nombresArchivo, estimatePages, planExp, titleCase, esCompresor, items23, incluye109, valvula, jitterCol, KPA, TIPOS_VALVULA, periodo96, razonSocial };
 })(typeof window !== 'undefined' ? window : globalThis);
