@@ -60,11 +60,22 @@
     d = d.replace(',', '.').replace(/\s*mm$/i, '').trim();
     return { tipo, diam: d, ficha: 'VÁLVULA DE SEGURIDAD TIPO ' + tipo + (d ? ', Ø ' + d + 'mm' : '') };
   }
-  // Hoja 23: compresor = 3 renglones (el "1" de manómetro/válvula siempre es 1); otro equipo = solo su nombre.
+  // Hoja 23 (v4): compresor = exactamente 2 renglones, manómetro y válvula (el "1" es fijo); otro equipo = solo su nombre.
   function items23(e) {
     const n = String(e.nombre || '').trim();
     if (!n) return [];
-    return esCompresor(n) ? [n, 'MANOMETRO 1 - ' + n, 'VALVULA DE SEGURIDAD 1 - ' + n] : [n];
+    return esCompresor(n) ? ['MANOMETRO 1 - ' + n, 'VALVULA DE SEGURIDAD 1 - ' + n] : [n];
+  }
+  // Hoja 96 (v4): periodo de ejecución. Una sola fecha para "De" y "a", del mismo año de la PND.
+  // PND en marzo o después: se salta el mes anterior y se elige al azar un mes de 1…M-2 y un día válido.
+  // PND en enero o febrero: fecha al azar desde el 1 de enero hasta 7–14 días antes de la PND.
+  function periodo96(g) {
+    const Y = g.Y, M = g.M, D = g.D;
+    if (M >= 3) { const m = 1 + rnd(M - 2), dim = new Date(Y, m, 0).getDate(); return { Y, M: m, D: 1 + rnd(dim) }; }
+    const ini = Date.UTC(Y, 0, 1), lim = Date.UTC(Y, M - 1, D - (7 + rnd(8)));
+    if (lim < ini) return { Y, M: 1, D: 1 };
+    const t = new Date(ini + rnd(Math.round((lim - ini) / 864e5) + 1) * 864e5);
+    return { Y, M: t.getUTCMonth() + 1, D: t.getUTCDate() };
   }
   // Hoja 109: se incluye (una sola vez) si hay al menos un equipo Cat III.
   function incluye109(cats) { return cats.some(c => c === 'III'); }
@@ -88,7 +99,7 @@
       relevo: e.tipoDispositivoRelevo || '',
       relevoFicha: vv.ficha, valvTipo: vv.tipo, valvDiam: vv.diam,
       tmax1: fx(e.tempDiseno, 1), pmaxKpa: kpa(e.presionTrabajoMaxPermitida),
-      pdisp: fx(e.presionDisparo, 2), pdispKpa: kpa(e.presionDisparo), parr: fx(e.presionArranque, 2),
+      parr: fx(e.presionArranque, 2), parrKpa: kpa(e.presionArranque), popKpa: kpa(e.presionOperacion), // hoja 66 (v4): disparo = arranque, cierre = operación
       comp: esCompresor(e.nombre),
       ndisp: String(e.numDispositivosRelevo ?? ''), ubic: e.ubicacion || '',
       anio: (e.anioFabricacion || '').trim() || 'S/D', anioSD: (e.anioFabricacion || '').trim() || 'S/D',
@@ -110,11 +121,14 @@
     return o;
   }
 
+  // v4: un solo nombre legal de la empresa; usuario y propietario imprimen lo mismo.
+  function razonSocial(st) { return String(st.razonSocialPropietario || st.razonSocialUsuario || '').trim(); }
+
   function baseCtx(st) {
     const eqs = st.equipos || [];
     const maxF = eqs.map(e => e.fechaPnd).filter(parseFecha).sort().pop() || '';
     return {
-      rs: st.razonSocialUsuario || '', rsp: st.razonSocialPropietario || '', rfc: String(st.rfcEmpresa || '').replace(/\s+/g, '').slice(0, 12),
+      rs: razonSocial(st), rsp: razonSocial(st), rfc: String(st.rfcEmpresa || '').replace(/\s+/g, '').slice(0, 12),
       dom: st.domicilio || '', rep: st.representanteLegalNombre || '',
       t1: st.testigo1Nombre || '', t1curp: st.testigo1Curp || '', t2: st.testigo2Nombre || '',
       fi: st.firmanteIzquierdoNombre || '', fiCed: st.firmanteIzquierdoCedula || '', fiT: titleCase(st.firmanteIzquierdoNombre || ''),
@@ -429,12 +443,21 @@
     }
   }
 
-  // Hoja 23: columna ÍTEM (7 renglones por hoja)
-  async function specialP23(page, kit, map, it) {
-    const s = map.spec.p23, f = await kit.font(s.f);
+  // Hoja 23: columna ÍTEM (7 renglones por hoja). v4: cada ítem lleva su par gris (P) / negro (R) en Enero, semana 1,
+  // igual que el que trae la plantilla en el primer renglón.
+  async function specialP23(doc, page, kit, map, it) {
+    const s = map.spec.p23, f = await kit.font(s.f), mk = s.mk, { rgb } = L();
+    // La plantilla trae rellenos blancos sobre los renglones 2 y 4–7, así que las marcas se dibujan encima,
+    // dentro de la celda (sin tocar las líneas de la cuadrícula).
+    const box = (y0, y1, c) => page.drawRectangle({ x: mk.x, y: y0, width: mk.w, height: y1 - y0, color: rgb(c[0], c[1], c[2]) });
     (it.items23 || []).forEach((txt, k) => {
       if (k >= s.y.length - 1) return;
       drawFitText(page, f, { box: [s.x0, s.y[k + 1], s.x1, s.y[k]], s: s.size, pad: s.pad, padY: 2, ml: 4, sk: 0 }, safeText(txt), 0);
+      if (mk && mk.rows[k]) {
+        const [top, mid, bot] = mk.rows[k];
+        box(mid + mk.lb, top - mk.lt, mk.p);
+        box(bot + mk.lb, mid - mk.lt, mk.r);
+      }
     });
   }
 
@@ -465,14 +488,61 @@
     }
   }
 
-  // Hoja 94: teléfonos capturados (vacío = se conserva el de la plantilla)
+  // Hoja 94 (v4): directorio en tabla. Campo vacío = número de la plantilla; la Línea Única siempre es 911.
+  function tel94(st, r) {
+    if (r.fijo) return r.fijo;
+    return String(st[r.key] || '').trim() || r.def;
+  }
   async function specialP94(page, kit, map, st) {
-    const s = map.spec.p94, { rgb } = L(), f = await kit.font(s.f);
-    for (const r of s.rows) {
-      const v = safeText(String(st[r.key] || '').trim()); if (!v) continue;
-      page.drawRectangle({ x: s.x0, y: r.y0, width: s.x1 - s.x0, height: r.h, color: rgb(1, 1, 1) });
-      let size = s.size; const w = f.widthOfTextAtSize(v, size); if (w > s.mw) size = size * s.mw / w;
-      page.drawText(v, { x: s.tx, y: r.y0 + s.base, size, font: f, color: rgb(0, 0, 0) });
+    const s = map.spec.p94t, { rgb } = L();
+    const fL = await kit.font(s.fL), fN = await kit.font(s.fN), fH = await kit.font(s.fH), fNota = await kit.font(s.fNota);
+    const c = a => rgb(a[0], a[1], a[2]);
+    page.drawRectangle({ x: s.wipe[0], y: s.wipe[1], width: s.wipe[2], height: s.wipe[3], color: rgb(1, 1, 1) });
+    const [x0, x1] = [s.x0, s.x1], xm = s.xm;
+    if (s.sub) drawFitText(page, fNota, { box: [x0, s.top + 6, x1, s.top + 26], s: s.subSize, pad: 0, a: 'l', c: s.cSub, ml: 1 }, s.sub, 0);
+    let y = s.top - s.hHdr;
+    page.drawRectangle({ x: x0, y, width: x1 - x0, height: s.hHdr, color: c(s.cHdr) });
+    drawFitText(page, fH, { box: [x0, y, xm, y + s.hHdr], s: s.hdrSize, pad: s.pad, a: 'l', c: [1, 1, 1], ml: 1 }, s.hdr[0], 0);
+    drawFitText(page, fH, { box: [xm, y, x1, y + s.hHdr], s: s.hdrSize, pad: s.pad, a: 'l', c: [1, 1, 1], ml: 1 }, s.hdr[1], 0);
+    s.rows.forEach((r, k) => {
+      const h = s.hRow, yb = y - h, dest = !!r.fijo;
+      page.drawRectangle({ x: x0, y: yb, width: x1 - x0, height: h, color: c(dest ? s.cDest : (k % 2 ? s.cAlt : [1, 1, 1])) });
+      if (dest) page.drawRectangle({ x: x0, y: yb, width: s.barra, height: h, color: c(s.cAcento) });
+      drawFitText(page, fL, { box: [x0 + (dest ? s.barra : 0), yb, xm, y], s: s.lblSize, pad: s.pad, a: 'l', c: s.cTinta, ml: 2, lh: 1.1 }, r.lbl, 0);
+      const num = safeText(tel94(st, r)).split(/\s+\/\s+|\s+y\s+|\s*,\s*|\s*;\s*/).filter(Boolean).join('\n');
+      drawFitText(page, dest ? fH : fN, { box: [xm, yb, x1, y], s: dest ? s.destSize : s.numSize, pad: s.pad, a: 'l', c: dest ? s.cAcento : s.cTinta, ml: 4, lh: 1.12 }, num, 0);
+      if (k) page.drawRectangle({ x: x0, y: y - s.lwIn / 2, width: x1 - x0, height: s.lwIn, color: c(s.cLin) });
+      y = yb;
+    });
+    page.drawRectangle({ x: xm - s.lwIn / 2, y, width: s.lwIn, height: s.top - s.hHdr - y, color: c(s.cLin) });
+    page.drawRectangle({ x: x0, y, width: x1 - x0, height: s.top - y, borderColor: c(s.cBorde), borderWidth: s.lwOut });
+    if (s.nota) drawFitText(page, fNota, { box: [x0, y - 30, x1, y - 6], s: s.notaSize, pad: 0, a: 'c', c: s.cSub, ml: 1 }, s.nota, 0);
+  }
+
+  // Hoja 106 (v4): registro de operación semanal. Limpieza en L, X, V y D (1°, 07:20–07:29 hrs);
+  // el renglón del experto PND cae en el día de la semana de la PND (2°, 11:13 hrs) y sustituye la limpieza de ese día.
+  async function specialP106(page, kit, map, ctx) {
+    const s = map.spec.p106; if (!s) return;
+    const { rgb } = L(), f = await kit.font(s.f), C = s.cols;
+    const wipe = (a, b, top, bot) => page.drawRectangle({ x: a + s.ins, y: bot + s.ins, width: b - a - 2 * s.ins, height: top - bot - 2 * s.ins, color: rgb(1, 1, 1) });
+    for (const [t, m, b] of s.days) for (const [top, bot] of [[t, m], [m, b]]) for (const k of ['hora', 'elem', 'res', 'nom']) wipe(C[k][0], C[k][1], top, bot);
+    const txt = (t, x, y, size) => page.drawText(safeText(t), { x, y, size, font: f, color: rgb(0, 0, 0) });
+    const nombre = async (k, top, bot) => { const v = String(ctx[k] || '').trim(); if (v) drawFitText(page, f, { box: [C.nom[0], bot, C.nom[1], top], s: s.nomSize, pad: 3, padY: 0.8, ml: 2, a: 'c' }, safeText(v), 0); };
+    const wd = ctx.d && ctx.d.wd != null ? ctx.d.wd : -1;
+    for (const di of s.limpieza) {
+      if (di === wd) continue;
+      const [top, bot] = [s.days[di][0], s.days[di][1]], cy = (top + bot) / 2;
+      txt('07:2' + rnd(10) + ' hrs', s.hx, cy + s.hdy, s.hs);
+      txt(s.txtLimpieza, s.tx, cy + s.tdy, s.ts);
+      txt(s.res, s.rx, bot + s.rdy, s.ts);
+      await nombre('t2', top, bot);
+    }
+    if (wd >= 0 && s.days[wd]) {
+      const [top, bot] = [s.days[wd][1], s.days[wd][2]], cy = (top + bot) / 2;
+      txt(s.horaExp, s.hx, cy + s.edy, s.hs);
+      drawFlow(page, f, { s: s.ts, slots: [[s.tx, cy + s.e1, s.ew], [s.tx, cy + s.e2, s.ew]] }, safeText(interp(s.txtExp, ctx)).trim(), 0);
+      txt(s.res, s.rx, bot + s.rdy, s.ts);
+      await nombre('fi', top, bot);
     }
   }
 
@@ -496,6 +566,16 @@
       chars.forEach((ch, i) => { const t = safeText(ch); const w = f.widthOfTextAtSize(t, s.size); page.drawText(t, { x: cells[i][0] - w / 2, y: cells[i][1], size: s.size, font: f }); });
     };
     put(ctx.t1curp, s.curp); put(String(ctx.rfc || '').slice(0, 12), s.rfc.slice(0, 12)); // RFC: máximo 12 caracteres
+    // v4: periodo de ejecución, "De" y "a" con los mismos 8 dígitos AAAAMMDD
+    const per = s.per; if (!per) return;
+    const { rgb } = L(), fp = await kit.font(per.f), p = periodo96(ctx.g);
+    const dig = String(p.Y).padStart(4, '0') + pad(p.M) + pad(p.D);
+    for (const cells of per.groups) dig.split('').forEach((d, i) => {
+      const a = cells[i], b = cells[i + 1];
+      page.drawRectangle({ x: a + per.lw + 0.2, y: per.y0, width: b - a - per.lw - 0.45, height: per.y1 - per.y0, color: rgb(1, 1, 1) });
+      const w = fp.widthOfTextAtSize(d, per.size);
+      page.drawText(d, { x: (a + per.lw / 2 + b) / 2 - w / 2, y: per.base, size: per.size, font: fp, color: rgb(0, 0, 0) });
+    });
   }
 
   // ---------- parches de plantilla en tiempo de ejecución (v3) ----------
@@ -604,7 +684,7 @@
       if (tp === 74 && it.e) { const k = it.e.id || it.i; if (!jit74.has(k)) jit74.set(k, esp74(it.e)); Object.assign(ctx.e, jit74.get(k)); }
       if (tp === 3) await specialP3(page, kit, map, base, it);
       if (tp === 6) { await specialP6Header(page, kit, map); await specialP6(doc, page, kit, map, base, it, fields.filter(f => f.row)); }
-      if (tp === 23) await specialP23(page, kit, map, it);
+      if (tp === 23) await specialP23(doc, page, kit, map, it);
       if (tp === 66 && it.e) {
         const k = it.e.id || it.i;
         if (!ids66.has(k)) ids66.set(k, { cert: uniq(map.spec.p66.cert.fmt), serie: uniq(map.spec.p66.serie.fmt) });
@@ -615,6 +695,7 @@
       if (tp === 44) await specialP44(doc, page, kit, map, ctx);
       if (tp === 68) specialP68(doc, page, map, ctx);
       if (tp === 96) await specialP96(page, kit, map, ctx);
+      if (tp === 106) await specialP106(page, kit, map, ctx);
       const dy = tp === 108 ? map.spec.p108.dy[ctx.d.wd] : 0;
       for (const fd of fields) {
         if (fd.row) continue;
@@ -670,5 +751,5 @@
 
   function estimatePages(st, map) { return planExp(st, map.exp).length; }
 
-  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, fileName, nombresArchivo, estimatePages, planExp, titleCase, esCompresor, items23, incluye109, valvula, jitterCol, KPA, TIPOS_VALVULA };
+  root.FXEngine = { buildExpediente, buildCat2, categoria, dates, equipoCtx, sanitizeName, fileName, nombresArchivo, estimatePages, planExp, titleCase, esCompresor, items23, incluye109, valvula, jitterCol, KPA, TIPOS_VALVULA, periodo96, razonSocial };
 })(typeof window !== 'undefined' ? window : globalThis);
