@@ -2144,7 +2144,7 @@ function ejemplo(){
   pndActivo=null;montar();guardar();toast('Ejemplo cargado');
 }
 // Borradores v2 → v3: válvula, disparo, arranque, hidrostática, memoria RSP-020-XXX-2026, RFC ≤ 12
-// v3 → v4: un solo nombre legal, 911 fijo, sin presión de disparo ni diámetro interior.
+// v3 → v4: un solo nombre legal, 911 fijo, sin presión de disparo ni diámetro interior, materiales → SA-414-G.
 function migrar(){
   for(const [k] of TEL94)if(D[k]==null)D[k]='';
   D.tel94Emergencias='911';
@@ -2157,6 +2157,8 @@ function migrar(){
       const v=Fx().valvula(e);e.tipoValvula=mt?mt[0]:v.tipo;e.diametroValvulaMm=md?md[1].replace(',','.'):v.diam;
     }
     for(const k in DEF_EQ)if(e[k]==null)e[k]=DEF_EQ[k];
+    // v3→v4: forzar materiales ASME SA-414-G (sobrescribe SAE-J403-1008 u otros legacy)
+    e.materialCuerpo='SA-414-G';e.materialTapa='SA-414-G';
     delete e.presionDisparo;delete e.diametroInteriorMm;
     ['espEnv','espSup','espInf'].forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});
     if(!e.id)e.id=uid();

@@ -25,7 +25,7 @@ Sin cambios (probado): hoja 6 con EN TRAMITE, hoja 9 sin control STPS, hoja 4, h
   - La presión de arranque es ahora obligatoria en categoría III y muestra su equivalencia en kPa como disparo de la hoja 66.
   - La presión de operación muestra su equivalencia como cierre.
   - La vista previa de la hoja 66 muestra disparo (arranque) y cierre (operación).
-- **Construcción**: material del cuerpo y de las tapas en **SA-414-G** por omisión, para equipos nuevos.
+- **Construcción**: material del cuerpo y de las tapas en **SA-414-G** por omisión (equipos nuevos y al migrar borradores viejos).
 - **Espesores**: **Rellenar** ya llena los 16 puntos con la variación visible: mínimo + 0.00 a 0.03, con al menos uno en el mínimo. Se puede corregir cualquier punto.
   - La hoja 74 imprime lo que se ve.
   - Si los 16 quedan iguales, al generar se vuelve a aplicar la variación.
@@ -53,7 +53,7 @@ Sin cambios (probado): hoja 6 con EN TRAMITE, hoja 9 sin control STPS, hoja 4, h
 
 ### Migración automática de borradores v3
 - **Nombre**: si el usuario se había editado a mano, gana ese nombre, porque era el que se imprimía. Si no, se usa el del propietario o el que exista.
-- **Materiales**: los capturados se respetan; solo los equipos nuevos traen SA-414-G.
+- **Materiales**: al abrir/migrar borradores, `materialCuerpo` y `materialTapa` se fuerzan siempre a **SA-414-G** (sobrescribe SAE-J403-1008 u otros). Los campos siguen editables después.
 
 ## Coordenadas nuevas (pt, origen abajo-izquierda) — `FX_ASSETS.map.exp.spec`
 - `p23.mk`: x 256.574, ancho 19.476.
