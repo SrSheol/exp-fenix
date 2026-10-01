@@ -550,11 +550,13 @@
 
   // Hoja 106 (v4): registro de operación semanal. Limpieza en L, X, V y D (1°, 07:20–07:29 hrs);
   // el renglón del experto PND cae en el día de la semana de la PND (2°, 11:13 hrs) y sustituye la limpieza de ese día.
-  async function specialP106(page, kit, map, ctx) {
+  async function specialP106(page, kit, map, ctx, sig) {
     const s = map.spec.p106; if (!s) return;
     const { rgb } = L(), f = await kit.font(s.f), C = s.cols;
     const wipe = (a, b, top, bot) => page.drawRectangle({ x: a + s.ins, y: bot + s.ins, width: b - a - 2 * s.ins, height: top - bot - 2 * s.ins, color: rgb(1, 1, 1) });
-    for (const [t, m, b] of s.days) for (const [top, bot] of [[t, m], [m, b]]) for (const k of ['hora', 'elem', 'res', 'nom']) wipe(C[k][0], C[k][1], top, bot);
+    // v6: también se borra la columna FIRMA (nada de firmas fijas ni fantasmas de plantilla)
+    const wk = ['hora', 'elem', 'res', 'nom'].concat(C.firma ? ['firma'] : []);
+    for (const [t, m, b] of s.days) for (const [top, bot] of [[t, m], [m, b]]) for (const k of wk) wipe(C[k][0], C[k][1], top, bot);
     // v5: los borrados se comen parte de las reglas de la tabla; se redibuja la cuadrícula completa al grosor de la hoja (0.86 pt)
     const gr = s.grid;
     if (gr) {
@@ -563,6 +565,11 @@
     }
     const txt = (t, x, y, size) => page.drawText(safeText(t), { x, y, size, font: f, color: rgb(0, 0, 0) });
     const nombre = async (k, top, bot) => { const v = String(ctx[k] || '').trim(); if (v) drawFitText(page, f, { box: [C.nom[0], bot, C.nom[1], top], s: s.nomSize, pad: 3, padY: 0.8, ml: 2, a: 'c' }, safeText(v), 0); };
+    // v6: la firma va en el MISMO renglón que el nombre (t2 = limpieza, fi = experto); centrada en la banda del turno
+    const firma = async (role, top, bot) => {
+      const F = s.firma, im = F && sig ? await sig(role) : null; if (!im) return;
+      drawFit(page, im, { x: F.x, y: bot + F.pad, w: F.w, h: top - bot - 2 * F.pad, clip: [F.x, F.x + F.w] }, 0);
+    };
     const wd = ctx.d && ctx.d.wd != null ? ctx.d.wd : -1;
     for (const di of s.limpieza) {
       if (di === wd) continue;
@@ -571,6 +578,7 @@
       txt(s.txtLimpieza, s.tx, cy + s.tdy, s.ts);
       txt(s.res, s.rx, bot + s.rdy, s.ts);
       await nombre('t2', top, bot);
+      await firma('t2', top, bot);
     }
     if (wd >= 0 && s.days[wd]) {
       const [top, bot] = [s.days[wd][1], s.days[wd][2]], cy = (top + bot) / 2;
@@ -578,6 +586,7 @@
       drawFlow(page, f, { s: s.ts, slots: [[s.tx, cy + s.e1, s.ew], [s.tx, cy + s.e2, s.ew]] }, safeText(interp(s.txtExp, ctx)).trim(), 0);
       txt(s.res, s.rx, bot + s.rdy, s.ts);
       await nombre('fi', top, bot);
+      await firma('fi', top, bot);
     }
   }
 
@@ -734,7 +743,7 @@
       if (tp === 44) await specialP44(doc, page, kit, map, ctx);
       if (tp === 68) specialP68(doc, page, map, ctx);
       if (tp === 96) await specialP96(page, kit, map, ctx);
-      if (tp === 106) await specialP106(page, kit, map, ctx);
+      if (tp === 106) await specialP106(page, kit, map, ctx, role => img(role, roleBytes[role]));
       const dy = tp === 108 ? map.spec.p108.dy[ctx.d.wd] : 0;
       for (const fd of fields) {
         if (fd.row) continue;
