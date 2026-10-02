@@ -527,6 +527,46 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 #plPend .aviso{margin-bottom:16px}
 @media (max-width:1100px){.pl-cols{grid-template-columns:minmax(0,1fr)}.pl-der{position:static}}
 @media (max-width:560px){.pl-sel{flex:1 1 100%;max-width:none}.pl-lee{grid-template-columns:minmax(0,1fr) auto}.pl-lee>dd.a{grid-column:1/-1;justify-content:flex-end;border-top:0;padding-top:0}}
+/* ---------- plano v2 ---------- */
+.vinc-tag{display:inline-flex;align-items:center;margin-left:6px;padding:0 7px;border-radius:999px;font-size:10.5px;font-weight:650;letter-spacing:.02em;line-height:1.6;color:var(--tinta-3);background:var(--hundido);border:1px solid var(--acero);white-space:nowrap}
+.campo .caja.auto input{cursor:default}
+.campo .caja.auto input::placeholder{color:var(--tinta-3)}
+.campo .ayuda .btn{height:24px;padding:0 8px;font-size:11.5px;margin-top:2px}
+.pl-croq{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background-color:var(--hundido);
+  background-image:radial-gradient(color-mix(in srgb,var(--acero-2) 55%,transparent) 1px,transparent 1.3px);background-size:20px 20px}
+.pl-croq .croquis{max-height:46vh}
+.pl-croq .croquis[data-o="V"]{max-width:340px}
+.pl-tabla-wrap{overflow-x:auto;margin-top:12px;border:1px solid var(--acero);border-radius:var(--r)}
+.pl-tabla{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+.pl-tabla th{text-align:left;font-size:11.5px;font-weight:650;color:var(--tinta-3);padding:7px 8px;background:var(--placa-2);border-bottom:1px solid var(--acero);white-space:nowrap}
+.pl-tabla td{padding:5px 8px;border-top:1px solid color-mix(in srgb,var(--acero) 60%,transparent);vertical-align:middle}
+.pl-tabla tr:first-child td{border-top:0}
+.pl-tabla td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pl-tabla td.vinc{color:var(--tinta-2)}
+.pl-tabla td.vacio{color:var(--tinta-3);text-align:center;padding:14px}
+.pl-tabla .caja{min-height:32px;background:var(--placa)}
+.pl-tabla .caja input{padding:4px 8px;font-size:13px;min-width:0;width:100%}
+.pl-tabla td:nth-child(5){width:150px}.pl-tabla td:nth-child(6){width:120px}
+.pl-tabla .lev-letra{width:28px;height:28px}
+.pl-tabla tr.sel td{background:var(--laton-suave)}
+.pl-tabla tr.sel .lev-letra{border-color:var(--laton);color:var(--laton)}
+.pl-det{margin-top:14px;border-top:1px dashed var(--acero);padding-top:10px}
+.pl-det>summary{cursor:pointer;font-weight:650;font-size:14px;display:flex;align-items:center;gap:8px;list-style:none}
+.pl-det>summary::-webkit-details-marker{display:none}
+.pl-det>summary::before{content:"▸";color:var(--laton);transition:transform .15s}
+.pl-det[open]>summary::before{transform:rotate(90deg)}
+.pl-det .nota{margin:8px 0 10px;color:var(--tinta-3);font-size:12.5px}
+.pl-det .lev-bq-fila{grid-template-columns:32px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) auto;grid-template-areas:"l t d c a"}
+.pl-det .lev-letra{display:inline-grid;place-items:center;cursor:default}
+.pl-ubic{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start;margin-top:12px}
+.pl-ubic-ctl{display:grid;gap:12px}
+.pl-ubic-prev{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background:#fff}
+.pl-ubic-prev svg{display:block;width:100%;height:auto;cursor:crosshair;touch-action:none}
+.pl-ubic input[type=range]{width:100%;padding:0 10px;accent-color:var(--laton)}
+#plUbicCaja[data-m=""]{display:none}
+#plUbicCaja:not([data-m="img"]) #plUbicImg,#plUbicCaja:not([data-m="img"]) [data-ubm="img"],#plUbicCaja:not([data-m="esq"]) [data-ubm="esq"]{display:none}
+.pl-izq .tarjeta .grid .campo.ancho{grid-column:1/-1}
+@media (max-width:760px){.pl-ubic{grid-template-columns:minmax(0,1fr)}.pl-det .lev-bq-fila{grid-template-columns:32px minmax(0,1fr) minmax(0,1fr) auto;grid-template-areas:"l t t a" "l d c a"}}
 </style>
 
 <!-- Firebase compat SDK (sync cloud; IndexedDB queda como caché offline) -->
@@ -604,7 +644,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <section id="s-equipos" data-paso="2">
       <div class="sec-cab"><span class="num">2</span><div><h2>Equipos</h2><p>Un bloque por recipiente: datos de placa, presiones y válvula. La categoría se calcula sola con la presión de calibración.</p></div><span class="hojas">Hojas 3, 6 y 8–20</span></div>
       <div id="listaEquipos"></div>
-      <div class="acciones"><button class="btn prim" id="btnAgregar" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar equipo</button><label class="btn" for="fImportLev2" title="Agrega un equipo por cada levantamiento (.json)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamiento (.json)<input id="fImportLev2" type="file" accept=".json,application/json" multiple class="oculto"></label></div>
+      <div class="acciones"><button class="btn prim" id="btnAgregar" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar equipo</button><label class="btn" for="fImportLev2" title="Llena el expediente y el plano: agrega un equipo por cada levantamiento (.json)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamiento (.json)<input id="fImportLev2" type="file" accept=".json,application/json" multiple class="oculto"></label></div>
       <div class="siguiente"><a class="btn fantasma" href="#s-responsables">Continuar con responsables</a></div>
     </section>
 
@@ -714,7 +754,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
           <span>Borrador</span>
           <button class="btn chico" id="btnExport" type="button">Exportar (.json)</button>
           <label class="btn chico" for="fImport">Importar<input id="fImport" type="file" accept=".json,application/json" class="oculto"></label>
-          <label class="btn chico" for="fImportLev" title="Agrega un equipo por cada levantamiento; no borra los equipos que ya están">Importar levantamiento (.json)<input id="fImportLev" type="file" accept=".json,application/json" multiple class="oculto"></label>
+          <label class="btn chico" for="fImportLev" title="Llena el expediente y el plano: agrega un equipo por cada levantamiento; no borra los equipos que ya están">Importar levantamiento (.json)<input id="fImportLev" type="file" accept=".json,application/json" multiple class="oculto"></label>
           <button class="btn chico" id="btnEjemplo" type="button">Cargar ejemplo</button>
           <button class="btn chico peligro" id="btnNuevo" type="button">Nuevo expediente</button>
         </div>
@@ -726,7 +766,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 <!-- Levantamiento v1 · hoja de campo del tanque (borrador local; JSON → Importar levantamiento en el expediente) -->
 <div class="lev oculto" id="vistaLev">
   <div class="lev-cab">
-    <div><h2>Levantamiento de tanque</h2><p>Hoja de campo: croquis con boquillas, datos de placa y espesores. Se guarda solo en este navegador. Para pasarlo al expediente: <b>Exportar JSON</b> y, en el expediente, <b>Importar levantamiento (.json)</b>; el primero llena el equipo en blanco de «Nuevo expediente» y los demás agregan equipos. <b>Formatos</b> descarga las hojas H y V en blanco.</p></div>
+    <div><h2>Levantamiento de tanque</h2><p>Hoja de campo: croquis con boquillas, datos de placa y espesores. Se guarda solo en este navegador. Para pasarlo al expediente y al plano: <b>Pasar a expediente y plano</b> (aquí mismo) o <b>Exportar JSON</b> e <b>Importar levantamiento</b> (misma importación); el primero llena el equipo en blanco de «Nuevo expediente» y los demás agregan equipos. <b>Formatos</b> descarga las hojas H y V en blanco.</p></div>
   </div>
   <div class="lev-barra" role="toolbar" aria-label="Acciones del levantamiento">
     <span class="lev-estado" id="levEstado" role="status">—</span>
@@ -735,6 +775,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <label class="btn chico" for="levAbrir">Abrir (.json)<input id="levAbrir" type="file" accept=".json,application/json" class="oculto"></label>
     <button type="button" class="btn chico" id="levGuardar">Guardar borrador</button>
     <details class="lev-menu" id="levFormatos"><summary class="btn chico" title="Hojas de campo en blanco para imprimir">Formatos ▾</summary><div class="lev-menu-caja" role="menu"><button type="button" role="menuitem" data-formato="H"><b>H</b>Formato horizontal (PDF)</button><button type="button" role="menuitem" data-formato="V"><b>V</b>Formato vertical (PDF)</button></div></details>
+    <button type="button" class="btn chico laton" id="levPasar" title="Importa este levantamiento al expediente y al plano (misma ruta que Importar levantamiento)">Pasar a expediente y plano</button>
     <button type="button" class="btn chico" id="levJson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar JSON</button>
     <button type="button" class="btn chico prim" id="levPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar PDF</button>
   </div>
@@ -781,15 +822,16 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
   </div>
 </div>
 
-<!-- Plano v1 · memoria de cálculo ASME VIII Div. 1 + hoja del plano (H / V). Lee el equipo del expediente; borrador local (IndexedDB), sin nube -->
+<!-- Plano v2 · memoria de cálculo ASME VIII Div. 1 + hoja del plano (H / V). Comparte el equipo con el expediente (sincronía en ambos sentidos); borrador local (IndexedDB), sin nube -->
 <div class="lev plano oculto" id="vistaPlano">
   <div class="lev-cab">
-    <div><h2>Plano y memoria de cálculo</h2><p>Un plano por equipo, tomado del expediente y de su levantamiento importado. Aquí solo capturas lo que no existe en el expediente (<b>S</b>, <b>E</b>, <b>ceja recta</b> y datos del cajetín); fluido, temperaturas y presiones se leen del expediente. Lo que falta queda en blanco: nunca se rellena con números de muestra.</p></div>
+    <div><h2>Plano y memoria de cálculo</h2><p>Un plano por equipo. Los campos <b>blancos</b> se capturan aquí y son los mismos del expediente: lo que cambies en un lado aparece en el otro. Los campos <b>grises</b> (<span class="vinc-tag">vinculado</span>) se calculan solos y no se escriben. Lo que falta queda en blanco: nunca se rellena con números de muestra.</p></div>
   </div>
   <div class="lev-barra" role="toolbar" aria-label="Acciones del plano">
     <span class="lev-estado" id="plEstado" role="status">—</span>
     <div class="caja pl-sel"><select id="plEquipo" aria-label="Equipo del plano"></select></div>
     <span class="lev-sp"></span>
+    <label class="btn chico" for="fImportLev3" title="Llena el expediente y el plano con el levantamiento (.json); el primero llena el equipo en blanco y los demás agregan equipos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamiento<input id="fImportLev3" type="file" accept=".json,application/json" multiple class="oculto"></label>
     <button type="button" class="btn chico" id="plSvg" title="Descarga la hoja como SVG (vista previa vectorial)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>SVG</button>
     <button type="button" class="btn chico prim" id="plPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar Plano PDF</button>
   </div>
@@ -800,59 +842,110 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <div class="pl-izq">
       <div class="tarjeta">
         <h3>Geometría <span class="tag">Ø en cm · longitudes en mm</span></h3>
-        <p class="nota">Viene del levantamiento importado; si cambias algo aquí se guarda en el equipo. La hoja usa la plantilla H o V según la orientación.</p>
+        <p class="nota">Ajusta <b>L</b> y <b>C.R.</b> hasta que el volumen calculado coincida con la capacidad del equipo. La ceja recta se captura: no se deduce de la profundidad de tapa.</p>
         <div class="seg-campo pl-or"><label>Plantilla del plano</label>
           <div class="seg" role="group" aria-label="Plantilla del plano"><button type="button" data-plo="H" aria-pressed="true"><b>H</b>Horizontal</button><button type="button" data-plo="V" aria-pressed="false"><b>V</b>Vertical</button></div>
           <div class="ayuda" id="plOrAyuda"></div></div>
         <div class="grid pl-grid">
-          <div class="campo"><label for="pl_dcm">Ø interior <span class="req">*</span></label><div class="caja"><input id="pl_dcm" data-pe="diametroInteriorCm" inputmode="decimal" autocomplete="off"><span class="u">cm</span></div><div class="ayuda" data-pa="diametroInteriorCm"></div></div>
-          <div class="campo"><label for="pl_lmm">Longitud soldadura–soldadura <span class="req">*</span></label><div class="caja"><input id="pl_lmm" data-pe="longitudMm" inputmode="decimal" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-pa="longitudMm"></div></div>
-          <div class="campo"><label for="pl_tmm">Profundidad de tapa</label><div class="caja"><input id="pl_tmm" data-pe="profundidadTapaMm" inputmode="decimal" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Solo croquis (columna h). No es la ceja recta.</div></div>
-          <div class="campo"><label for="pl_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="pl_cr" data-pl="cejaRectaMm" inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Tramo recto de la tapa. Entra en área y volumen (en m).</div></div>
+          <div class="campo "><label for="pl_dcm">Ø interior <span class="req">*</span></label><div class="caja"><input id="pl_dcm" data-pe="diametroInteriorCm" inputmode="decimal" autocomplete="off"><span class="u">cm</span></div><div class="ayuda" data-pa="diametroInteriorCm"></div></div>
+          <div class="campo "><label for="pl_lmm">Longitud soldadura–soldadura <span class="req">*</span></label><div class="caja"><input id="pl_lmm" data-pe="longitudMm" inputmode="decimal" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-pa="longitudMm"></div></div>
+          <div class="campo "><label for="pl_tmm">Profundidad de tapa</label><div class="caja"><input id="pl_tmm" data-pe="profundidadTapaMm" inputmode="decimal" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Solo croquis (columna h). No es la ceja recta.</div></div>
+          <div class="campo "><label for="pl_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="pl_cr" data-pl="cejaRectaMm" inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Tramo recto de la tapa. Entra en área y volumen (en m).</div></div>
+          <div class="campo"><label>Radio interior R <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="R" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="R"></div></div>
+          <div class="campo"><label>Volumen calculado <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="V" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>m³</span></div><div class="ayuda" data-pva="V"></div></div>
         </div>
       </div>
 
       <div class="tarjeta">
-        <h3>Diseño <span class="tag">ASME VIII Div. 1</span></h3>
-        <p class="nota">S se captura a mano: no se busca en tablas de materiales. E es fracción (0.85); si escribes 85 se toma como 85 %.</p>
+        <h3>Especificaciones <span class="tag">captura en blanco · gris = vinculado</span></h3>
+        <p class="nota">Las presiones, temperaturas y datos de placa son los del expediente. <b>S</b> se captura a mano (no hay tabla de materiales). <b>E</b> es fracción (0.85); si escribes 85 se toma como 85 %.</p>
         <div class="grid pl-grid">
-          <div class="campo"><label for="pl_s">Esfuerzo permisible S <span class="req">*</span></label><div class="caja"><input id="pl_s" data-pl="esfuerzoPermisible" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div><div class="ayuda" id="plMatAyuda"></div></div>
-          <div class="campo"><label for="pl_e">Eficiencia de soldadura E <span class="req">*</span></label><div class="caja"><input id="pl_e" data-pl="eficiencia" inputmode="decimal" placeholder="0.85" autocomplete="off"></div><div class="ayuda" data-pa="eficiencia"></div></div>
-          <div class="campo"><label for="pl_fs">Factor de seguridad</label><div class="caja"><input id="pl_fs" data-pl="factorSeguridad" inputmode="decimal" placeholder="3.5" autocomplete="off"></div><div class="ayuda">Solo se imprime; S ya lo refleja.</div></div>
-          <div class="campo"><label for="pl_rad">Radiografiado</label><div class="caja"><input id="pl_rad" data-pl="radiografiado" data-mayus placeholder="PUNTOS" autocomplete="off"></div></div>
-          <div class="campo"><label for="pl_cor">Corrosión</label><div class="caja"><input id="pl_cor" data-pl="corrosionMm" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="u">mm</span></div></div>
-          <div class="campo"><label for="pl_nb">National Board</label><div class="caja"><input id="pl_nb" data-pl="nationalBoard" data-mayus placeholder="SIN DATO" autocomplete="off"></div></div>
-          <div class="campo"><label for="pl_fab">Fabricante</label><div class="caja"><input id="pl_fab" data-pl="fabricante" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: se imprime la marca del expediente.</div></div>
-          <div class="campo"><label for="pl_con">Tipo de boquilla (tabla)</label><div class="caja"><input id="pl_con" data-pl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_flu">Fluido <span class="req">*</span></label><div class="caja"><input id="pl_flu" data-pe="fluido" data-mayus placeholder="AIRE" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_pd">Presión de diseño <span class="req">*</span></label><div class="caja"><input id="pl_pd" data-pe="presionDiseno" inputmode="decimal" placeholder="12.00" autocomplete="off"><span class="u">kg/cm²</span></div></div>
+          <div class="campo "><label for="pl_pc">Presión de calibración <span class="req">*</span></label><div class="caja"><input id="pl_pc" data-pe="presionCalibracion" inputmode="decimal" placeholder="10.50" autocomplete="off"><span class="u">kg/cm²</span></div></div>
+          <div class="campo "><label for="pl_po">Presión de operación</label><div class="caja"><input id="pl_po" data-pe="presionOperacion" inputmode="decimal" placeholder="9.00" autocomplete="off"><span class="u">kg/cm²</span></div></div>
+          <div class="campo"><label>Pres. trab. máx. perm. <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="pm" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>kg/cm²</span></div><div class="ayuda" data-pva="pm"></div></div>
+          <div class="campo"><label>Prueba hidrostática <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="hid" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>kg/cm²</span></div><div class="ayuda" data-pva="hid">Diseño × 1.1.</div></div>
+          <div class="campo "><label for="pl_td">Temperatura de diseño <span class="req">*</span></label><div class="caja"><input id="pl_td" data-pe="tempDiseno" inputmode="decimal" placeholder="55" autocomplete="off"><span class="u">°C</span></div></div>
+          <div class="campo "><label for="pl_to">Temperatura de operación</label><div class="caja"><input id="pl_to" data-pe="tempOperacion" inputmode="decimal" placeholder="28" autocomplete="off"><span class="u">°C</span></div></div>
+          <div class="campo "><label for="pl_cap">Capacidad de placa</label><div class="caja"><input id="pl_cap" data-pe="capacidadVolumetrica" inputmode="decimal" placeholder="0.500" autocomplete="off"><span class="u">m³</span></div><div class="ayuda" data-pa="capacidadVolumetrica"></div></div>
+          <div class="campo"><label>Capacidad en el plano <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="cap" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>m³</span></div><div class="ayuda" data-pva="cap"></div></div>
+          <div class="campo "><label for="pl_s">Esfuerzo permisible S <span class="req">*</span></label><div class="caja"><input id="pl_s" data-pl="esfuerzoPermisible" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div></div>
+          <div class="campo "><label for="pl_e">Eficiencia de soldadura E <span class="req">*</span></label><div class="caja"><input id="pl_e" data-pl="eficiencia" inputmode="decimal" placeholder="0.85" autocomplete="off"></div><div class="ayuda" data-pa="eficiencia"></div></div>
+          <div class="campo"><label>Espesor empleado · cuerpo <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="tEnv" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="tEnv"><button type="button" class="btn chico fantasma" data-plpnd="espEnv">Editar en PND</button></div></div>
+          <div class="campo"><label>Espesor empleado · tapas <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="tTap" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="tTap"><button type="button" class="btn chico fantasma" data-plpnd="espSup">Editar en PND</button></div></div>
+          <div class="campo "><label for="pl_mc">Material del cuerpo</label><div class="caja"><input id="pl_mc" data-pe="materialCuerpo" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_mt">Material de las tapas</label><div class="caja"><input id="pl_mt" data-pe="materialTapa" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_fs">Factor de seguridad</label><div class="caja"><input id="pl_fs" data-pl="factorSeguridad" inputmode="decimal" placeholder="3.5" autocomplete="off"></div><div class="ayuda">Solo se imprime; S ya lo refleja.</div></div>
+          <div class="campo "><label for="pl_rad">Radiografiado</label><div class="caja"><input id="pl_rad" data-pl="radiografiado" data-mayus placeholder="PUNTOS" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_cor">Corrosión</label><div class="caja"><input id="pl_cor" data-pl="corrosionMm" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="u">mm</span></div></div>
+          <div class="campo "><label for="pl_fab">Fabricante</label><div class="caja"><input id="pl_fab" data-pl="fabricante" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: se imprime la marca.</div></div>
+          <div class="campo "><label for="pl_mar">Marca</label><div class="caja"><input id="pl_mar" data-pe="marca" data-mayus autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_ser">Número de serie</label><div class="caja"><input id="pl_ser" data-pe="numeroSerie" data-mayus autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_anio">Año de fabricación</label><div class="caja"><input id="pl_anio" data-pe="anioFabricacion" inputmode="decimal" placeholder="S/D" autocomplete="off"></div><div class="ayuda">Vacío: se imprime S/D.</div></div>
+          <div class="campo "><label for="pl_nb">National Board</label><div class="caja"><input id="pl_nb" data-pl="nationalBoard" data-mayus placeholder="SIN DATO" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_ubi">Ubicación <span class="req">*</span></label><div class="caja"><input id="pl_ubi" data-pe="ubicacion" data-mayus placeholder="CUARTO DE MÁQUINAS" autocomplete="off"></div></div>
           <div class="campo medio"><label for="pl_cod">Código de fabricación</label><div class="caja"><input id="pl_cod" data-pl="codigoFabricacion" data-mayus autocomplete="off"></div></div>
         </div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>Boquillas <span class="tag">una letra por tipo</span></h3>
+        <p class="nota">Cada <b>tipo</b> tiene su letra (A, B, C… en el orden en que aparece cada tipo); las del mismo tipo comparten letra y se dibujan en el mismo punto. Arrastra una boquilla en el croquis para moverla (se mueve todo su tipo). Los cambios se guardan en el equipo; el JSON del levantamiento no se toca.</p>
+        <div class="pl-croq"><svg id="plCroquis" class="croquis" viewBox="0 0 900 400" role="img" tabindex="0" aria-label="Croquis del plano. Arrastra una boquilla para moverla con todo su tipo; con una seleccionada, las flechas la mueven."></svg></div>
+        <div class="pl-tabla-wrap"><table class="pl-tabla" id="plGrupos"></table></div>
+        <div class="grid pl-grid" style="margin-top:12px">
+          <div class="campo "><label for="pl_con">Tipo de conexión (por omisión)</label><div class="caja"><input id="pl_con" data-pl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div><div class="ayuda">Se usa en la columna TIPO cuando el renglón no trae otra.</div></div>
+        </div>
+        <details class="pl-det"><summary>Boquillas una por una <span class="tag" id="plBqCuenta">0</span></summary>
+          <p class="nota">Letra del levantamiento (una por boquilla) · tipo · Ø en pulgadas · cara.</p>
+          <ol class="lev-bq-lista" id="plBqLista"></ol>
+          <button type="button" class="btn chico laton" id="plBqAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar boquilla</button>
+        </details>
       </div>
 
       <div class="tarjeta">
         <h3>Dispositivo de relevo <span class="tag">Apéndice 11</span></h3>
         <p class="nota" id="plRelNota"></p>
         <div class="grid pl-grid">
-          <div class="campo"><label for="pl_c">Constante del gas C</label><div class="caja"><input id="pl_c" data-pl="relevoC" inputmode="decimal" autocomplete="off"></div></div>
-          <div class="campo"><label for="pl_k">Coeficiente de descarga K</label><div class="caja"><input id="pl_k" data-pl="relevoK" inputmode="decimal" autocomplete="off"></div></div>
-          <div class="campo"><label for="pl_m">Peso molecular M</label><div class="caja"><input id="pl_m" data-pl="relevoM" inputmode="decimal" autocomplete="off"></div></div>
-          <div class="campo"><label for="pl_ai">Área de descarga instalada</label><div class="caja"><input id="pl_ai" data-pl="areaValvulaCm2" inputmode="decimal" autocomplete="off"><span class="u">cm²</span></div><div class="ayuda" data-pa="areaValvulaCm2"></div></div>
+          <div class="campo "><label for="pl_dv">Ø de la válvula de seguridad <span class="req">*</span></label><div class="caja"><input id="pl_dv" data-pe="diametroValvulaMm" inputmode="decimal" placeholder="6" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-pa="diametroValvulaMm"></div></div>
+          <div class="campo "><label for="pl_c">Constante del gas C</label><div class="caja"><input id="pl_c" data-pl="relevoC" inputmode="decimal" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_k">Coeficiente de descarga K</label><div class="caja"><input id="pl_k" data-pl="relevoK" inputmode="decimal" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_m">Peso molecular M</label><div class="caja"><input id="pl_m" data-pl="relevoM" inputmode="decimal" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_ai">Área de descarga instalada</label><div class="caja"><input id="pl_ai" data-pl="areaValvulaCm2" inputmode="decimal" autocomplete="off"><span class="u">cm²</span></div><div class="ayuda" data-pa="areaValvulaCm2"></div></div>
+          <div class="campo"><label>Área de desfogue calculada <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="A" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>cm²</span></div><div class="ayuda" data-pva="A"></div></div>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>Croquis de ubicación <span class="tag">opcional</span></h3>
+        <p class="nota">Va en la columna derecha de la hoja cuando hay espacio. <b>Plano del lugar</b>: carga una imagen y toca dónde está el equipo (la flecha apunta ahí). <b>Esquema</b>: cuarto, puerta y equipo; toca para mover el equipo.</p>
+        <div class="seg-campo pl-or"><div class="seg" role="group" aria-label="Croquis de ubicación"><button type="button" data-plu="" aria-pressed="true">Sin croquis</button><button type="button" data-plu="img" aria-pressed="false">Plano del lugar</button><button type="button" data-plu="esq" aria-pressed="false">Esquema</button></div></div>
+        <div class="pl-ubic" id="plUbicCaja">
+          <div class="pl-ubic-ctl">
+            <div class="img ancho" id="plUbicImg" data-label="Plano del lugar" data-hint="PNG o JPG; se guarda solo en este navegador y en el borrador."></div>
+            <div class="campo" data-ubm="img"><label for="pl_ua">Dirección de la flecha</label><div class="caja"><input id="pl_ua" type="range" min="0" max="345" step="15" data-pl="ubicAng"></div><div class="ayuda" id="plUaTxt"></div></div>
+            <div class="campo" data-ubm="esq"><label for="pl_up">Puerta</label><div class="caja"><select id="pl_up" data-pl="ubicPuerta"><option value="abajo">Abajo</option><option value="arriba">Arriba</option><option value="izquierda">Izquierda</option><option value="derecha">Derecha</option></select></div></div>
+            <div class="campo" data-ubm="esq"><label for="pl_upp">Posición de la puerta</label><div class="caja"><input id="pl_upp" type="range" min="0" max="1" step="0.05" data-pl="ubicPuertaPos"></div></div>
+            <div class="campo "><label for="pl_uro">Rótulo</label><div class="caja"><input id="pl_uro" data-pl="ubicRotulo" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: la ubicación del equipo.</div></div>
+          </div>
+          <div class="pl-ubic-prev"><svg id="plUbic" viewBox="0 0 360 210" role="img" aria-label="Vista previa del croquis de ubicación; toca para ubicar el equipo"></svg></div>
         </div>
       </div>
 
       <div class="tarjeta">
         <h3>Cajetín</h3>
-        <p class="nota">Cliente, equipo, TAG, número de plano y firma salen del expediente; revisa y firma el firmante izquierdo (Responsables).</p>
+        <p class="nota">Razón social, domicilio, equipo, TAG y número de plano son los del expediente. Revisa y firma el firmante izquierdo (Responsables).</p>
         <div class="grid pl-grid">
-          <div class="campo"><label for="pl_dib">Dibujó</label><div class="caja"><input id="pl_dib" data-pl="dibujo" data-mayus placeholder="ING. …" autocomplete="off"></div></div>
-          <div class="campo"><label for="pl_fec">Fecha del plano</label><div class="caja"><input id="pl_fec" data-pl="fecha" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: mes y año de la fecha de las PND.</div></div>
+          <div class="campo ancho"><label for="pl_rs">Razón social <span class="req">*</span></label><div class="caja"><input id="pl_rs" data-pd="razonSocialPropietario" data-mayus autocomplete="off"></div></div>
+          <div class="campo ancho"><label for="pl_dom">Domicilio</label><div class="caja"><input id="pl_dom" data-pd="domicilio" autocomplete="off"></div></div>
+          <div class="campo medio"><label for="pl_nom">Nombre del equipo <span class="req">*</span></label><div class="caja"><input id="pl_nom" data-pe="nombre" data-mayus autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_tag">TAG <span class="req">*</span></label><div class="caja"><input id="pl_tag" data-pe="tag" data-mayus autocomplete="off"></div></div>
+          <div class="campo medio"><label for="pl_mem">Plano No. (código de memoria) <span class="req">*</span></label><div class="caja mascara"><span class="pre">RSP-020-</span><input id="pl_mem" data-pm maxlength="3" placeholder="XXX" autocomplete="off" spellcheck="false"><span class="pos">-2026</span></div></div>
+          <div class="campo "><label for="pl_dib">Dibujó</label><div class="caja"><input id="pl_dib" data-pl="dibujo" data-mayus placeholder="ING. …" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_fec">Fecha del plano</label><div class="caja"><input id="pl_fec" data-pl="fecha" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: mes y año de la fecha de las PND.</div></div>
         </div>
         <dl class="pl-lee" id="plLeeCaj"></dl>
-      </div>
-
-      <div class="tarjeta">
-        <h3>Del expediente <span class="tag">solo lectura</span></h3>
-        <p class="nota">El plano los lee tal cual. Para cambiarlos, toca <b>Editar</b>: te lleva al campo en el expediente.</p>
-        <dl class="pl-lee" id="plLee"></dl>
       </div>
     </div>
 
@@ -866,7 +959,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 
   <div class="tarjeta">
     <h3>Hoja del plano <span class="tag" id="plHojaTag">Tabloide 17 × 11 in · horizontal</span></h3>
-    <p class="nota">Vista previa del PDF. El croquis usa las boquillas y su posición del levantamiento.</p>
+    <p class="nota">Vista previa del PDF. Croquis con las boquillas agrupadas por tipo y las cotas del equipo; la memoria ajusta su tamaño de letra para llenar la hoja.</p>
     <div class="pl-hoja" id="plHoja"></div>
   </div>
 </div>
@@ -1826,9 +1919,9 @@ const CAP_L_MIN=20; // capacidad sin unidad y sin decimales: desde 20 se toma co
 // [clave JSON, etiqueta en pantalla, etiqueta en la hoja (papel), opciones]
 // Orden de presiones como en el expediente: diseño → calibración → arranque → paro → capacidad
 const META=[
- ['cliente','Cliente','CLIENTE',{mayus:1,cls:'ancho',ph:'FOCAS INDUSTRIALES, S.A. DE C.V.',ayuda:'En el expediente: nombre legal de la empresa, solo si está vacío.'}],
- ['planta','Planta','PLANTA',{mayus:1,cls:'ancho',ph:'PLANTA IZTAPALAPA',ayuda:'En el expediente: ubicación del equipo.'}],
- ['tanque','Tanque','TANQUE',{mayus:1,cls:'medio',ph:'TANQUE PULMÓN NO.1',ayuda:'En el expediente: nombre del equipo.'}],
+ ['cliente','Razón Social','RAZÓN SOCIAL',{mayus:1,cls:'ancho',ph:'FOCAS INDUSTRIALES, S.A. DE C.V.',ayuda:'En el expediente y el plano: razón social de la empresa, solo si está vacía.'}],
+ ['planta','Ubicación','UBICACIÓN',{mayus:1,cls:'ancho',ph:'CUARTO DE MÁQUINAS',ayuda:'En el expediente y el plano: ubicación del equipo.'}],
+ ['tanque','Nombre del equipo','NOMBRE DEL EQUIPO',{mayus:1,cls:'medio',ph:'COMPRESOR DE AIRE NO.1',ayuda:'En el expediente y el plano: nombre del equipo.'}],
  ['tag','TAG','TAG',{mayus:1,ph:'TQ-01'}],
  ['modelo','Modelo','MODELO',{mayus:1,ph:'S/D'}],
  ['serie','Serie','SERIE',{mayus:1,ph:'1628'}],
@@ -1851,6 +1944,9 @@ const uid=()=>Math.random().toString(36).slice(2,10);
 const pad2=n=>String(n).padStart(2,'0');
 function rnd(n){const a=new Uint32Array(1);if(root.crypto&&root.crypto.getRandomValues)root.crypto.getRandomValues(a);else a[0]=Math.floor(Math.random()*4294967295);return a[0]%n;}
 function letra(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
+// Plano v2: una letra por TIPO, en el orden en que aparece cada tipo por primera vez en la lista (A, B, C…).
+// Las boquillas del mismo tipo comparten letra. El levantamiento sigue con una letra por boquilla.
+function grupos(bqs){const letraDe={},orden=[];(Array.isArray(bqs)?bqs:[]).forEach(b=>{const t=normTipo(b&&b.tipo)||String((b&&b.tipo)||'');if(!t||t in letraDe)return;letraDe[t]=letra(orden.length);orden.push(t);});return {letraDe,orden};}
 function tapas(o){return o==='V'?['TAPA SUPERIOR','CUERPO','TAPA INFERIOR']:['TAPA IZQUIERDA','CUERPO','TAPA DERECHA'];}
 function tapasUI(o){return o==='V'?['Tapa superior','Cuerpo','Tapa inferior']:['Tapa izquierda','Cuerpo','Tapa derecha'];}
 // Pulgadas: acepta 2 · 1.5 · 3/4 · 1 1/2 · 1-1/2 · 2" · 2 pulg
@@ -2092,26 +2188,41 @@ function croquis(L,opt){
       const d={top:[0,-1],bot:[0,1],left:[-1,0],right:[1,0]}[n.lane];
       n.ax=st.x+d[0]*tm.rad;n.ay=st.y+d[1]*tm.rad;
     }
-    {const e=st.t==='tap'?tm.w+tm.h:tm.rad;bb(st.x-e,st.y-e);bb(st.x+e,st.y+e);}
     return n;});
+  // Plano v2 (opt.agrupar): una letra por tipo; todas las del tipo se dibujan en el punto de la primera.
+  // Tipos distintos que caen juntos (mismo carril, a menos de 2 globos) comparten guía: letras «B C» lado a lado.
+  let nodos,dib;
+  if(opt.agrupar){
+    const gl=grupos(L.boquillas),por=new Map();
+    nz.forEach(n=>{const t=n.b.tipo;if(!por.has(t))por.set(t,[]);por.get(t).push(n);});
+    const anc=[...por.values()].map(arr=>{const a=arr[0];a.L=gl.letraDe[a.b.tipo]||a.L;a.miembros=arr;a.letras=[{L:a.L,bq:a.b.id}];return a;});
+    dib=anc;nodos=[];
+    anc.forEach(n=>{const q=nodos.find(m=>m.lane===n.lane&&Math.abs(m.ax-n.ax)<RB*2&&Math.abs(m.ay-n.ay)<RB*2);if(q)q.letras.push(...n.letras);else nodos.push(n);});
+  }else{dib=nz;nodos=nz;nz.forEach(n=>n.letras=[{L:n.L,bq:n.b.id}]);}
+  dib.forEach(n=>{const st=n.st,tm=n.tm,e=st.t==='tap'?tm.w+tm.h:tm.rad;bb(st.x-e,st.y-e);bb(st.x+e,st.y+e);});
   // carriles de etiquetas (letra en círculo) con guías ortogonales tipo CAD; se separan solas si se amontonan
   const borde={top:y0,bot:y0+th+SAD,left:x0,right:x0+tw},ext={top:0,bot:0,left:0,right:0};
   for(const ln of ['top','bot','left','right']){
-    const arr=nz.filter(n=>n.lane===ln);if(!arr.length)continue;
+    const arr=nodos.filter(n=>n.lane===ln);if(!arr.length)continue;
     const hz=ln==='top'||ln==='bot',sg=(ln==='top'||ln==='left')?-1:1,lim=hz?g.W:g.H;
+    const wl=n=>hz?n.letras.length:1,sep=(a,b)=>RB*(wl(a)+wl(b))+6;   // 1 letra: 2·RB + 6 (igual que v1)
     arr.forEach(n=>n.des=hz?n.ax:n.ay);arr.sort((a,b)=>a.des-b.des||a.i-b.i);
-    let lo=(hz?x0:y0)-34,hi=(hz?x0+tw:y0+th)+34;const need=(arr.length-1)*SP;
+    let lo=(hz?x0:y0)-34,hi=(hz?x0+tw:y0+th)+34;let need=0;for(let k=1;k<arr.length;k++)need+=sep(arr[k-1],arr[k]);
     if(hi-lo<need){const c=(lo+hi)/2;lo=Math.max(RB+6,c-need/2);hi=Math.min(lim-RB-6,lo+need);lo=Math.max(RB+6,hi-need);}
-    let pv=-Infinity;arr.forEach(n=>{n.pos=Math.max(n.des,lo,pv+SP);pv=n.pos;});
-    let nx=Infinity;for(let k=arr.length-1;k>=0;k--){const n=arr[k];n.pos=Math.min(n.pos,hi,nx-SP);nx=n.pos;}
+    let pv=null;arr.forEach(n=>{n.pos=Math.max(n.des,lo+RB*(wl(n)-1),pv?pv.pos+sep(pv,n):-Infinity);pv=n;});
+    let nx=null;for(let k=arr.length-1;k>=0;k--){const n=arr[k];n.pos=Math.min(n.pos,hi-RB*(wl(n)-1),nx?nx.pos-sep(n,nx):Infinity);nx=n;}
     const der=arr.filter(n=>n.pos>n.des+0.5),izq=arr.filter(n=>n.pos<n.des-0.5);
     der.forEach((n,k)=>n.lvl=der.length-k);izq.forEach((n,k)=>n.lvl=k+1);
-    const dist=BASE+(Math.max(der.length,izq.length)+1)*STEP+RB;ext[ln]=dist+RB;
+    const mx=hz?1:Math.max(...arr.map(n=>n.letras.length));
+    const dist=BASE+(Math.max(der.length,izq.length)+1)*STEP+RB;ext[ln]=dist+RB+(mx-1)*2*RB;
     arr.forEach(n=>{const e=borde[ln];n.bc=clamp(e+sg*dist,RB+3,(hz?g.H:g.W)-RB-3);const el=n.lvl?e+sg*(BASE+n.lvl*STEP):null;
-      let d;
-      if(hz){const be=n.bc-sg*RB;d=el==null?`M${f1(n.ax)} ${f1(n.ay)}V${f1(be)}`:`M${f1(n.ax)} ${f1(n.ay)}V${f1(el)}H${f1(n.pos)}V${f1(be)}`;n.bx=n.pos;n.by=n.bc;}
-      else{const be=n.bc-sg*RB;d=el==null?`M${f1(n.ax)} ${f1(n.ay)}H${f1(be)}`:`M${f1(n.ax)} ${f1(n.ay)}H${f1(el)}V${f1(n.pos)}H${f1(be)}`;n.bx=n.bc;n.by=n.pos;}
-      n.leader={k:'p',r:'ld',d,bq:n.b.id};bb(n.bx-RB,n.by-RB);bb(n.bx+RB,n.by+RB);});
+      const m=n.letras.length;let d;
+      if(hz){const be=m%2?n.bc-sg*RB:n.bc;d=el==null?`M${f1(n.ax)} ${f1(n.ay)}V${f1(be)}`:`M${f1(n.ax)} ${f1(n.ay)}V${f1(el)}H${f1(n.pos)}V${f1(be)}`;
+        n.globos=n.letras.map((q,j)=>({x:n.pos+(j-(m-1)/2)*2*RB,y:n.bc,L:q.L,bq:q.bq}));}
+      else{const be=n.bc-sg*RB;d=el==null?`M${f1(n.ax)} ${f1(n.ay)}H${f1(be)}`:`M${f1(n.ax)} ${f1(n.ay)}H${f1(el)}V${f1(n.pos)}H${f1(be)}`;
+        n.globos=n.letras.map((q,j)=>({x:n.bc+sg*j*2*RB,y:n.pos,L:q.L,bq:q.bq}));}
+      n.bx=n.globos[0].x;n.by=n.globos[0].y;
+      n.leader={k:'p',r:'ld',d,bq:n.b.id};n.globos.forEach(q=>{bb(q.x-RB,q.y-RB);bb(q.x+RB,q.y+RB);});});
   }
   // cotas (estilo CAD): cadena tapa | cuerpo soldadura–soldadura | tapa, extensiones punteadas y Ø interior centrado en el cuerpo
   const tx=(x,y,s,size,r,o)=>{const t=add(Object.assign({k:'t',x:f1(x),y:f1(y),s,size,r,anc:'middle',rot:0},o||{}));
@@ -2124,8 +2235,32 @@ function croquis(L,opt){
   const vT=g.okT?`${miles(g.Tmm)} mm`:(opt.blank?`${BL} mm`:'');
   const tL=`LONGITUD SOLD.–SOLD. ${vL}`, tD=`Ø INT. ${vD}`;
   // Ø: lo más cerca del centro del cuerpo sin pisar boquillas circulares (frente / atrás)
-  const circ=nz.filter(n=>n.st.t==='circ');
+  const circ=dib.filter(n=>n.st.t==='circ');
   const libre=(lo,hi,choca)=>{if(hi-lo<24)return (lo+hi)/2;for(const f of [0.5,0.42,0.58,0.34,0.66,0.26,0.74,0.18,0.82,0.1,0.9]){const c=lo+(hi-lo)*f;if(!circ.some(n=>choca(n,c)))return c;}return (lo+hi)/2;};
+  // Plano v2 (opt.cotas = {R, espCuerpo, espTapa}: textos ya formateados): cotas tipo CAD dentro del croquis.
+  // R INT. del eje a la pared junto a Ø INT.; ESP. MIN. con marca en la pared de cada tapa y del cuerpo.
+  function cotasCAD(cD){
+    const C=opt.cotas,z=10,ZE=9.5,mk=(x,y)=>add({k:'c',r:'dm',cx:f1(x),cy:f1(y),rad:4.5});
+    const libreDe=(lo,hi,usados,eje)=>{for(const f of [0.5,0.4,0.6,0.3,0.7,0.22,0.78,0.15,0.85]){const c=lo+(hi-lo)*f;
+      if(usados.every(u=>Math.abs(c-u)>=30)&&!circ.some(n=>eje(n)+n.tm.rad+3>c-8&&eje(n)-n.tm.rad-3<c+8))return c;}return null;};
+    const ese=(px,py,dx,dy,s,anc)=>{const ex=px+dx,ey=py+dy,hx=ex+(anc==='end'?-6:6);mk(px,py);
+      add({k:'p',r:'dm',d:`M${f1(px+Math.sign(dx)*3.2)} ${f1(py+Math.sign(dy)*3.2)}L${f1(ex)} ${f1(ey)}H${f1(hx)}`});tx(hx+(anc==='end'?-2:2),ey,s,ZE,'dmt',{anc});};
+    if(g.o==='H'){
+      const cy=y0+th/2,xr=libreDe(x0+hd+14,x0+tw-hd-14,[cD],n=>n.st.x);
+      if(xr!=null&&C.R){add({k:'p',r:'dm',d:`M${f1(xr)} ${f1(cy)}V${f1(y0)}`+tic(xr,y0)});add({k:'c',r:'dm',cx:f1(xr),cy:f1(cy),rad:1.6});tx(xr-9,y0+th/4,C.R,z,'dmt',{rot:-90});}
+      if(C.espTapa){const a=Math.PI*0.75;ese(x0+hd+hd*Math.cos(a),cy-g.R*Math.sin(a),-16,-14,C.espTapa,'end');
+        ese(x0+tw-hd-hd*Math.cos(a),cy+g.R*Math.sin(a),16,14,C.espTapa,'start');}
+      if(C.espCuerpo){const xb=libreDe(x0+hd+14,x0+tw-hd-14,[cD,xr==null?-1e9:xr],n=>n.st.x);
+        if(xb!=null){mk(xb,y0+th);tx(xb+0.5,y0+th-8-String(C.espCuerpo).length*ZE*0.28,C.espCuerpo,ZE,'dmt',{rot:-90});}}
+    }else{
+      const cx=x0+tw/2,yr=libreDe(y0+hd+14,y0+th-hd-14,[cD],n=>n.st.y);
+      if(yr!=null&&C.R){add({k:'p',r:'dm',d:`M${f1(cx)} ${f1(yr)}H${f1(x0+tw)}`+tic(x0+tw,yr)});add({k:'c',r:'dm',cx:f1(cx),cy:f1(yr),rad:1.6});tx(cx+tw/4,yr-8,C.R,z,'dmt');}
+      if(C.espTapa){const a=Math.PI*0.25;ese(cx+(tw/2)*Math.cos(a),y0+hd-hd*Math.sin(a),14,-16,C.espTapa,'start');
+        ese(cx+(tw/2)*Math.cos(a),y0+th-hd+hd*Math.sin(a),14,16,C.espTapa,'start');}
+      if(C.espCuerpo){const yb=libreDe(y0+hd+14,y0+th-hd-14,[cD,yr==null?-1e9:yr],n=>n.st.y);
+        if(yb!=null){mk(x0+tw,yb);tx(x0+tw-8,yb,C.espCuerpo,ZE,'dmt',{anc:'end'});}}
+    }
+  }
   if(g.o==='H'){
     const yd=Math.min(g.H-18,borde.bot+(ext.bot||6)+22),sw=tw-2*hd;
     add({k:'p',r:'dx',d:`M${f1(x0)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+tw)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+hd)} ${f1(y0+th+3)}V${f1(yd+5)}M${f1(x0+tw-hd)} ${f1(y0+th+3)}V${f1(yd+5)}`});
@@ -2136,6 +2271,7 @@ function croquis(L,opt){
     const xd=libre(x0+hd+8,x0+tw-hd-24,(n,c)=>n.st.x+n.tm.rad+3>c-6&&n.st.x-n.tm.rad-3<c+20);
     add({k:'p',r:'dm',d:`M${f1(xd)} ${f1(y0)}V${f1(y0+th)}`+tic(xd,y0)+tic(xd,y0+th)});
     tx(xd+11,y0+th/2,tD,12,'dmt',{rot:-90});
+    if(opt.cotas)cotasCAD(xd);
   }else{
     const xd=Math.max(18,borde.left-(ext.left||6)-22),sh=th-2*hd,xm=x0+tw/2;
     add({k:'p',r:'dx',d:`M${f1(xm-4)} ${f1(y0)}H${f1(xd-5)}M${f1(xm-4)} ${f1(y0+th)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+hd)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+th-hd)}H${f1(xd-5)}`});
@@ -2146,12 +2282,13 @@ function croquis(L,opt){
     const yd=libre(y0+hd+8,y0+th-hd-24,(n,c)=>n.st.y+n.tm.rad+3>c-6&&n.st.y-n.tm.rad-3<c+20);
     add({k:'p',r:'dm',d:`M${f1(x0)} ${f1(yd)}H${f1(x0+tw)}`+tic(x0,yd)+tic(x0+tw,yd)});
     tx(x0+tw/2,yd+12,tD,12,'dmt');
+    if(opt.cotas)cotasCAD(yd);
   }
   // orden de dibujo: guías → boquillas → letras (arriba de todo) → áreas de arrastre
-  nz.forEach(n=>add(n.leader));
-  nz.forEach(n=>add(n.glyph));
-  nz.forEach(n=>{add({k:'c',r:'bg',cx:f1(n.bx),cy:f1(n.by),rad:RB,bq:n.b.id});tx(n.bx,n.by,n.L,n.L.length>1?10.5:13,'bgt',{bold:1,bq:n.b.id});});
-  if(opt.hit)nz.forEach(n=>add(n.hit));
+  nodos.forEach(n=>add(n.leader));
+  dib.forEach(n=>add(n.glyph));
+  nodos.forEach(n=>n.globos.forEach(q=>{add({k:'c',r:'bg',cx:f1(q.x),cy:f1(q.y),rad:RB,bq:q.bq});tx(q.x,q.y,q.L,q.L.length>1?10.5:13,'bgt',{bold:1,bq:q.bq});}));
+  if(opt.hit)dib.forEach(n=>add(n.hit));
   bb(x0,y0);if(!isFinite(B.x0))Object.assign(B,{x0:0,y0:0,x1:g.W,y1:g.H});
   return {W:g.W,H:g.H,items:it,g,bb:B};
 }
@@ -2308,9 +2445,9 @@ async function pdf(L,opt){
   const fila=(lbl,val,x1,w,lw)=>{T(lbl,x1+lw,y,{f:FB,z:7.5,anc:'end'});const lx=x1+lw+5;T(val,lx+3,y+1.3,{z:8.6,max:x1+w-lx-6});linea(lx,y-2.2,x1+w,y-2.2,0.45);};
   const kg=v=>{const t=String(v??'').trim();return t?(/kg|psi|bar|kpa/i.test(t)?t:`${t} kg/cm²`):'';};
   const V=k=>blank?'':md[k];
-  fila('CLIENTE:',V('cliente'),M,CW,100);y-=RL;
-  fila('PLANTA:',V('planta'),M,CW,100);y-=RL;
-  const izq=[['TANQUE:',V('tanque')],['TAG:',V('tag')],['MODELO:',V('modelo')],['SERIE:',V('serie')],['MARCA:',V('marca')],['FECHA DE FABRICACIÓN:',blank?'':fechaMx(md.fechaFabricacion)]];
+  fila('RAZÓN SOCIAL:',V('cliente'),M,CW,100);y-=RL;
+  fila('UBICACIÓN:',V('planta'),M,CW,100);y-=RL;
+  const izq=[['NOMBRE DEL EQUIPO:',V('tanque')],['TAG:',V('tag')],['MODELO:',V('modelo')],['SERIE:',V('serie')],['MARCA:',V('marca')],['FECHA DE FABRICACIÓN:',blank?'':fechaMx(md.fechaFabricacion)]];
   const der=[['FECHA DE INSPECCIÓN:',blank?'':fechaMx(md.fechaInspeccion)],['PRESIÓN DE DISEÑO:',blank?'':kg(md.presionDiseno)],['PRESIÓN DE CALIBRACIÓN:',blank?'':kg(md.presionCalibracion)],
              ['PRESIÓN DE ARRANQUE:',blank?'':kg(md.presionArranque)],['PRESIÓN DE PARO:',blank?'':kg(md.presionParo)],['CAPACIDAD:',blank?'':capTxt(md.capacidad)]];
   const half=(CW-20)/2;
@@ -2354,18 +2491,22 @@ async function formato(o,opt){const L=nuevo();L.orientacion=o==='V'?'V':'H';retu
 
 root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,META,META_KEYS,CAP_L_MIN,
   nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,contorno,sitio,aUV,croquis,svg,aJSON,pdf,formato,
-  letra,tapas,tapasUI,parsePulg,fmtPulg,numTxt,capM3,capTxt,isoFecha,anioDe,fechaMx,esTapita,normTipo,variar,baseCol,limpiarCol};
+  letra,grupos,tapas,tapasUI,parsePulg,fmtPulg,numTxt,capM3,capTxt,isoFecha,anioDe,fechaMx,esTapita,normTipo,variar,baseCol,limpiarCol};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
 <script>
-/* FenixMex — PLANO v1 (FXPlano): memoria de cálculo ASME BPVC Sec. VIII Div. 1 + hoja del plano (H / V).
+/* FenixMex — PLANO v2 (FXPlano): memoria de cálculo ASME BPVC Sec. VIII Div. 1 + hoja del plano (H / V).
+   v2 (2026-10-01): hoja densa (columna derecha flexible, memoria con letra auto-ajustada y justificada), cotas CAD en el croquis
+   (R INT., ESP. MIN.), boquillas agrupadas por tipo (una letra por tipo, mismo punto, letras juntas en una guía), letras en la
+   vista lateral / superior por ángulo, croquis de ubicación (imagen + flecha o esquema cuarto + puerta + equipo) y
+   ESPECIFICACIONES vinculadas (PRES. TRAB. MAX. PERM. = min(Pm), hidrostática = diseño × 1.1, capacidad = volumen calculado).
    Fórmulas copiadas de FORMULAS-MEMORIA-EXACTAS.md (plano RSP-020-033/034-2026, DWG v2). No se inventan valores:
    lo que falta queda en blanco / «—» y se lista como pendiente.
    Una sola lista de primitivas (hoja tabloide 1224 × 792 pt, origen arriba-izquierda) → SVG en pantalla y vectores en el PDF.
    Sin estado global, sin red, sin Firebase. No toca el motor NOM-020 (FXEngine). Usa FXLev para el croquis. */
 (function(root){
 'use strict';
-const VERSION=1;
+const VERSION=2;
 // ---------- constantes de las fórmulas (exactas del plano) ----------
 const PI_P=3.1416;          // π como aparece en el plano (§3.1 / §3.2)
 const K_FORMA=1.00;         // UG-32: factor de forma de tapas semielípticas (no es el K de descarga)
@@ -2375,7 +2516,11 @@ const AIRE={C:356.00,K:0.876,M:28.97};   // constantes de la muestra con fluido 
 const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
 // e.plano: solo lo que no existe ya en el equipo del expediente
 const DEF={orientacion:'',cejaRectaMm:'',esfuerzoPermisible:'',eficiencia:'0.85',factorSeguridad:'',radiografiado:'',corrosionMm:'',
-  nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',relevoC:'',relevoK:'',relevoM:'',areaValvulaCm2:'',dibujo:'',fecha:''};
+  nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',relevoC:'',relevoK:'',relevoM:'',areaValvulaCm2:'',dibujo:'',fecha:'',
+  // v2 · croquis de ubicación: '' (sin croquis) | 'img' (plano del lugar + flecha) | 'esq' (cuarto + puerta + equipo). Posiciones 0–1.
+  ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:''};
+// v2 · por tipo de boquilla (llave = tipo del catálogo): conexión de la tabla (vacío → tipoConexion / COPLE) y ángulo en la vista lateral/superior
+const DEF_OBJ=['conexiones','angulos'];
 const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
 const NOTAS=[
  'a) EL DIBUJO Y LA MEMORIA DE CALCULO SE ELABORAN PARA OBTENER LA AUTORIZACIÓN DE FUNCIONAMIENTO  CONFORME A LO ESTABLECIDO EN LA NOM-020-STPS-2011.',
@@ -2394,8 +2539,10 @@ const ok=(...a)=>a.every(x=>typeof x==='number'&&isFinite(x));
 const fx=(n,d)=>ok(n)?n.toFixed(d):'—';
 const sinAc=s=>txt(s).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 function esAire(f){return /(^|[^A-Z])AIRE?($|[^A-Z])/.test(sinAc(f));}
-function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(const k in DEF)if(p[k]!=null)o[k]=String(p[k]);return o;}
-function esDefault(p){if(!p)return true;for(const k in DEF)if(txt(p[k])!==txt(DEF[k]))return false;return true;}
+function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(const k in DEF)if(p[k]!=null)o[k]=String(p[k]);
+  for(const k of DEF_OBJ){o[k]={};const src=p&&p[k];if(src&&typeof src==='object'&&!Array.isArray(src))for(const t in src){const v=txt(src[t]);if(v)o[k][t]=v;}}
+  return o;}
+function esDefault(p){if(!p)return true;for(const k in DEF)if(txt(p[k])!==txt(DEF[k]))return false;for(const k of DEF_OBJ)if(p[k]&&Object.keys(p[k]).length)return false;return true;}
 // E: fracción; si viene en % (85) se divide entre 100
 function eficiencia(v){const n=num(v);return !(n>0)?NaN:n>1?n/100:n;}
 function minNum(arrs){const v=[].concat(...arrs.map(a=>Array.isArray(a)?a:[])).map(num).filter(x=>x>0);return v.length?Math.min(...v):NaN;}
@@ -2429,8 +2576,12 @@ function datos(e,ctx){
   const donde={P:['exp','presionDiseno'],S:['plano','esfuerzoPermisible'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
     tEnv:['pnd','espEnv'],tTap:['pnd','espSup'],Pc:['exp','presionCalibracion'],Td:['exp','tempDiseno'],C:['plano','relevoC'],Kd:['plano','relevoK'],M:['plano','relevoM'],dv:['exp','diametroValvulaMm']};
   const faltan=Object.keys(lbl).filter(k=>!ok(inp[k])).map(k=>({k,m:lbl[k],donde:donde[k][0],campo:donde[k][1]}));
-  return {v:VERSION,e,pl,lv,ctx,inp,r,faltan,boq};
+  const ubic={modo:pl.ubicModo==='img'||pl.ubicModo==='esq'?pl.ubicModo:'',x:frac(pl.ubicX,.5),y:frac(pl.ubicY,.5),ang:isFinite(num(pl.ubicAng))?num(pl.ubicAng):135,
+    puerta:['arriba','abajo','izquierda','derecha'].includes(pl.ubicPuerta)?pl.ubicPuerta:'abajo',puertaPos:frac(pl.ubicPuertaPos,.5),eqX:frac(pl.ubicEqX,.5),eqY:frac(pl.ubicEqY,.45),
+    rotulo:txt(pl.ubicRotulo)||txt(e.ubicacion),tag:txt(e.tag)||txt(e.nombre)};
+  return {v:VERSION,e,pl,lv,ctx,inp,r,faltan,boq,ubic};
 }
+function frac(v,def){const n=num(v);return isFinite(n)?Math.max(0,Math.min(1,n)):def;}
 
 // ---------- cálculo (§3 del prompt / FORMULAS-MEMORIA-EXACTAS §1–§5) ----------
 function calc(i){
@@ -2469,19 +2620,40 @@ function conclusion(d){
   return `EL EQUIPO CUENTA CON UNA VÁLVULA DE SEGURIDAD DE ${i.dv.toFixed(2)} mm DE DIÁMETRO, CON ÁREA DE DESCARGA = ${r.Ainst.toFixed(3)} cm² ${r.cumple?'>':'≤'} AL ÁREA DE DESCARGA CALCULADA = ${r.A.toFixed(4)} cm² Y CALIBRADA A ${i.Pc.toFixed(2)} kg/cm².`;
 }
 // ESPECIFICACIONES: [etiqueta exacta del plano, valor]
+// v2: capacidad = volumen calculado (3 decimales) cuando está completo; si no, la capacidad del expediente (placa).
+function capacidad(d){return ok(d.r.Vtot)?{v:d.r.Vtot.toFixed(3),vinc:true}:{v:txt(d.e.capacidadVolumetrica),vinc:false};}
+function hidrostatica(d){return ok(d.inp.P)?(d.inp.P*1.1).toFixed(2):txt(d.e.presionPruebaHidrostatica);}
 function especificaciones(d){
   const {e,pl,inp:i,r}=d,v=s=>txt(s)||'—';
-  return [['CÓDIGO DE FABRICACIÓN',v(pl.codigoFabricacion)],['FACTOR DE SEGURIDAD',v(pl.factorSeguridad)],['CAPACIDAD VOLUMETRICA (m³ )',v(e.capacidadVolumetrica)],
+  return [['CÓDIGO DE FABRICACIÓN',v(pl.codigoFabricacion)],['FACTOR DE SEGURIDAD',v(pl.factorSeguridad)],['CAPACIDAD VOLUMETRICA (m³ )',v(capacidad(d).v)],
     ['FLUIDO',v(e.fluido)],['PRESIÓN DE DISEÑO  (kg/cm²)',v(e.presionDiseno)],['PRESIÓN DE OPERACIÓN.  (kg/cm²)',v(e.presionOperacion)],
-    ['PRES. TRAB. MAX. PERM. (kg/cm²)',fx(r.Pm,2)],['PRES. PRUEB. HIDROSTÁTICA   (kg/cm²)',v(e.presionPruebaHidrostatica)],
+    ['PRES. TRAB. MAX. PERM. (kg/cm²)',fx(r.Pm,2)],['PRES. PRUEB. HIDROSTÁTICA   (kg/cm²)',v(hidrostatica(d))],
     ['TEMPERATURA DE DISEÑO  (°C)',v(e.tempDiseno)],['TEMPERATURA DE OPERACIÓN  (°C)',v(e.tempOperacion)],['FABRICANTE',v(pl.fabricante||e.marca)],
     ['AÑO DE FABRICACIÓN',txt(e.anioFabricacion)||'S/D'],['NÚMERO DE SERIE',v(e.numeroSerie)],['NATIONAL BOARD',v(pl.nationalBoard)],['UBICACIÓN',v(e.ubicacion)],
     ['RADIOGRAFIADO',v(pl.radiografiado)],['EFICIENCIA DE SOLDADURA (%)',ok(i.E)?String(+(i.E*100).toFixed(2)):'—'],['CORROSIÓN (mm)',v(pl.corrosionMm)],
     ['MATERIALES',[v(e.materialCuerpo),v(e.materialTapa)]],['ESFUERZO PERMISIBLE (kg/cm²)',fx(i.S,2)]];
 }
-function boquillas(d){
-  return d.boq.map((b,i)=>{const p=pos(b.diametroPulgadas);return {item:b.letra||letra(i),tipo:txt(d.pl.tipoConexion)||'—',cant:'1',mm:ok(p)?(p*25.4).toFixed(2):'—',serv:sinAc(b.tipo)==='TAPON'?'TAPÓN':txt(b.tipo)};});
+// v2: una letra por TIPO (orden de primera aparición, FXLev.grupos); un renglón por tipo y Ø distinto (misma letra), CANTIDAD = cuántas.
+function tipoDe(b){const X=root.FXLev;return X?X.normTipo(b&&b.tipo):txt(b&&b.tipo).toUpperCase();}
+function servicio(t){return sinAc(t)==='TAPON'?'TAPÓN':txt(t);}
+function conexion(d,t){return txt(d.pl.conexiones&&d.pl.conexiones[t])||txt(d.pl.tipoConexion)||'COPLE';}
+function grupos(d){
+  const X=root.FXLev,bq=d.boq.filter(b=>tipoDe(b));
+  const gl=X?X.grupos(bq):(()=>{const letraDe={},orden=[];bq.forEach(b=>{const t=tipoDe(b);if(!(t in letraDe)){letraDe[t]=letra(orden.length);orden.push(t);}});return {letraDe,orden};})();
+  return gl.orden.map(t=>{const del=bq.filter(b=>tipoDe(b)===t),pd=new Map();
+    del.forEach(b=>{const p=pos(b.diametroPulgadas),k=ok(p)?(p*25.4).toFixed(2):'—';pd.set(k,(pd.get(k)||0)+1);});
+    const a=del[0],ang=num(d.pl.angulos&&d.pl.angulos[t]);
+    return {t,letra:gl.letraDe[t],n:del.length,serv:servicio(t),con:conexion(d,t),porD:[...pd.entries()],cara:a.cara,pos:a.pos||{u:.5,v:.5},
+      ang:isFinite(ang)?((ang%360)+360)%360:angDefault(d.inp.o,a),angManual:isFinite(ang)};});
 }
+function boquillas(d){
+  const out=[];grupos(d).forEach(g=>g.porD.forEach(([mm,c])=>out.push({item:g.letra,tipo:g.con,cant:String(c),mm,serv:g.serv,t:g.t})));return out;
+}
+// Ángulo por omisión en la vista lateral (H, mirando desde el extremo) o superior (V, desde arriba): 0° arriba, sentido horario.
+// H: arriba 0 · atrás 90 · abajo 180 · frente 270 · lado (en la tapa) = centro.  V: atrás 0 · frente 180 · lado 270 (izq.) / 90 (der.) · arriba / abajo (tapas) = centro.
+function angDefault(o,b){const c=b&&b.cara,u=+(b&&b.pos&&b.pos.u);
+  if(o==='V')return c==='atras'?0:c==='frente'?180:c==='lado'?(u<0.5?270:90):null;
+  return c==='arriba'?0:c==='atras'?90:c==='abajo'?180:c==='frente'?270:null;}
 function letra(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
 
 // ---------- medidas de texto (Liberation Sans de FX_ASSETS vía fontkit; respaldo aproximado) ----------
@@ -2497,186 +2669,281 @@ function metricas(fonts){
 }
 
 // ---------- hoja: primitivas ----------
-// l: línea · r: rectángulo · t: texto (y = línea base) · p: path SVG con transformación · c: círculo · img: imagen
+// l: línea · r: rectángulo · t: texto (y = línea base) · p: path SVG con transformación (fill: blanco; fillC: color) · c: círculo · img: imagen
 const SH={W:1224,H:792};
 const VINO=[.49,.10,.13],ROJO=[.75,.1,.1];
 const ROL={tq:{w:1.4},tg:{w:.6},sd:{w:.8,c:.25},dm:{w:.5,c:.35},dx:{w:.4,c:.55,dash:[2.4,2]},bq:{w:1,fill:1},bqc:{w:1},ld:{w:.5,c:.15},bg:{w:.7,fill:1}};
 
-function hoja(d,opt){
-  opt=opt||{};
-  const Mx=opt.M||metricas(opt.fonts),it=[],{W,H}=SH;
-  const add=o=>{it.push(o);return o;};
+// Contexto de dibujo (misma API para la hoja y para la vista previa del croquis de ubicación)
+function lienzo(Mx){
+  const it=[],add=o=>{it.push(o);return o;};
   const T=(s,x,y,o)=>{o=o||{};s=String(s??'');if(!s)return 0;const z=o.z||7;let w=Mx.w(s,z,o.b);
     let zz=z;if(o.max&&w>o.max){zz=Math.max(o.min||4.2,z*o.max/w);w=Mx.w(s,zz,o.b);}
     add({k:'t',s,x,y,z:zz,b:!!o.b,anc:o.anc||'start',c:o.c,rot:o.rot||0,u:o.u});return w;};
   const Lh=(x1,y1,x2,y2,w,c,dash)=>add({k:'l',x1,y1,x2,y2,w:w||.5,c,dash});
   const Rc=(x,y,w,h,o)=>add(Object.assign({k:'r',x,y,w,h,lw:.6},o||{}));
-  const wrap=(s,w,z,b)=>{const out=[];let ln='';for(const pal of String(s).split(/\s+/).filter(Boolean)){const t=ln?ln+' '+pal:pal;if(ln&&Mx.w(t,z,b)>w){out.push(ln);ln=pal;}else ln=t;}if(ln)out.push(ln);return out;};
-  const {inp:i,r,e,pl,ctx}=d,o=i.o;
+  const wrap=(s,w,z,b)=>wrapW(Mx,s,w,z,b);
+  return {it,add,T,Lh,Rc,wrap,Mx};
+}
+
+// ---------- croquis de ubicación (caja x,y,w,h). Devuelve el área interactiva (imagen o cuarto) para la vista previa ----------
+function ubicacion(d,c,x,y,w,h,opt){
+  opt=opt||{};const u=d.ubic,{T,Lh,Rc,add}=c;
+  Rc(x,y,w,h,{lw:.6});T('CROQUIS DE UBICACIÓN',x+4,y+8.4,{z:6.4,b:1,max:w*0.55});
+  if(u.rotulo)T(u.rotulo,x+w-4,y+8.4,{z:5.6,anc:'end',c:.35,max:w*0.42});
+  Lh(x,y+11.5,x+w,y+11.5,.4,.5);
+  const ax=x+4,ay=y+14,aw=w-8,ah=h-17;
+  const flecha=(px,py,ang,L,rot)=>{const a=ang*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a),qx=px-dx*L,qy=py-dy*L,hb=Math.min(8,L*.35),hw=hb*.5;
+    Lh(qx,qy,px-dx*hb*.8,py-dy*hb*.8,1.6,ROJO);
+    add({k:'p',d:`M${px} ${py}L${px-dx*hb-dy*hw} ${py-dy*hb+dx*hw}L${px-dx*hb+dy*hw} ${py-dy*hb-dx*hw}Z`,tx:0,ty:0,s:1,w:.4,c:ROJO,fillC:ROJO});
+    if(rot){const z=6.2,ab=dx>0.3?'end':dx<-0.3?'start':'middle',oy=dy>0.3?-3:dy<-0.3?8:3;T(rot,qx-dx*2,qy+oy,{z,b:1,anc:ab,c:ROJO,max:aw*.6});}};
+  if(u.modo==='img'){
+    if(opt.ubicImg&&opt.ubicDim&&opt.ubicDim.w>0&&opt.ubicDim.h>0){
+      const k=Math.min(aw/opt.ubicDim.w,ah/opt.ubicDim.h),iw=opt.ubicDim.w*k,ih=opt.ubicDim.h*k,ix=ax+(aw-iw)/2,iy=ay+(ah-ih)/2;
+      add({k:'img',src:'ubic',x:ix,y:iy,w:iw,h:ih});Rc(ix,iy,iw,ih,{lw:.3,s:.6});
+      flecha(ix+u.x*iw,iy+u.y*ih,u.ang,Math.max(16,Math.min(iw,ih)*.3),u.tag);
+      return {modo:'img',x:ix,y:iy,w:iw,h:ih};
+    }
+    T('SIN IMAGEN DEL LUGAR',ax+aw/2,ay+ah/2+2,{z:6,anc:'middle',c:.5});return null;
+  }
+  if(u.modo==='esq'){
+    const rx=ax+6,ry=ay+4,rw=aw-12,rh=ah-9;
+    const lado=u.puerta,hz=lado==='arriba'||lado==='abajo',len=hz?rw:rh,dw=Math.max(8,Math.min(28,len*.22)),p0=Math.max(0,Math.min(len-dw,u.puertaPos*len-dw/2));
+    const seg=(x1,y1,x2,y2,es)=>{if(!es){Lh(x1,y1,x2,y2,1.1);return;}
+      if(hz){Lh(x1,y1,x1+p0,y2,1.1);Lh(x1+p0+dw,y1,x2,y2,1.1);}else{Lh(x1,y1,x2,y1+p0,1.1);Lh(x1,y1+p0+dw,x2,y2,1.1);}};
+    seg(rx,ry,rx+rw,ry,lado==='arriba');seg(rx,ry+rh,rx+rw,ry+rh,lado==='abajo');seg(rx,ry,rx,ry+rh,lado==='izquierda');seg(rx+rw,ry,rx+rw,ry+rh,lado==='derecha');
+    // hoja de la puerta (abatible hacia adentro) + arco punteado
+    let hx,hy,lx,ly,ex,ey,sw;
+    if(lado==='abajo'){hx=rx+p0;hy=ry+rh;lx=hx;ly=hy-dw;ex=hx+dw;ey=hy;sw=1;}
+    else if(lado==='arriba'){hx=rx+p0;hy=ry;lx=hx;ly=hy+dw;ex=hx+dw;ey=hy;sw=0;}
+    else if(lado==='izquierda'){hx=rx;hy=ry+p0;lx=hx+dw;ly=hy;ex=hx;ey=hy+dw;sw=1;}
+    else{hx=rx+rw;hy=ry+p0;lx=hx-dw;ly=hy;ex=hx;ey=hy+dw;sw=0;}
+    Lh(hx,hy,lx,ly,.8);add({k:'p',d:`M${lx} ${ly}A${dw} ${dw} 0 0 ${sw} ${ex} ${ey}`,tx:0,ty:0,s:1,w:.45,c:.35,dash:[2,1.6]});
+    {const tz=5.2,mx=hz?rx+p0+dw/2:(lado==='izquierda'?rx-1:rx+rw+1),my=hz?(lado==='abajo'?ry+rh+tz+1.5:ry-2):ry+p0+dw/2;
+      if(hz)T('ACCESO',mx,my,{z:tz,anc:'middle',c:.35});else T('ACCESO',lado==='izquierda'?mx:mx+tz,my,{z:tz,anc:'middle',c:.35,rot:-90});}
+    // equipo
+    const H_=d.inp.o!=='V',ew=H_?Math.min(30,rw*.3):Math.min(13,rw*.14),eh=H_?Math.min(13,rh*.22):Math.min(24,rh*.36);
+    const exq=rx+u.eqX*rw,eyq=ry+u.eqY*rh,ex0=Math.max(rx+2,Math.min(rx+rw-ew-2,exq-ew/2)),ey0=Math.max(ry+2,Math.min(ry+rh-eh-2,eyq-eh/2)),r_=Math.min(ew,eh)/2;
+    add({k:'p',d:H_?`M${ex0+r_} ${ey0}H${ex0+ew-r_}A${r_} ${r_} 0 0 1 ${ex0+ew-r_} ${ey0+eh}H${ex0+r_}A${r_} ${r_} 0 0 1 ${ex0+r_} ${ey0}Z`
+      :`M${ex0} ${ey0+r_}A${r_} ${r_} 0 0 1 ${ex0+ew} ${ey0+r_}V${ey0+eh-r_}A${r_} ${r_} 0 0 1 ${ex0} ${ey0+eh-r_}Z`,tx:0,ty:0,s:1,w:.9,c:ROJO,fillC:[.98,.9,.9]});
+    {const ty=ey0+eh+6.6<=ry+rh-1?ey0+eh+6.6:ey0-2.5;T(u.tag||'EQUIPO',ex0+ew/2,ty,{z:5.8,b:1,anc:'middle',c:ROJO,max:rw-6});}
+    return {modo:'esq',x:rx,y:ry,w:rw,h:rh};
+  }
+  T('SIN CROQUIS DE UBICACIÓN',ax+aw/2,ay+ah/2+2,{z:6,anc:'middle',c:.5});return null;
+}
+// Vista previa suelta del croquis de ubicación (pantalla del Plano)
+function ubicLayout(d,opt){
+  opt=opt||{};const Mx=opt.M||metricas(opt.fonts),c=lienzo(Mx),W=opt.w||300,H=opt.h||170;
+  const area=ubicacion(d,c,1,1,W-2,H-2,opt);return {W,H,items:c.it,area};
+}
+
+function hoja(d,opt){
+  opt=opt||{};
+  const Mx=opt.M||metricas(opt.fonts),{W,H}=SH,c=lienzo(Mx),{T,Lh,Rc,add,wrap}=c;
+  const {inp:i,r,e,pl,ctx}=d,o=i.o,X0=30,X1=W-30,Y0=30,Y1=H-30;
 
   // ---- marco con zonas (1–8 / A–D)
   Rc(12,12,W-24,H-24,{lw:1.4});Rc(22,22,W-44,H-44,{lw:.5});
   for(let k=0;k<8;k++){const x=22+(W-44)*(k+.5)/8;T(String(k+1),x,19.2,{z:6,anc:'middle',c:.4});T(String(k+1),x,H-14.2,{z:6,anc:'middle',c:.4});
     if(k)for(const yy of [[12,22],[H-22,H-12]])Lh(22+(W-44)*k/8,yy[0],22+(W-44)*k/8,yy[1],.4);}
-  'ABCD'.split('').forEach((c,k)=>{const y=22+(H-44)*(k+.5)/4;T(c,17,y+2,{z:6,anc:'middle',c:.4});T(c,W-17,y+2,{z:6,anc:'middle',c:.4});
+  'ABCD'.split('').forEach((ch,k)=>{const y=22+(H-44)*(k+.5)/4;T(ch,17,y+2,{z:6,anc:'middle',c:.4});T(ch,W-17,y+2,{z:6,anc:'middle',c:.4});
     if(k)for(const xx of [[12,22],[W-22,W-12]])Lh(xx[0],22+(H-44)*k/4,xx[1],22+(H-44)*k/4,.4);});
 
-  // ---- columna derecha: especificaciones, boquillas, notas, cajetín
-  const RX=906,RW=W-30-RX,RY=32;
-  let y=RY;
-  {const filas=especificaciones(d),rh=12.6,lw=172;
-    Rc(RX,y,RW,15,{lw:.8});T('ESPECIFICACIONES',RX+RW/2,y+10.6,{z:8,b:1,anc:'middle'});y+=15;
+  // ---- columna derecha: ESPECIFICACIONES · BOQUILLAS · (CROQUIS DE UBICACIÓN) · NOTAS · CAJETÍN — se reparte toda la altura
+  const RX=906,RW=X1-RX;
+  const filas=especificaciones(d),bq=boquillas(d),nS=filas.length+1;
+  const notasL=NOTAS.map(n=>wrap(n,RW-6,5.6)),nlh=6.9,hN=10+notasL.reduce((a,l)=>a+l.length*nlh+2.4,0);
+  const CJ_H=166,GAP=5,UMIN=64,conU=!!d.ubic.modo;
+  let rhS=11.4,rhB=10.2;
+  const hS=()=>14+nS*rhS,hB=()=>13+10.5+Math.max(bq.length,2)*rhB;
+  const libre=()=>(Y1-Y0)-(hS()+hB()+hN+CJ_H+GAP*(conU?4:3));
+  if(conU&&libre()<UMIN){const f=Math.max(0,Math.min(1,(UMIN-libre())/((nS*(rhS-10.2))+(Math.max(bq.length,2)*(rhB-8.4))||1)));rhS-=(rhS-10.2)*f;rhB-=(rhB-8.4)*f;}
+  // sin croquis de ubicación: el sobrante agranda renglones (tope 14.2 / 13.6) y lo que quede se reparte entre los bloques
+  if(!conU&&libre()>0){const nb=Math.max(bq.length,2),s0=libre();rhS=Math.min(14.2,rhS+s0*.62/nS);rhB=Math.min(13.6,rhB+Math.max(0,libre())/nb);}
+  let hU=0;
+  if(conU){hU=libre();if(hU<40)hU=0;}
+  const gap=GAP+(conU&&hU?0:Math.max(0,libre())/2);
+  let y=Y0;
+  // ESPECIFICACIONES
+  {const rh=rhS,lw=170,zl=Math.min(7,rh*.54),zv=Math.min(7.6,rh*.58),by=rh*.7;
+    Rc(RX,y,RW,14,{lw:.8});T('ESPECIFICACIONES',RX+RW/2,y+10,{z:8,b:1,anc:'middle'});y+=14;
     for(const [l,v] of filas){
-      if(Array.isArray(v)){Rc(RX,y,RW,rh*2);Lh(RX+lw,y,RX+lw,y+rh*2);T(l,RX+4,y+rh+3.6,{z:6.4,max:lw-8});
+      if(Array.isArray(v)){Rc(RX,y,RW,rh*2);Lh(RX+lw,y,RX+lw,y+rh*2);T(l,RX+4,y+rh+by*.55,{z:zl,max:lw-8});
         const half=(RW-lw)/2;Lh(RX+lw,y+rh,RX+RW,y+rh);Lh(RX+lw+half,y,RX+lw+half,y+rh*2);
-        T('CUERPO',RX+lw+half/2,y+8.8,{z:5.8,b:1,anc:'middle'});T('TAPAS',RX+lw+half*1.5,y+8.8,{z:5.8,b:1,anc:'middle'});
-        T(v[0],RX+lw+half/2,y+rh+8.8,{z:6.6,anc:'middle',max:half-4});T(v[1],RX+lw+half*1.5,y+rh+8.8,{z:6.6,anc:'middle',max:half-4});y+=rh*2;continue;}
-      Rc(RX,y,RW,rh);Lh(RX+lw,y,RX+lw,y+rh);T(l,RX+4,y+8.8,{z:6.4,max:lw-8});T(v,RX+lw+(RW-lw)/2,y+8.8,{z:6.8,anc:'middle',max:RW-lw-6,b:v!=='—'&&/PRES\. TRAB/.test(l)});y+=rh;}
+        T('CUERPO',RX+lw+half/2,y+by,{z:zl*.9,b:1,anc:'middle'});T('TAPAS',RX+lw+half*1.5,y+by,{z:zl*.9,b:1,anc:'middle'});
+        T(v[0],RX+lw+half/2,y+rh+by,{z:zv,anc:'middle',max:half-4});T(v[1],RX+lw+half*1.5,y+rh+by,{z:zv,anc:'middle',max:half-4});y+=rh*2;continue;}
+      Rc(RX,y,RW,rh);Lh(RX+lw,y,RX+lw,y+rh);T(l,RX+4,y+by,{z:zl,max:lw-8});T(v,RX+lw+(RW-lw)/2,y+by,{z:zv,anc:'middle',max:RW-lw-6,b:v!=='—'&&/PRES\. TRAB/.test(l)});y+=rh;}
   }
-  // cajetín (abajo) y notas (encima del cajetín); boquillas ocupa el resto
-  const CJ_H=170,cjY=H-30-CJ_H;
-  const notasL=NOTAS.map(n=>wrap(n,RW-8,5.6));const nlh=7,notasH=12+notasL.reduce((a,l)=>a+l.length*nlh+3,0);
-  const nY=cjY-6-notasH;
-  {let yy=nY+8;T('NOTAS:',RX,yy,{z:6.6,b:1});yy+=9;
-    notasL.forEach(ls=>{ls.forEach(l=>{T(l,RX+2,yy,{z:5.6});yy+=nlh;});yy+=3;});}
-  {const bq=boquillas(d),bY=y+10,disp=nY-8-bY;
-    Rc(RX,bY,RW,14,{lw:.8});T('T A B L A   D E   B O Q U I L L A S',RX+RW/2,bY+10,{z:7.4,b:1,anc:'middle'});
-    const cols=[['ITEM',30],['TIPO',50],['CANTIDAD',44],['Ø mm',46],['S E R V I C I O',RW-170]];
-    let x=RX,yy=bY+14;const hh=11;Rc(RX,yy,RW,hh);
-    cols.forEach(([t,w],k)=>{T(t,x+w/2,yy+7.8,{z:5.6,b:1,anc:'middle',max:w-3});if(k)Lh(x,yy,x,yy+hh);x+=w;});yy+=hh;
-    const n=Math.max(bq.length,1),rh=Math.max(8,Math.min(11,(disp-14-hh)/n)),z=Math.min(6.6,rh*0.62);
-    if(!bq.length){Rc(RX,yy,RW,rh*2);T('SIN BOQUILLAS REGISTRADAS (importa el levantamiento)',RX+RW/2,yy+rh+2.5,{z:6,anc:'middle',c:.4});}
-    bq.forEach(b=>{Rc(RX,yy,RW,rh);let xx=RX;const vals=[b.item,b.tipo,b.cant,b.mm,b.serv];
-      cols.forEach(([,w],k)=>{T(vals[k],xx+w/2,yy+rh/2+z*0.36,{z,anc:'middle',max:w-4,b:k===0});if(k)Lh(xx,yy,xx,yy+rh);xx+=w;});yy+=rh;});
+  y+=gap;
+  // TABLA DE BOQUILLAS (agrupada por tipo): ITEM | Ø mm | TIPO | CANTIDAD | SERVICIO
+  {Rc(RX,y,RW,13,{lw:.8});T('T A B L A   D E   B O Q U I L L A S',RX+RW/2,y+9.4,{z:7.2,b:1,anc:'middle'});y+=13;
+    const cols=[['ITEM',30],['Ø mm',44],['TIPO',52],['CANTIDAD',44],['S E R V I C I O',RW-170]],hh=10.5;
+    let x=RX;Rc(RX,y,RW,hh);cols.forEach(([t,w],k)=>{T(t,x+w/2,y+7.4,{z:5.6,b:1,anc:'middle',max:w-3});if(k)Lh(x,y,x,y+hh);x+=w;});y+=hh;
+    const rh=rhB,z=Math.min(6.8,rh*.62);
+    if(!bq.length){Rc(RX,y,RW,rh*2);T('SIN BOQUILLAS REGISTRADAS (importa el levantamiento)',RX+RW/2,y+rh+2.5,{z:6,anc:'middle',c:.4});y+=rh*2;}
+    else{let prev=null;bq.forEach(b=>{Rc(RX,y,RW,rh);let xx=RX;const vals=[b.item===prev?'':b.item,b.mm,b.tipo,b.cant,b.serv];prev=b.item;
+      cols.forEach(([,w],k)=>{T(vals[k],xx+w/2,y+rh/2+z*.36,{z,anc:'middle',max:w-4,b:k===0});if(k)Lh(xx,y,xx,y+rh);xx+=w;});y+=rh;});
+      for(let k=bq.length;k<2;k++){Rc(RX,y,RW,rh);let xx=RX;cols.forEach(([,w],j)=>{if(j)Lh(xx,y,xx,y+rh);xx+=w;});y+=rh;}}
   }
-  // cajetín
+  y+=gap;
+  // CROQUIS DE UBICACIÓN (toma el espacio que sobra)
+  if(conU&&hU>0){ubicacion(d,c,RX,y,RW,hU,opt);y+=hU+gap;}
+  // NOTAS (encima del cajetín)
+  const cjY=Y1-CJ_H,nY=cjY-GAP-hN;
+  {let yy=nY+7;T('NOTAS:',RX,yy,{z:6.6,b:1});yy+=8.6;
+    notasL.forEach(ls=>{ls.forEach(l=>{T(l,RX+2,yy,{z:5.6});yy+=nlh;});yy+=2.4;});}
+  // CAJETÍN
   {const x0=RX,w=RW,y0=cjY,V=VINO;let yy=y0;
     Rc(x0,y0,w,CJ_H,{lw:1.2,s:V});
-    const celda=(x,y,ww,hh,lbl,val,o)=>{o=o||{};Rc(x,y,ww,hh,{lw:.5,s:V});if(lbl)T(lbl,x+3,y+6.4,{z:4.8,c:.35});if(val!=null)T(val,o.anc==='start'?x+3:x+ww/2,y+hh-3.6,{z:o.z||6.8,b:o.b,anc:o.anc||'middle',max:ww-6});};
-    // cliente + domicilio
-    Rc(x0,yy,w,32,{lw:.5,s:V});T(txt(ctx.razonSocial)||'—',x0+w/2,yy+11.5,{z:8.4,b:1,anc:'middle',max:w-10});
-    const dl=wrap(txt(ctx.domicilio),w-12,5.4);dl.slice(0,2).forEach((l,k)=>T(l,x0+w/2,yy+20+k*6.6,{z:5.4,anc:'middle',c:.25}));yy+=32;
-    Rc(x0,yy,w,14,{lw:.5,s:V,fill:[.97,.94,.94]});T('PLANO Y MEMORIA DE CÁLCULO · '+(txt(pl.codigoFabricacion)||COD_FAB),x0+w/2,yy+9.6,{z:6.4,b:1,anc:'middle',c:V,max:w-8});yy+=14;
-    celda(x0,yy,w*.64,18,'EQUIPO:',txt(e.nombre)||'—');celda(x0+w*.64,yy,w*.36,18,'No. DE TAG:',txt(e.tag)||'—',{b:1});yy+=18;
-    celda(x0,yy,w*.5,18,'DIBUJO:',txt(pl.dibujo)||'—',{z:6.2});celda(x0+w*.5,yy,w*.5,18,'REVISO:',txt(ctx.firmante)?'ING. '+txt(ctx.firmante).replace(/^ING\.?\s*/i,''):'—',{z:6.2});yy+=18;
-    celda(x0,yy,w*.25,18,'ESCALA:','S/E');celda(x0+w*.25,yy,w*.25,18,'ACOTACION:','mm');celda(x0+w*.5,yy,w*.5,18,'FECHA:',txt(pl.fecha)||fechaCajetin(e.fechaPnd)||'—');yy+=18;
-    celda(x0,yy,w,20,'PLANO:',txt(e.codigoMemoriaCalculo)||'—',{z:9,b:1});yy+=20;
-    const fh=CJ_H-(yy-y0)-22;
-    celda(x0,yy,w*.55,fh,'FIRMA :',null);if(opt.firma)add({k:'img',src:'firma',x:x0+6,y:yy+8,w:w*.55-12,h:fh-10,fit:1});
+    const celda=(x,y,ww,hh,lbl,val,o)=>{o=o||{};Rc(x,y,ww,hh,{lw:.5,s:V});if(lbl)T(lbl,x+3,y+6.2,{z:4.8,c:.35});if(val!=null)T(val,o.anc==='start'?x+3:x+ww/2,y+hh-3.4,{z:o.z||6.8,b:o.b,anc:o.anc||'middle',max:ww-6});};
+    Rc(x0,yy,w,30,{lw:.5,s:V});T(txt(ctx.razonSocial)||'—',x0+w/2,yy+11,{z:8.4,b:1,anc:'middle',max:w-10});
+    const dl=wrap(txt(ctx.domicilio),w-12,5.4);dl.slice(0,2).forEach((l,k)=>T(l,x0+w/2,yy+19+k*6.4,{z:5.4,anc:'middle',c:.25}));yy+=30;
+    Rc(x0,yy,w,13,{lw:.5,s:V,fill:[.97,.94,.94]});T('PLANO Y MEMORIA DE CÁLCULO · '+(txt(pl.codigoFabricacion)||COD_FAB),x0+w/2,yy+9,{z:6.4,b:1,anc:'middle',c:V,max:w-8});yy+=13;
+    celda(x0,yy,w*.64,17,'EQUIPO:',txt(e.nombre)||'—');celda(x0+w*.64,yy,w*.36,17,'No. DE TAG:',txt(e.tag)||'—',{b:1});yy+=17;
+    celda(x0,yy,w*.5,17,'DIBUJO:',txt(pl.dibujo)||'—',{z:6.2});celda(x0+w*.5,yy,w*.5,17,'REVISO:',txt(ctx.firmante)?'ING. '+txt(ctx.firmante).replace(/^ING\.?\s*/i,''):'—',{z:6.2});yy+=17;
+    celda(x0,yy,w*.25,17,'ESCALA:','S/E');celda(x0+w*.25,yy,w*.25,17,'ACOTACION:','mm');celda(x0+w*.5,yy,w*.5,17,'FECHA:',txt(pl.fecha)||fechaCajetin(e.fechaPnd)||'—');yy+=17;
+    celda(x0,yy,w,19,'PLANO:',txt(e.codigoMemoriaCalculo)||'—',{z:9,b:1});yy+=19;
+    const fh=CJ_H-(yy-y0)-21;
+    celda(x0,yy,w*.55,fh,'FIRMA :',null);if(opt.firma)add({k:'img',src:'firma',x:x0+6,y:yy+7,w:w*.55-12,h:fh-9,fit:1});
     celda(x0+w*.55,yy,w*.45,fh,'CÉDULA PROFESIONAL',null);T(txt(ctx.cedula)||'—',x0+w*.55+w*.45/2,yy+fh/2+4,{z:9,b:1,anc:'middle'});
-    T(txt(ctx.firmante)||'',x0+w*.55+w*.45/2,yy+fh-5,{z:5.4,anc:'middle',c:.3,max:w*.45-8});yy+=fh;
-    Rc(x0,yy,w,22,{lw:.5,s:V});
-    if(opt.logo)add({k:'img',src:'logo',x:x0+5,y:yy+3,w:100,h:16,fit:1,izq:1});
-    T('CORPORATIVO FENIXMEX',x0+w-6,yy+14.5,{z:8.6,b:1,anc:'end',c:V});
+    T(txt(ctx.firmante)||'',x0+w*.55+w*.45/2,yy+fh-4.5,{z:5.4,anc:'middle',c:.3,max:w*.45-8});yy+=fh;
+    Rc(x0,yy,w,21,{lw:.5,s:V});
+    if(opt.logo)add({k:'img',src:'logo',x:x0+5,y:yy+3,w:100,h:15,fit:1,izq:1});
+    T('CORPORATIVO FENIXMEX',x0+w-6,yy+14,{z:8.6,b:1,anc:'end',c:V});
   }
 
-  // ---- croquis
-  const lev=root.FXLev;
+  // ---- croquis (FXLev, agrupado por tipo + cotas CAD)
+  const lev=root.FXLev,G=grupos(d);
   const L=lev?lev.nuevo():null;
   if(L){L.orientacion=o;L.dimensiones.diametroInteriorCm=ok(i.Dcm)?String(i.Dcm):'';L.dimensiones.longitudMm=ok(i.Lmm)?String(i.Lmm):'';L.dimensiones.profundidadTapaMm=ok(i.Tapmm)?String(i.Tapmm):'';
     L.boquillas=(d.boq||[]).filter(b=>lev.normTipo(b.tipo)&&lev.CARAS.includes(b.cara)&&b.pos).map((b,k)=>({id:'b'+k,tipo:lev.normTipo(b.tipo),diametroPulgadas:pos(b.diametroPulgadas)>0?pos(b.diametroPulgadas):null,cara:b.cara,pos:{u:+b.pos.u||0,v:+b.pos.v||0}}));}
   const vista=(x,y,w,h,titulo)=>{T(titulo,x+w/2,y+h-2,{z:8,b:1,anc:'middle',u:1});};
+  const cotas={R:ok(i.Rmm)?`R INT. ${i.Rmm.toFixed(2)} mm`:'R INT. — mm',espCuerpo:`ESP. MIN. ${fx(i.tEnv,2)} mm`,espTapa:`ESP. MIN. ${fx(i.tTap,2)} mm`};
   const pegaCroquis=(rx,ry,rw,rh)=>{
-    if(!L)return;const lay=lev.croquis(L,{hit:false}),bx=lay.bb,PAD=6;
+    if(!L)return;const lay=lev.croquis(L,{hit:false,agrupar:true,cotas}),bx=lay.bb,PAD=6;
     const vx=Math.max(0,bx.x0-PAD),vy=Math.max(0,bx.y0-PAD),vw=Math.min(lay.W,bx.x1+PAD)-vx,vh=Math.min(lay.H,bx.y1+PAD)-vy;
-    const s=Math.min(rw/vw,rh/vh,0.9),tx=rx+(rw-vw*s)/2-vx*s,ty=ry+(rh-vh*s)/2-vy*s;
+    const s=Math.min(rw/vw,rh/vh,0.95),tx=rx+(rw-vw*s)/2-vx*s,ty=ry+(rh-vh*s)/2-vy*s;
     for(const q of lay.items){if(q.r==='hit')continue;
       if(q.k==='t'){let s2=String(q.s);
         if(q.r==='dmt'){let m;
           if(/^Ø INT\./.test(s2))s2=ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm';
           else if((m=/^LONGITUD SOLD\.–SOLD\.\s*(.*)$/.exec(s2)))s2=ok(i.Lmm)?`L = ${i.Lmm.toFixed(2)} mm`:'L = — mm';
           else if((m=/^([\d,.]+)\s*mm$/.exec(s2)))s2=`${(+m[1].replace(/,/g,'')).toFixed(2)} mm`;}
-        const z=q.size*s*(q.r==='bgt'?1.02:.92);
-        if(q.rot)add({k:'t',s:s2,x:tx+q.x*s+z*.35,y:ty+q.y*s,z,b:!!q.bold,anc:q.anc,c:q.r==='dmt'?.25:0,rot:-90});
-        else add({k:'t',s:s2,x:tx+q.x*s,y:ty+q.y*s+z*.35,z,b:!!q.bold,anc:q.anc,c:q.r==='dmt'?.25:0});continue;}
+        const z=q.size*s*(q.r==='bgt'?1.02:.92),an=q.anc||'middle';
+        if(q.rot)add({k:'t',s:s2,x:tx+q.x*s+z*.35,y:ty+q.y*s,z,b:!!q.bold,anc:an,c:q.r==='dmt'?.25:0,rot:-90});
+        else add({k:'t',s:s2,x:tx+q.x*s,y:ty+q.y*s+z*.35,z,b:!!q.bold,anc:an,c:q.r==='dmt'?.25:0});continue;}
       const st=ROL[q.r]||{w:.6};
       if(q.k==='c')add({k:'c',cx:tx+q.cx*s,cy:ty+q.cy*s,rad:q.rad*s,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill});
       else add({k:'p',d:q.d,tx,ty,s,w:st.w,c:st.c,dash:st.dash,fill:st.fill});}
   };
-  const cotasExtra=(x,y)=>{const ls=[`R INT. ${fx(i.Rmm,2)} mm`,`ESP. MIN. CUERPO ${fx(i.tEnv,2)} mm`,`ESP. MIN. TAPAS ${fx(i.tTap,2)} mm`,`C.R. ${fx(i.CR,2)} mm`];
-    ls.forEach((l,k)=>T(l,x,y+k*9,{z:6.4,c:.25}));};
-  const circulo=(cx,cy,R,sup,dy)=>{dy=dy||R+32;
+  // vista lateral (H) / superior (V): ángulos + letras de las boquillas por ángulo (manual por tipo o por omisión según la cara)
+  const circulo=(cx,cy,R,sup,dy)=>{
     add({k:'c',cx,cy,rad:R,w:1.4});if(sup)add({k:'c',cx,cy,rad:R*.62,w:.5,dash:[3,2]});
-    for(let a=0;a<360;a+=45){const t=(a-90)*Math.PI/180,c=Math.cos(t),sn=Math.sin(t);
-      Lh(cx,cy,cx+c*R*1.08,cy+sn*R*1.08,.35,.35,a%90?[3,2]:null);
-      T(a+'°',cx+c*(R*1.08+11),cy+sn*(R*1.08+11)+2.3,{z:6.2,anc:'middle',c:.2});}
+    const ocupa=G.filter(g=>g.ang!=null).map(g=>g.ang);
+    for(let a=0;a<360;a+=45){const t=(a-90)*Math.PI/180,cc=Math.cos(t),sn=Math.sin(t);
+      Lh(cx,cy,cx+cc*R*1.08,cy+sn*R*1.08,.35,.35,a%90?[3,2]:null);
+      if(!ocupa.some(u=>Math.abs(((a-u)%360+540)%360-180)<12))T(a+'°',cx+cc*(R*1.08+10),cy+sn*(R*1.08+10)+2.3,{z:6,anc:'middle',c:.2});}
     Lh(cx-R,cy+dy,cx+R,cy+dy,.5,.35);Lh(cx-R,cy+R*.2,cx-R,cy+dy+4,.35,.55,[2.4,2]);Lh(cx+R,cy+R*.2,cx+R,cy+dy+4,.35,.55,[2.4,2]);
     T(ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm',cx,cy+dy-3,{z:6.6,anc:'middle',c:.25});
+    // letras: en el borde por ángulo; las de tapa (sin ángulo) sobre su proyección. Se omite la etiqueta de ángulo que tapa una boquilla.
+    const RB=6.4,RL=R+34,usados=[];
+    const globo=(gx,gy,l)=>{add({k:'c',cx:gx,cy:gy,rad:RB,w:.7,fill:1});T(l,gx,gy+2.6,{z:l.length>1?6:7.4,b:1,anc:'middle'});};
+    G.filter(g=>g.ang!=null).sort((a,b)=>a.ang-b.ang).forEach(g=>{let a=g.ang;
+      while(usados.some(u=>{const dd=Math.abs(((a-u)%360+540)%360-180);return dd<17;}))a+=17;usados.push(a);
+      const t0=(g.ang-90)*Math.PI/180,t1=(a-90)*Math.PI/180;
+      Lh(cx+Math.cos(t0)*R,cy+Math.sin(t0)*R,cx+Math.cos(t0)*(R+5),cy+Math.sin(t0)*(R+5),1.4);
+      Lh(cx+Math.cos(t0)*(R+5),cy+Math.sin(t0)*(R+5),cx+Math.cos(t1)*(RL-RB),cy+Math.sin(t1)*(RL-RB),.45,.15);
+      globo(cx+Math.cos(t1)*RL,cy+Math.sin(t1)*RL,g.letra);});
+    const cen=G.filter(g=>g.ang==null).map(g=>{const u=Math.max(0,Math.min(1,+g.pos.u||.5)),v=Math.max(0,Math.min(1,+g.pos.v||.5));
+      return o==='V'?{g,px:cx+(u-.5)*2*R*.7,py:cy,dash:g.cara==='abajo'}:{g,px:cx,py:cy-(v-.5)*2*R*.7,dash:g.cara==='lado'&&u<.5};});
+    if(o==='V')cen.sort((a,b)=>a.px-b.px);else cen.sort((a,b)=>a.py-b.py);
+    cen.forEach((q,k)=>{const off=(k-(cen.length-1)/2)*(2*RB+3),gx=o==='V'?cx+off:cx+R*.5,gy=o==='V'?cy-R*.5:cy+off;
+      Rc(q.px-2.6,q.py-2.6,5.2,5.2,{lw:.9,dash:q.dash?[1.4,1]:null});Lh(q.px,q.py,gx+(o==='V'?0:-RB),gy+(o==='V'?RB:0),.45,.15);globo(gx,gy,q.g.letra);});
   };
   let memX,memY,memW,memH,cols;
   if(o==='H'){
-    pegaCroquis(32,36,580,262);vista(32,36,580,290,'VISTA FRONTAL');cotasExtra(36,46);
-    {const cx=760,cy=140,R=84;circulo(cx,cy,R,false,R+56);
-      // soportes tipo silla
-      for(const sg of [-1,1]){const a=(90+sg*38)*Math.PI/180,x1=cx+Math.cos(a)*R,y1=cy+Math.sin(a)*R;Lh(x1,y1,x1+sg*8,cy+R+30,.9);}
-      Lh(cx-R-18,cy+R+30,cx+R+18,cy+R+30,.9);vista(626,36,270,290,'VISTA LATERAL');}
-    Lh(32,332,896,332,.4,.6);
-    memX=32;memY=342;memW=864;memH=H-30-memY;cols=3;
+    pegaCroquis(X0,Y0,580,272);vista(X0,Y0,580,292,'VISTA FRONTAL');
+    {const cx=756,cy=146,R=74;circulo(cx,cy,R,false,R+58);
+      for(const sg of [-1,1]){const a=(90+sg*38)*Math.PI/180,x1=cx+Math.cos(a)*R,y1=cy+Math.sin(a)*R;Lh(x1,y1,x1+sg*8,cy+R+26,.9);}
+      Lh(cx-R-18,cy+R+26,cx+R+18,cy+R+26,.9);vista(616,Y0,282,292,'VISTA LATERAL');}
+    Lh(X0,328,898,328,.4,.6);Lh(902,Y0,902,Y1,.3,.75);
+    memX=X0;memY=334;memW=898-X0;memH=Y1-memY;cols=3;
   }else{
-    {const cx=166,cy=112,R=62;circulo(cx,cy,R,true,R+30);vista(32,32,268,208,'VISTA SUPERIOR');}
-    cotasExtra(36,256);
-    pegaCroquis(32,292,268,446);vista(32,292,268,470,'VISTA FRONTAL');
-    Lh(306,32,306,H-30,.4,.6);
-    memX=314;memY=32;memW=582;memH=H-30-memY;cols=2;
+    {const cx=166,cy=128,R=58;circulo(cx,cy,R,true,R+30);vista(X0,Y0,272,214,'VISTA SUPERIOR');}
+    pegaCroquis(X0,250,272,486);vista(X0,250,272,Y1-250,'VISTA FRONTAL');
+    Lh(308,Y0,308,Y1,.4,.6);Lh(902,Y0,902,Y1,.3,.75);
+    memX=316;memY=Y0;memW=898-memX;memH=Y1-memY;cols=2;
   }
 
-  // ---- memoria de cálculo (bloques que fluyen por columnas)
-  const gap=12,cw=(memW-gap*(cols-1))/cols,Z=6.7;
-  const bloques=memoria(d,Mx,cw,Z);
-  let c=0,cy0=memY;
-  const colX=k=>memX+k*(cw+gap);
-  for(const b of bloques){
-    if(cy0+b.h>memY+memH&&cy0>memY+1&&c<cols-1){c++;cy0=memY;}
-    b.draw(colX(c),cy0,{T,Lh,Rc,add,wrap});cy0+=b.h;
-  }
-  if(cols>1)for(let k=1;k<cols;k++)Lh(colX(k)-gap/2,memY,colX(k)-gap/2,memY+memH,.3,.75);
+  // ---- memoria de cálculo: la letra se ajusta sola (5.6–8.8 pt) para llenar las columnas; luego se justifica cada columna
+  const hayP=d.faltan.length>0;if(hayP)memH-=10;
+  const gapC=12,cw=(memW-gapC*(cols-1))/cols;
+  const prueba=Z=>{const bl=memoria(d,Mx,cw,Z);return {Z,bl,f:flujo(bl,cols,memH)};};
+  let lo=5.6,hi=8.8,best=prueba(hi);
+  if(!best.f.cabe){best=prueba(lo);if(best.f.cabe)for(let k=0;k<7;k++){const m=(lo+hi)/2,q=prueba(m);if(q.f.cabe){lo=m;best=q;}else hi=m;}}
+  const kZ=best.Z/6.7,colX=k=>memX+k*(cw+gapC);
+  best.f.col.forEach((arr,k)=>{if(!arr.length)return;const fin=arr[arr.length-1].y+arr[arr.length-1].b.h,n=arr.length-1;
+    const add_=n>0?Math.max(0,Math.min((memH-fin)/n,10*kZ)):0;arr.forEach((q,j)=>q.b.draw(colX(k),memY+q.y+add_*j,c));});
+  if(cols>1)for(let k=1;k<cols;k++)Lh(colX(k)-gapC/2,memY,colX(k)-gapC/2,memY+memH,.3,.75);
 
   // ---- pendientes (solo si faltan datos)
-  if(d.faltan.length){const s='DATOS PENDIENTES: '+d.faltan.map(f=>f.m.toUpperCase()).join(' · ');
-    T(s,memX,H-25.5,{z:5.8,b:1,c:ROJO,max:RX-memX-12});}
-  return {W,H,items:it};
+  if(hayP){const s='DATOS PENDIENTES: '+d.faltan.map(f=>f.m.toUpperCase()).join(' · ');
+    T(s,memX,Y1-1.5,{z:5.8,b:1,c:ROJO,max:898-memX-4});}
+  return {W,H,items:c.it,Z:best.Z,cabe:best.f.cabe,hU};
+}
+// Acomodo voraz por columnas: {col:[[{b,y}]], cabe}
+function flujo(bl,cols,memH){
+  const col=Array.from({length:cols},()=>[]);let k=0,y=0,cabe=true;
+  for(const b of bl){
+    if(y+b.h>memH+0.01&&y>0.5&&k<cols-1){k++;y=0;}
+    if(y+b.h>memH+0.01)cabe=false;
+    col[k].push({b,y});y+=b.h;
+  }
+  return {col,cabe};
 }
 
-// expresiones: tokens = string | {f:[num,den]} | {raiz:{f:[num,den]}}
-function expr(Mx,ctx,x,yTop,tk,z,c){
-  const hayF=tk.some(t=>typeof t!=='string'),h=hayF?z*2+9:z+4,mid=yTop+(hayF?z+4.5:h/2);
+// expresiones: tokens = string | {f:[num,den]} | {raiz:{f:[num,den]}} · k escala los espacios con la letra
+function exprW(Mx,tk,z,k){k=k||1;let w=0;for(const t of tk){if(typeof t==='string'){w+=Mx.w(t,z);continue;}const fr=t.f||(t.raiz&&t.raiz.f),rz=!!t.raiz;
+  w+=(rz?z*0.9:0)+Math.max(Mx.w(fr[0],z),Mx.w(fr[1],z))+4*k+(rz?2:1)*k;}return w;}
+function expr(Mx,ctx,x,yTop,tk,z,c,k){
+  k=k||1;const hayF=tk.some(t=>typeof t!=='string'),h=hayF?z*2+9*k:z+4*k,mid=yTop+(hayF?z+4.5*k:h/2);
   let xx=x;
   for(const t of tk){
     if(typeof t==='string'){ctx.T(t,xx,mid+z*.36,{z,c});xx+=Mx.w(t,z);continue;}
     const fr=t.f||(t.raiz&&t.raiz.f),rz=!!t.raiz;
-    const pad=rz?z*0.9:0,wn=Mx.w(fr[0],z),wd=Mx.w(fr[1],z),wf=Math.max(wn,wd)+4;
+    const pad=rz?z*0.9:0,wn=Mx.w(fr[0],z),wd=Mx.w(fr[1],z),wf=Math.max(wn,wd)+4*k;
     const x0=xx+pad;
-    ctx.T(fr[0],x0+wf/2,mid-2.2,{z,anc:'middle',c});ctx.T(fr[1],x0+wf/2,mid+z+0.6,{z,anc:'middle',c});ctx.Lh(x0,mid,x0+wf,mid,.45);
-    if(rz){const top=mid-z-3.2,bot=mid+z+2.6;ctx.add({k:'p',d:`M${xx} ${mid+1}L${xx+pad*.35} ${mid-.6}L${xx+pad*.62} ${bot}L${xx+pad} ${top}L${x0+wf+1} ${top}`,tx:0,ty:0,s:1,w:.55});}
-    xx=x0+wf+(rz?2:1);
+    ctx.T(fr[0],x0+wf/2,mid-2.2*k,{z,anc:'middle',c});ctx.T(fr[1],x0+wf/2,mid+z+0.6*k,{z,anc:'middle',c});ctx.Lh(x0,mid,x0+wf,mid,.45);
+    if(rz){const top=mid-z-3.2*k,bot=mid+z+2.6*k;ctx.add({k:'p',d:`M${xx} ${mid+1}L${xx+pad*.35} ${mid-.6}L${xx+pad*.62} ${bot}L${xx+pad} ${top}L${x0+wf+1} ${top}`,tx:0,ty:0,s:1,w:.55});}
+    xx=x0+wf+(rz?2:1)*k;
   }
   return {w:xx-x,h};
 }
 function memoria(d,Mx,cw,Z){
-  const {inp:i,r}=d,B=[],f2=v=>fx(v,2),f3=v=>fx(v,3),f4=v=>fx(v,4);
+  const k=Z/6.7,{inp:i,r}=d,B=[],f2=v=>fx(v,2),f3=v=>fx(v,3),f4=v=>fx(v,4);
   const blk=(fn,h)=>B.push({h,draw:fn});
-  const lin=[];   // se arma por bloque: [{h, fn}]
-  const titulo=(s)=>({h:12,fn:(x,y,c)=>c.T(s,x,y+9,{z:7.4,b:1,max:cw})});
-  const sub=(s)=>({h:11,fn:(x,y,c)=>c.T(s,x+4,y+8.5,{z:6.6,b:1,max:cw-4})});
-  const tx=(s,o)=>{o=o||{};const ls=wrapW(Mx,s,cw-8,o.z||Z-0.4,o.b);return {h:ls.length*(o.lh||8.4)+1,fn:(x,y,c)=>ls.forEach((l,k)=>c.T(l,x+8,y+7+k*(o.lh||8.4),{z:o.z||Z-0.4,b:o.b,c:o.c}))};};
-  const ex=(tk,c)=>{const hayF=tk.some(t=>typeof t!=='string');return {h:(hayF?Z*2+9:Z+5),fn:(x,y,ctx)=>expr(Mx,ctx,x+8,y,tk,Z,c)};};
-  const esp=(h)=>({h,fn:()=>{}});
+  const titulo=(s)=>({h:12*k,fn:(x,y,c)=>c.T(s,x,y+9*k,{z:7.4*k,b:1,max:cw})});
+  const sub=(s)=>({h:11*k,fn:(x,y,c)=>c.T(s,x+4,y+8.5*k,{z:6.6*k,b:1,max:cw-4})});
+  const tx=(s,o)=>{o=o||{};const z=(o.z||6.3)*k,lh=(o.lh||8.4)*k,ls=wrapW(Mx,s,cw-8,z,o.b);return {h:ls.length*lh+1,fn:(x,y,c)=>ls.forEach((l,j)=>c.T(l,x+8,y+7*k+j*lh,{z,b:o.b,c:o.c}))};};
+  const ex=(tk,c)=>{const hayF=tk.some(t=>typeof t!=='string'),w=exprW(Mx,tk,Z,k),zz=w>cw-10?Z*(cw-10)/w:Z,kk=zz/6.7;
+    return {h:(hayF?zz*2+9*kk:zz+5*kk),fn:(x,y,ctx)=>expr(Mx,ctx,x+8,y,tk,zz,c,kk)};};
+  const esp=(h)=>({h:h*k,fn:()=>{}});
   const pend=(ks)=>tx('PENDIENTE: falta '+ks.join(', ').replace(/\.$/,'')+'.',{c:ROJO,b:1});
-  const falta=(m)=>Object.entries(m).filter(([,v])=>!ok(v)).map(([k])=>k);
+  const falta=(m)=>Object.entries(m).filter(([,v])=>!ok(v)).map(([kk])=>kk);
   const push=(arr)=>{const h=arr.reduce((a,q)=>a+q.h,0);blk((x,y,c)=>{let yy=y;arr.forEach(q=>{q.fn(x,yy,c);yy+=q.h;});},h);};
 
   // encabezado + nomenclatura
-  push([{h:16,fn:(x,y,c)=>{c.T('MEMORIA DE CÁLCULO',x,y+11,{z:10,b:1,u:1});}},
-    {h:10,fn:(x,y,c)=>c.T(COD_FAB+'  ·  NOM-020-STPS-2011',x,y+7.5,{z:6.2,c:.3})}]);
-  {const lbW=34,rows=NOMEN.concat([null],NOMEN_R),lh=7.6;
-    push([sub('NOMENCLATURA'),{h:rows.length*lh+3,fn:(x,y,c)=>{let yy=y+6;rows.forEach(rw=>{if(rw){c.T(rw[0],x+8,yy,{z:5.9,b:1});c.T(rw[1],x+8+lbW,yy,{z:5.9,max:cw-lbW-10});}yy+=lh;});}},esp(4)]);}
+  push([{h:16*k,fn:(x,y,c)=>{c.T('MEMORIA DE CÁLCULO',x,y+11*k,{z:10*k,b:1,u:1});}},
+    {h:10*k,fn:(x,y,c)=>c.T(COD_FAB+'  ·  NOM-020-STPS-2011',x,y+7.5*k,{z:6.2*k,c:.3,max:cw})}]);
+  {const lbW=34*k,rows=NOMEN.concat([null],NOMEN_R),lh=7.6*k;
+    push([sub('NOMENCLATURA'),{h:rows.length*lh+3*k,fn:(x,y,c)=>{let yy=y+6*k;rows.forEach(rw=>{if(rw){c.T(rw[0],x+8,yy,{z:5.9*k,b:1});c.T(rw[1],x+8+lbW,yy,{z:5.9*k,max:cw-lbW-10});}yy+=lh;});}},esp(4)]);}
   // tabla auxiliar (resumen)
   {const fil=[['DIAMETRO INTERIOR (mm)',f2(i.Dmm),f2(i.Dmm)],['ESPESOR MEDIDO (mm)',f2(i.tEnv),f2(i.tTap)],['h  (mm)','—',f2(i.Tapmm)],['ESPESOR MINIMO (mm)',f2(r.tEnvReq),f2(r.tTapReq)],
       ['PRESION MAXIMA (kg/cm²)',f2(r.PmEnv),f2(r.PmTap)],['LONGITUD (mm)',f2(i.Lmm),'—'],['C.R. (mm)','—',f2(i.CR)],['AREA (m²)',f3(r.Aenv),f3(r.Atap)],['VOLUMEN (m³)',f4(r.Venv),f4(r.Vtap)]];
-    const rh=8.6,c1=cw*0.46,c2=(cw-8-c1)/2;
-    push([{h:(fil.length+1)*rh+8,fn:(x,y,c)=>{const x0=x+8;c.Rc(x0,y,cw-8,(fil.length+1)*rh,{lw:.45});
-      c.T('ENVOLVENTE',x0+c1+c2/2,y+6.3,{z:5.6,b:1,anc:'middle'});c.T('TAPA-ELIPTICA',x0+c1+c2*1.5,y+6.3,{z:5.6,b:1,anc:'middle'});
-      fil.forEach((f,k)=>{const yy=y+rh*(k+1);c.Lh(x0,yy,x0+cw-8,yy,.3);c.T(f[0],x0+3,yy+6.3,{z:5.6,max:c1-5});c.T(f[1],x0+c1+c2/2,yy+6.3,{z:6,anc:'middle'});c.T(f[2],x0+c1+c2*1.5,yy+6.3,{z:6,anc:'middle'});});
+    const rh=8.6*k,c1=cw*0.46,c2=(cw-8-c1)/2,zt=5.6*k,zv=6*k,by=6.3*k;
+    push([{h:(fil.length+1)*rh+8*k,fn:(x,y,c)=>{const x0=x+8;c.Rc(x0,y,cw-8,(fil.length+1)*rh,{lw:.45});
+      c.T('ENVOLVENTE',x0+c1+c2/2,y+by,{z:zt,b:1,anc:'middle'});c.T('TAPA-ELIPTICA',x0+c1+c2*1.5,y+by,{z:zt,b:1,anc:'middle',max:c2-2});
+      fil.forEach((f,j)=>{const yy=y+rh*(j+1);c.Lh(x0,yy,x0+cw-8,yy,.3);c.T(f[0],x0+3,yy+by,{z:zt,max:c1-5});c.T(f[1],x0+c1+c2/2,yy+by,{z:zv,anc:'middle'});c.T(f[2],x0+c1+c2*1.5,yy+by,{z:zv,anc:'middle'});});
       c.Lh(x0+c1,y,x0+c1,y+(fil.length+1)*rh,.3);c.Lh(x0+c1+c2,y,x0+c1+c2,y+(fil.length+1)*rh,.3);}}]);}
 
   // 1.- espesores
@@ -2696,7 +2963,8 @@ function memoria(d,Mx,cw,Z){
       ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`${f2(i.S)} × ${f2(i.E)} × ${f2(i.tEnv)}`,`${f2(i.Rmm)} + 0.6 × ${f2(i.tEnv)}`]},` = ${f2(r.PmEnv)} kg/cm²`])]),esp(3)]);}
   {const f=falta({S:i.S,E:i.E,t:i.tTap,D:i.Dmm});
     push([sub('2.2) EN TAPAS SEMIELIPTICAS'),ex(['Pm = ',{f:['2 S E t','K D + 0.2 t']}]),
-      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`2 × ${f2(i.S)} × ${f2(i.E)} × ${f2(i.tTap)}`,`${f2(i.K)} × ${f2(i.Dmm)} + 0.2 × ${f2(i.tTap)}`]},` = ${f2(r.PmTap)} kg/cm²`])]),esp(5)]);}
+      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`2 × ${f2(i.S)} × ${f2(i.E)} × ${f2(i.tTap)}`,`${f2(i.K)} × ${f2(i.Dmm)} + 0.2 × ${f2(i.tTap)}`]},` = ${f2(r.PmTap)} kg/cm²`])]),
+      esp(5)]);}
   // 3.- área
   {const D=i.Dmm/1000,Lm=i.Lmm/1000,CR=i.CR/1000,fe=falta({D,L:Lm}),ft=falta({D,'C.R.':CR});
     push([titulo('3.- CÁLCULO DEL ÁREA SUJETA A PRESIÓN'),sub('3.1) EN ENVOLVENTE'),ex(['A = 3.1416 × D × L']),
@@ -2713,7 +2981,7 @@ function memoria(d,Mx,cw,Z){
       tx('VOLUMEN TOTAL = ENVOLVENTE + TAPAS'),tx(`VOLUMEN TOTAL = ${f4(r.Venv)} + ${f4(r.Vtap)} = ${f4(r.Vtot)} m³`,{b:1}),esp(5)]);}
   // 5.- relevo
   {const fw=falta({V:r.Vtot}),fa=falta({W:r.W,C:i.C,K:i.Kd,Pc:i.Pc,M:i.M,'T diseño':i.Td});
-    push([titulo('5.- CÁLCULO DEL ÁREA DE DESFOGUE DEL DISPOSITIVO DE RELEVO'),{h:11,fn:(x,y,c)=>c.T('     DE PRESIÓN (APÉNDICE 11)',x,y+8,{z:7.4,b:1})},
+    push([titulo('5.- CÁLCULO DEL ÁREA DE DESFOGUE DEL DISPOSITIVO DE RELEVO'),{h:11*k,fn:(x,y,c)=>c.T('     DE PRESIÓN (APÉNDICE 11)',x,y+8*k,{z:7.4*k,b:1,max:cw})},
       tx('Wa = 0.029 x V x 62.42 (m³ / min) DE FLUIDO'),...(fw.length?[pend(fw)]:[tx(`Wa = 0.029 x ${f4(r.Vtot)} x 62.42 = ${f4(r.Wa)} m³ / min DE FLUIDO`)]),
       tx('W = Wa x 73.596 (kg / hr) DE FLUIDO'),...(fw.length?[]:[tx(`W = ${f4(r.Wa)} x 73.596 = ${f2(r.W)} (kg / hr) DE FLUIDO`,{b:1})]),esp(2)]);
     push([ex(['A = ',{f:['W','C K P']},' × ',{raiz:{f:['T','M']}}]),
@@ -2738,9 +3006,9 @@ function svg(lay,opt){
   const out=[`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${lay.W} ${lay.H}" width="${opt.w||lay.W}" ${opt.h?`height="${opt.h}"`:''} font-family="'Liberation Sans',Arial,Helvetica,sans-serif"><rect width="${lay.W}" height="${lay.H}" fill="#fff"/>`];
   for(const o of lay.items){
     if(o.k==='l')out.push(`<line x1="${n2(o.x1)}" y1="${n2(o.y1)}" x2="${n2(o.x2)}" y2="${n2(o.y2)}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
-    else if(o.k==='r')out.push(`<rect x="${n2(o.x)}" y="${n2(o.y)}" width="${n2(o.w)}" height="${n2(o.h)}" fill="${o.fill?col(o.fill):'none'}" stroke="${col(o.s)}" stroke-width="${o.lw}"/>`);
+    else if(o.k==='r')out.push(`<rect x="${n2(o.x)}" y="${n2(o.y)}" width="${n2(o.w)}" height="${n2(o.h)}" fill="${o.fill?col(o.fill):'none'}" stroke="${col(o.s)}" stroke-width="${o.lw}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
     else if(o.k==='c')out.push(`<circle cx="${n2(o.cx)}" cy="${n2(o.cy)}" r="${n2(o.rad)}" fill="${o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
-    else if(o.k==='p')out.push(`<path d="${o.d}" transform="translate(${n2(o.tx)} ${n2(o.ty)}) scale(${o.s})" fill="${o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w/o.s}"${o.dash?` stroke-dasharray="${o.dash.map(v=>v/o.s).join(' ')}"`:''} stroke-linejoin="round"/>`);
+    else if(o.k==='p')out.push(`<path d="${o.d}" transform="translate(${n2(o.tx)} ${n2(o.ty)}) scale(${o.s})" fill="${o.fillC?col(o.fillC):o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w/o.s}"${o.dash?` stroke-dasharray="${o.dash.map(v=>v/o.s).join(' ')}"`:''} stroke-linejoin="round"/>`);
     else if(o.k==='t'){const a=o.anc==='middle'?'middle':o.anc==='end'?'end':'start',rot=o.rot?` transform="rotate(${o.rot} ${n2(o.x)} ${n2(o.y)})"`:'';
       out.push(`<text x="${n2(o.x)}" y="${n2(o.y)}" font-size="${n2(o.z)}" text-anchor="${a}"${o.b?' font-weight="700"':''} fill="${col(o.c)}"${o.u?' text-decoration="underline"':''}${rot}>${esc(o.s)}</text>`);}
     else if(o.k==='img'&&imgs[o.src]){const im=imgs[o.src];
@@ -2758,15 +3026,15 @@ async function pdf(d,opt){
   if(!F){F=await doc.embedFont(StandardFonts.Helvetica);FB=await doc.embedFont(StandardFonts.HelveticaBold);}
   const Mx=metricas(opt.fonts);
   const imgs={};
-  for(const k of ['logo','firma']){const b=opt[k];if(!b||!b.length)continue;try{imgs[k]=b[0]===0x89?await doc.embedPng(b):await doc.embedJpg(b);}catch(_){}}
-  const lay=hoja(d,Object.assign({},opt,{M:Mx,logo:!!imgs.logo,firma:!!imgs.firma}));
+  for(const k of ['logo','firma','ubic']){const b=opt[k];if(!b||!b.length)continue;try{imgs[k]=b[0]===0x89?await doc.embedPng(b):await doc.embedJpg(b);}catch(_){}}
+  const lay=hoja(d,Object.assign({},opt,{M:Mx,logo:!!imgs.logo,firma:!!imgs.firma,ubicImg:!!imgs.ubic,ubicDim:imgs.ubic?{w:imgs.ubic.width,h:imgs.ubic.height}:null}));
   const {W,H}=lay,pg=doc.addPage([W,H]);
   const C=c=>c==null?rgb(0,0,0):Array.isArray(c)?rgb(c[0],c[1],c[2]):rgb(c,c,c);
   for(const o of lay.items){
     if(o.k==='l')pg.drawLine({start:{x:o.x1,y:H-o.y1},end:{x:o.x2,y:H-o.y2},thickness:o.w,color:C(o.c),dashArray:o.dash||undefined});
-    else if(o.k==='r')pg.drawRectangle({x:o.x,y:H-o.y-o.h,width:o.w,height:o.h,borderColor:C(o.s),borderWidth:o.lw,color:o.fill?C(o.fill):undefined});
+    else if(o.k==='r')pg.drawRectangle({x:o.x,y:H-o.y-o.h,width:o.w,height:o.h,borderColor:C(o.s),borderWidth:o.lw,borderDashArray:o.dash||undefined,color:o.fill?C(o.fill):undefined});
     else if(o.k==='c')pg.drawCircle({x:o.cx,y:H-o.cy,size:o.rad,borderColor:C(o.c),borderWidth:o.w,borderDashArray:o.dash||undefined,color:o.fill?rgb(1,1,1):undefined});
-    else if(o.k==='p')pg.drawSvgPath(o.d,{x:o.tx,y:H-o.ty,scale:o.s,borderColor:C(o.c),borderWidth:o.w/o.s,borderDashArray:o.dash?o.dash.map(v=>v/o.s):undefined,color:o.fill?rgb(1,1,1):undefined});
+    else if(o.k==='p')pg.drawSvgPath(o.d,{x:o.tx,y:H-o.ty,scale:o.s,borderColor:C(o.c),borderWidth:o.w/o.s,borderDashArray:o.dash?o.dash.map(v=>v/o.s):undefined,color:o.fillC?C(o.fillC):o.fill?rgb(1,1,1):undefined});
     else if(o.k==='t'){const f=o.b?FB:F,s=Mx.limpia(o.s);let w=0;try{w=f.widthOfTextAtSize(s,o.z);}catch(_){continue;}
       const off=o.anc==='middle'?w/2:o.anc==='end'?w:0;
       if(o.rot)pg.drawText(s,{x:o.x,y:H-o.y-off,size:o.z,font:f,color:C(o.c),rotate:degrees(90)});
@@ -2779,8 +3047,8 @@ async function pdf(d,opt){
   return await doc.save({useObjectStreams:true});
 }
 
-root.FXPlano={VERSION,DEF,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,SH,
-  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,boquillas,fechaCajetin,metricas,hoja,svg,pdf};
+root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,SH,
+  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,fechaCajetin,metricas,hoja,ubicLayout,svg,pdf};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
 <script>
@@ -2966,7 +3234,7 @@ async function cloudPull(){
     return out;
   }catch(e){console.warn('cloudPull',e);return null;}
 }
-function guardar(){ setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setTimeout(async()=>{
+function guardar(){ if(typeof vincularTodo==='function')vincularTodo(); setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setTimeout(async()=>{
   let ok=false;
   try{
     ok=!!(await DB.set('draft',D)&&await DB.set('globals',G));
@@ -2985,7 +3253,7 @@ function guardar(){ setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setT
 },400); refrescar(); }
 
 // ---------- imágenes (arrastrar, cargar, dibujar firma) ----------
-async function ponerImg(key,buf){IMG[key]=buf;await DB.set('img:'+key,buf);imgDirty.add(key);$$(`.img[data-img="${CSS.escape(key)}"]`).forEach(renderImg);guardar();}
+async function ponerImg(key,buf){IMG[key]=buf;await DB.set('img:'+key,buf);imgDirty.add(key);$$(`.img[data-img="${CSS.escape(key)}"]`).forEach(renderImg);guardar();if(typeof plImgCambio==='function')plImgCambio(key);}
 async function leerArchivo(file){
   if(!file)return null;
   if(file.size>MAX_IMG){toast('La imagen pesa más de 4 MB. Redúcela y vuelve a cargarla.');return null;}
@@ -3007,7 +3275,7 @@ function renderImg(box){
   if(bytes){box._u=URL.createObjectURL(new Blob([bytes]));th.style.backgroundImage=`url("${box._u}")`;}
   th.addEventListener('click',()=>$('input',box).click());
   $('input',box).addEventListener('change',async ev=>{const b=await leerArchivo(ev.target.files[0]);ev.target.value='';if(b){await ponerImg(key,b);toast('Imagen guardada');}});
-  const q=$('[data-quitar]',box); if(q) q.addEventListener('click',async()=>{delete IMG[key];await DB.del('img:'+key);imgDirty.add(key);renderImg(box);guardar();toast('Imagen quitada');});
+  const q=$('[data-quitar]',box); if(q) q.addEventListener('click',async()=>{delete IMG[key];await DB.del('img:'+key);imgDirty.add(key);renderImg(box);guardar();if(typeof plImgCambio==='function')plImgCambio(key);toast('Imagen quitada');});
   const dz=$('[data-dibujar]',box); if(dz) dz.addEventListener('click',()=>abrirPad(key,box.dataset.label));
   if(!box._dnd){box._dnd=1;
     box.addEventListener('dragover',ev=>{ev.preventDefault();box.classList.add('sobre');});
@@ -3158,7 +3426,7 @@ function tarjeta(e,i){
   cab.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();cab.click();}});
   $$('[data-a]',el).forEach(b=>b.addEventListener('click',async()=>{const a=b.dataset.a,ix=D.equipos.indexOf(e);
     if(a==='pnd'){pndActivo=e.id;renderPnd();$('#s-pnd').scrollIntoView({behavior:'smooth',block:'start'});return;}
-    if(a==='del'){if(D.equipos.length===1){toast('El expediente necesita al menos un equipo.');return;} if(!confirm(`¿Eliminar ${e.nombre||'este equipo'} y sus fotos?`))return; D.equipos.splice(ix,1); for(const s of ['fotoPlaca',...MUESTRAS.map(n=>'muestra'+n)]){delete IMG['e:'+e.id+':'+s]; await DB.del('img:e:'+e.id+':'+s);} if(pndActivo===e.id)pndActivo=null;}
+    if(a==='del'){if(D.equipos.length===1){toast('El expediente necesita al menos un equipo.');return;} if(!confirm(`¿Eliminar ${e.nombre||'este equipo'} y sus fotos?`))return; D.equipos.splice(ix,1); for(const s of ['fotoPlaca','ubicPlano',...MUESTRAS.map(n=>'muestra'+n)]){delete IMG['e:'+e.id+':'+s]; await DB.del('img:e:'+e.id+':'+s);} if(pndActivo===e.id)pndActivo=null;}
     if(a==='arriba'&&ix>0)[D.equipos[ix-1],D.equipos[ix]]=[D.equipos[ix],D.equipos[ix-1]];
     if(a==='abajo'&&ix<D.equipos.length-1)[D.equipos[ix+1],D.equipos[ix]]=[D.equipos[ix],D.equipos[ix+1]];
     if(a==='dup'){const c=JSON.parse(JSON.stringify(e));c.id=uid();c._cerrado=false;c.folio='';D.equipos.splice(ix+1,0,c);toast('Equipo duplicado (sin fotos ni folio)');}
@@ -3186,6 +3454,7 @@ function actCab(el,e){
   $('code',v66).textContent=c==='III'?`Conexión Ø ${x.valvDiam||'—'} mm · ${x.tmax1||'—'} °C · máx. ${x.pmax||'—'} kg/cm² = ${x.pmaxKpa||'—'} kPa · disparo (arranque) ${x.parr||'—'} kg/cm² = ${x.parrKpa||'—'} kPa · cierre (operación) ${x.pop||'—'} kg/cm² = ${x.popKpa||'—'} kPa`:`Solo se incluye en categoría III${c?` (este equipo es Cat ${c})`:''}.`;
   const KPA_AY={presionArranque:['parrKpa','presión de disparo','Obligatoria en categoría III: es la presión de disparo de la hoja 66.'],presionOperacion:['popKpa','presión de cierre','En la hoja 66 es la presión de cierre.'],presionTrabajoMaxPermitida:['pmaxKpa','presión máxima','La hoja 66 la imprime también en kPa (× 98.07).']};
   $$('[data-kpa]',el).forEach(a=>{const k=a.dataset.kpa,n=nNum(e[k]),q=KPA_AY[k];if(!q)return;a.innerHTML=isNaN(n)?q[2]:`Hoja 66, ${q[1]}: <b>${x[q[0]]} kPa</b>`;});
+  pintarPmVinc(el,e);   // plano v2: presión de trabajo máx. permitida vinculada a min(Pm) cuando el plano la calcula
   actFaltas();
 }
 
@@ -3521,13 +3790,14 @@ function migrar(){
       const v=Fx().valvula(e);e.tipoValvula=mt?mt[0]:v.tipo;e.diametroValvulaMm=md?md[1].replace(',','.'):v.diam;
     }
     for(const k in DEF_EQ)if(e[k]==null)e[k]=DEF_EQ[k];
-    // v3→v4: forzar materiales ASME SA-414-G (sobrescribe SAE-J403-1008 u otros legacy)
-    e.materialCuerpo='SA-414-G';e.materialTapa='SA-414-G';
+    // v3→v4: materiales ASME SA-414-G en lugar de SAE-J403-1008 u otros legacy. Plano v2: un material ASME capturado (SA-…, p. ej. SA-455) se respeta.
+    for(const k of ['materialCuerpo','materialTapa'])if(!/^SA-/.test(String(e[k]||'').trim().toUpperCase()))e[k]='SA-414-G';
     delete e.presionDisparo;delete e.diametroInteriorMm;
     ['espEnv','espSup','espInf'].forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});
     if(!e.id)e.id=uid();
-    if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano v1: S, E (0.85), C.R., cajetín…
+    if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano: S, E (0.85), C.R., cajetín, conexiones, ángulos, ubicación…
     e.presionPruebaHidrostatica=hidro(e);
+    if(window.FXPlano)vincularPm(e);   // plano v2: presionTrabajoMaxPermitida = min(Pm) cuando se puede calcular
     if(e.codigoMemoriaCalculo){const x=memXXX(e.codigoMemoriaCalculo);e.codigoMemoriaCalculo=memCodigo(/^\d{1,2}$/.test(x)?x.padStart(3,'0'):x);}
   });
 }
@@ -3553,6 +3823,7 @@ function mostrarVista(v,sinHash){
   }
   if(v==='lev')levPintar();
   if(v==='plano')plPintar();
+  if(v==='exp'&&expSucio){expSucio=false;initDatos();renderEquipos();initImgs($('#listaEquipos'));initImgs($('#pndPanel'));refrescar();}   // plano v2: lo capturado en el plano aparece en el expediente
 }
 function initVistas(){
   $$('.vistas [data-vista]').forEach(b=>b.addEventListener('click',()=>{mostrarVista(b.dataset.vista);window.scrollTo({top:0,behavior:'auto'});}));
@@ -3711,7 +3982,7 @@ async function initLev(){
     if(!b||!d)return;ev.preventDefault();const k=ev.shiftKey?0.05:0.01;b.pos={u:Math.max(0,Math.min(1,b.pos.u+d[0]*k)),v:Math.max(0,Math.min(1,b.pos.v+d[1]*k))};b.pos=LX().ajustar(LEV,b);levPintar();levGuardar();});
   // barra
   $('#levNuevo').addEventListener('click',async()=>{
-    if(!levVacio(LEV)&&!confirm('¿Iniciar un levantamiento nuevo? Se borran croquis, boquillas, datos y espesores; se conservan cliente, planta y fecha de inspección para el siguiente tanque. Exporta antes el JSON si lo necesitas.'))return;
+    if(!levVacio(LEV)&&!confirm('¿Iniciar un levantamiento nuevo? Se borran croquis, boquillas, datos y espesores; se conservan razón social, ubicación y fecha de inspección para el siguiente equipo. Exporta antes el JSON si lo necesitas.'))return;
     const m=LEV.metadata,keep={cliente:m.cliente,planta:m.planta,fechaInspeccion:m.fechaInspeccion};LEV=LX().nuevo();Object.assign(LEV.metadata,keep);LEV_SEL=null;levCargarCampos();await levGuardar(true);toast('Levantamiento nuevo');});
   $('#levAbrir').addEventListener('change',ev=>{const f=ev.target.files[0];ev.target.value='';if(f)levAbrir(f);});
   $('#levGuardar').addEventListener('click',async()=>{const ok=await levGuardar(true);toast(ok?'Levantamiento guardado en este navegador':'No se pudo guardar en este navegador');});
@@ -3766,110 +4037,156 @@ function levAlExpediente(L,j){
   if(cli){if(!rsNombre()){D.razonSocialPropietario=cli;D.razonSocialUsuario=cli;rs='puesta';}else if(normRs(rsNombre())!==normRs(cli))rs='distinta';}
   return {e,reuso,nEsp,rs,cli};
 }
-async function importarLevantamientos(lista){
+// Plano v2: ÚNICA ruta de importación (botones del expediente, del plano y «Pasar a expediente y plano» del levantamiento).
+// Llena el equipo (expediente) y el plano lee ese mismo equipo; complementa: solo escribe los datos que trae el levantamiento.
+// lista: File[] o [{name, json}] · destino: 'exp' (por omisión) o 'plano'
+async function importarLevantamientos(lista,destino){
   const files=Array.from(lista||[]).filter(Boolean);if(!files.length)return;
   const ok=[],mal=[];
   for(const f of files){
-    let j;try{j=JSON.parse(await f.text());}catch(_){mal.push(`${f.name}: no es JSON`);continue;}
+    let j;if(f.json)j=f.json;else{try{j=JSON.parse(await f.text());}catch(_){mal.push(`${f.name}: no es JSON`);continue;}}
     const v=LX().validar(j);if(!v.ok){mal.push(`${f.name}: ${v.err[0]}`);continue;}
     const r=levAlExpediente(LX().normalizar(j),j);r.v1=j.version===1;ok.push(r);
   }
   if(ok.length){
     D.equipos.forEach(x=>{x._cerrado=!ok.some(r=>r.e===x);});
     pndActivo=ok[ok.length-1].e.id;
-    montar();guardar();mostrarVista('exp');
-    const el=$(`.equipo[data-eq="${ok[0].e.id}"]`);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);
+    montar();guardar();expSucio=false;
+    if(destino==='plano'){plActivo=ok[ok.length-1].e.id;plSel=null;mostrarVista('plano');window.scrollTo({top:0,behavior:'auto'});}
+    else{mostrarVista('exp');const el=$(`.equipo[data-eq="${ok[0].e.id}"]`);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);}
   }
   const nums=ok.map(r=>D.equipos.indexOf(r.e)+1);
-  let msg=ok.length?`${ok.length===1?'Levantamiento importado':ok.length+' levantamientos importados'} → equipo${nums.length>1?'s':''} ${nums.join(', ')}.`:'';
+  let msg=ok.length?`${ok.length===1?'Levantamiento importado':ok.length+' levantamientos importados'} al expediente y al plano → equipo${nums.length>1?'s':''} ${nums.join(', ')}.`:'';
   if(ok.some(r=>r.rs==='puesta'))msg+=' Razón social tomada del levantamiento.';
   const dist=ok.filter(r=>r.rs==='distinta');if(dist.length)msg+=` Se conservó la razón social actual (el levantamiento dice ${dist[0].cli}).`;
-  if(ok.length)msg+=' Revisa fluido, temperaturas, válvula y programa de calibración.';
+  if(ok.length)msg+=' Revisa fluido, temperaturas, válvula, programa de calibración y en el plano S y C.R.';
   if(ok.some(r=>r.v1))msg+=' Hay levantamientos v1: su longitud era total y no traen el punto 16.';
   if(mal.length)msg+=(msg?' ':'')+`No se importó: ${mal.join(' · ')}.`;
   toast(msg,ok.length&&!mal.length?6500:8000);
 }
 
-// ---------- PLANO v1: memoria de cálculo + hoja del plano por equipo (lee el expediente; se guarda en el borrador local) ----------
+// ---------- PLANO v2: memoria de cálculo + hoja del plano por equipo. Comparte el equipo con el expediente (los mismos campos e[k] / D[k]):
+// lo que se escribe en un lado aparece en el otro; lo calculado (gris) no se escribe. Se guarda en el borrador local. ----------
 const FXP=()=>window.FXPlano;
-let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true;
+let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true,plSel=null,plDrag=null,expSucio=false,plDim={};
 function plFonts(){if(!plFontsC){const A=window.FX_ASSETS;plFontsC={R:b64(A.fonts.R),B:b64(A.fonts.B)};}return plFontsC;}
 function plMetricas(){if(!plMx)plMx=FXP().metricas(plFonts());return plMx;}
 function plEq(){
   if(!D||!D.equipos.length)return null;
   let e=D.equipos.find(x=>x.id===plActivo);
   if(!e){e=D.equipos.find(x=>x.levantamiento)||D.equipos[0];plActivo=e.id;}
-  if(!e.plano)e.plano=FXP().reparar(e.plano);
+  if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);
   return e;
 }
 function plCtx(){return {razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),firmante:String(G.firmanteIzquierdoNombre||'').trim(),cedula:String(G.firmanteIzquierdoCedula||'').trim()};}
 function plDatos(){const e=plEq();return e?FXP().datos(e,plCtx()):null;}
 const plF=(v,n)=>typeof v==='number'&&isFinite(v)?v.toFixed(n):'—';
+const plOk=v=>typeof v==='number'&&isFinite(v);
 function plEstado(m,s){const el=$('#plEstado');if(el){el.textContent=m;el.dataset.s=s||'';}}
 function plVisible(){return document.body.dataset.vista==='plano';}
 // Se llama cuando cambia el expediente (montar, importar, nuevo…): repinta si la vista está abierta.
 function plSync(){plSucio=true;if(plVisible())plPintar();}
+// Cambió una imagen (ponerImg / Quitar): si es el croquis de ubicación, repinta el plano.
+function plImgCambio(key){if(/:ubicPlano$/.test(String(key))){delete plDim[key];if(plVisible())plActualizar(true);}}
+
+// ----- vínculo PRES. TRAB. MAX. PERM. = min(Pm envolvente, Pm tapas) → expediente (presionTrabajoMaxPermitida) -----
+function pmDe(e){if(!window.FXPlano||!e)return NaN;try{return FXPlano.datos(e,{}).r.Pm;}catch(_){return NaN;}}
+function vincularPm(e){const pm=pmDe(e);if(!plOk(pm))return false;const v=pm.toFixed(2);if(e.presionTrabajoMaxPermitida!==v){e.presionTrabajoMaxPermitida=v;return true;}return false;}
+function pintarPmVinc(el,e){
+  const inp=$('[data-k="presionTrabajoMaxPermitida"]',el);if(!inp)return;
+  const pm=pmDe(e),vinc=plOk(pm),caja=inp.closest('.caja');
+  inp.readOnly=vinc;inp.tabIndex=vinc?-1:0;inp.setAttribute('aria-readonly',String(vinc));caja.classList.toggle('auto',vinc);
+  if(vinc&&inp.value!==e.presionTrabajoMaxPermitida)inp.value=e.presionTrabajoMaxPermitida;
+  let t=$('.vinc-tag',inp.closest('.campo'));
+  if(vinc&&!t){t=document.createElement('span');t.className='vinc-tag';t.textContent='vinculado al plano';$('label',inp.closest('.campo')).appendChild(t);}
+  if(!vinc&&t)t.remove();
+  const a=$('[data-kpa="presionTrabajoMaxPermitida"]',el);
+  if(a&&vinc)a.innerHTML=`La menor de las Pm del plano (envolvente / tapas). Hoja 66, presión máxima: <b>${Fx().equipoCtx(e,D.equipos.indexOf(e)+1).pmaxKpa||'—'} kPa</b>`;
+}
+function vincularTodo(){
+  if(!D||!window.FXPlano)return;
+  D.equipos.forEach(e=>{const ch=vincularPm(e),el=$(`.equipo[data-eq="${e.id}"]`);if(!el)return;if(ch){const i=$('[data-k="presionTrabajoMaxPermitida"]',el);if(i)i.value=e.presionTrabajoMaxPermitida;actCab(el,e);}else pintarPmVinc(el,e);});
+}
+
+// ----- levantamiento del equipo (boquillas del plano). Si no hay, se crea uno mínimo al agregar boquillas en el plano. -----
+function plLevDe(e,crear){
+  if(e.levantamiento&&typeof e.levantamiento==='object'){if(!Array.isArray(e.levantamiento.boquillas))e.levantamiento.boquillas=[];return e.levantamiento;}
+  if(!crear)return null;
+  const o=e.plano&&e.plano.orientacion==='V'?'V':'H';
+  e.levantamiento={schema:LX().SCHEMA,version:LX().VERSION,origen:'plano',orientacion:o,dimensiones:{},metadata:{},boquillas:[],espesores:{}};return e.levantamiento;
+}
+// Estado de FXLev armado desde el equipo (ids b0, b1… = índice en e.levantamiento.boquillas)
+function plL(e,d){
+  const X=LX(),L=X.nuevo(),i=d.inp;L.orientacion=i.o;
+  L.dimensiones.diametroInteriorCm=plOk(i.Dcm)?String(i.Dcm):'';L.dimensiones.longitudMm=plOk(i.Lmm)?String(i.Lmm):'';L.dimensiones.profundidadTapaMm=plOk(i.Tapmm)?String(i.Tapmm):'';
+  const lv=plLevDe(e,false);
+  L.boquillas=((lv&&lv.boquillas)||[]).map((b,k)=>({id:'b'+k,k,tipo:X.normTipo(b.tipo),diametroPulgadas:X.parsePulg(b.diametroPulgadas)>0?X.parsePulg(b.diametroPulgadas):null,cara:X.CARAS.includes(b.cara)?b.cara:'frente',pos:{u:+(b.pos&&b.pos.u)||0,v:+(b.pos&&b.pos.v)||0}})).filter(b=>b.tipo);
+  return L;
+}
+function plReletrar(lv){lv.boquillas.forEach((b,i)=>b.letra=LX().letra(i));}
+
 function plSelector(){
   const s=$('#plEquipo');if(!s||!D)return;const e=plEq();
-  s.innerHTML=D.equipos.map((x,i)=>`<option value="${x.id}"${e&&x.id===e.id?' selected':''}>${i+1}. ${esc(x.nombre||'Equipo sin nombre')}${x.tag?' · '+esc(x.tag):''}${x.levantamiento?' · '+(x.levantamiento.orientacion==='V'?'V':'H'):''}</option>`).join('');
+  s.innerHTML=D.equipos.map((x,i)=>`<option value="${x.id}"${e&&x.id===e.id?' selected':''}>${i+1}. ${esc(x.nombre||'Equipo sin nombre')}${x.tag?' · '+esc(x.tag):''}${x.levantamiento&&x.levantamiento.origen!=='plano'?' · '+(x.levantamiento.orientacion==='V'?'V':'H'):''}</option>`).join('');
 }
+// valores de los campos (sin pisar el que tiene el foco)
 function plCampos(){
-  const e=plEq();if(!e)return;const pl=e.plano,lv=e.levantamiento,ld=(lv&&lv.dimensiones)||{},X=FXP();
-  $$('#vistaPlano [data-pl]').forEach(i=>{if(document.activeElement!==i)i.value=pl[i.dataset.pl]??'';});
-  $$('#vistaPlano [data-pe]').forEach(i=>{const k=i.dataset.pe;if(document.activeElement!==i)i.value=e[k]??'';i.placeholder=ld[k]!=null&&ld[k]!==''?String(ld[k]):'';});
+  const e=plEq();if(!e)return;const pl=e.plano,lv=e.levantamiento,ld=(lv&&lv.dimensiones)||{},X=FXP(),foco=document.activeElement;
+  $$('#vistaPlano [data-pl]').forEach(i=>{if(foco!==i)i.value=pl[i.dataset.pl]??'';});
+  $$('#vistaPlano [data-pe]').forEach(i=>{const k=i.dataset.pe;if(foco!==i)i.value=e[k]??'';if(ld[k]!=null&&ld[k]!=='')i.placeholder=String(ld[k]);});
+  $$('#vistaPlano [data-pd]').forEach(i=>{if(foco!==i)i.value=D[i.dataset.pd]??'';});
+  const pm=$('#vistaPlano [data-pm]');if(pm&&foco!==pm)pm.value=memXXX(e.codigoMemoriaCalculo);
   const d=X.datos(e,plCtx()),aire=d.inp.aire;
   $('#pl_fab').placeholder=String(e.marca||'').trim()||'(marca)';
   $('#pl_fec').placeholder=X.fechaCajetin(e.fechaPnd)||'AGOSTO-2026';
+  $('#pl_uro').placeholder=String(e.ubicacion||'').trim()||'CUARTO DE MÁQUINAS';
   $('#pl_c').placeholder=aire?X.AIRE.C.toFixed(2):'';$('#pl_k').placeholder=aire?String(X.AIRE.K):'';$('#pl_m').placeholder=aire?String(X.AIRE.M):'';
-  const r=d.r;$('#pl_ai').placeholder=r.AinstSrc==='circulo'?plF(r.Ainst,3):'';
+  $('#pl_ai').placeholder=d.r.AinstSrc==='circulo'?plF(d.r.Ainst,3):'';
+  // croquis de ubicación: modo y caja de imagen del equipo
+  $$('#vistaPlano [data-plu]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.plu===d.ubic.modo)));
+  const cj=$('#plUbicCaja');cj.dataset.m=d.ubic.modo;
+  const box=$('#plUbicImg'),key='e:'+e.id+':ubicPlano';if(box.dataset.img!==key){box.dataset.img=key;renderImg(box);}
 }
 function plAyudas(d){
   const {e,inp:i,r}=d,lv=e.levantamiento;
   $$('#vistaPlano [data-plo]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.plo===i.o)));
-  $('#plOrAyuda').textContent=lv?(e.plano.orientacion&&e.plano.orientacion!==lv.orientacion?`El levantamiento dice ${lv.orientacion==='V'?'vertical':'horizontal'}; elegiste otra plantilla.`:`Del levantamiento: ${lv.orientacion==='V'?'vertical':'horizontal'}.`):'Sin levantamiento importado: elige la plantilla.';
+  $('#plOrAyuda').textContent=lv&&lv.origen!=='plano'?(e.plano.orientacion&&e.plano.orientacion!==lv.orientacion?`El levantamiento dice ${lv.orientacion==='V'?'vertical':'horizontal'}; elegiste otra plantilla.`:`Del levantamiento: ${lv.orientacion==='V'?'vertical':'horizontal'}.`):'Elige la plantilla.';
   const a=(k,t)=>{const el=$(`#vistaPlano [data-pa="${k}"]`);if(el)el.textContent=t;};
-  a('diametroInteriorCm',plF(i.Dmm,2)!=='—'?`= ${plF(i.Dmm,2)} mm · R = ${plF(i.Rmm,2)} mm`:'Diámetro interior, en centímetros.');
-  a('longitudMm',plF(i.Lmm,0)!=='—'?`Solo el cuerpo = ${plF(i.Lmm/1000,3)} m`:'Solo el cuerpo, entre soldaduras.');
-  a('eficiencia',isFinite(i.E)?`Se usa E = ${i.E.toFixed(2)} (${+(i.E*100).toFixed(2)} %)`:'Fracción, por ejemplo 0.85.');
-  a('areaValvulaCm2',r.AinstSrc==='circulo'?`Vacío: círculo de Ø ${plF(i.dv,2)} mm = ${plF(r.Ainst,3)} cm²`:r.AinstSrc==='captura'?'Área capturada (placa de la válvula).':'Sin Ø de válvula: captura el área o el Ø en el expediente.');
-  $('#plMatAyuda').innerHTML=`Materiales: <b>${esc(e.materialCuerpo||'—')}</b> / <b>${esc(e.materialTapa||'—')}</b> (expediente).`;
-  $('#plRelNota').innerHTML=i.aire?`Fluido <b>${esc(i.fluido)}</b> (expediente): con C, K y M vacíos se usan los de aire de la muestra (356.00 · 0.876 · 28.97). Ø de la válvula: <b>${plF(i.dv,2)} mm</b> ${i.dvSrc==='expediente'?'(expediente)':i.dvSrc==='boquilla'?'(boquilla del levantamiento)':''}.`
-    :`Fluido <b>${esc(i.fluido||'sin capturar')}</b>: no hay tabla de gases; captura C, K y M. Ø de la válvula: <b>${plF(i.dv,2)} mm</b>.`;
+  a('diametroInteriorCm',plOk(i.Dmm)?`= ${plF(i.Dmm,2)} mm`:'Diámetro interior, en centímetros.');
+  a('longitudMm',plOk(i.Lmm)?`Solo el cuerpo = ${plF(i.Lmm/1000,3)} m`:'Solo el cuerpo, entre soldaduras.');
+  a('eficiencia',plOk(i.E)?`Se usa E = ${i.E.toFixed(2)} (${+(i.E*100).toFixed(2)} %)`:'Fracción, por ejemplo 0.85.');
+  a('diametroValvulaMm',i.dvSrc==='boquilla'?`Vacío: se usa la boquilla de válvula del levantamiento (${plF(i.dv,2)} mm).`:'Hojas 10 y 66 del expediente.');
+  a('areaValvulaCm2',r.AinstSrc==='circulo'?`Vacío: círculo de Ø ${plF(i.dv,2)} mm = ${plF(r.Ainst,3)} cm²`:r.AinstSrc==='captura'?'Área capturada (placa de la válvula).':'Sin Ø de válvula: captura el área o el Ø.');
+  {const cap=String(e.capacidadVolumetrica||'').trim(),n=parseFloat(cap);let t='La del expediente (placa). Hoja 10.';
+    if(plOk(r.Vtot)&&n>0){const df=(r.Vtot-n)/n*100;t=Math.abs(df)<0.5?`✓ Coincide con el volumen calculado (${r.Vtot.toFixed(4)} m³).`:`El volumen calculado da ${r.Vtot.toFixed(4)} m³ (${df>0?'+':''}${df.toFixed(1)} %): ajusta L o C.R.`;}
+    a('capacidadVolumetrica',t);}
+  $('#plRelNota').innerHTML=i.aire?`Fluido <b>${esc(i.fluido)}</b>: con C, K y M vacíos se usan los de aire de la muestra (356.00 · 0.876 · 28.97).`
+    :`Fluido <b>${esc(i.fluido||'sin capturar')}</b>: no hay tabla de gases; captura C, K y M.`;
 }
-function plLectura(d){
-  const e=d.e,i=d.inp;
-  const fila=(lbl,val,ir)=>`<dt>${lbl}</dt><dd class="v${val?'':' vacio'}">${val?esc(val):'Falta'}</dd><dd class="a">${ir?`<button type="button" class="btn chico fantasma" data-plir='${esc(JSON.stringify(ir))}'>Editar</button>`:''}</dd>`;
-  const ex=k=>({sec:'s-equipos',eq:e.id,k});
-  const u=(v,un)=>{const s=String(v??'').trim();return s?`${s} ${un}`:'';};
-  $('#plLee').innerHTML=[
-    fila('Fluido',String(e.fluido||'').trim(),ex('fluido')),
-    fila('Presión de diseño P',u(e.presionDiseno,'kg/cm²'),ex('presionDiseno')),
-    fila('Presión de calibración Pc',u(e.presionCalibracion,'kg/cm²'),ex('presionCalibracion')),
-    fila('Presión de operación',u(e.presionOperacion,'kg/cm²'),ex('presionOperacion')),
-    fila('Prueba hidrostática (diseño × 1.1)',u(e.presionPruebaHidrostatica,'kg/cm²'),ex('presionDiseno')),
-    fila('Temperatura de diseño',u(e.tempDiseno,'°C'),ex('tempDiseno')),
-    fila('Temperatura de operación',u(e.tempOperacion,'°C'),ex('tempOperacion')),
-    fila('Capacidad volumétrica',u(e.capacidadVolumetrica,'m³'),ex('capacidadVolumetrica')),
-    fila('Ø de la válvula de seguridad',u(e.diametroValvulaMm,'mm')||(i.dvSrc==='boquilla'?`${plF(i.dv,2)} mm (boquilla)`:''),ex('diametroValvulaMm')),
-    fila('Espesor mínimo · cuerpo (PND)',isFinite(i.tEnv)?`${i.tEnv.toFixed(2)} mm`:'',{sec:'s-pnd',eq:e.id,esp:'espEnv'}),
-    fila('Espesor mínimo · tapas (PND)',isFinite(i.tTap)?`${i.tTap.toFixed(2)} mm`:'',{sec:'s-pnd',eq:e.id,esp:'espSup'}),
-    fila('Ubicación',String(e.ubicacion||'').trim(),ex('ubicacion')),
-    fila('Marca · serie · año',[e.marca,e.numeroSerie,e.anioFabricacion].map(x=>String(x||'').trim()).filter(Boolean).join(' · '),ex('marca'))
-  ].join('');
-  $('#plLeeCaj').innerHTML=[
-    fila('Cliente',rsNombre(),{sec:'s-centro',sel:'#d_rsp'}),
-    fila('Equipo · TAG',[e.nombre,e.tag].map(x=>String(x||'').trim()).filter(Boolean).join(' · '),ex('nombre')),
-    fila('Plano No. (código de memoria)',String(e.codigoMemoriaCalculo||'').trim(),ex('codigoMemoriaCalculo')),
-    fila('Revisó y firma',[G.firmanteIzquierdoNombre,G.firmanteIzquierdoCedula&&('Céd. '+G.firmanteIzquierdoCedula)].filter(Boolean).join(' · ')+(IMG['g:firmanteIzquierdoFirma']?'':(G.firmanteIzquierdoNombre?' · sin firma':'')),{sec:'s-responsables',sel:'#g_fin'})
-  ].join('');
+// campos grises (vinculados)
+function plVinculados(d){
+  const {e,inp:i,r}=d,X=FXP(),cap=X.capacidad(d);
+  const pon=(k,v,ay)=>{const el=$(`#vistaPlano [data-pv="${k}"]`);if(el)el.value=v;if(ay!=null){const q=$(`#vistaPlano [data-pva="${k}"]`);if(q&&!q.querySelector('button'))q.innerHTML=ay;}};
+  pon('R',plF(i.Rmm,2),'D / 2.');
+  pon('V',plF(r.Vtot,4),plOk(r.Vtot)?`Envolvente ${plF(r.Venv,4)} + tapas ${plF(r.Vtap,4)}.`:'Falta Ø, L o C.R.');
+  pon('pm',plF(r.Pm,2),plOk(r.Pm)?`La menor: envolvente ${plF(r.PmEnv,2)} · tapas ${plF(r.PmTap,2)}. <b>Igual en el expediente</b> (hojas 10 y 66).`:'Falta S, E o el espesor medido: el expediente conserva su valor.');
+  pon('hid',X.hidrostatica(d)||'—');
+  pon('cap',cap.v||'—',cap.vinc?'Volumen calculado, 3 decimales.':'Sin volumen calculado: se imprime la de placa.');
+  pon('tEnv',plF(i.tEnv,2));pon('tTap',plF(i.tTap,2));
+  pon('A',plF(r.A,4),r.cumple==null?'':r.cumple?'✓ El área instalada es mayor.':'✗ El área instalada no supera la calculada.');
+}
+function plLeeCaj(d){
+  const e=d.e,fila=(lbl,val,ir)=>`<dt>${lbl}</dt><dd class="v${val?'':' vacio'}">${val?esc(val):'Falta'}</dd><dd class="a">${ir?`<button type="button" class="btn chico fantasma" data-plir='${esc(JSON.stringify(ir))}'>Editar</button>`:''}</dd>`;
+  $('#plLeeCaj').innerHTML=fila('Revisó y firma',[G.firmanteIzquierdoNombre,G.firmanteIzquierdoCedula&&('Céd. '+G.firmanteIzquierdoCedula)].filter(Boolean).join(' · ')+(IMG['g:firmanteIzquierdoFirma']?'':(G.firmanteIzquierdoNombre?' · sin firma':'')),{sec:'s-responsables',sel:'#g_fin'});
 }
 function plPendientes(d){
   const box=$('#plPend');if(!box)return;
   if(!d.faltan.length){box.innerHTML='';return;}
-  const dn={plano:'Plano',exp:'Expediente',pnd:'PND'};
+  const dn={plano:'Plano',exp:'Plano · Expediente',pnd:'PND'};
   box.innerHTML=`<div class="aviso warn"><strong>Faltan ${d.faltan.length} dato${d.faltan.length>1?'s':''} para la memoria completa · lo que falta queda en blanco</strong><ul>${d.faltan.map((f,k)=>`<li><button type="button" data-plf="${k}">${esc(f.m)}<span class="ir">${dn[f.donde]}</span></button></li>`).join('')}</ul></div>`;
   $$('[data-plf]',box).forEach(b=>b.addEventListener('click',()=>{const f=d.faltan[+b.dataset.plf];
-    if(f.donde==='plano'){const t=$(`#vistaPlano [data-pl="${f.campo}"],#vistaPlano [data-pe="${f.campo}"]`);if(t){t.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{try{t.focus({preventScroll:true});}catch(_){}},300);const c=t.closest('.campo');if(c){c.classList.remove('destello');void c.offsetWidth;c.classList.add('destello');}}}
+    const t=f.donde==='pnd'?null:$(`#vistaPlano [data-pl="${f.campo}"],#vistaPlano [data-pe="${f.campo}"]`);
+    if(t){t.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{try{t.focus({preventScroll:true});}catch(_){}},300);const c=t.closest('.campo');if(c){c.classList.remove('destello');void c.offsetWidth;c.classList.add('destello');}}
     else if(f.donde==='pnd')irA({sec:'s-pnd',eq:d.e.id,esp:f.campo});
     else irA({sec:'s-equipos',eq:d.e.id,k:f.campo});}));
 }
@@ -3877,7 +4194,7 @@ function plPendientes(d){
 function plMemoria(d){
   const {inp:i,r}=d,F=(n,k)=>plF(n,k),fr=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`,rz=(a,b)=>`<span class="rz">√${fr(a,b)}</span>`;
   const pend=(arr)=>`<span class="pl-pend">Pendiente: ${arr.join(', ')}</span>`;
-  const falt=(o)=>Object.entries(o).filter(([,v])=>!(typeof v==='number'&&isFinite(v))).map(([k])=>k);
+  const falt=(o)=>Object.entries(o).filter(([,v])=>!plOk(v)).map(([k])=>k);
   const f=(nm,sim,sus,res,un,ck)=>`<div class="pl-f"><span class="nm">${nm}</span><div class="ec">${sim}${sus?`<span>⟶</span><span class="sus">${sus}</span>`:''}</div><div class="rs">${res}${un?`<small>${un}</small>`:''}</div>${ck||''}</div>`;
   const chk=(okv,si,no)=>okv==null?'':`<span class="ck ${okv?'si':'no'}">${okv?'✓ '+si:'✗ '+no}</span>`;
   const sec=(t,body)=>`<section class="pl-sec"><h4>${t}</h4>${body}</section>`;
@@ -3911,65 +4228,166 @@ function plMemoria(d){
       f(`Área calculada · C = ${F(i.C,2)}, K = ${plF(i.Kd,3)}, M = ${F(i.M,2)}${i.cteSrc.C==='aire'?' (aire)':''}`,`A = ${fr('W','C K P')} × ${rz('T','M')}`,b.length?pend(b):`${fr(F(r.W,2),`${F(i.C,2)} × ${plF(i.Kd,3)} × ${F(r.Pabs,2)}`)} × ${rz(F(r.Tk,2),F(i.M,2))}`,F(r.A,4),'cm²'));}
   const cc=FXP().conclusion(d);
   h+=`<div class="pl-res"><span>Presión máxima permisible del equipo (la menor)</span><b>${F(r.Pm,2)} kg/cm²</b>
-    ${isFinite(r.Pm)?(String(d.e.presionTrabajoMaxPermitida||'').trim()===r.Pm.toFixed(2)?`<span class="ck si" style="grid-column:1/-1">✓ Igual a la del expediente (hoja 10 y 66).</span>`
-      :`<span style="grid-column:1/-1;font-size:12.5px;color:var(--tinta-2)">En el expediente: <b style="font-size:inherit">${esc(String(d.e.presionTrabajoMaxPermitida||'').trim()||'vacía')}</b>. <button type="button" class="btn chico laton" id="plUsarPm">Usar ${r.Pm.toFixed(2)} en el expediente</button></span>`):''}
+    ${plOk(r.Pm)?`<span class="ck si" style="grid-column:1/-1">✓ Vinculada: el expediente usa ${r.Pm.toFixed(2)} kg/cm² (hojas 10 y 66).</span>`:`<span style="grid-column:1/-1;font-size:12.5px;color:var(--tinta-2)">Sin Pm calculada: el expediente conserva <b style="font-size:inherit">${esc(String(d.e.presionTrabajoMaxPermitida||'').trim()||'vacía')}</b>.</span>`}
     <span>Válvula: área instalada vs calculada</span><b>${F(r.Ainst,3)} / ${F(r.A,4)} cm²</b>
     ${r.cumple==null?'':`<span class="ck ${r.cumple?'si':'no'}" style="grid-column:1/-1">${r.cumple?'✓ El área instalada es mayor que la calculada.':'✗ El área instalada no supera la calculada: revisa la válvula.'}</span>`}</div>`;
   if(cc)h+=`<p class="pl-concl">${esc(cc)}</p>`;
   $('#plMem').innerHTML=h;
   const tg=$('#plMemTag');tg.textContent=d.faltan.length?`${d.faltan.length} pendiente${d.faltan.length>1?'s':''}`:'Completa';tg.dataset.s=d.faltan.length?'err':'ok';
-  const b=$('#plUsarPm');if(b)b.addEventListener('click',()=>{d.e.presionTrabajoMaxPermitida=r.Pm.toFixed(2);guardar();renderEquipos();initImgs($('#listaEquipos'));initImgs($('#pndPanel'));plActualizar();toast(`Presión de trabajo máx. permitida = ${r.Pm.toFixed(2)} kg/cm² en el expediente.`);});
+}
+
+// ----- boquillas: croquis interactivo (agrupado por tipo) + tabla de grupos + lista una por una -----
+function plCroquis(d){
+  const svg=$('#plCroquis');if(!svg)return;const e=d.e,L=plL(e,d);
+  const lay=LX().croquis(L,{hit:true,agrupar:true});
+  svg.setAttribute('viewBox',`0 0 ${lay.W} ${lay.H}`);svg.dataset.o=L.orientacion;
+  const sel=plSel&&L.boquillas.find(b=>b.tipo===plSel);
+  svg.innerHTML=LX().svg(lay,sel?sel.id:null);
+}
+function plGrupos(d){
+  const G_=FXP().grupos(d),tb=$('#plGrupos'),def=String(d.pl.tipoConexion||'').trim()||'COPLE',o=d.inp.o;
+  if(!G_.length){tb.innerHTML='<tbody><tr><td class="vacio">Sin boquillas. Importa el levantamiento o agrégalas abajo.</td></tr></tbody>';return;}
+  tb.innerHTML=`<thead><tr><th>Letra</th><th>Servicio</th><th>Cant.</th><th>Ø mm</th><th>Tipo (conexión)</th><th>Ángulo en vista ${o==='V'?'superior':'lateral'}</th></tr></thead><tbody>${G_.map(g=>{
+    const dft=FXP().angDefault(o,{cara:g.cara,pos:g.pos});
+    return `<tr data-t="${esc(g.t)}"${g.t===plSel?' class="sel"':''}><td><button type="button" class="lev-letra" data-pgs>${g.letra}</button></td><td>${esc(g.serv)}</td><td class="n">${g.n}</td><td class="n vinc">${g.porD.map(([mm])=>mm).join(' · ')}</td>
+      <td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>
+      <td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)}"><span class="u">°</span></div></td></tr>`;}).join('')}</tbody>`;
+  $$('[data-mayus]',tb).forEach(mayus);
+}
+function plBqLista(d){
+  const X=LX(),lv=plLevDe(d.e,false),bs=(lv&&lv.boquillas)||[],ol=$('#plBqLista');$('#plBqCuenta').textContent=bs.length;
+  if(!bs.length){ol.innerHTML='<li class="lev-bq-vacio">Sin boquillas.</li>';return;}
+  ol.innerHTML=bs.map((b,i)=>{const t=X.normTipo(b.tipo),l=X.letra(i);return `<li class="lev-bq-fila" data-i="${i}">
+    <span class="lev-letra" aria-hidden="true">${l}</span>
+    <div class="caja lv-t"><select data-pbf="tipo" aria-label="Tipo de ${l}">${X.TIPOS.map(x=>`<option value="${x}"${x===t?' selected':''}>${X.TIPO_UI[x]}</option>`).join('')}</select></div>
+    <div class="caja lv-d"><input data-pbf="d" inputmode="decimal" value="${esc(X.fmtPulg(X.parsePulg(b.diametroPulgadas)))}" placeholder="Ø" autocomplete="off" aria-label="Ø de ${l} en pulgadas"><span class="u">pulg</span></div>
+    <div class="caja lv-c"><select data-pbf="cara" aria-label="Cara de ${l}">${X.CARAS.map(c=>`<option value="${c}"${c===b.cara?' selected':''}>${X.CARA_UI[c]}</option>`).join('')}</select></div>
+    <div class="lev-bq-acc"><button type="button" class="btn chico fantasma peligro" data-pba="del" title="Quitar" aria-label="Quitar ${l}">✕</button></div></li>`;}).join('');
+}
+// ----- croquis de ubicación (vista previa interactiva) -----
+function plUbicDim(e,cb){
+  const key='e:'+e.id+':ubicPlano',bytes=IMG[key];if(!bytes)return null;
+  if(plDim[key]&&plDim[key].n===bytes.length)return plDim[key];
+  if(!plDim[key]||plDim[key].n!==bytes.length){plDim[key]={n:bytes.length,w:0,h:0,pend:1};
+    createImageBitmap(new Blob([bytes])).then(bm=>{plDim[key]={n:bytes.length,w:bm.width,h:bm.height};if(cb)cb();}).catch(()=>{plDim[key]={n:bytes.length,w:0,h:0};});}
+  return null;
+}
+let plUbicArea=null;
+function plUbic(d){
+  const svg=$('#plUbic');if(!svg)return;const e=d.e,key='e:'+e.id+':ubicPlano',bytes=IMG[key];
+  const dim=d.ubic.modo==='img'&&bytes?plUbicDim(e,()=>plActualizar(true)):null;
+  const opt={M:plMetricas(),w:360,h:210,ubicImg:!!(dim&&dim.w),ubicDim:dim&&dim.w?dim:null};
+  const lay=FXP().ubicLayout(d,opt);plUbicArea=lay.area;
+  const imgs=opt.ubicImg?{ubic:{mime:detectCt(bytes),b64:u8ToB64(bytes)}}:{};
+  svg.innerHTML=FXP().svg(lay,{imgs,w:360,h:210}).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+  $('#plUaTxt').textContent=`${d.ubic.ang}° · 0° = hacia la derecha, 90° = hacia abajo.`;
 }
 function plImgs(){
   const o={};const lg=IMG['g:logoFenix']||(window.FX_ASSETS&&FX_ASSETS.logoDefault?b64(FX_ASSETS.logoDefault):null);
   if(lg)o.logo={mime:detectCt(lg),b64:u8ToB64(lg),bytes:lg};
   const fm=IMG['g:firmanteIzquierdoFirma'];if(fm)o.firma={mime:detectCt(fm),b64:u8ToB64(fm),bytes:fm};
+  const e=plEq(),ub=e&&IMG['e:'+e.id+':ubicPlano'];if(ub)o.ubic={mime:detectCt(ub),b64:u8ToB64(ub),bytes:ub};
   return o;
 }
 let plImgC=null;
 function plHoja(d){
   const box=$('#plHoja');if(!box||!d)return;
-  try{if(!plImgC)plImgC=plImgs();
-    const lay=FXP().hoja(d,{M:plMetricas(),logo:!!plImgC.logo,firma:!!plImgC.firma});
+  try{if(!plImgC||plImgC._eq!==d.e.id||(plImgC.ubic?plImgC.ubic.bytes:null)!==(IMG['e:'+d.e.id+':ubicPlano']||null)){plImgC=plImgs();plImgC._eq=d.e.id;}
+    const dim=plImgC.ubic?plUbicDim(d.e,()=>plActualizar(true)):null;
+    const lay=FXP().hoja(d,{M:plMetricas(),logo:!!plImgC.logo,firma:!!plImgC.firma,ubicImg:!!(dim&&dim.w),ubicDim:dim&&dim.w?dim:null});
     box.innerHTML=FXP().svg(lay,{imgs:plImgC});
-    $('#plHojaTag').textContent=`Tabloide 17 × 11 in · plantilla ${d.inp.o==='V'?'V (vertical)':'H (horizontal)'}`;
+    $('#plHojaTag').textContent=`Tabloide 17 × 11 in · plantilla ${d.inp.o==='V'?'V (vertical)':'H (horizontal)'} · memoria a ${lay.Z.toFixed(1)} pt`+(d.ubic.modo&&!lay.hU?' · sin espacio para el croquis de ubicación':'');
   }catch(e){console.error(e);box.innerHTML='<div class="aviso err">No se pudo dibujar la hoja: '+esc(e&&e.message||e)+'</div>';}
 }
 function plActualizar(conHoja){
   const d=plDatos();if(!d)return;
-  plAyudas(d);plLectura(d);plPendientes(d);plMemoria(d);plCampos();
+  plAyudas(d);plVinculados(d);plLeeCaj(d);plPendientes(d);plMemoria(d);plCampos();plCroquis(d);plGrupos(d);plBqLista(d);plUbic(d);
   clearTimeout(plT);if(conHoja)plHoja(d);else plT=setTimeout(()=>plHoja(plDatos()),220);
 }
 function plPintar(){
   if(!D)return;plSucio=false;plImgC=null;
   if(!D.equipos.length)return;
   plSelector();plCampos();plActualizar(true);
-  const e=plEq();plEstado(e&&e.levantamiento?'Datos del levantamiento importado':'Equipo sin levantamiento importado',e&&e.levantamiento?'ok':'warn');
+  const e=plEq(),lv=e&&e.levantamiento;
+  plEstado(lv?(lv.origen==='plano'?'Boquillas capturadas en el plano':'Datos del levantamiento importado'):'Equipo sin levantamiento importado',lv?'ok':'warn');
 }
+// cambio hecho en el plano: guarda, avisa al expediente y repinta
+function plCambio(conHoja){expSucio=true;guardar();plActualizar(conHoja);}
 function plNombre(ext){const e=plEq()||{},f=s=>Fx().fileName(s);return ['PLANO',f(e.tag||e.nombre),f(rsNombre())].filter(Boolean).join(' ').trim()+'.'+ext;}
 async function plExportarPDF(){
   const d=plDatos();if(!d)return;
   if(d.faltan.length&&!confirm(`Faltan ${d.faltan.length} dato${d.faltan.length>1?'s':''} (${d.faltan.slice(0,4).map(f=>f.m).join(', ')}${d.faltan.length>4?'…':''}). En el PDF quedarán en blanco («—») y saldrá la lista de pendientes. ¿Exportar de todos modos?`))return;
   const b=$('#plPdf');b.disabled=true;plEstado('Generando PDF…','work');
   try{const im=plImgs();
-    const bytes=await FXP().pdf(d,{fonts:plFonts(),logo:im.logo&&im.logo.bytes,firma:im.firma?await recortarFirma(im.firma.bytes):null});
+    const bytes=await FXP().pdf(d,{fonts:plFonts(),logo:im.logo&&im.logo.bytes,firma:im.firma?await recortarFirma(im.firma.bytes):null,ubic:d.ubic.modo==='img'&&im.ubic?im.ubic.bytes:null});
     descargar(new Blob([bytes],{type:'application/pdf'}),plNombre('pdf'));toast('Plano descargado: '+plNombre('pdf'));plEstado('PDF generado','ok');}
   catch(e){console.error(e);toast('No se pudo generar el plano: '+(e&&e.message||e));plEstado('Error al generar','warn');}
   finally{b.disabled=false;}
 }
 function plExportarSVG(){
-  const d=plDatos();if(!d)return;const im=plImgs();
-  const lay=FXP().hoja(d,{M:plMetricas(),logo:!!im.logo,firma:!!im.firma});
+  const d=plDatos();if(!d)return;const im=plImgs(),dim=im.ubic?plUbicDim(d.e):null;
+  const lay=FXP().hoja(d,{M:plMetricas(),logo:!!im.logo,firma:!!im.firma,ubicImg:!!(dim&&dim.w)&&d.ubic.modo==='img',ubicDim:dim&&dim.w?dim:null});
   descargar(new Blob([FXP().svg(lay,{imgs:im})],{type:'image/svg+xml'}),plNombre('svg'));toast('SVG del plano descargado');
 }
 function initPlano(){
   const v=$('#vistaPlano');if(!v)return;
-  $('#plEquipo').addEventListener('change',ev=>{plActivo=ev.target.value;plPintar();});
-  $$('[data-plo]',v).forEach(b=>b.addEventListener('click',()=>{const e=plEq();if(!e)return;e.plano.orientacion=b.dataset.plo;guardar();plActualizar(true);plSelector();}));
-  $$('[data-pl]',v).forEach(i=>{if(i.hasAttribute('data-mayus'))mayus(i);
-    i.addEventListener('input',()=>{const e=plEq();if(!e)return;let x=i.value;if(i.inputMode==='decimal'&&x.includes(',')){x=x.replace(',','.');i.value=x;}e.plano[i.dataset.pl]=x;guardar();plActualizar();});});
-  $$('[data-pe]',v).forEach(i=>i.addEventListener('input',()=>{const e=plEq();if(!e)return;let x=i.value;if(x.includes(',')){x=x.replace(',','.');i.value=x;}e[i.dataset.pe]=x;guardar();plActualizar();}));
-  v.addEventListener('click',ev=>{const b=ev.target.closest('[data-plir]');if(!b)return;let x=null;try{x=JSON.parse(b.dataset.plir);}catch(_){}if(x)irA(x);});
+  $('#plEquipo').addEventListener('change',ev=>{plActivo=ev.target.value;plSel=null;plPintar();});
+  $$('[data-plo]',v).forEach(b=>b.addEventListener('click',()=>{const e=plEq();if(!e)return;e.plano.orientacion=b.dataset.plo;plCambio(true);plSelector();}));
+  $$('[data-plu]',v).forEach(b=>b.addEventListener('click',()=>{const e=plEq();if(!e)return;e.plano.ubicModo=b.dataset.plu;plCambio(true);}));
+  $$('[data-mayus]',v).forEach(i=>{if(i.matches('[data-pl],[data-pe],[data-pd]'))mayus(i);});
+  const dec=i=>{let x=i.value;if(i.inputMode==='decimal'&&x.includes(',')){x=x.replace(',','.');i.value=x;}return x;};
+  $$('[data-pl]',v).forEach(i=>{const ev=i.tagName==='SELECT'?'change':'input';i.addEventListener(ev,()=>{const e=plEq();if(!e)return;e.plano[i.dataset.pl]=dec(i);plCambio();});});
+  $$('[data-pe]',v).forEach(i=>i.addEventListener('input',()=>{const e=plEq();if(!e)return;const k=i.dataset.pe;e[k]=dec(i);
+    if(k==='presionDiseno')e.presionPruebaHidrostatica=hidro(e);if(k==='nombre'||k==='tag')plSelector();plCambio();}));
+  $$('[data-pd]',v).forEach(i=>i.addEventListener('input',()=>{const k=i.dataset.pd;D[k]=i.value;if(k==='razonSocialPropietario')D.razonSocialUsuario=i.value;actEncabezado();plCambio();}));
+  {const mk=$('[data-pm]',v);
+    mk.addEventListener('input',()=>{const e=plEq();if(!e)return;const x=mk.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);if(x!==mk.value)mk.value=x;e.codigoMemoriaCalculo=memCodigo(x);plCambio();});
+    mk.addEventListener('blur',()=>{if(/^\d{1,2}$/.test(mk.value)){mk.value=mk.value.padStart(3,'0');mk.dispatchEvent(new Event('input'));}});}
+  v.addEventListener('click',ev=>{const b=ev.target.closest('[data-plir]');if(b){let x=null;try{x=JSON.parse(b.dataset.plir);}catch(_){}if(x)irA(x);return;}
+    const p=ev.target.closest('[data-plpnd]');if(p){const e=plEq();if(e)irA({sec:'s-pnd',eq:e.id,esp:p.dataset.plpnd});}});
+  // tabla de grupos: conexión y ángulo por tipo; letra = seleccionar
+  const tb=$('#plGrupos');
+  tb.addEventListener('input',ev=>{const e=plEq();if(!e)return;const c=ev.target.dataset.pgc,a=ev.target.dataset.pga;
+    if(c!=null){const x=ev.target.value.trim();if(x)e.plano.conexiones[c]=x.toUpperCase();else delete e.plano.conexiones[c];expSucio=true;guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}
+    if(a!=null){let x=ev.target.value.trim().replace(',','.');if(x&&!/^\d{0,3}(\.\d*)?$/.test(x))return;if(x)e.plano.angulos[a]=x;else delete e.plano.angulos[a];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}});
+  tb.addEventListener('click',ev=>{const b=ev.target.closest('[data-pgs]');if(!b)return;const t=b.closest('tr').dataset.t;plSel=plSel===t?null:t;const d=plDatos();plCroquis(d);plGrupos(d);});
+  // lista una por una
+  const ol=$('#plBqLista'),idx=el=>{const li=el.closest('.lev-bq-fila');return li?+li.dataset.i:-1;};
+  ol.addEventListener('change',ev=>{const e=plEq(),lv=e&&plLevDe(e,false),i=idx(ev.target),f=ev.target.dataset.pbf;if(!lv||i<0||!f)return;const b=lv.boquillas[i];
+    if(f==='tipo')b.tipo=ev.target.value;
+    if(f==='cara'){b.cara=ev.target.value;const L=plL(e,plDatos()),q=L.boquillas.find(x=>x.k===i);if(q)b.pos=LX().ajustar(L,q);}
+    plCambio();});
+  ol.addEventListener('input',ev=>{if(ev.target.dataset.pbf!=='d')return;const e=plEq(),lv=e&&plLevDe(e,false),i=idx(ev.target);if(!lv||i<0)return;const s=ev.target.value.trim(),n=LX().parsePulg(s);
+    if(!s)lv.boquillas[i].diametroPulgadas=null;else if(n>0)lv.boquillas[i].diametroPulgadas=+n.toFixed(4);else return;expSucio=true;guardar();const d=plDatos();plCroquis(d);plGrupos(d);clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);});
+  ol.addEventListener('click',ev=>{const a=ev.target.closest('[data-pba]');if(!a)return;const e=plEq(),lv=e&&plLevDe(e,false),i=idx(a);if(!lv||i<0)return;
+    if(!confirm(`¿Quitar la boquilla ${LX().letra(i)} (${LX().TIPO_UI[LX().normTipo(lv.boquillas[i].tipo)]||lv.boquillas[i].tipo})?`))return;lv.boquillas.splice(i,1);plReletrar(lv);plCambio(true);});
+  $('#plBqAdd').addEventListener('click',()=>{const e=plEq();if(!e)return;const d=plDatos(),L=plL(e,d),b=LX().agregar(L),lv=plLevDe(e,true);
+    lv.boquillas.push({letra:LX().letra(lv.boquillas.length),tipo:b.tipo,diametroPulgadas:null,cara:b.cara,pos:b.pos});plSel=b.tipo;plCambio(true);
+    const li=$('#plBqLista .lev-bq-fila:last-child');if(li){$('#plBqLista').closest('details').open=true;li.scrollIntoView({block:'nearest'});}});
+  // croquis: arrastrar un tipo (todas sus boquillas quedan en el mismo punto)
+  const svg=$('#plCroquis');
+  const mover=(e,L,q,pos)=>{const lv=plLevDe(e,false);q.pos=pos;q.pos=LX().ajustar(L,q);
+    L.boquillas.filter(x=>x.tipo===q.tipo).forEach(x=>{const b=lv.boquillas[x.k];b.pos={u:q.pos.u,v:q.pos.v};b.cara=q.cara;});};
+  svg.addEventListener('pointerdown',ev=>{const t=ev.target.closest('[data-bq]');const e=plEq();if(!e)return;
+    if(!t){if(plSel){plSel=null;const d=plDatos();plCroquis(d);plGrupos(d);}return;}
+    const L=plL(e,plDatos()),q=L.boquillas.find(x=>x.id===t.dataset.bq);if(!q)return;plSel=q.tipo;
+    if(t.classList.contains('bg')||t.classList.contains('bgt')){const d=plDatos();plCroquis(d);plGrupos(d);return;}
+    ev.preventDefault();try{svg.setPointerCapture(ev.pointerId);}catch(_){}plDrag={pid:ev.pointerId,id:q.id,mov:false};});
+  svg.addEventListener('pointermove',ev=>{if(!plDrag||ev.pointerId!==plDrag.pid)return;const e=plEq(),d=plDatos(),L=plL(e,d),q=L.boquillas.find(x=>x.id===plDrag.id);if(!q)return;
+    const p=levPuntoSVG(svg,ev);mover(e,L,q,LX().aUV(LX().geo(L),p.x,p.y));plDrag.mov=true;plCroquis(plDatos());});
+  const fin=()=>{if(!plDrag)return;const m=plDrag.mov;plDrag=null;if(m)plCambio();else{const d=plDatos();plCroquis(d);plGrupos(d);}};
+  svg.addEventListener('pointerup',fin);svg.addEventListener('pointercancel',fin);
+  svg.addEventListener('keydown',ev=>{const dd={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[ev.key];const e=plEq();if(!dd||!plSel||!e)return;
+    const L=plL(e,plDatos()),q=L.boquillas.find(x=>x.tipo===plSel);if(!q)return;ev.preventDefault();const k=ev.shiftKey?0.05:0.01;
+    mover(e,L,q,{u:Math.max(0,Math.min(1,q.pos.u+dd[0]*k)),v:Math.max(0,Math.min(1,q.pos.v+dd[1]*k))});plCambio();});
+  // croquis de ubicación: tocar = punta de la flecha (imagen) o posición del equipo (esquema)
+  const us=$('#plUbic');
+  const ubicar=ev=>{const e=plEq();if(!e||!plUbicArea)return;const p=levPuntoSVG(us,ev),A=plUbicArea,fx=Math.max(0,Math.min(1,(p.x-A.x)/A.w)),fy=Math.max(0,Math.min(1,(p.y-A.y)/A.h));
+    if(A.modo==='img'){e.plano.ubicX=fx.toFixed(3);e.plano.ubicY=fy.toFixed(3);}else{e.plano.ubicEqX=fx.toFixed(3);e.plano.ubicEqY=fy.toFixed(3);}plUbic(plDatos());};
+  let uDrag=null;
+  us.addEventListener('pointerdown',ev=>{if(!plUbicArea)return;ev.preventDefault();try{us.setPointerCapture(ev.pointerId);}catch(_){}uDrag=ev.pointerId;ubicar(ev);});
+  us.addEventListener('pointermove',ev=>{if(uDrag!==ev.pointerId)return;ubicar(ev);});
+  const ufin=()=>{if(uDrag==null)return;uDrag=null;plCambio();};us.addEventListener('pointerup',ufin);us.addEventListener('pointercancel',ufin);
   $('#plPdf').addEventListener('click',plExportarPDF);
   $('#plSvg').addEventListener('click',plExportarSVG);
 }
@@ -3997,7 +4415,7 @@ function initPlano(){
     const d=await DB.get('draft');D=d&&Array.isArray(d.equipos)&&d.equipos.length?d:nuevoDraft();
   }
   migrar();
-  const keys=['g:logoFenix','g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma','d:fotoFachada',...D.equipos.flatMap(e=>['e:'+e.id+':fotoPlaca',...MUESTRAS.map(n=>'e:'+e.id+':muestra'+n)])];
+  const keys=['g:logoFenix','g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma','d:fotoFachada',...D.equipos.flatMap(e=>['e:'+e.id+':fotoPlaca','e:'+e.id+':ubicPlano',...MUESTRAS.map(n=>'e:'+e.id+':muestra'+n)])];
   for(const k of keys){if(IMG[k])continue;const v=await DB.get('img:'+k);if(v)IMG[k]=v instanceof Uint8Array?v:new Uint8Array(v);}
   montar();
   if(fromCloud) setEstado('Globales en la nube'+(cloudImgs?' · '+cloudImgs+' img':'')+' · expediente solo aquí');
@@ -4013,7 +4431,11 @@ function initPlano(){
   $('#btnEjemplo').addEventListener('click',ejemplo);
   initDocs();initPad();initNav();
   try{initPlano();if(document.body.dataset.vista==='plano')plPintar();}catch(e){console.warn('plano',e);}
-  ['#fImportLev','#fImportLev2'].forEach(sel=>{const i=$(sel);if(i)i.addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';importarLevantamientos(fs);});});
+  ['#fImportLev','#fImportLev2','#fImportLev3'].forEach(sel=>{const i=$(sel);if(i)i.addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';importarLevantamientos(fs,sel==='#fImportLev3'?'plano':'exp');});});
+  {const b=$('#levPasar');if(b)b.addEventListener('click',async()=>{if(!LEV)return;if(levVacio(LEV)){toast('El levantamiento está vacío.');return;}
+    const j=LX().aJSON(LEV),v=LX().validar(j);if(!v.ok){toast('No se puede pasar: '+v.err.slice(0,2).join('; ')+'.',6000);return;}
+    if(!confirm('Se pasa este levantamiento al expediente y al plano: llena el equipo en blanco de «Nuevo expediente» o agrega un equipo. ¿Continuar?'))return;
+    await levGuardar(true);importarLevantamientos([{name:levNombre('json'),json:j}],'plano');});}
   $('#topRs').addEventListener('click',()=>irA({sec:'s-centro',sel:'#d_rsp'}));
   $('#topListo').addEventListener('click',()=>{if(ULT.err.length)mostrarFaltas=true;irA({sec:'s-generar'});});
 })();
