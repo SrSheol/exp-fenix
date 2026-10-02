@@ -481,6 +481,52 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 .lev-esp-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
 .lev-esp-acc .nota{margin:0;font-size:12.5px;color:var(--tinta-3)}
 @media (max-width:560px){.lev-menu{flex:1 1 auto}.lev-menu>summary{width:100%}.lev-menu-caja{left:0;right:auto}}
+/* ---------- plano v1 ---------- */
+.pl-sel{min-height:32px;max-width:min(420px,100%);border-radius:var(--r-sm)}
+.pl-sel select{padding:4px 30px 4px 10px;font-size:13px;font-weight:600}
+.pl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:16px;align-items:start}
+.pl-der{position:sticky;top:calc(var(--top) + 78px)}
+.pl-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.pl-or{margin:0 0 14px}
+.pl-or>label{display:block;font-size:13px;font-weight:600;color:var(--tinta-2);margin-bottom:6px}
+.pl-or .ayuda{font-size:12px;color:var(--tinta-3);margin-top:5px}
+.pl-lee{display:grid;grid-template-columns:minmax(9.5em,max-content) minmax(0,1fr) auto;gap:0;margin:14px 0 0;border:1px solid var(--acero);border-radius:var(--r);overflow:hidden}
+.pl-lee>dt,.pl-lee>dd{margin:0;padding:7px 10px;border-top:1px solid var(--acero);font-size:13px;display:flex;align-items:center;min-width:0}
+.pl-lee>dt:nth-of-type(1),.pl-lee>dt:nth-of-type(1)+dd,.pl-lee>dt:nth-of-type(1)+dd+dd{border-top:0}
+.pl-lee>dt{color:var(--tinta-3)}
+.pl-lee>dd.v{font-weight:650;color:var(--tinta);justify-content:flex-end;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pl-lee>dd.v.vacio{color:var(--err);font-weight:600}
+.pl-lee>dd.a{padding:4px 6px}
+.pl-lee .btn{height:26px;padding:0 9px;font-size:12px}
+.pl-mem h3 .tag[data-s="ok"]{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,var(--acero));background:var(--ok-suave)}
+.pl-mem h3 .tag[data-s="err"]{color:var(--err);border-color:color-mix(in srgb,var(--err) 40%,var(--acero));background:var(--err-suave)}
+.pl-sec{padding:12px 0 6px;border-top:1px dashed var(--acero)}
+.pl-sec:first-child{border-top:0;padding-top:4px}
+.pl-sec>h4{margin:0 0 8px;font-size:13.5px;font-weight:750;font-stretch:90%;letter-spacing:.01em;color:var(--laton)}
+.pl-f{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:6px 0}
+.pl-f+.pl-f{border-top:1px solid color-mix(in srgb,var(--acero) 55%,transparent)}
+.pl-f .nm{grid-column:1/-1;font-size:12px;color:var(--tinta-3);font-weight:600}
+.pl-f .ec{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:12.5px;color:var(--tinta-2);display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0;overflow-x:auto}
+.pl-f .ec .sus{color:var(--tinta)}
+.pl-f .rs{font-weight:750;font-size:14.5px;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--tinta)}
+.pl-f .rs small{font-weight:600;font-size:11.5px;color:var(--tinta-3);margin-left:3px}
+.pl-f .ck{grid-column:1/-1;font-size:12px;font-weight:600}
+.pl-f .ck.si{color:var(--ok)}.pl-f .ck.no{color:var(--err)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.25;margin:0 2px}
+.fr>span{padding:0 3px;white-space:nowrap}
+.fr>span:first-child{border-bottom:1px solid currentColor}
+.rz{display:inline-flex;align-items:center}
+.rz>.fr{border-top:1px solid currentColor;margin-left:0;padding-top:1px}
+.pl-pend{display:inline-block;font-family:var(--fuente);font-size:12px;font-weight:650;color:var(--err);background:var(--err-suave);border-radius:6px;padding:2px 8px}
+.pl-res{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;margin-top:10px;padding:12px 14px;border-radius:var(--r-lg);background:var(--hundido);border:1px solid var(--acero)}
+.pl-res b{font-size:15px}
+.pl-res .ck.si{color:var(--ok);font-weight:650}.pl-res .ck.no{color:var(--err);font-weight:650}
+.pl-concl{margin:8px 0 0;font-size:12.5px;line-height:1.45;color:var(--tinta-2)}
+.pl-hoja{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:auto;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+.pl-hoja svg{display:block;width:100%;height:auto;min-width:860px}
+#plPend .aviso{margin-bottom:16px}
+@media (max-width:1100px){.pl-cols{grid-template-columns:minmax(0,1fr)}.pl-der{position:static}}
+@media (max-width:560px){.pl-sel{flex:1 1 100%;max-width:none}.pl-lee{grid-template-columns:minmax(0,1fr) auto}.pl-lee>dd.a{grid-column:1/-1;justify-content:flex-end;border-top:0;padding-top:0}}
 </style>
 
 <!-- Firebase compat SDK (sync cloud; IndexedDB queda como caché offline) -->
@@ -496,6 +542,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
   </a>
   <div class="vistas" role="tablist" aria-label="Vista">
     <button type="button" role="tab" data-vista="lev" aria-selected="false" title="Levantamiento de tanque (hoja de campo)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 6h9a4.5 4.5 0 0 1 0 9h-9a4.5 4.5 0 0 1 0-9z"/><path d="M9 6v9M15 6v9M10.5 4.2V6M3 19h18M3 17.5v3M21 17.5v3"/></svg><span class="lbl">Levantamiento</span></button>
+    <button type="button" role="tab" data-vista="plano" aria-selected="false" title="Plano y memoria de cálculo (ASME VIII Div. 1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M13 20v-5h8M13 17.5h8M6 8.5h7M6 11.5h4"/></svg><span class="lbl">Plano</span></button>
     <button type="button" role="tab" data-vista="exp" aria-selected="true" title="Expediente NOM-020"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span class="lbl">Expediente</span></button>
   </div>
   <div class="ficha" id="ficha">
@@ -731,6 +778,96 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <h3>Espesores <span class="tag">mm · puntos 1–16</span></h3>
     <p class="nota">Tres columnas como en el papel; los encabezados cambian con la orientación. En el expediente el punto <i>n</i> va al punto <i>n</i> de la columna indicada. <b>Rellenar</b> llena la columna con la base + 0.00 a 0.03 mm al azar (al menos uno queda en la base) sin tocar lo que escribiste a mano; sin base usa el mínimo capturado.</p>
     <div class="esp lev-esp" id="levEsp"></div>
+  </div>
+</div>
+
+<!-- Plano v1 · memoria de cálculo ASME VIII Div. 1 + hoja del plano (H / V). Lee el equipo del expediente; borrador local (IndexedDB), sin nube -->
+<div class="lev plano oculto" id="vistaPlano">
+  <div class="lev-cab">
+    <div><h2>Plano y memoria de cálculo</h2><p>Un plano por equipo, tomado del expediente y de su levantamiento importado. Aquí solo capturas lo que no existe en el expediente (<b>S</b>, <b>E</b>, <b>ceja recta</b> y datos del cajetín); fluido, temperaturas y presiones se leen del expediente. Lo que falta queda en blanco: nunca se rellena con números de muestra.</p></div>
+  </div>
+  <div class="lev-barra" role="toolbar" aria-label="Acciones del plano">
+    <span class="lev-estado" id="plEstado" role="status">—</span>
+    <div class="caja pl-sel"><select id="plEquipo" aria-label="Equipo del plano"></select></div>
+    <span class="lev-sp"></span>
+    <button type="button" class="btn chico" id="plSvg" title="Descarga la hoja como SVG (vista previa vectorial)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>SVG</button>
+    <button type="button" class="btn chico prim" id="plPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar Plano PDF</button>
+  </div>
+
+  <div id="plPend"></div>
+
+  <div class="pl-cols">
+    <div class="pl-izq">
+      <div class="tarjeta">
+        <h3>Geometría <span class="tag">Ø en cm · longitudes en mm</span></h3>
+        <p class="nota">Viene del levantamiento importado; si cambias algo aquí se guarda en el equipo. La hoja usa la plantilla H o V según la orientación.</p>
+        <div class="seg-campo pl-or"><label>Plantilla del plano</label>
+          <div class="seg" role="group" aria-label="Plantilla del plano"><button type="button" data-plo="H" aria-pressed="true"><b>H</b>Horizontal</button><button type="button" data-plo="V" aria-pressed="false"><b>V</b>Vertical</button></div>
+          <div class="ayuda" id="plOrAyuda"></div></div>
+        <div class="grid pl-grid">
+          <div class="campo"><label for="pl_dcm">Ø interior <span class="req">*</span></label><div class="caja"><input id="pl_dcm" data-pe="diametroInteriorCm" inputmode="decimal" autocomplete="off"><span class="u">cm</span></div><div class="ayuda" data-pa="diametroInteriorCm"></div></div>
+          <div class="campo"><label for="pl_lmm">Longitud soldadura–soldadura <span class="req">*</span></label><div class="caja"><input id="pl_lmm" data-pe="longitudMm" inputmode="decimal" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-pa="longitudMm"></div></div>
+          <div class="campo"><label for="pl_tmm">Profundidad de tapa</label><div class="caja"><input id="pl_tmm" data-pe="profundidadTapaMm" inputmode="decimal" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Solo croquis (columna h). No es la ceja recta.</div></div>
+          <div class="campo"><label for="pl_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="pl_cr" data-pl="cejaRectaMm" inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Tramo recto de la tapa. Entra en área y volumen (en m).</div></div>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>Diseño <span class="tag">ASME VIII Div. 1</span></h3>
+        <p class="nota">S se captura a mano: no se busca en tablas de materiales. E es fracción (0.85); si escribes 85 se toma como 85 %.</p>
+        <div class="grid pl-grid">
+          <div class="campo"><label for="pl_s">Esfuerzo permisible S <span class="req">*</span></label><div class="caja"><input id="pl_s" data-pl="esfuerzoPermisible" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div><div class="ayuda" id="plMatAyuda"></div></div>
+          <div class="campo"><label for="pl_e">Eficiencia de soldadura E <span class="req">*</span></label><div class="caja"><input id="pl_e" data-pl="eficiencia" inputmode="decimal" placeholder="0.85" autocomplete="off"></div><div class="ayuda" data-pa="eficiencia"></div></div>
+          <div class="campo"><label for="pl_fs">Factor de seguridad</label><div class="caja"><input id="pl_fs" data-pl="factorSeguridad" inputmode="decimal" placeholder="3.5" autocomplete="off"></div><div class="ayuda">Solo se imprime; S ya lo refleja.</div></div>
+          <div class="campo"><label for="pl_rad">Radiografiado</label><div class="caja"><input id="pl_rad" data-pl="radiografiado" data-mayus placeholder="PUNTOS" autocomplete="off"></div></div>
+          <div class="campo"><label for="pl_cor">Corrosión</label><div class="caja"><input id="pl_cor" data-pl="corrosionMm" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="u">mm</span></div></div>
+          <div class="campo"><label for="pl_nb">National Board</label><div class="caja"><input id="pl_nb" data-pl="nationalBoard" data-mayus placeholder="SIN DATO" autocomplete="off"></div></div>
+          <div class="campo"><label for="pl_fab">Fabricante</label><div class="caja"><input id="pl_fab" data-pl="fabricante" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: se imprime la marca del expediente.</div></div>
+          <div class="campo"><label for="pl_con">Tipo de boquilla (tabla)</label><div class="caja"><input id="pl_con" data-pl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div></div>
+          <div class="campo medio"><label for="pl_cod">Código de fabricación</label><div class="caja"><input id="pl_cod" data-pl="codigoFabricacion" data-mayus autocomplete="off"></div></div>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>Dispositivo de relevo <span class="tag">Apéndice 11</span></h3>
+        <p class="nota" id="plRelNota"></p>
+        <div class="grid pl-grid">
+          <div class="campo"><label for="pl_c">Constante del gas C</label><div class="caja"><input id="pl_c" data-pl="relevoC" inputmode="decimal" autocomplete="off"></div></div>
+          <div class="campo"><label for="pl_k">Coeficiente de descarga K</label><div class="caja"><input id="pl_k" data-pl="relevoK" inputmode="decimal" autocomplete="off"></div></div>
+          <div class="campo"><label for="pl_m">Peso molecular M</label><div class="caja"><input id="pl_m" data-pl="relevoM" inputmode="decimal" autocomplete="off"></div></div>
+          <div class="campo"><label for="pl_ai">Área de descarga instalada</label><div class="caja"><input id="pl_ai" data-pl="areaValvulaCm2" inputmode="decimal" autocomplete="off"><span class="u">cm²</span></div><div class="ayuda" data-pa="areaValvulaCm2"></div></div>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>Cajetín</h3>
+        <p class="nota">Cliente, equipo, TAG, número de plano y firma salen del expediente; revisa y firma el firmante izquierdo (Responsables).</p>
+        <div class="grid pl-grid">
+          <div class="campo"><label for="pl_dib">Dibujó</label><div class="caja"><input id="pl_dib" data-pl="dibujo" data-mayus placeholder="ING. …" autocomplete="off"></div></div>
+          <div class="campo"><label for="pl_fec">Fecha del plano</label><div class="caja"><input id="pl_fec" data-pl="fecha" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: mes y año de la fecha de las PND.</div></div>
+        </div>
+        <dl class="pl-lee" id="plLeeCaj"></dl>
+      </div>
+
+      <div class="tarjeta">
+        <h3>Del expediente <span class="tag">solo lectura</span></h3>
+        <p class="nota">El plano los lee tal cual. Para cambiarlos, toca <b>Editar</b>: te lleva al campo en el expediente.</p>
+        <dl class="pl-lee" id="plLee"></dl>
+      </div>
+    </div>
+
+    <div class="pl-der">
+      <div class="tarjeta pl-mem">
+        <h3>Memoria de cálculo <span class="tag" id="plMemTag">—</span></h3>
+        <div id="plMem"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <h3>Hoja del plano <span class="tag" id="plHojaTag">Tabloide 17 × 11 in · horizontal</span></h3>
+    <p class="nota">Vista previa del PDF. El croquis usa las boquillas y su posición del levantamiento.</p>
+    <div class="pl-hoja" id="plHoja"></div>
   </div>
 </div>
 
@@ -2221,6 +2358,432 @@ root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,M
 })(typeof window!=='undefined'?window:globalThis);
 </script>
 <script>
+/* FenixMex — PLANO v1 (FXPlano): memoria de cálculo ASME BPVC Sec. VIII Div. 1 + hoja del plano (H / V).
+   Fórmulas copiadas de FORMULAS-MEMORIA-EXACTAS.md (plano RSP-020-033/034-2026, DWG v2). No se inventan valores:
+   lo que falta queda en blanco / «—» y se lista como pendiente.
+   Una sola lista de primitivas (hoja tabloide 1224 × 792 pt, origen arriba-izquierda) → SVG en pantalla y vectores en el PDF.
+   Sin estado global, sin red, sin Firebase. No toca el motor NOM-020 (FXEngine). Usa FXLev para el croquis. */
+(function(root){
+'use strict';
+const VERSION=1;
+// ---------- constantes de las fórmulas (exactas del plano) ----------
+const PI_P=3.1416;          // π como aparece en el plano (§3.1 / §3.2)
+const K_FORMA=1.00;         // UG-32: factor de forma de tapas semielípticas (no es el K de descarga)
+const T_ABS=273;            // T(K) = °C + 273 (texto de la nomenclatura)
+const N_TAPAS=2;            // × 2 TAPAS (§3.2 / §4.2)
+const AIRE={C:356.00,K:0.876,M:28.97};   // constantes de la muestra con fluido AIRE
+const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
+// e.plano: solo lo que no existe ya en el equipo del expediente
+const DEF={orientacion:'',cejaRectaMm:'',esfuerzoPermisible:'',eficiencia:'0.85',factorSeguridad:'',radiografiado:'',corrosionMm:'',
+  nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',relevoC:'',relevoK:'',relevoM:'',areaValvulaCm2:'',dibujo:'',fecha:''};
+const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+const NOTAS=[
+ 'a) EL DIBUJO Y LA MEMORIA DE CALCULO SE ELABORAN PARA OBTENER LA AUTORIZACIÓN DE FUNCIONAMIENTO  CONFORME A LO ESTABLECIDO EN LA NOM-020-STPS-2011.',
+ 'b) PARA LA ELABORACIÓN DE ESTE DIBUJO, SE UTILIZO LA INFORMACIÓN PROPORCIONADA POR EL USUARIO, NO SE INCLUYO FACTOR DE CORROSIÓN.',
+ 'c) LA FIRMA DEL PRESENTE PLANO NO REPRESENTA GARANTÍA EXPLICITA DE NINGÚN TIPO, POR LO QUE EL INGENIERO CALCULISTA NO PUEDE SER NI SERÁ RESPONSABLE POR DAÑOS DE CUALQUIER TIPO QUE PUEDAN ORIGINARSE EN LOS EQUIPOS E INSTALACIONES.'];
+const NOMEN=[['P =','PRESIÓN DE DISEÑO'],['S =','ESFUERZO PERMISIBLE'],['E =','EFICIENCIA'],['R =','RADIO INTERIOR'],['D, d =','DIAMETRO INTERIOR O DISTANCIA ENTRE REFUERZO'],
+ ['t =','ESPESOR MÍNIMO REQUERIDO'],['L =','LONGITUD SOLDADURA-SOLDADURA'],['C.R. =','CEJA RECTA'],['A =','ÁREA'],['V =','VOLUMEN'],['Pm =','PRESIÓN MÁXIMA PERMISIBLE']];
+const NOMEN_R=[['W =','FLUJO (kg/hr)'],['C =','CONSTANTE DEL GAS'],['K =','COEFICIENTE DE DESCARGA'],['A =','ÁREA DE DESFOGUE (cm²)'],['P =','PRESIÓN DE CALIBRACIÓN X 1.1 + 1.033 (kg/cm²)'],
+ ['M =','PESO MOLECULAR DEL GAS'],['T =','TEMPERATURA ABSOLUTA (k) = (°C + 273)'],['V =','VOLUMEN (m³)'],['Pc =','PRESIÓN DE CALIBRACIÓN (kg/cm²)']];
+
+// ---------- utilidades ----------
+const txt=v=>String(v??'').trim();
+const num=v=>{const s=txt(v).replace(',','.');if(!s)return NaN;const n=parseFloat(s);return isFinite(n)?n:NaN;};
+const pos=v=>{const n=num(v);return n>0?n:NaN;};
+const ok=(...a)=>a.every(x=>typeof x==='number'&&isFinite(x));
+const fx=(n,d)=>ok(n)?n.toFixed(d):'—';
+const sinAc=s=>txt(s).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function esAire(f){return /(^|[^A-Z])AIRE?($|[^A-Z])/.test(sinAc(f));}
+function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(const k in DEF)if(p[k]!=null)o[k]=String(p[k]);return o;}
+function esDefault(p){if(!p)return true;for(const k in DEF)if(txt(p[k])!==txt(DEF[k]))return false;return true;}
+// E: fracción; si viene en % (85) se divide entre 100
+function eficiencia(v){const n=num(v);return !(n>0)?NaN:n>1?n/100:n;}
+function minNum(arrs){const v=[].concat(...arrs.map(a=>Array.isArray(a)?a:[])).map(num).filter(x=>x>0);return v.length?Math.min(...v):NaN;}
+function fechaCajetin(iso){const m=/^(\d{4})-(\d{2})/.exec(txt(iso));return m&&+m[2]>=1&&+m[2]<=12?`${MESES[+m[2]-1]}-${m[1]}`:'';}
+
+// ---------- entradas: equipo del expediente (+ e.plano + e.levantamiento) ----------
+// ctx: {razonSocial, domicilio, firmante, cedula}
+function datos(e,ctx){
+  ctx=ctx||{};e=e||{};
+  const pl=reparar(e.plano),lv=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:null,ld=(lv&&lv.dimensiones)||{};
+  const o=pl.orientacion==='H'||pl.orientacion==='V'?pl.orientacion:(lv&&lv.orientacion==='V'?'V':'H');
+  const dim=(k)=>{const a=pos(e[k]);return ok(a)?a:pos(ld[k]);};
+  const Dcm=dim('diametroInteriorCm'),Lmm=dim('longitudMm'),Tapmm=dim('profundidadTapaMm');
+  const crS=txt(pl.cejaRectaMm),CR=crS?num(crS):NaN;
+  const fluido=txt(e.fluido),aire=esAire(fluido);
+  const cte=(k)=>{const v=pos(pl['relevo'+k]);return ok(v)?{v,src:'captura'}:aire?{v:AIRE[k],src:'aire'}:{v:NaN,src:''};};
+  const C=cte('C'),Kd=cte('K'),M=cte('M');
+  const boq=(lv&&Array.isArray(lv.boquillas))?lv.boquillas:[];
+  const bv=boq.find(b=>sinAc(b.tipo)==='VALVULA DE SEGURIDAD'),bvMm=bv&&pos(bv.diametroPulgadas)>0?pos(bv.diametroPulgadas)*25.4:NaN;
+  const dvExp=pos(e.diametroValvulaMm),dv=ok(dvExp)?dvExp:bvMm;
+  const inp={
+    o,Dcm,Dmm:Dcm*10,Rmm:Dcm*10/2,Lmm,Tapmm,CR,
+    P:num(e.presionDiseno),S:pos(pl.esfuerzoPermisible),E:eficiencia(pl.eficiencia),K:K_FORMA,
+    tEnv:minNum([e.espEnv]),tTap:minNum([e.espSup,e.espInf]),
+    Pc:num(e.presionCalibracion),Td:num(e.tempDiseno),C:C.v,Kd:Kd.v,M:M.v,cteSrc:{C:C.src,K:Kd.src,M:M.src},
+    fluido,aire,dv,dvSrc:ok(dvExp)?'expediente':ok(bvMm)?'boquilla':'',Ainst:pos(pl.areaValvulaCm2),
+  };
+  const r=calc(inp);
+  const lbl={P:'Presión de diseño',S:'Esfuerzo permisible S',E:'Eficiencia E',Dcm:'Ø interior',Lmm:'Longitud soldadura–soldadura',CR:'Ceja recta (C.R.)',
+    tEnv:'Espesor medido del cuerpo (PND)',tTap:'Espesor medido de las tapas (PND)',Pc:'Presión de calibración',Td:'Temperatura de diseño',C:'Constante del gas C',Kd:'Coeficiente de descarga K',M:'Peso molecular M',dv:'Ø de la válvula de seguridad'};
+  const donde={P:['exp','presionDiseno'],S:['plano','esfuerzoPermisible'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
+    tEnv:['pnd','espEnv'],tTap:['pnd','espSup'],Pc:['exp','presionCalibracion'],Td:['exp','tempDiseno'],C:['plano','relevoC'],Kd:['plano','relevoK'],M:['plano','relevoM'],dv:['exp','diametroValvulaMm']};
+  const faltan=Object.keys(lbl).filter(k=>!ok(inp[k])).map(k=>({k,m:lbl[k],donde:donde[k][0],campo:donde[k][1]}));
+  return {v:VERSION,e,pl,lv,ctx,inp,r,faltan,boq};
+}
+
+// ---------- cálculo (§3 del prompt / FORMULAS-MEMORIA-EXACTAS §1–§5) ----------
+function calc(i){
+  const r={},{P,S,E,K,Rmm,Dmm,tEnv,tTap}=i;
+  // 1.1 envolvente UG-27: t = P R / (S E − 0.6 P)
+  if(ok(P,Rmm,S,E)&&S*E-0.6*P>0)r.tEnvReq=P*Rmm/(S*E-0.6*P);
+  // 1.2 tapas semielípticas: t = P D K / (2 S E − 0.2 P)
+  if(ok(P,Dmm,S,E)&&2*S*E-0.2*P>0)r.tTapReq=P*Dmm*K/(2*S*E-0.2*P);
+  // 2.1 Pm envolvente = S E t / (R + 0.6 t)   (t = espesor empleado)
+  if(ok(S,E,tEnv,Rmm))r.PmEnv=S*E*tEnv/(Rmm+0.6*tEnv);
+  // 2.2 Pm tapas = 2 S E t / (K D + 0.2 t)
+  if(ok(S,E,tTap,Dmm))r.PmTap=2*S*E*tTap/(K*Dmm+0.2*tTap);
+  if(ok(r.PmEnv,r.PmTap))r.Pm=Math.min(r.PmEnv,r.PmTap);
+  // 3 / 4: área y volumen en metros
+  const D=Dmm/1000,L=i.Lmm/1000,CR=i.CR/1000;
+  if(ok(D,L))r.Aenv=PI_P*D*L;
+  if(ok(D,CR)&&CR>=0)r.Atap=(1.09*D*D+PI_P*D*CR)*N_TAPAS;
+  if(ok(r.Aenv,r.Atap))r.Atot=r.Aenv+r.Atap;
+  if(ok(D,L))r.Venv=0.7854*D*D*L;
+  if(ok(D,CR)&&CR>=0)r.Vtap=(0.1309*D*D*D+0.785*D*D*CR)*N_TAPAS;
+  if(ok(r.Venv,r.Vtap))r.Vtot=r.Venv+r.Vtap;
+  // 5 relevo (Apéndice 11)
+  if(ok(r.Vtot)){r.Wa=0.029*r.Vtot*62.42;r.W=r.Wa*73.596;}
+  if(ok(i.Pc))r.Pabs=i.Pc*1.1+1.033;
+  if(ok(i.Td))r.Tk=i.Td+T_ABS;
+  if(ok(r.W,i.C,i.Kd,r.Pabs,i.M,r.Tk)&&i.C>0&&i.Kd>0&&r.Pabs>0&&i.M>0&&r.Tk>0)r.A=r.W/(i.C*i.Kd*r.Pabs)*Math.sqrt(r.Tk/i.M);
+  r.Ainst=ok(i.Ainst)?i.Ainst:ok(i.dv)?0.7854*(i.dv/10)*(i.dv/10):NaN;
+  r.AinstSrc=ok(i.Ainst)?'captura':ok(i.dv)?'circulo':'';
+  if(ok(r.A,r.Ainst))r.cumple=r.Ainst>r.A;
+  if(ok(r.tEnvReq,i.tEnv))r.okEnv=i.tEnv>=r.tEnvReq;
+  if(ok(r.tTapReq,i.tTap))r.okTap=i.tTap>=r.tTapReq;
+  return r;
+}
+function conclusion(d){
+  const {inp:i,r}=d;if(!ok(i.dv,r.Ainst,r.A,i.Pc))return '';
+  return `EL EQUIPO CUENTA CON UNA VÁLVULA DE SEGURIDAD DE ${i.dv.toFixed(2)} mm DE DIÁMETRO, CON ÁREA DE DESCARGA = ${r.Ainst.toFixed(3)} cm² ${r.cumple?'>':'≤'} AL ÁREA DE DESCARGA CALCULADA = ${r.A.toFixed(4)} cm² Y CALIBRADA A ${i.Pc.toFixed(2)} kg/cm².`;
+}
+// ESPECIFICACIONES: [etiqueta exacta del plano, valor]
+function especificaciones(d){
+  const {e,pl,inp:i,r}=d,v=s=>txt(s)||'—';
+  return [['CÓDIGO DE FABRICACIÓN',v(pl.codigoFabricacion)],['FACTOR DE SEGURIDAD',v(pl.factorSeguridad)],['CAPACIDAD VOLUMETRICA (m³ )',v(e.capacidadVolumetrica)],
+    ['FLUIDO',v(e.fluido)],['PRESIÓN DE DISEÑO  (kg/cm²)',v(e.presionDiseno)],['PRESIÓN DE OPERACIÓN.  (kg/cm²)',v(e.presionOperacion)],
+    ['PRES. TRAB. MAX. PERM. (kg/cm²)',fx(r.Pm,2)],['PRES. PRUEB. HIDROSTÁTICA   (kg/cm²)',v(e.presionPruebaHidrostatica)],
+    ['TEMPERATURA DE DISEÑO  (°C)',v(e.tempDiseno)],['TEMPERATURA DE OPERACIÓN  (°C)',v(e.tempOperacion)],['FABRICANTE',v(pl.fabricante||e.marca)],
+    ['AÑO DE FABRICACIÓN',txt(e.anioFabricacion)||'S/D'],['NÚMERO DE SERIE',v(e.numeroSerie)],['NATIONAL BOARD',v(pl.nationalBoard)],['UBICACIÓN',v(e.ubicacion)],
+    ['RADIOGRAFIADO',v(pl.radiografiado)],['EFICIENCIA DE SOLDADURA (%)',ok(i.E)?String(+(i.E*100).toFixed(2)):'—'],['CORROSIÓN (mm)',v(pl.corrosionMm)],
+    ['MATERIALES',[v(e.materialCuerpo),v(e.materialTapa)]],['ESFUERZO PERMISIBLE (kg/cm²)',fx(i.S,2)]];
+}
+function boquillas(d){
+  return d.boq.map((b,i)=>{const p=pos(b.diametroPulgadas);return {item:b.letra||letra(i),tipo:txt(d.pl.tipoConexion)||'—',cant:'1',mm:ok(p)?(p*25.4).toFixed(2):'—',serv:sinAc(b.tipo)==='TAPON'?'TAPÓN':txt(b.tipo)};});
+}
+function letra(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
+
+// ---------- medidas de texto (Liberation Sans de FX_ASSETS vía fontkit; respaldo aproximado) ----------
+function metricas(fonts){
+  const fk=root.fontkit;let R=null,B=null;
+  try{if(fk&&fonts&&fonts.R){R=fk.create(fonts.R);B=fonts.B?fk.create(fonts.B):R;}}catch(e){R=B=null;}
+  const cache=new Map();
+  const adv=(f,ch)=>{const k=(f===B?'b':'r')+ch;if(cache.has(k))return cache.get(k);let w=0.55;
+    try{const g=f.glyphForCodePoint(ch.codePointAt(0));w=(g&&g.advanceWidth||0)/f.unitsPerEm||0.55;}catch(_){}cache.set(k,w);return w;};
+  const tiene=(cp)=>{try{return !R||R.hasGlyphForCodePoint(cp);}catch(_){return true;}};
+  return {w:(s,z,b)=>{s=String(s);if(!R)return s.length*z*(b?0.58:0.53);const f=b?B:R;let t=0;for(const ch of s)t+=adv(f,ch);return t*z;},
+    limpia:s=>Array.from(String(s??'')).map(ch=>tiene(ch.codePointAt(0))?ch:({'≤':'<=','≥':'>=','π':'pi','√':'raiz ','≈':'~'}[ch]||'?')).join('')};
+}
+
+// ---------- hoja: primitivas ----------
+// l: línea · r: rectángulo · t: texto (y = línea base) · p: path SVG con transformación · c: círculo · img: imagen
+const SH={W:1224,H:792};
+const VINO=[.49,.10,.13],ROJO=[.75,.1,.1];
+const ROL={tq:{w:1.4},tg:{w:.6},sd:{w:.8,c:.25},dm:{w:.5,c:.35},dx:{w:.4,c:.55,dash:[2.4,2]},bq:{w:1,fill:1},bqc:{w:1},ld:{w:.5,c:.15},bg:{w:.7,fill:1}};
+
+function hoja(d,opt){
+  opt=opt||{};
+  const Mx=opt.M||metricas(opt.fonts),it=[],{W,H}=SH;
+  const add=o=>{it.push(o);return o;};
+  const T=(s,x,y,o)=>{o=o||{};s=String(s??'');if(!s)return 0;const z=o.z||7;let w=Mx.w(s,z,o.b);
+    let zz=z;if(o.max&&w>o.max){zz=Math.max(o.min||4.2,z*o.max/w);w=Mx.w(s,zz,o.b);}
+    add({k:'t',s,x,y,z:zz,b:!!o.b,anc:o.anc||'start',c:o.c,rot:o.rot||0,u:o.u});return w;};
+  const Lh=(x1,y1,x2,y2,w,c,dash)=>add({k:'l',x1,y1,x2,y2,w:w||.5,c,dash});
+  const Rc=(x,y,w,h,o)=>add(Object.assign({k:'r',x,y,w,h,lw:.6},o||{}));
+  const wrap=(s,w,z,b)=>{const out=[];let ln='';for(const pal of String(s).split(/\s+/).filter(Boolean)){const t=ln?ln+' '+pal:pal;if(ln&&Mx.w(t,z,b)>w){out.push(ln);ln=pal;}else ln=t;}if(ln)out.push(ln);return out;};
+  const {inp:i,r,e,pl,ctx}=d,o=i.o;
+
+  // ---- marco con zonas (1–8 / A–D)
+  Rc(12,12,W-24,H-24,{lw:1.4});Rc(22,22,W-44,H-44,{lw:.5});
+  for(let k=0;k<8;k++){const x=22+(W-44)*(k+.5)/8;T(String(k+1),x,19.2,{z:6,anc:'middle',c:.4});T(String(k+1),x,H-14.2,{z:6,anc:'middle',c:.4});
+    if(k)for(const yy of [[12,22],[H-22,H-12]])Lh(22+(W-44)*k/8,yy[0],22+(W-44)*k/8,yy[1],.4);}
+  'ABCD'.split('').forEach((c,k)=>{const y=22+(H-44)*(k+.5)/4;T(c,17,y+2,{z:6,anc:'middle',c:.4});T(c,W-17,y+2,{z:6,anc:'middle',c:.4});
+    if(k)for(const xx of [[12,22],[W-22,W-12]])Lh(xx[0],22+(H-44)*k/4,xx[1],22+(H-44)*k/4,.4);});
+
+  // ---- columna derecha: especificaciones, boquillas, notas, cajetín
+  const RX=906,RW=W-30-RX,RY=32;
+  let y=RY;
+  {const filas=especificaciones(d),rh=12.6,lw=172;
+    Rc(RX,y,RW,15,{lw:.8});T('ESPECIFICACIONES',RX+RW/2,y+10.6,{z:8,b:1,anc:'middle'});y+=15;
+    for(const [l,v] of filas){
+      if(Array.isArray(v)){Rc(RX,y,RW,rh*2);Lh(RX+lw,y,RX+lw,y+rh*2);T(l,RX+4,y+rh+3.6,{z:6.4,max:lw-8});
+        const half=(RW-lw)/2;Lh(RX+lw,y+rh,RX+RW,y+rh);Lh(RX+lw+half,y,RX+lw+half,y+rh*2);
+        T('CUERPO',RX+lw+half/2,y+8.8,{z:5.8,b:1,anc:'middle'});T('TAPAS',RX+lw+half*1.5,y+8.8,{z:5.8,b:1,anc:'middle'});
+        T(v[0],RX+lw+half/2,y+rh+8.8,{z:6.6,anc:'middle',max:half-4});T(v[1],RX+lw+half*1.5,y+rh+8.8,{z:6.6,anc:'middle',max:half-4});y+=rh*2;continue;}
+      Rc(RX,y,RW,rh);Lh(RX+lw,y,RX+lw,y+rh);T(l,RX+4,y+8.8,{z:6.4,max:lw-8});T(v,RX+lw+(RW-lw)/2,y+8.8,{z:6.8,anc:'middle',max:RW-lw-6,b:v!=='—'&&/PRES\. TRAB/.test(l)});y+=rh;}
+  }
+  // cajetín (abajo) y notas (encima del cajetín); boquillas ocupa el resto
+  const CJ_H=170,cjY=H-30-CJ_H;
+  const notasL=NOTAS.map(n=>wrap(n,RW-8,5.6));const nlh=7,notasH=12+notasL.reduce((a,l)=>a+l.length*nlh+3,0);
+  const nY=cjY-6-notasH;
+  {let yy=nY+8;T('NOTAS:',RX,yy,{z:6.6,b:1});yy+=9;
+    notasL.forEach(ls=>{ls.forEach(l=>{T(l,RX+2,yy,{z:5.6});yy+=nlh;});yy+=3;});}
+  {const bq=boquillas(d),bY=y+10,disp=nY-8-bY;
+    Rc(RX,bY,RW,14,{lw:.8});T('T A B L A   D E   B O Q U I L L A S',RX+RW/2,bY+10,{z:7.4,b:1,anc:'middle'});
+    const cols=[['ITEM',30],['TIPO',50],['CANTIDAD',44],['Ø mm',46],['S E R V I C I O',RW-170]];
+    let x=RX,yy=bY+14;const hh=11;Rc(RX,yy,RW,hh);
+    cols.forEach(([t,w],k)=>{T(t,x+w/2,yy+7.8,{z:5.6,b:1,anc:'middle',max:w-3});if(k)Lh(x,yy,x,yy+hh);x+=w;});yy+=hh;
+    const n=Math.max(bq.length,1),rh=Math.max(8,Math.min(11,(disp-14-hh)/n)),z=Math.min(6.6,rh*0.62);
+    if(!bq.length){Rc(RX,yy,RW,rh*2);T('SIN BOQUILLAS REGISTRADAS (importa el levantamiento)',RX+RW/2,yy+rh+2.5,{z:6,anc:'middle',c:.4});}
+    bq.forEach(b=>{Rc(RX,yy,RW,rh);let xx=RX;const vals=[b.item,b.tipo,b.cant,b.mm,b.serv];
+      cols.forEach(([,w],k)=>{T(vals[k],xx+w/2,yy+rh/2+z*0.36,{z,anc:'middle',max:w-4,b:k===0});if(k)Lh(xx,yy,xx,yy+rh);xx+=w;});yy+=rh;});
+  }
+  // cajetín
+  {const x0=RX,w=RW,y0=cjY,V=VINO;let yy=y0;
+    Rc(x0,y0,w,CJ_H,{lw:1.2,s:V});
+    const celda=(x,y,ww,hh,lbl,val,o)=>{o=o||{};Rc(x,y,ww,hh,{lw:.5,s:V});if(lbl)T(lbl,x+3,y+6.4,{z:4.8,c:.35});if(val!=null)T(val,o.anc==='start'?x+3:x+ww/2,y+hh-3.6,{z:o.z||6.8,b:o.b,anc:o.anc||'middle',max:ww-6});};
+    // cliente + domicilio
+    Rc(x0,yy,w,32,{lw:.5,s:V});T(txt(ctx.razonSocial)||'—',x0+w/2,yy+11.5,{z:8.4,b:1,anc:'middle',max:w-10});
+    const dl=wrap(txt(ctx.domicilio),w-12,5.4);dl.slice(0,2).forEach((l,k)=>T(l,x0+w/2,yy+20+k*6.6,{z:5.4,anc:'middle',c:.25}));yy+=32;
+    Rc(x0,yy,w,14,{lw:.5,s:V,fill:[.97,.94,.94]});T('PLANO Y MEMORIA DE CÁLCULO · '+(txt(pl.codigoFabricacion)||COD_FAB),x0+w/2,yy+9.6,{z:6.4,b:1,anc:'middle',c:V,max:w-8});yy+=14;
+    celda(x0,yy,w*.64,18,'EQUIPO:',txt(e.nombre)||'—');celda(x0+w*.64,yy,w*.36,18,'No. DE TAG:',txt(e.tag)||'—',{b:1});yy+=18;
+    celda(x0,yy,w*.5,18,'DIBUJO:',txt(pl.dibujo)||'—',{z:6.2});celda(x0+w*.5,yy,w*.5,18,'REVISO:',txt(ctx.firmante)?'ING. '+txt(ctx.firmante).replace(/^ING\.?\s*/i,''):'—',{z:6.2});yy+=18;
+    celda(x0,yy,w*.25,18,'ESCALA:','S/E');celda(x0+w*.25,yy,w*.25,18,'ACOTACION:','mm');celda(x0+w*.5,yy,w*.5,18,'FECHA:',txt(pl.fecha)||fechaCajetin(e.fechaPnd)||'—');yy+=18;
+    celda(x0,yy,w,20,'PLANO:',txt(e.codigoMemoriaCalculo)||'—',{z:9,b:1});yy+=20;
+    const fh=CJ_H-(yy-y0)-22;
+    celda(x0,yy,w*.55,fh,'FIRMA :',null);if(opt.firma)add({k:'img',src:'firma',x:x0+6,y:yy+8,w:w*.55-12,h:fh-10,fit:1});
+    celda(x0+w*.55,yy,w*.45,fh,'CÉDULA PROFESIONAL',null);T(txt(ctx.cedula)||'—',x0+w*.55+w*.45/2,yy+fh/2+4,{z:9,b:1,anc:'middle'});
+    T(txt(ctx.firmante)||'',x0+w*.55+w*.45/2,yy+fh-5,{z:5.4,anc:'middle',c:.3,max:w*.45-8});yy+=fh;
+    Rc(x0,yy,w,22,{lw:.5,s:V});
+    if(opt.logo)add({k:'img',src:'logo',x:x0+5,y:yy+3,w:100,h:16,fit:1,izq:1});
+    T('CORPORATIVO FENIXMEX',x0+w-6,yy+14.5,{z:8.6,b:1,anc:'end',c:V});
+  }
+
+  // ---- croquis
+  const lev=root.FXLev;
+  const L=lev?lev.nuevo():null;
+  if(L){L.orientacion=o;L.dimensiones.diametroInteriorCm=ok(i.Dcm)?String(i.Dcm):'';L.dimensiones.longitudMm=ok(i.Lmm)?String(i.Lmm):'';L.dimensiones.profundidadTapaMm=ok(i.Tapmm)?String(i.Tapmm):'';
+    L.boquillas=(d.boq||[]).filter(b=>lev.normTipo(b.tipo)&&lev.CARAS.includes(b.cara)&&b.pos).map((b,k)=>({id:'b'+k,tipo:lev.normTipo(b.tipo),diametroPulgadas:pos(b.diametroPulgadas)>0?pos(b.diametroPulgadas):null,cara:b.cara,pos:{u:+b.pos.u||0,v:+b.pos.v||0}}));}
+  const vista=(x,y,w,h,titulo)=>{T(titulo,x+w/2,y+h-2,{z:8,b:1,anc:'middle',u:1});};
+  const pegaCroquis=(rx,ry,rw,rh)=>{
+    if(!L)return;const lay=lev.croquis(L,{hit:false}),bx=lay.bb,PAD=6;
+    const vx=Math.max(0,bx.x0-PAD),vy=Math.max(0,bx.y0-PAD),vw=Math.min(lay.W,bx.x1+PAD)-vx,vh=Math.min(lay.H,bx.y1+PAD)-vy;
+    const s=Math.min(rw/vw,rh/vh,0.9),tx=rx+(rw-vw*s)/2-vx*s,ty=ry+(rh-vh*s)/2-vy*s;
+    for(const q of lay.items){if(q.r==='hit')continue;
+      if(q.k==='t'){let s2=String(q.s);
+        if(q.r==='dmt'){let m;
+          if(/^Ø INT\./.test(s2))s2=ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm';
+          else if((m=/^LONGITUD SOLD\.–SOLD\.\s*(.*)$/.exec(s2)))s2=ok(i.Lmm)?`L = ${i.Lmm.toFixed(2)} mm`:'L = — mm';
+          else if((m=/^([\d,.]+)\s*mm$/.exec(s2)))s2=`${(+m[1].replace(/,/g,'')).toFixed(2)} mm`;}
+        const z=q.size*s*(q.r==='bgt'?1.02:.92);
+        if(q.rot)add({k:'t',s:s2,x:tx+q.x*s+z*.35,y:ty+q.y*s,z,b:!!q.bold,anc:q.anc,c:q.r==='dmt'?.25:0,rot:-90});
+        else add({k:'t',s:s2,x:tx+q.x*s,y:ty+q.y*s+z*.35,z,b:!!q.bold,anc:q.anc,c:q.r==='dmt'?.25:0});continue;}
+      const st=ROL[q.r]||{w:.6};
+      if(q.k==='c')add({k:'c',cx:tx+q.cx*s,cy:ty+q.cy*s,rad:q.rad*s,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill});
+      else add({k:'p',d:q.d,tx,ty,s,w:st.w,c:st.c,dash:st.dash,fill:st.fill});}
+  };
+  const cotasExtra=(x,y)=>{const ls=[`R INT. ${fx(i.Rmm,2)} mm`,`ESP. MIN. CUERPO ${fx(i.tEnv,2)} mm`,`ESP. MIN. TAPAS ${fx(i.tTap,2)} mm`,`C.R. ${fx(i.CR,2)} mm`];
+    ls.forEach((l,k)=>T(l,x,y+k*9,{z:6.4,c:.25}));};
+  const circulo=(cx,cy,R,sup,dy)=>{dy=dy||R+32;
+    add({k:'c',cx,cy,rad:R,w:1.4});if(sup)add({k:'c',cx,cy,rad:R*.62,w:.5,dash:[3,2]});
+    for(let a=0;a<360;a+=45){const t=(a-90)*Math.PI/180,c=Math.cos(t),sn=Math.sin(t);
+      Lh(cx,cy,cx+c*R*1.08,cy+sn*R*1.08,.35,.35,a%90?[3,2]:null);
+      T(a+'°',cx+c*(R*1.08+11),cy+sn*(R*1.08+11)+2.3,{z:6.2,anc:'middle',c:.2});}
+    Lh(cx-R,cy+dy,cx+R,cy+dy,.5,.35);Lh(cx-R,cy+R*.2,cx-R,cy+dy+4,.35,.55,[2.4,2]);Lh(cx+R,cy+R*.2,cx+R,cy+dy+4,.35,.55,[2.4,2]);
+    T(ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm',cx,cy+dy-3,{z:6.6,anc:'middle',c:.25});
+  };
+  let memX,memY,memW,memH,cols;
+  if(o==='H'){
+    pegaCroquis(32,36,580,262);vista(32,36,580,290,'VISTA FRONTAL');cotasExtra(36,46);
+    {const cx=760,cy=140,R=84;circulo(cx,cy,R,false,R+56);
+      // soportes tipo silla
+      for(const sg of [-1,1]){const a=(90+sg*38)*Math.PI/180,x1=cx+Math.cos(a)*R,y1=cy+Math.sin(a)*R;Lh(x1,y1,x1+sg*8,cy+R+30,.9);}
+      Lh(cx-R-18,cy+R+30,cx+R+18,cy+R+30,.9);vista(626,36,270,290,'VISTA LATERAL');}
+    Lh(32,332,896,332,.4,.6);
+    memX=32;memY=342;memW=864;memH=H-30-memY;cols=3;
+  }else{
+    {const cx=166,cy=112,R=62;circulo(cx,cy,R,true,R+30);vista(32,32,268,208,'VISTA SUPERIOR');}
+    cotasExtra(36,256);
+    pegaCroquis(32,292,268,446);vista(32,292,268,470,'VISTA FRONTAL');
+    Lh(306,32,306,H-30,.4,.6);
+    memX=314;memY=32;memW=582;memH=H-30-memY;cols=2;
+  }
+
+  // ---- memoria de cálculo (bloques que fluyen por columnas)
+  const gap=12,cw=(memW-gap*(cols-1))/cols,Z=6.7;
+  const bloques=memoria(d,Mx,cw,Z);
+  let c=0,cy0=memY;
+  const colX=k=>memX+k*(cw+gap);
+  for(const b of bloques){
+    if(cy0+b.h>memY+memH&&cy0>memY+1&&c<cols-1){c++;cy0=memY;}
+    b.draw(colX(c),cy0,{T,Lh,Rc,add,wrap});cy0+=b.h;
+  }
+  if(cols>1)for(let k=1;k<cols;k++)Lh(colX(k)-gap/2,memY,colX(k)-gap/2,memY+memH,.3,.75);
+
+  // ---- pendientes (solo si faltan datos)
+  if(d.faltan.length){const s='DATOS PENDIENTES: '+d.faltan.map(f=>f.m.toUpperCase()).join(' · ');
+    T(s,memX,H-25.5,{z:5.8,b:1,c:ROJO,max:RX-memX-12});}
+  return {W,H,items:it};
+}
+
+// expresiones: tokens = string | {f:[num,den]} | {raiz:{f:[num,den]}}
+function expr(Mx,ctx,x,yTop,tk,z,c){
+  const hayF=tk.some(t=>typeof t!=='string'),h=hayF?z*2+9:z+4,mid=yTop+(hayF?z+4.5:h/2);
+  let xx=x;
+  for(const t of tk){
+    if(typeof t==='string'){ctx.T(t,xx,mid+z*.36,{z,c});xx+=Mx.w(t,z);continue;}
+    const fr=t.f||(t.raiz&&t.raiz.f),rz=!!t.raiz;
+    const pad=rz?z*0.9:0,wn=Mx.w(fr[0],z),wd=Mx.w(fr[1],z),wf=Math.max(wn,wd)+4;
+    const x0=xx+pad;
+    ctx.T(fr[0],x0+wf/2,mid-2.2,{z,anc:'middle',c});ctx.T(fr[1],x0+wf/2,mid+z+0.6,{z,anc:'middle',c});ctx.Lh(x0,mid,x0+wf,mid,.45);
+    if(rz){const top=mid-z-3.2,bot=mid+z+2.6;ctx.add({k:'p',d:`M${xx} ${mid+1}L${xx+pad*.35} ${mid-.6}L${xx+pad*.62} ${bot}L${xx+pad} ${top}L${x0+wf+1} ${top}`,tx:0,ty:0,s:1,w:.55});}
+    xx=x0+wf+(rz?2:1);
+  }
+  return {w:xx-x,h};
+}
+function memoria(d,Mx,cw,Z){
+  const {inp:i,r}=d,B=[],f2=v=>fx(v,2),f3=v=>fx(v,3),f4=v=>fx(v,4);
+  const blk=(fn,h)=>B.push({h,draw:fn});
+  const lin=[];   // se arma por bloque: [{h, fn}]
+  const titulo=(s)=>({h:12,fn:(x,y,c)=>c.T(s,x,y+9,{z:7.4,b:1,max:cw})});
+  const sub=(s)=>({h:11,fn:(x,y,c)=>c.T(s,x+4,y+8.5,{z:6.6,b:1,max:cw-4})});
+  const tx=(s,o)=>{o=o||{};const ls=wrapW(Mx,s,cw-8,o.z||Z-0.4,o.b);return {h:ls.length*(o.lh||8.4)+1,fn:(x,y,c)=>ls.forEach((l,k)=>c.T(l,x+8,y+7+k*(o.lh||8.4),{z:o.z||Z-0.4,b:o.b,c:o.c}))};};
+  const ex=(tk,c)=>{const hayF=tk.some(t=>typeof t!=='string');return {h:(hayF?Z*2+9:Z+5),fn:(x,y,ctx)=>expr(Mx,ctx,x+8,y,tk,Z,c)};};
+  const esp=(h)=>({h,fn:()=>{}});
+  const pend=(ks)=>tx('PENDIENTE: falta '+ks.join(', ').replace(/\.$/,'')+'.',{c:ROJO,b:1});
+  const falta=(m)=>Object.entries(m).filter(([,v])=>!ok(v)).map(([k])=>k);
+  const push=(arr)=>{const h=arr.reduce((a,q)=>a+q.h,0);blk((x,y,c)=>{let yy=y;arr.forEach(q=>{q.fn(x,yy,c);yy+=q.h;});},h);};
+
+  // encabezado + nomenclatura
+  push([{h:16,fn:(x,y,c)=>{c.T('MEMORIA DE CÁLCULO',x,y+11,{z:10,b:1,u:1});}},
+    {h:10,fn:(x,y,c)=>c.T(COD_FAB+'  ·  NOM-020-STPS-2011',x,y+7.5,{z:6.2,c:.3})}]);
+  {const lbW=34,rows=NOMEN.concat([null],NOMEN_R),lh=7.6;
+    push([sub('NOMENCLATURA'),{h:rows.length*lh+3,fn:(x,y,c)=>{let yy=y+6;rows.forEach(rw=>{if(rw){c.T(rw[0],x+8,yy,{z:5.9,b:1});c.T(rw[1],x+8+lbW,yy,{z:5.9,max:cw-lbW-10});}yy+=lh;});}},esp(4)]);}
+  // tabla auxiliar (resumen)
+  {const fil=[['DIAMETRO INTERIOR (mm)',f2(i.Dmm),f2(i.Dmm)],['ESPESOR MEDIDO (mm)',f2(i.tEnv),f2(i.tTap)],['h  (mm)','—',f2(i.Tapmm)],['ESPESOR MINIMO (mm)',f2(r.tEnvReq),f2(r.tTapReq)],
+      ['PRESION MAXIMA (kg/cm²)',f2(r.PmEnv),f2(r.PmTap)],['LONGITUD (mm)',f2(i.Lmm),'—'],['C.R. (mm)','—',f2(i.CR)],['AREA (m²)',f3(r.Aenv),f3(r.Atap)],['VOLUMEN (m³)',f4(r.Venv),f4(r.Vtap)]];
+    const rh=8.6,c1=cw*0.46,c2=(cw-8-c1)/2;
+    push([{h:(fil.length+1)*rh+8,fn:(x,y,c)=>{const x0=x+8;c.Rc(x0,y,cw-8,(fil.length+1)*rh,{lw:.45});
+      c.T('ENVOLVENTE',x0+c1+c2/2,y+6.3,{z:5.6,b:1,anc:'middle'});c.T('TAPA-ELIPTICA',x0+c1+c2*1.5,y+6.3,{z:5.6,b:1,anc:'middle'});
+      fil.forEach((f,k)=>{const yy=y+rh*(k+1);c.Lh(x0,yy,x0+cw-8,yy,.3);c.T(f[0],x0+3,yy+6.3,{z:5.6,max:c1-5});c.T(f[1],x0+c1+c2/2,yy+6.3,{z:6,anc:'middle'});c.T(f[2],x0+c1+c2*1.5,yy+6.3,{z:6,anc:'middle'});});
+      c.Lh(x0+c1,y,x0+c1,y+(fil.length+1)*rh,.3);c.Lh(x0+c1+c2,y,x0+c1+c2,y+(fil.length+1)*rh,.3);}}]);}
+
+  // 1.- espesores
+  {const f=falta({P:i.P,R:i.Rmm,S:i.S,E:i.E});
+    push([titulo('1.- CÁLCULO DE ESPESORES'),sub('1.1) EN ENVOLVENTE CON ESFUERZO CIRCUNFERENCIAL   (UG-27)'),
+      ex(['t = ',{f:['P R','S E − 0.6 P']}]),
+      ...(f.length?[pend(f)]:[ex(['t = ',{f:[`${f2(i.P)} × ${f2(i.Rmm)}`,`${f2(i.S)} × ${f2(i.E)} − 0.6 × ${f2(i.P)}`]},` = ${f2(r.tEnvReq)} mm`])]),
+      tx(`ESPESOR EMPLEADO: ${f2(i.tEnv)} mm`,{b:1}),esp(3)]);}
+  {const f=falta({P:i.P,D:i.Dmm,S:i.S,E:i.E});
+    push([sub('1.2) EN TAPAS SEMIELIPTICAS'),ex(['t = ',{f:['P D K','2 S E − 0.2 P']}]),
+      ...(f.length?[pend(f)]:[ex(['t = ',{f:[`${f2(i.P)} × ${f2(i.Dmm)} × ${f2(i.K)}`,`2 × ${f2(i.S)} × ${f2(i.E)} − 0.2 × ${f2(i.P)}`]},` = ${f2(r.tTapReq)} mm`])]),
+      tx(`ESPESOR EMPLEADO: ${f2(i.tTap)} mm`,{b:1}),esp(5)]);}
+  // 2.- Pm
+  {const f=falta({S:i.S,E:i.E,t:i.tEnv,R:i.Rmm});
+    push([titulo('2.- CÁLCULO DE PRESIÓN MAXIMA PERMISIBLE'),sub('2.1) EN ENVOLVENTE CON ESFUERZO CIRCUNFERENCIAL   (UG-27)'),
+      ex(['Pm = ',{f:['S E t','R + 0.6 t']}]),
+      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`${f2(i.S)} × ${f2(i.E)} × ${f2(i.tEnv)}`,`${f2(i.Rmm)} + 0.6 × ${f2(i.tEnv)}`]},` = ${f2(r.PmEnv)} kg/cm²`])]),esp(3)]);}
+  {const f=falta({S:i.S,E:i.E,t:i.tTap,D:i.Dmm});
+    push([sub('2.2) EN TAPAS SEMIELIPTICAS'),ex(['Pm = ',{f:['2 S E t','K D + 0.2 t']}]),
+      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`2 × ${f2(i.S)} × ${f2(i.E)} × ${f2(i.tTap)}`,`${f2(i.K)} × ${f2(i.Dmm)} + 0.2 × ${f2(i.tTap)}`]},` = ${f2(r.PmTap)} kg/cm²`])]),esp(5)]);}
+  // 3.- área
+  {const D=i.Dmm/1000,Lm=i.Lmm/1000,CR=i.CR/1000,fe=falta({D,L:Lm}),ft=falta({D,'C.R.':CR});
+    push([titulo('3.- CÁLCULO DEL ÁREA SUJETA A PRESIÓN'),sub('3.1) EN ENVOLVENTE'),ex(['A = 3.1416 × D × L']),
+      ...(fe.length?[pend(fe)]:[ex([`A = 3.1416 × ${f3(D)} × ${f3(Lm)} = ${f3(r.Aenv)} m²`])]),
+      sub('3.2) EN TAPAS SEMIELIPTICAS'),ex(['A = (1.09 × D² + 3.1416 × D × C.R.) × 2 TAPAS']),
+      ...(ft.length?[pend(ft)]:[ex([`A = (1.09 × ${f3(D)}² + 3.1416 × ${f3(D)} × ${f3(CR)}) × 2 = ${f3(r.Atap)} m²`])]),
+      tx(`ÁREA TOTAL = ${f3(r.Aenv)} + ${f3(r.Atap)} = ${f3(r.Atot)} m²`,{b:1}),esp(5)]);}
+  // 4.- volumen
+  {const D=i.Dmm/1000,Lm=i.Lmm/1000,CR=i.CR/1000,fe=falta({D,L:Lm}),ft=falta({D,'C.R.':CR});
+    push([titulo('4.- CÁLCULO DEL VOLUMEN'),sub('4.1) EN ENVOLVENTE'),ex(['V = 0.7854 × D² × L']),
+      ...(fe.length?[pend(fe)]:[ex([`V = 0.7854 × ${f3(D)}² × ${f3(Lm)} = ${f4(r.Venv)} m³`])]),
+      sub('4.2) EN TAPAS SEMIELIPTICAS'),ex(['V = (0.1309 × D³ + 0.785 × D² × C.R.) × 2 TAPAS']),
+      ...(ft.length?[pend(ft)]:[ex([`V = (0.1309 × ${f3(D)}³ + 0.785 × ${f3(D)}² × ${f3(CR)}) × 2 = ${f4(r.Vtap)} m³`])]),
+      tx('VOLUMEN TOTAL = ENVOLVENTE + TAPAS'),tx(`VOLUMEN TOTAL = ${f4(r.Venv)} + ${f4(r.Vtap)} = ${f4(r.Vtot)} m³`,{b:1}),esp(5)]);}
+  // 5.- relevo
+  {const fw=falta({V:r.Vtot}),fa=falta({W:r.W,C:i.C,K:i.Kd,Pc:i.Pc,M:i.M,'T diseño':i.Td});
+    push([titulo('5.- CÁLCULO DEL ÁREA DE DESFOGUE DEL DISPOSITIVO DE RELEVO'),{h:11,fn:(x,y,c)=>c.T('     DE PRESIÓN (APÉNDICE 11)',x,y+8,{z:7.4,b:1})},
+      tx('Wa = 0.029 x V x 62.42 (m³ / min) DE FLUIDO'),...(fw.length?[pend(fw)]:[tx(`Wa = 0.029 x ${f4(r.Vtot)} x 62.42 = ${f4(r.Wa)} m³ / min DE FLUIDO`)]),
+      tx('W = Wa x 73.596 (kg / hr) DE FLUIDO'),...(fw.length?[]:[tx(`W = ${f4(r.Wa)} x 73.596 = ${f2(r.W)} (kg / hr) DE FLUIDO`,{b:1})]),esp(2)]);
+    push([ex(['A = ',{f:['W','C K P']},' × ',{raiz:{f:['T','M']}}]),
+      tx(`C = ${f2(i.C)}   K = ${fx(i.Kd,3)}   M = ${f2(i.M)}`+(i.cteSrc.C==='aire'||i.cteSrc.K==='aire'||i.cteSrc.M==='aire'?'   (AIRE)':'')),
+      tx(`P = Pc x 1.1 + 1.033 = ${f2(i.Pc)} x 1.1 + 1.033 = ${f2(r.Pabs)} kg/cm²`),
+      tx(`T = °C + 273 = ${f2(i.Td)} + 273 = ${f2(r.Tk)} K`),
+      ...(fa.length?[pend(fa)]:[ex(['A = ',{f:[f2(r.W),`${f2(i.C)} × ${fx(i.Kd,3)} × ${f2(r.Pabs)}`]},' × ',{raiz:{f:[f2(r.Tk),f2(i.M)]}},` = ${f4(r.A)} cm²`])]),esp(3)]);
+    const cc=conclusion(d);
+    if(cc)push([tx(cc,{b:1,c:d.r.cumple?0:ROJO}),esp(2)]);
+    else{const fv=falta({'Ø válvula':i.dv,'área instalada':r.Ainst,'área calculada':r.A,Pc:i.Pc});push([pend(fv.length?fv:['datos de la válvula'])]);}
+  }
+  return B;
+}
+function wrapW(Mx,s,w,z,b){const out=[];let ln='';for(const pal of String(s).split(/\s+/).filter(Boolean)){const t=ln?ln+' '+pal:pal;if(ln&&Mx.w(t,z,b)>w){out.push(ln);ln=pal;}else ln=t;}if(ln)out.push(ln);return out;}
+
+// ---------- backend SVG ----------
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const col=c=>c==null?'#000':Array.isArray(c)?`rgb(${c.map(v=>Math.round(v*255)).join(',')})`:`rgb(${Array(3).fill(Math.round(c*255)).join(',')})`;
+const n2=v=>Math.round(v*100)/100;
+function svg(lay,opt){
+  opt=opt||{};const imgs=opt.imgs||{};
+  const out=[`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${lay.W} ${lay.H}" width="${opt.w||lay.W}" ${opt.h?`height="${opt.h}"`:''} font-family="'Liberation Sans',Arial,Helvetica,sans-serif"><rect width="${lay.W}" height="${lay.H}" fill="#fff"/>`];
+  for(const o of lay.items){
+    if(o.k==='l')out.push(`<line x1="${n2(o.x1)}" y1="${n2(o.y1)}" x2="${n2(o.x2)}" y2="${n2(o.y2)}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
+    else if(o.k==='r')out.push(`<rect x="${n2(o.x)}" y="${n2(o.y)}" width="${n2(o.w)}" height="${n2(o.h)}" fill="${o.fill?col(o.fill):'none'}" stroke="${col(o.s)}" stroke-width="${o.lw}"/>`);
+    else if(o.k==='c')out.push(`<circle cx="${n2(o.cx)}" cy="${n2(o.cy)}" r="${n2(o.rad)}" fill="${o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
+    else if(o.k==='p')out.push(`<path d="${o.d}" transform="translate(${n2(o.tx)} ${n2(o.ty)}) scale(${o.s})" fill="${o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w/o.s}"${o.dash?` stroke-dasharray="${o.dash.map(v=>v/o.s).join(' ')}"`:''} stroke-linejoin="round"/>`);
+    else if(o.k==='t'){const a=o.anc==='middle'?'middle':o.anc==='end'?'end':'start',rot=o.rot?` transform="rotate(${o.rot} ${n2(o.x)} ${n2(o.y)})"`:'';
+      out.push(`<text x="${n2(o.x)}" y="${n2(o.y)}" font-size="${n2(o.z)}" text-anchor="${a}"${o.b?' font-weight="700"':''} fill="${col(o.c)}"${o.u?' text-decoration="underline"':''}${rot}>${esc(o.s)}</text>`);}
+    else if(o.k==='img'&&imgs[o.src]){const im=imgs[o.src];
+      out.push(`<image href="data:${im.mime};base64,${im.b64}" x="${n2(o.x)}" y="${n2(o.y)}" width="${n2(o.w)}" height="${n2(o.h)}" preserveAspectRatio="${o.izq?'xMinYMid':'xMidYMid'} meet"/>`);}
+  }
+  out.push('</svg>');return out.join('');
+}
+
+// ---------- backend PDF (pdf-lib; Liberation Sans de FX_ASSETS) ----------
+async function pdf(d,opt){
+  opt=opt||{};const P=root.PDFLib;if(!P)throw new Error('PDFLib no disponible');
+  const {PDFDocument,StandardFonts,rgb,degrees}=P;
+  const doc=await PDFDocument.create();let F=null,FB=null;
+  try{if(opt.fonts&&opt.fonts.R&&root.fontkit){doc.registerFontkit(root.fontkit);F=await doc.embedFont(opt.fonts.R,{subset:true});FB=await doc.embedFont(opt.fonts.B||opt.fonts.R,{subset:true});}}catch(e){F=null;}
+  if(!F){F=await doc.embedFont(StandardFonts.Helvetica);FB=await doc.embedFont(StandardFonts.HelveticaBold);}
+  const Mx=metricas(opt.fonts);
+  const imgs={};
+  for(const k of ['logo','firma']){const b=opt[k];if(!b||!b.length)continue;try{imgs[k]=b[0]===0x89?await doc.embedPng(b):await doc.embedJpg(b);}catch(_){}}
+  const lay=hoja(d,Object.assign({},opt,{M:Mx,logo:!!imgs.logo,firma:!!imgs.firma}));
+  const {W,H}=lay,pg=doc.addPage([W,H]);
+  const C=c=>c==null?rgb(0,0,0):Array.isArray(c)?rgb(c[0],c[1],c[2]):rgb(c,c,c);
+  for(const o of lay.items){
+    if(o.k==='l')pg.drawLine({start:{x:o.x1,y:H-o.y1},end:{x:o.x2,y:H-o.y2},thickness:o.w,color:C(o.c),dashArray:o.dash||undefined});
+    else if(o.k==='r')pg.drawRectangle({x:o.x,y:H-o.y-o.h,width:o.w,height:o.h,borderColor:C(o.s),borderWidth:o.lw,color:o.fill?C(o.fill):undefined});
+    else if(o.k==='c')pg.drawCircle({x:o.cx,y:H-o.cy,size:o.rad,borderColor:C(o.c),borderWidth:o.w,borderDashArray:o.dash||undefined,color:o.fill?rgb(1,1,1):undefined});
+    else if(o.k==='p')pg.drawSvgPath(o.d,{x:o.tx,y:H-o.ty,scale:o.s,borderColor:C(o.c),borderWidth:o.w/o.s,borderDashArray:o.dash?o.dash.map(v=>v/o.s):undefined,color:o.fill?rgb(1,1,1):undefined});
+    else if(o.k==='t'){const f=o.b?FB:F,s=Mx.limpia(o.s);let w=0;try{w=f.widthOfTextAtSize(s,o.z);}catch(_){continue;}
+      const off=o.anc==='middle'?w/2:o.anc==='end'?w:0;
+      if(o.rot)pg.drawText(s,{x:o.x,y:H-o.y-off,size:o.z,font:f,color:C(o.c),rotate:degrees(90)});
+      else{pg.drawText(s,{x:o.x-off,y:H-o.y,size:o.z,font:f,color:C(o.c)});if(o.u)pg.drawLine({start:{x:o.x-off,y:H-o.y-1.4},end:{x:o.x-off+w,y:H-o.y-1.4},thickness:.5,color:C(o.c)});}}
+    else if(o.k==='img'&&imgs[o.src]){const im=imgs[o.src],k=Math.min(o.w/im.width,o.h/im.height),w=im.width*k,h=im.height*k;
+      pg.drawImage(im,{x:o.izq?o.x:o.x+(o.w-w)/2,y:H-o.y-o.h+(o.h-h)/2,width:w,height:h});}
+  }
+  const md=d.e||{};
+  doc.setTitle(('Plano '+[md.tag,md.nombre].filter(Boolean).join(' ')).trim());doc.setProducer('FenixMex');doc.setCreator('FenixMex · Plano v'+VERSION);doc.setSubject(COD_FAB+' · NOM-020-STPS-2011');
+  return await doc.save({useObjectStreams:true});
+}
+
+root.FXPlano={VERSION,DEF,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,SH,
+  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,boquillas,fechaCajetin,metricas,hoja,svg,pdf};
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>
 (function(){
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -2704,7 +3267,7 @@ function actFaltas(){
     $$('.campo',el).forEach(c=>c.classList.toggle('invalido',mostrarFaltas&&f.some(x=>x.k===c.dataset.campo)));});
 }
 function irA(x){
-  if(document.body.dataset.vista==='lev')mostrarVista('exp');
+  if(document.body.dataset.vista!=='exp')mostrarVista('exp');
   const sec=$('#'+x.sec);let t=null;
   if(x.eq&&x.sec==='s-equipos'){const e=D.equipos.find(q=>q.id===x.eq);const el=$(`.equipo[data-eq="${x.eq}"]`);if(e&&el&&e._cerrado){e._cerrado=false;el.classList.remove('cerrado');$('.cab',el).setAttribute('aria-expanded','true');}
     t=el&&($(`[data-campo="${x.k}"] input,[data-campo="${x.k}"] select`,el));}
@@ -2963,11 +3526,12 @@ function migrar(){
     delete e.presionDisparo;delete e.diametroInteriorMm;
     ['espEnv','espSup','espInf'].forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});
     if(!e.id)e.id=uid();
+    if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano v1: S, E (0.85), C.R., cajetín…
     e.presionPruebaHidrostatica=hidro(e);
     if(e.codigoMemoriaCalculo){const x=memXXX(e.codigoMemoriaCalculo);e.codigoMemoriaCalculo=memCodigo(/^\d{1,2}$/.test(x)?x.padStart(3,'0'):x);}
   });
 }
-function montar(){migrar();initDatos();renderEquipos();initImgs(document);refrescar();}
+function montar(){migrar();initDatos();renderEquipos();initImgs(document);refrescar();if(typeof plSync==='function')plSync();}
 
 
 // ---------- LEVANTAMIENTO v1: vista, borrador local (IndexedDB 'lev', sin nube) e importación al expediente ----------
@@ -2975,25 +3539,28 @@ const LX=()=>window.FXLev;
 let LEV=null,LEV_SEL=null,levT=null,levDrag=null;
 const p2h=n=>String(n).padStart(2,'0');
 function mostrarVista(v,sinHash){
-  v=v==='lev'?'lev':'exp';
-  const ex=$('#vistaExp'),lv=$('#vistaLev');if(!ex||!lv)return;
+  v=v==='lev'||v==='plano'?v:'exp';
+  const ex=$('#vistaExp'),lv=$('#vistaLev'),pv=$('#vistaPlano');if(!ex||!lv)return;
+  if(v==='plano'&&!pv)v='exp';
   document.body.dataset.vista=v;
-  ex.classList.toggle('oculto',v!=='exp');lv.classList.toggle('oculto',v!=='lev');
+  ex.classList.toggle('oculto',v!=='exp');lv.classList.toggle('oculto',v!=='lev');if(pv)pv.classList.toggle('oculto',v!=='plano');
   $$('.vistas [data-vista]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vista===v)));
   try{localStorage.setItem('fenixmex-vista',v);}catch(e){}
   if(!sinHash){
     if(v==='lev'&&location.hash!=='#levantamiento')history.replaceState(null,'','#levantamiento');
-    else if(v==='exp'&&location.hash==='#levantamiento')history.replaceState(null,'',location.pathname+location.search);
+    else if(v==='plano'&&location.hash!=='#plano')history.replaceState(null,'','#plano');
+    else if(v==='exp'&&(location.hash==='#levantamiento'||location.hash==='#plano'))history.replaceState(null,'',location.pathname+location.search);
   }
   if(v==='lev')levPintar();
+  if(v==='plano')plPintar();
 }
 function initVistas(){
   $$('.vistas [data-vista]').forEach(b=>b.addEventListener('click',()=>{mostrarVista(b.dataset.vista);window.scrollTo({top:0,behavior:'auto'});}));
   // cualquier liga del expediente (#s-…) regresa a la vista del expediente antes de desplazarse
-  document.addEventListener('click',ev=>{const a=ev.target.closest&&ev.target.closest('a[href^="#s-"]');if(a&&document.body.dataset.vista==='lev')mostrarVista('exp',true);},true);
-  window.addEventListener('hashchange',()=>{if(location.hash==='#levantamiento')mostrarVista('lev',true);else if(/^#s-/.test(location.hash))mostrarVista('exp',true);});
+  document.addEventListener('click',ev=>{const a=ev.target.closest&&ev.target.closest('a[href^="#s-"]');if(a&&document.body.dataset.vista!=='exp')mostrarVista('exp',true);},true);
+  window.addEventListener('hashchange',()=>{if(location.hash==='#levantamiento')mostrarVista('lev',true);else if(location.hash==='#plano')mostrarVista('plano',true);else if(/^#s-/.test(location.hash))mostrarVista('exp',true);});
   let v='exp';try{v=localStorage.getItem('fenixmex-vista')||'exp';}catch(e){}
-  if(location.hash==='#levantamiento')v='lev';else if(/^#s-/.test(location.hash))v='exp';
+  if(location.hash==='#levantamiento')v='lev';else if(location.hash==='#plano')v='plano';else if(/^#s-/.test(location.hash))v='exp';
   mostrarVista(v,v==='exp');
 }
 function levEstado(m,s){const el=$('#levEstado');if(!el)return;el.textContent=m;el.dataset.s=s||'';}
@@ -3166,6 +3733,7 @@ async function levFormato(o){
 // Equipo recién creado por «Nuevo expediente» y sin tocar: se llena en lugar de dejarlo vacío.
 function equipoVirgen(e){
   if(e.levantamiento)return false;
+  if(e.plano&&window.FXPlano&&!FXPlano.esDefault(e.plano))return false;
   for(const k in DEF_EQ){if(k==='presionPruebaHidrostatica')continue;if(String(e[k]??'')!==String(DEF_EQ[k]))return false;}
   if(['espEnv','espSup','espInf'].some(k=>(e[k]||[]).some(x=>String(x??'').trim())))return false;
   return !Object.keys(IMG).some(k=>k.startsWith('e:'+e.id+':'));
@@ -3222,6 +3790,190 @@ async function importarLevantamientos(lista){
   toast(msg,ok.length&&!mal.length?6500:8000);
 }
 
+// ---------- PLANO v1: memoria de cálculo + hoja del plano por equipo (lee el expediente; se guarda en el borrador local) ----------
+const FXP=()=>window.FXPlano;
+let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true;
+function plFonts(){if(!plFontsC){const A=window.FX_ASSETS;plFontsC={R:b64(A.fonts.R),B:b64(A.fonts.B)};}return plFontsC;}
+function plMetricas(){if(!plMx)plMx=FXP().metricas(plFonts());return plMx;}
+function plEq(){
+  if(!D||!D.equipos.length)return null;
+  let e=D.equipos.find(x=>x.id===plActivo);
+  if(!e){e=D.equipos.find(x=>x.levantamiento)||D.equipos[0];plActivo=e.id;}
+  if(!e.plano)e.plano=FXP().reparar(e.plano);
+  return e;
+}
+function plCtx(){return {razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),firmante:String(G.firmanteIzquierdoNombre||'').trim(),cedula:String(G.firmanteIzquierdoCedula||'').trim()};}
+function plDatos(){const e=plEq();return e?FXP().datos(e,plCtx()):null;}
+const plF=(v,n)=>typeof v==='number'&&isFinite(v)?v.toFixed(n):'—';
+function plEstado(m,s){const el=$('#plEstado');if(el){el.textContent=m;el.dataset.s=s||'';}}
+function plVisible(){return document.body.dataset.vista==='plano';}
+// Se llama cuando cambia el expediente (montar, importar, nuevo…): repinta si la vista está abierta.
+function plSync(){plSucio=true;if(plVisible())plPintar();}
+function plSelector(){
+  const s=$('#plEquipo');if(!s||!D)return;const e=plEq();
+  s.innerHTML=D.equipos.map((x,i)=>`<option value="${x.id}"${e&&x.id===e.id?' selected':''}>${i+1}. ${esc(x.nombre||'Equipo sin nombre')}${x.tag?' · '+esc(x.tag):''}${x.levantamiento?' · '+(x.levantamiento.orientacion==='V'?'V':'H'):''}</option>`).join('');
+}
+function plCampos(){
+  const e=plEq();if(!e)return;const pl=e.plano,lv=e.levantamiento,ld=(lv&&lv.dimensiones)||{},X=FXP();
+  $$('#vistaPlano [data-pl]').forEach(i=>{if(document.activeElement!==i)i.value=pl[i.dataset.pl]??'';});
+  $$('#vistaPlano [data-pe]').forEach(i=>{const k=i.dataset.pe;if(document.activeElement!==i)i.value=e[k]??'';i.placeholder=ld[k]!=null&&ld[k]!==''?String(ld[k]):'';});
+  const d=X.datos(e,plCtx()),aire=d.inp.aire;
+  $('#pl_fab').placeholder=String(e.marca||'').trim()||'(marca)';
+  $('#pl_fec').placeholder=X.fechaCajetin(e.fechaPnd)||'AGOSTO-2026';
+  $('#pl_c').placeholder=aire?X.AIRE.C.toFixed(2):'';$('#pl_k').placeholder=aire?String(X.AIRE.K):'';$('#pl_m').placeholder=aire?String(X.AIRE.M):'';
+  const r=d.r;$('#pl_ai').placeholder=r.AinstSrc==='circulo'?plF(r.Ainst,3):'';
+}
+function plAyudas(d){
+  const {e,inp:i,r}=d,lv=e.levantamiento;
+  $$('#vistaPlano [data-plo]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.plo===i.o)));
+  $('#plOrAyuda').textContent=lv?(e.plano.orientacion&&e.plano.orientacion!==lv.orientacion?`El levantamiento dice ${lv.orientacion==='V'?'vertical':'horizontal'}; elegiste otra plantilla.`:`Del levantamiento: ${lv.orientacion==='V'?'vertical':'horizontal'}.`):'Sin levantamiento importado: elige la plantilla.';
+  const a=(k,t)=>{const el=$(`#vistaPlano [data-pa="${k}"]`);if(el)el.textContent=t;};
+  a('diametroInteriorCm',plF(i.Dmm,2)!=='—'?`= ${plF(i.Dmm,2)} mm · R = ${plF(i.Rmm,2)} mm`:'Diámetro interior, en centímetros.');
+  a('longitudMm',plF(i.Lmm,0)!=='—'?`Solo el cuerpo = ${plF(i.Lmm/1000,3)} m`:'Solo el cuerpo, entre soldaduras.');
+  a('eficiencia',isFinite(i.E)?`Se usa E = ${i.E.toFixed(2)} (${+(i.E*100).toFixed(2)} %)`:'Fracción, por ejemplo 0.85.');
+  a('areaValvulaCm2',r.AinstSrc==='circulo'?`Vacío: círculo de Ø ${plF(i.dv,2)} mm = ${plF(r.Ainst,3)} cm²`:r.AinstSrc==='captura'?'Área capturada (placa de la válvula).':'Sin Ø de válvula: captura el área o el Ø en el expediente.');
+  $('#plMatAyuda').innerHTML=`Materiales: <b>${esc(e.materialCuerpo||'—')}</b> / <b>${esc(e.materialTapa||'—')}</b> (expediente).`;
+  $('#plRelNota').innerHTML=i.aire?`Fluido <b>${esc(i.fluido)}</b> (expediente): con C, K y M vacíos se usan los de aire de la muestra (356.00 · 0.876 · 28.97). Ø de la válvula: <b>${plF(i.dv,2)} mm</b> ${i.dvSrc==='expediente'?'(expediente)':i.dvSrc==='boquilla'?'(boquilla del levantamiento)':''}.`
+    :`Fluido <b>${esc(i.fluido||'sin capturar')}</b>: no hay tabla de gases; captura C, K y M. Ø de la válvula: <b>${plF(i.dv,2)} mm</b>.`;
+}
+function plLectura(d){
+  const e=d.e,i=d.inp;
+  const fila=(lbl,val,ir)=>`<dt>${lbl}</dt><dd class="v${val?'':' vacio'}">${val?esc(val):'Falta'}</dd><dd class="a">${ir?`<button type="button" class="btn chico fantasma" data-plir='${esc(JSON.stringify(ir))}'>Editar</button>`:''}</dd>`;
+  const ex=k=>({sec:'s-equipos',eq:e.id,k});
+  const u=(v,un)=>{const s=String(v??'').trim();return s?`${s} ${un}`:'';};
+  $('#plLee').innerHTML=[
+    fila('Fluido',String(e.fluido||'').trim(),ex('fluido')),
+    fila('Presión de diseño P',u(e.presionDiseno,'kg/cm²'),ex('presionDiseno')),
+    fila('Presión de calibración Pc',u(e.presionCalibracion,'kg/cm²'),ex('presionCalibracion')),
+    fila('Presión de operación',u(e.presionOperacion,'kg/cm²'),ex('presionOperacion')),
+    fila('Prueba hidrostática (diseño × 1.1)',u(e.presionPruebaHidrostatica,'kg/cm²'),ex('presionDiseno')),
+    fila('Temperatura de diseño',u(e.tempDiseno,'°C'),ex('tempDiseno')),
+    fila('Temperatura de operación',u(e.tempOperacion,'°C'),ex('tempOperacion')),
+    fila('Capacidad volumétrica',u(e.capacidadVolumetrica,'m³'),ex('capacidadVolumetrica')),
+    fila('Ø de la válvula de seguridad',u(e.diametroValvulaMm,'mm')||(i.dvSrc==='boquilla'?`${plF(i.dv,2)} mm (boquilla)`:''),ex('diametroValvulaMm')),
+    fila('Espesor mínimo · cuerpo (PND)',isFinite(i.tEnv)?`${i.tEnv.toFixed(2)} mm`:'',{sec:'s-pnd',eq:e.id,esp:'espEnv'}),
+    fila('Espesor mínimo · tapas (PND)',isFinite(i.tTap)?`${i.tTap.toFixed(2)} mm`:'',{sec:'s-pnd',eq:e.id,esp:'espSup'}),
+    fila('Ubicación',String(e.ubicacion||'').trim(),ex('ubicacion')),
+    fila('Marca · serie · año',[e.marca,e.numeroSerie,e.anioFabricacion].map(x=>String(x||'').trim()).filter(Boolean).join(' · '),ex('marca'))
+  ].join('');
+  $('#plLeeCaj').innerHTML=[
+    fila('Cliente',rsNombre(),{sec:'s-centro',sel:'#d_rsp'}),
+    fila('Equipo · TAG',[e.nombre,e.tag].map(x=>String(x||'').trim()).filter(Boolean).join(' · '),ex('nombre')),
+    fila('Plano No. (código de memoria)',String(e.codigoMemoriaCalculo||'').trim(),ex('codigoMemoriaCalculo')),
+    fila('Revisó y firma',[G.firmanteIzquierdoNombre,G.firmanteIzquierdoCedula&&('Céd. '+G.firmanteIzquierdoCedula)].filter(Boolean).join(' · ')+(IMG['g:firmanteIzquierdoFirma']?'':(G.firmanteIzquierdoNombre?' · sin firma':'')),{sec:'s-responsables',sel:'#g_fin'})
+  ].join('');
+}
+function plPendientes(d){
+  const box=$('#plPend');if(!box)return;
+  if(!d.faltan.length){box.innerHTML='';return;}
+  const dn={plano:'Plano',exp:'Expediente',pnd:'PND'};
+  box.innerHTML=`<div class="aviso warn"><strong>Faltan ${d.faltan.length} dato${d.faltan.length>1?'s':''} para la memoria completa · lo que falta queda en blanco</strong><ul>${d.faltan.map((f,k)=>`<li><button type="button" data-plf="${k}">${esc(f.m)}<span class="ir">${dn[f.donde]}</span></button></li>`).join('')}</ul></div>`;
+  $$('[data-plf]',box).forEach(b=>b.addEventListener('click',()=>{const f=d.faltan[+b.dataset.plf];
+    if(f.donde==='plano'){const t=$(`#vistaPlano [data-pl="${f.campo}"],#vistaPlano [data-pe="${f.campo}"]`);if(t){t.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{try{t.focus({preventScroll:true});}catch(_){}},300);const c=t.closest('.campo');if(c){c.classList.remove('destello');void c.offsetWidth;c.classList.add('destello');}}}
+    else if(f.donde==='pnd')irA({sec:'s-pnd',eq:d.e.id,esp:f.campo});
+    else irA({sec:'s-equipos',eq:d.e.id,k:f.campo});}));
+}
+// memoria en pantalla (mismas fórmulas que la hoja; números con la precisión de la hoja)
+function plMemoria(d){
+  const {inp:i,r}=d,F=(n,k)=>plF(n,k),fr=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`,rz=(a,b)=>`<span class="rz">√${fr(a,b)}</span>`;
+  const pend=(arr)=>`<span class="pl-pend">Pendiente: ${arr.join(', ')}</span>`;
+  const falt=(o)=>Object.entries(o).filter(([,v])=>!(typeof v==='number'&&isFinite(v))).map(([k])=>k);
+  const f=(nm,sim,sus,res,un,ck)=>`<div class="pl-f"><span class="nm">${nm}</span><div class="ec">${sim}${sus?`<span>⟶</span><span class="sus">${sus}</span>`:''}</div><div class="rs">${res}${un?`<small>${un}</small>`:''}</div>${ck||''}</div>`;
+  const chk=(okv,si,no)=>okv==null?'':`<span class="ck ${okv?'si':'no'}">${okv?'✓ '+si:'✗ '+no}</span>`;
+  const sec=(t,body)=>`<section class="pl-sec"><h4>${t}</h4>${body}</section>`;
+  const D_=i.Dmm/1000,L_=i.Lmm/1000,CR_=i.CR/1000;
+  let h='';
+  {const a=falt({P:i.P,R:i.Rmm,S:i.S,E:i.E}),b=falt({P:i.P,D:i.Dmm,S:i.S,E:i.E});
+    h+=sec('1. Cálculo de espesores',
+      f('1.1 Envolvente · esfuerzo circunferencial (UG-27)',`t = ${fr('P R','S E − 0.6 P')}`,a.length?pend(a):`${fr(`${F(i.P,2)} × ${F(i.Rmm,2)}`,`${F(i.S,2)} × ${F(i.E,2)} − 0.6 × ${F(i.P,2)}`)}`,F(r.tEnvReq,2),'mm',
+        r.okEnv==null?'':chk(r.okEnv,`espesor empleado ${F(i.tEnv,2)} mm ≥ requerido`,`espesor empleado ${F(i.tEnv,2)} mm < requerido`))+
+      f('1.2 Tapas semielípticas (K = 1.00)',`t = ${fr('P D K','2 S E − 0.2 P')}`,b.length?pend(b):`${fr(`${F(i.P,2)} × ${F(i.Dmm,2)} × 1.00`,`2 × ${F(i.S,2)} × ${F(i.E,2)} − 0.2 × ${F(i.P,2)}`)}`,F(r.tTapReq,2),'mm',
+        r.okTap==null?'':chk(r.okTap,`espesor empleado ${F(i.tTap,2)} mm ≥ requerido`,`espesor empleado ${F(i.tTap,2)} mm < requerido`)));}
+  {const a=falt({S:i.S,E:i.E,'t cuerpo':i.tEnv,R:i.Rmm}),b=falt({S:i.S,E:i.E,'t tapas':i.tTap,D:i.Dmm});
+    h+=sec('2. Presión máxima permisible',
+      f('2.1 Envolvente (UG-27) · t = espesor empleado',`Pm = ${fr('S E t','R + 0.6 t')}`,a.length?pend(a):fr(`${F(i.S,2)} × ${F(i.E,2)} × ${F(i.tEnv,2)}`,`${F(i.Rmm,2)} + 0.6 × ${F(i.tEnv,2)}`),F(r.PmEnv,2),'kg/cm²')+
+      f('2.2 Tapas semielípticas',`Pm = ${fr('2 S E t','K D + 0.2 t')}`,b.length?pend(b):fr(`2 × ${F(i.S,2)} × ${F(i.E,2)} × ${F(i.tTap,2)}`,`1.00 × ${F(i.Dmm,2)} + 0.2 × ${F(i.tTap,2)}`),F(r.PmTap,2),'kg/cm²'));}
+  {const a=falt({D:D_,L:L_}),b=falt({D:D_,'C.R.':CR_});
+    h+=sec('3. Área sujeta a presión',
+      f('3.1 Envolvente','A = 3.1416 × D × L',a.length?pend(a):`3.1416 × ${F(D_,3)} × ${F(L_,3)}`,F(r.Aenv,3),'m²')+
+      f('3.2 Tapas semielípticas (× 2 tapas)','A = (1.09 D² + 3.1416 D · C.R.) × 2',b.length?pend(b):`(1.09 × ${F(D_,3)}² + 3.1416 × ${F(D_,3)} × ${F(CR_,3)}) × 2`,F(r.Atap,3),'m²')+
+      f('Área total','A<sub>env</sub> + A<sub>tapas</sub>','',F(r.Atot,3),'m²'));}
+  {const a=falt({D:D_,L:L_}),b=falt({D:D_,'C.R.':CR_});
+    h+=sec('4. Volumen',
+      f('4.1 Envolvente','V = 0.7854 × D² × L',a.length?pend(a):`0.7854 × ${F(D_,3)}² × ${F(L_,3)}`,F(r.Venv,4),'m³')+
+      f('4.2 Tapas semielípticas (× 2 tapas)','V = (0.1309 D³ + 0.785 D² · C.R.) × 2',b.length?pend(b):`(0.1309 × ${F(D_,3)}³ + 0.785 × ${F(D_,3)}² × ${F(CR_,3)}) × 2`,F(r.Vtap,4),'m³')+
+      f('Volumen total',`V<sub>env</sub> + V<sub>tapas</sub>${String(d.e.capacidadVolumetrica||'').trim()?` · placa: ${esc(d.e.capacidadVolumetrica)} m³`:''}`,'',F(r.Vtot,4),'m³'));}
+  {const a=falt({V:r.Vtot}),b=falt({W:r.W,C:i.C,K:i.Kd,Pc:i.Pc,M:i.M,'T diseño':i.Td});
+    h+=sec('5. Área de desfogue del dispositivo de relevo (Apéndice 11)',
+      f('Flujo','Wa = 0.029 × V × 62.42',a.length?pend(a):`0.029 × ${F(r.Vtot,4)} × 62.42`,F(r.Wa,4),'m³/min')+
+      f('','W = Wa × 73.596',a.length?'':`${F(r.Wa,4)} × 73.596`,F(r.W,2),'kg/hr')+
+      f('Presión y temperatura absolutas',`P = Pc × 1.1 + 1.033 · T = °C + 273`,`${F(i.Pc,2)} × 1.1 + 1.033 · ${F(i.Td,2)} + 273`,`${F(r.Pabs,2)} · ${F(r.Tk,2)}`,'kg/cm² · K')+
+      f(`Área calculada · C = ${F(i.C,2)}, K = ${plF(i.Kd,3)}, M = ${F(i.M,2)}${i.cteSrc.C==='aire'?' (aire)':''}`,`A = ${fr('W','C K P')} × ${rz('T','M')}`,b.length?pend(b):`${fr(F(r.W,2),`${F(i.C,2)} × ${plF(i.Kd,3)} × ${F(r.Pabs,2)}`)} × ${rz(F(r.Tk,2),F(i.M,2))}`,F(r.A,4),'cm²'));}
+  const cc=FXP().conclusion(d);
+  h+=`<div class="pl-res"><span>Presión máxima permisible del equipo (la menor)</span><b>${F(r.Pm,2)} kg/cm²</b>
+    ${isFinite(r.Pm)?(String(d.e.presionTrabajoMaxPermitida||'').trim()===r.Pm.toFixed(2)?`<span class="ck si" style="grid-column:1/-1">✓ Igual a la del expediente (hoja 10 y 66).</span>`
+      :`<span style="grid-column:1/-1;font-size:12.5px;color:var(--tinta-2)">En el expediente: <b style="font-size:inherit">${esc(String(d.e.presionTrabajoMaxPermitida||'').trim()||'vacía')}</b>. <button type="button" class="btn chico laton" id="plUsarPm">Usar ${r.Pm.toFixed(2)} en el expediente</button></span>`):''}
+    <span>Válvula: área instalada vs calculada</span><b>${F(r.Ainst,3)} / ${F(r.A,4)} cm²</b>
+    ${r.cumple==null?'':`<span class="ck ${r.cumple?'si':'no'}" style="grid-column:1/-1">${r.cumple?'✓ El área instalada es mayor que la calculada.':'✗ El área instalada no supera la calculada: revisa la válvula.'}</span>`}</div>`;
+  if(cc)h+=`<p class="pl-concl">${esc(cc)}</p>`;
+  $('#plMem').innerHTML=h;
+  const tg=$('#plMemTag');tg.textContent=d.faltan.length?`${d.faltan.length} pendiente${d.faltan.length>1?'s':''}`:'Completa';tg.dataset.s=d.faltan.length?'err':'ok';
+  const b=$('#plUsarPm');if(b)b.addEventListener('click',()=>{d.e.presionTrabajoMaxPermitida=r.Pm.toFixed(2);guardar();renderEquipos();initImgs($('#listaEquipos'));initImgs($('#pndPanel'));plActualizar();toast(`Presión de trabajo máx. permitida = ${r.Pm.toFixed(2)} kg/cm² en el expediente.`);});
+}
+function plImgs(){
+  const o={};const lg=IMG['g:logoFenix']||(window.FX_ASSETS&&FX_ASSETS.logoDefault?b64(FX_ASSETS.logoDefault):null);
+  if(lg)o.logo={mime:detectCt(lg),b64:u8ToB64(lg),bytes:lg};
+  const fm=IMG['g:firmanteIzquierdoFirma'];if(fm)o.firma={mime:detectCt(fm),b64:u8ToB64(fm),bytes:fm};
+  return o;
+}
+let plImgC=null;
+function plHoja(d){
+  const box=$('#plHoja');if(!box||!d)return;
+  try{if(!plImgC)plImgC=plImgs();
+    const lay=FXP().hoja(d,{M:plMetricas(),logo:!!plImgC.logo,firma:!!plImgC.firma});
+    box.innerHTML=FXP().svg(lay,{imgs:plImgC});
+    $('#plHojaTag').textContent=`Tabloide 17 × 11 in · plantilla ${d.inp.o==='V'?'V (vertical)':'H (horizontal)'}`;
+  }catch(e){console.error(e);box.innerHTML='<div class="aviso err">No se pudo dibujar la hoja: '+esc(e&&e.message||e)+'</div>';}
+}
+function plActualizar(conHoja){
+  const d=plDatos();if(!d)return;
+  plAyudas(d);plLectura(d);plPendientes(d);plMemoria(d);plCampos();
+  clearTimeout(plT);if(conHoja)plHoja(d);else plT=setTimeout(()=>plHoja(plDatos()),220);
+}
+function plPintar(){
+  if(!D)return;plSucio=false;plImgC=null;
+  if(!D.equipos.length)return;
+  plSelector();plCampos();plActualizar(true);
+  const e=plEq();plEstado(e&&e.levantamiento?'Datos del levantamiento importado':'Equipo sin levantamiento importado',e&&e.levantamiento?'ok':'warn');
+}
+function plNombre(ext){const e=plEq()||{},f=s=>Fx().fileName(s);return ['PLANO',f(e.tag||e.nombre),f(rsNombre())].filter(Boolean).join(' ').trim()+'.'+ext;}
+async function plExportarPDF(){
+  const d=plDatos();if(!d)return;
+  if(d.faltan.length&&!confirm(`Faltan ${d.faltan.length} dato${d.faltan.length>1?'s':''} (${d.faltan.slice(0,4).map(f=>f.m).join(', ')}${d.faltan.length>4?'…':''}). En el PDF quedarán en blanco («—») y saldrá la lista de pendientes. ¿Exportar de todos modos?`))return;
+  const b=$('#plPdf');b.disabled=true;plEstado('Generando PDF…','work');
+  try{const im=plImgs();
+    const bytes=await FXP().pdf(d,{fonts:plFonts(),logo:im.logo&&im.logo.bytes,firma:im.firma?await recortarFirma(im.firma.bytes):null});
+    descargar(new Blob([bytes],{type:'application/pdf'}),plNombre('pdf'));toast('Plano descargado: '+plNombre('pdf'));plEstado('PDF generado','ok');}
+  catch(e){console.error(e);toast('No se pudo generar el plano: '+(e&&e.message||e));plEstado('Error al generar','warn');}
+  finally{b.disabled=false;}
+}
+function plExportarSVG(){
+  const d=plDatos();if(!d)return;const im=plImgs();
+  const lay=FXP().hoja(d,{M:plMetricas(),logo:!!im.logo,firma:!!im.firma});
+  descargar(new Blob([FXP().svg(lay,{imgs:im})],{type:'image/svg+xml'}),plNombre('svg'));toast('SVG del plano descargado');
+}
+function initPlano(){
+  const v=$('#vistaPlano');if(!v)return;
+  $('#plEquipo').addEventListener('change',ev=>{plActivo=ev.target.value;plPintar();});
+  $$('[data-plo]',v).forEach(b=>b.addEventListener('click',()=>{const e=plEq();if(!e)return;e.plano.orientacion=b.dataset.plo;guardar();plActualizar(true);plSelector();}));
+  $$('[data-pl]',v).forEach(i=>{if(i.hasAttribute('data-mayus'))mayus(i);
+    i.addEventListener('input',()=>{const e=plEq();if(!e)return;let x=i.value;if(i.inputMode==='decimal'&&x.includes(',')){x=x.replace(',','.');i.value=x;}e.plano[i.dataset.pl]=x;guardar();plActualizar();});});
+  $$('[data-pe]',v).forEach(i=>i.addEventListener('input',()=>{const e=plEq();if(!e)return;let x=i.value;if(x.includes(',')){x=x.replace(',','.');i.value=x;}e[i.dataset.pe]=x;guardar();plActualizar();}));
+  v.addEventListener('click',ev=>{const b=ev.target.closest('[data-plir]');if(!b)return;let x=null;try{x=JSON.parse(b.dataset.plir);}catch(_){}if(x)irA(x);});
+  $('#plPdf').addEventListener('click',plExportarPDF);
+  $('#plSvg').addEventListener('click',plExportarSVG);
+}
+
 // ---------- arranque ----------
 (async()=>{
   initVistas();
@@ -3260,6 +4012,7 @@ async function importarLevantamientos(lista){
   $('#btnNuevo').addEventListener('click',nuevo);
   $('#btnEjemplo').addEventListener('click',ejemplo);
   initDocs();initPad();initNav();
+  try{initPlano();if(document.body.dataset.vista==='plano')plPintar();}catch(e){console.warn('plano',e);}
   ['#fImportLev','#fImportLev2'].forEach(sel=>{const i=$(sel);if(i)i.addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';importarLevantamientos(fs);});});
   $('#topRs').addEventListener('click',()=>irA({sec:'s-centro',sel:'#d_rsp'}));
   $('#topListo').addEventListener('click',()=>{if(ULT.err.length)mostrarFaltas=true;irA({sec:'s-generar'});});
