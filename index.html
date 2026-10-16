@@ -532,6 +532,10 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 .pl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:16px;align-items:start}
 .pl-der{position:sticky;top:calc(var(--top) + 78px)}
 .pl-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+/* v3: material + su S siempre juntos (renglón propio, 2 columnas) */
+.pl-par{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:inherit}
+@media (max-width:420px){.pl-par{grid-template-columns:minmax(0,1fr)}}
+.campo .ayuda.alerta{color:var(--vino);font-weight:650}
 .pl-or{margin:0 0 14px}
 .pl-or>label{display:block;font-size:13px;font-weight:600;color:var(--tinta-2);margin-bottom:6px}
 .pl-or .ayuda{font-size:12px;color:var(--tinta-3);margin-top:5px}
@@ -907,7 +911,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <div class="pl-izq">
       <div class="tarjeta">
         <h3>Geometría <span class="tag">Ø en cm · longitudes en mm</span></h3>
-        <p class="nota">Ajusta <b>L</b> y <b>C.R.</b> hasta que el volumen calculado coincida con la capacidad del equipo. La ceja recta se captura: no se deduce de la profundidad de tapa.</p>
+        <p class="nota">El <b>volumen calculado</b> (envolvente + tapas) es la capacidad del equipo: va al plano, al expediente (hoja 10) y al cálculo del relevo. La ceja recta se captura: no se deduce de la profundidad de tapa.</p>
         <div class="seg-campo pl-or"><label>Plantilla del plano</label>
           <div class="seg" role="group" aria-label="Plantilla del plano"><button type="button" data-plo="H" aria-pressed="true"><b>H</b>Horizontal</button><button type="button" data-plo="V" aria-pressed="false"><b>V</b>Vertical</button></div>
           <div class="ayuda" id="plOrAyuda"></div></div>
@@ -923,7 +927,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 
       <div class="tarjeta">
         <h3>Especificaciones <span class="tag">captura en blanco · gris = vinculado</span></h3>
-        <p class="nota">Las presiones, temperaturas y datos de placa son los del expediente. <b>S</b> se captura a mano (no hay tabla de materiales). <b>E</b> es fracción (0.85); si escribes 85 se toma como 85 %.</p>
+        <p class="nota">Las presiones, temperaturas y datos de placa son los del expediente. <b>S</b> se captura a mano junto a su material (no hay tabla de materiales): S cuerpo para la envolvente, S tapas para las tapas. Radiografiado (PUNTOS) y corrosión (0.00 mm) son fijos.</p>
         <div class="grid pl-grid">
           <div class="campo "><label for="pl_flu">Fluido <span class="req">*</span></label><div class="caja"><input id="pl_flu" data-pe="fluido" data-mayus placeholder="AIRE" autocomplete="off"></div></div>
           <div class="campo "><label for="pl_pd">Presión de diseño <span class="req">*</span></label><div class="caja"><input id="pl_pd" data-pe="presionDiseno" inputmode="decimal" placeholder="12.00" autocomplete="off"><span class="u">kg/cm²</span></div></div>
@@ -933,17 +937,19 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
           <div class="campo"><label>Prueba hidrostática <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="hid" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>kg/cm²</span></div><div class="ayuda" data-pva="hid">Diseño × 1.1.</div></div>
           <div class="campo "><label for="pl_td">Temperatura de diseño <span class="req">*</span></label><div class="caja"><input id="pl_td" data-pe="tempDiseno" inputmode="decimal" placeholder="55" autocomplete="off"><span class="u">°C</span></div></div>
           <div class="campo "><label for="pl_to">Temperatura de operación</label><div class="caja"><input id="pl_to" data-pe="tempOperacion" inputmode="decimal" placeholder="28" autocomplete="off"><span class="u">°C</span></div></div>
-          <div class="campo "><label for="pl_cap">Capacidad de placa</label><div class="caja"><input id="pl_cap" data-pe="capacidadVolumetrica" inputmode="decimal" placeholder="0.500" autocomplete="off"><span class="u">m³</span></div><div class="ayuda" data-pa="capacidadVolumetrica"></div></div>
           <div class="campo"><label>Capacidad en el plano <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="cap" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>m³</span></div><div class="ayuda" data-pva="cap"></div></div>
-          <div class="campo "><label for="pl_s">Esfuerzo permisible S <span class="req">*</span></label><div class="caja"><input id="pl_s" data-pl="esfuerzoPermisible" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div></div>
-          <div class="campo "><label for="pl_e">Eficiencia de soldadura E <span class="req">*</span></label><div class="caja"><input id="pl_e" data-pl="eficiencia" inputmode="decimal" placeholder="0.85" autocomplete="off"></div><div class="ayuda" data-pa="eficiencia"></div></div>
+          <div class="campo "><label for="pl_e">Eficiencia de soldadura E <span class="req">*</span></label><div class="caja"><select id="pl_e" data-pl="eficiencia" data-opc="E"></select></div><div class="ayuda" data-pa="eficiencia"></div></div>
           <div class="campo"><label>Espesor empleado · cuerpo <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="tEnv" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="tEnv"><button type="button" class="btn chico fantasma" data-plpnd="espEnv">Editar en PND</button></div></div>
           <div class="campo"><label>Espesor empleado · tapas <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="tTap" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="tTap"><button type="button" class="btn chico fantasma" data-plpnd="espSup">Editar en PND</button></div></div>
-          <div class="campo "><label for="pl_mc">Material del cuerpo</label><div class="caja"><input id="pl_mc" data-pe="materialCuerpo" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_mt">Material de las tapas</label><div class="caja"><input id="pl_mt" data-pe="materialTapa" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_fs">Factor de seguridad</label><div class="caja"><input id="pl_fs" data-pl="factorSeguridad" inputmode="decimal" placeholder="3.5" autocomplete="off"></div><div class="ayuda">Solo se imprime; S ya lo refleja.</div></div>
-          <div class="campo "><label for="pl_rad">Radiografiado</label><div class="caja"><input id="pl_rad" data-pl="radiografiado" data-mayus placeholder="PUNTOS" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_cor">Corrosión</label><div class="caja"><input id="pl_cor" data-pl="corrosionMm" inputmode="decimal" placeholder="0.00" autocomplete="off"><span class="u">mm</span></div></div>
+          <div class="pl-par">
+            <div class="campo "><label for="pl_mc">Material del cuerpo</label><div class="caja"><input id="pl_mc" data-pe="materialCuerpo" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_sc">Esfuerzo permisible S cuerpo <span class="req">*</span></label><div class="caja"><input id="pl_sc" data-pl="sCuerpo" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div><div class="ayuda">Envolvente (1.1 y 2.1).</div></div>
+          </div>
+          <div class="pl-par">
+            <div class="campo "><label for="pl_mt">Material de las tapas</label><div class="caja"><input id="pl_mt" data-pe="materialTapa" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_st">Esfuerzo permisible S tapas <span class="req">*</span></label><div class="caja"><input id="pl_st" data-pl="sTapas" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div><div class="ayuda">Tapas semielípticas (1.2 y 2.2).</div></div>
+          </div>
+          <div class="campo "><label for="pl_fs">Factor de seguridad</label><div class="caja"><select id="pl_fs" data-pl="factorSeguridad" data-opc="FS"></select></div><div class="ayuda" data-pa="factorSeguridad">Solo se imprime; S ya lo refleja.</div></div>
           <div class="campo "><label for="pl_fab">Fabricante</label><div class="caja"><input id="pl_fab" data-pl="fabricante" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: se imprime la marca.</div></div>
           <div class="campo "><label for="pl_mar">Marca</label><div class="caja"><input id="pl_mar" data-pe="marca" data-mayus autocomplete="off"></div></div>
           <div class="campo "><label for="pl_ser">Número de serie</label><div class="caja"><input id="pl_ser" data-pe="numeroSerie" data-mayus autocomplete="off"></div></div>
@@ -973,23 +979,20 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
         <h3>Dispositivo de relevo <span class="tag">Apéndice 11</span></h3>
         <p class="nota" id="plRelNota"></p>
         <div class="grid pl-grid">
-          <div class="campo "><label for="pl_dv">Ø de la válvula de seguridad <span class="req">*</span></label><div class="caja"><input id="pl_dv" data-pe="diametroValvulaMm" inputmode="decimal" placeholder="6" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-pa="diametroValvulaMm"></div></div>
-          <div class="campo "><label for="pl_c">Constante del gas C</label><div class="caja"><input id="pl_c" data-pl="relevoC" inputmode="decimal" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_k">Coeficiente de descarga K</label><div class="caja"><input id="pl_k" data-pl="relevoK" inputmode="decimal" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_m">Peso molecular M</label><div class="caja"><input id="pl_m" data-pl="relevoM" inputmode="decimal" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_ai">Área de descarga instalada</label><div class="caja"><input id="pl_ai" data-pl="areaValvulaCm2" inputmode="decimal" autocomplete="off"><span class="u">cm²</span></div><div class="ayuda" data-pa="areaValvulaCm2"></div></div>
+          <div class="campo "><label for="pl_dv">Ø de la válvula de seguridad <span class="req">*</span></label><div class="caja"><select id="pl_dv" data-pe="diametroValvulaMm" data-opc="VALV"></select><span class="u">mm</span></div><div class="ayuda" data-pa="diametroValvulaMm"></div></div>
+          <div class="campo"><label>Área de descarga instalada <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="Ainst" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>cm²</span></div><div class="ayuda" data-pva="Ainst"></div></div>
           <div class="campo"><label>Área de desfogue calculada <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="A" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>cm²</span></div><div class="ayuda" data-pva="A"></div></div>
         </div>
       </div>
 
       <div class="tarjeta">
         <h3>Croquis de ubicación <span class="tag">opcional</span></h3>
-        <p class="nota">Va en la columna derecha de la hoja cuando hay espacio. <b>Plano del lugar</b>: carga una imagen y toca dónde está el equipo (la flecha apunta ahí). <b>Esquema</b>: cuarto, puerta y equipo; toca para mover el equipo.</p>
+        <p class="nota">Va en la columna derecha de la hoja cuando hay espacio. <b>Plano del lugar</b>: carga una imagen y toca dónde está el equipo (la flecha apunta ahí). <b>Esquema</b>: cuarto, puerta y equipo; toca para mover el equipo. En los dos, la flecha lleva el nombre del equipo, su TAG y su ubicación.</p>
         <div class="seg-campo pl-or"><div class="seg" role="group" aria-label="Croquis de ubicación"><button type="button" data-plu="" aria-pressed="true">Sin croquis</button><button type="button" data-plu="img" aria-pressed="false">Plano del lugar</button><button type="button" data-plu="esq" aria-pressed="false">Esquema</button></div></div>
         <div class="pl-ubic" id="plUbicCaja">
           <div class="pl-ubic-ctl">
             <div class="img ancho" id="plUbicImg" data-label="Plano del lugar" data-hint="PNG o JPG; se guarda solo en este navegador y en el borrador."></div>
-            <div class="campo" data-ubm="img"><label for="pl_ua">Dirección de la flecha</label><div class="caja"><input id="pl_ua" type="range" min="0" max="345" step="15" data-pl="ubicAng"></div><div class="ayuda" id="plUaTxt"></div></div>
+            <div class="campo"><label for="pl_ua">Dirección de la flecha</label><div class="caja"><input id="pl_ua" type="range" min="0" max="345" step="15" data-pl="ubicAng"></div><div class="ayuda" id="plUaTxt"></div></div>
             <div class="campo" data-ubm="esq"><label for="pl_up">Puerta</label><div class="caja"><select id="pl_up" data-pl="ubicPuerta"><option value="abajo">Abajo</option><option value="arriba">Arriba</option><option value="izquierda">Izquierda</option><option value="derecha">Derecha</option></select></div></div>
             <div class="campo" data-ubm="esq"><label for="pl_upp">Posición de la puerta</label><div class="caja"><input id="pl_upp" type="range" min="0" max="1" step="0.05" data-pl="ubicPuertaPos"></div></div>
             <div class="campo "><label for="pl_uro">Rótulo</label><div class="caja"><input id="pl_uro" data-pl="ubicRotulo" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: la ubicación del equipo.</div></div>
@@ -1007,7 +1010,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
           <div class="campo medio"><label for="pl_nom">Nombre del equipo <span class="req">*</span></label><div class="caja"><input id="pl_nom" data-pe="nombre" data-mayus autocomplete="off"></div></div>
           <div class="campo "><label for="pl_tag">TAG <span class="req">*</span></label><div class="caja"><input id="pl_tag" data-pe="tag" data-mayus autocomplete="off"></div></div>
           <div class="campo medio"><label for="pl_mem">Plano No. (código de memoria) <span class="req">*</span></label><div class="caja mascara"><span class="pre">RSP-020-</span><input id="pl_mem" data-pm maxlength="3" placeholder="XXX" autocomplete="off" spellcheck="false"><span class="pos">-2026</span></div></div>
-          <div class="campo "><label for="pl_dib">Dibujó</label><div class="caja"><input id="pl_dib" data-pl="dibujo" data-mayus placeholder="ING. …" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_dib">Dibujó</label><div class="caja"><input id="pl_dib" data-pl="dibujo" data-mayus placeholder="ING. …" autocomplete="off"></div><div class="ayuda">Por omisión ING. PABLO MOTA; puedes cambiarlo o dejarlo vacío.</div></div>
           <div class="campo "><label for="pl_fec">Fecha del plano</label><div class="caja"><input id="pl_fec" data-pl="fecha" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: mes y año de la fecha de las PND.</div></div>
         </div>
         <dl class="pl-lee" id="plLeeCaj"></dl>
@@ -2571,17 +2574,33 @@ root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,M
    Sin estado global, sin red, sin Firebase. No toca el motor NOM-020 (FXEngine). Usa FXLev para el croquis. */
 (function(root){
 'use strict';
-const VERSION=2;
+const VERSION=3;
 // ---------- constantes de las fórmulas (exactas del plano) ----------
 const PI_P=3.1416;          // π como aparece en el plano (§3.1 / §3.2)
 const K_FORMA=1.00;         // UG-32: factor de forma de tapas semielípticas (no es el K de descarga)
 const T_ABS=273;            // T(K) = °C + 273 (texto de la nomenclatura)
 const N_TAPAS=2;            // × 2 TAPAS (§3.2 / §4.2)
-const AIRE={C:356.00,K:0.876,M:28.97};   // constantes de la muestra con fluido AIRE
+const F_AREA_TAPAS=2;       // v3: el área de tapas (§3.2) se multiplica × 2 una vez más: (1.09 D² + π D C.R.) × 2 TAPAS × 2
+const AIRE={C:356.00,K:0.876,M:28.97};   // v3: constantes fijas del relevo (C, K, M), siempre las mismas
+const RADIOGRAFIADO='PUNTOS';            // v3: fijo, se imprime solo
+const CORROSION_MM=0;                    // v3: fija en 0.00 mm
+const DIBUJO_DEF='ING. PABLO MOTA';      // v3: «Dibujó» por omisión (solo si está vacío o no existe)
+const E_OPC=Array.from({length:19},(_,k)=>(0.10+k*0.05).toFixed(2));   // 0.10 … 1.00
+const FS_OPC=['3','3.5','4'];
+// v3: válvulas de seguridad (Ø mm → área de descarga cm²). Para agregar medidas basta con agregar renglones.
+// El área es la de la tabla (0.110 cm² para Ø 6.00 no es π/4·d²).
+const VALVULAS_RELEVO=[
+  {d:6.00,area:0.110},
+  {d:12.70,area:1.267},
+];
+function valvulaDe(v){const n=num(v);if(!(n>0))return null;const t=VALVULAS_RELEVO.find(x=>Math.abs(x.d-n)<0.005);return t?{d:t.d,area:t.area,txt:t.d.toFixed(2)}:null;}
 const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
 // e.plano: solo lo que no existe ya en el equipo del expediente
-const DEF={orientacion:'',cejaRectaMm:'',esfuerzoPermisible:'',eficiencia:'0.85',factorSeguridad:'',radiografiado:'',corrosionMm:'',
-  nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',relevoC:'',relevoK:'',relevoM:'',areaValvulaCm2:'',dibujo:'',fecha:'',
+// v3: S separado (sCuerpo / sTapas); radiografiado, corrosión, C/K/M y área instalada ya no se capturan.
+// dibujoBorrado = '1' cuando el usuario vació «Dibujó» a propósito (no se vuelve a poner el valor por omisión).
+// dvLegado = Ø de válvula anterior (texto libre) que no está en VALVULAS_RELEVO: se avisa en pantalla.
+const DEF={orientacion:'',cejaRectaMm:'',sCuerpo:'',sTapas:'',eficiencia:'0.85',factorSeguridad:'3.5',
+  nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
   // v2 · croquis de ubicación: '' (sin croquis) | 'img' (plano del lugar + flecha) | 'esq' (cuarto + puerta + equipo). Posiciones 0–1.
   ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:''};
 // v2 · por tipo de boquilla (llave = tipo del catálogo): conexión de la tabla (vacío → tipoConexion / COPLE) y ángulo en la vista lateral/superior
@@ -2606,6 +2625,12 @@ const sinAc=s=>txt(s).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,
 function esAire(f){return /(^|[^A-Z])AIRE?($|[^A-Z])/.test(sinAc(f));}
 function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(const k in DEF)if(p[k]!=null)o[k]=String(p[k]);
   for(const k of DEF_OBJ){o[k]={};const src=p&&p[k];if(src&&typeof src==='object'&&!Array.isArray(src))for(const t in src){const v=txt(src[t]);if(v)o[k][t]=v;}}
+  // v3 · migraciones (archivos anteriores): S único → S cuerpo y S tapas
+  if(p&&typeof p==='object'&&p.esfuerzoPermisible!=null){const s=txt(p.esfuerzoPermisible);if(p.sCuerpo==null)o.sCuerpo=s;if(p.sTapas==null)o.sTapas=s;}
+  // E: a la opción de la lista (85 → 0.85, 0.8 → 0.80); vacío → 0.85; un valor fuera de la lista se conserva (se marca en pantalla)
+  {const n=eficiencia(o.eficiencia),s=n>0?n.toFixed(2):'';o.eficiencia=!txt(o.eficiencia)?DEF.eficiencia:E_OPC.includes(s)?s:txt(o.eficiencia);}
+  {const n=num(o.factorSeguridad),s=n>0?String(n):'';o.factorSeguridad=!txt(o.factorSeguridad)?DEF.factorSeguridad:FS_OPC.includes(s)?s:txt(o.factorSeguridad);}
+  if(!txt(o.dibujo)&&o.dibujoBorrado!=='1')o.dibujo=DIBUJO_DEF;
   return o;}
 function esDefault(p){if(!p)return true;for(const k in DEF)if(txt(p[k])!==txt(DEF[k]))return false;for(const k of DEF_OBJ)if(p[k]&&Object.keys(p[k]).length)return false;return true;}
 // E: fracción; si viene en % (85) se divide entre 100
@@ -2623,47 +2648,47 @@ function datos(e,ctx){
   const Dcm=dim('diametroInteriorCm'),Lmm=dim('longitudMm'),Tapmm=dim('profundidadTapaMm');
   const crS=txt(pl.cejaRectaMm),CR=crS?num(crS):NaN;
   const fluido=txt(e.fluido),aire=esAire(fluido);
-  const cte=(k)=>{const v=pos(pl['relevo'+k]);return ok(v)?{v,src:'captura'}:aire?{v:AIRE[k],src:'aire'}:{v:NaN,src:''};};
-  const C=cte('C'),Kd=cte('K'),M=cte('M');
   const boq=(lv&&Array.isArray(lv.boquillas))?lv.boquillas:[];
-  const bv=boq.find(b=>sinAc(b.tipo)==='VALVULA DE SEGURIDAD'),bvMm=bv&&pos(bv.diametroPulgadas)>0?pos(bv.diametroPulgadas)*25.4:NaN;
-  const dvExp=pos(e.diametroValvulaMm),dv=ok(dvExp)?dvExp:bvMm;
+  // v3: Ø de la válvula solo de la tabla VALVULAS_RELEVO (select); el área instalada es la de la tabla
+  const vt=valvulaDe(e.diametroValvulaMm);
   const inp={
     o,Dcm,Dmm:Dcm*10,Rmm:Dcm*10/2,Lmm,Tapmm,CR,
-    P:num(e.presionDiseno),S:pos(pl.esfuerzoPermisible),E:eficiencia(pl.eficiencia),K:K_FORMA,
+    P:num(e.presionDiseno),Sc:pos(pl.sCuerpo),St:pos(pl.sTapas),E:eficiencia(pl.eficiencia),K:K_FORMA,
     tEnv:minNum([e.espEnv]),tTap:minNum([e.espSup,e.espInf]),
-    Pc:num(e.presionCalibracion),Td:num(e.tempDiseno),C:C.v,Kd:Kd.v,M:M.v,cteSrc:{C:C.src,K:Kd.src,M:M.src},
-    fluido,aire,dv,dvSrc:ok(dvExp)?'expediente':ok(bvMm)?'boquilla':'',Ainst:pos(pl.areaValvulaCm2),
+    Pc:num(e.presionCalibracion),Td:num(e.tempDiseno),C:AIRE.C,Kd:AIRE.K,M:AIRE.M,
+    fluido,aire,dv:vt?vt.d:NaN,dvTxt:vt?vt.txt:'',Ainst:vt?vt.area:NaN,dvLegado:vt?'':txt(pl.dvLegado),
   };
   const r=calc(inp);
-  const lbl={P:'Presión de diseño',S:'Esfuerzo permisible S',E:'Eficiencia E',Dcm:'Ø interior',Lmm:'Longitud soldadura–soldadura',CR:'Ceja recta (C.R.)',
-    tEnv:'Espesor medido del cuerpo (PND)',tTap:'Espesor medido de las tapas (PND)',Pc:'Presión de calibración',Td:'Temperatura de diseño',C:'Constante del gas C',Kd:'Coeficiente de descarga K',M:'Peso molecular M',dv:'Ø de la válvula de seguridad'};
-  const donde={P:['exp','presionDiseno'],S:['plano','esfuerzoPermisible'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
-    tEnv:['pnd','espEnv'],tTap:['pnd','espSup'],Pc:['exp','presionCalibracion'],Td:['exp','tempDiseno'],C:['plano','relevoC'],Kd:['plano','relevoK'],M:['plano','relevoM'],dv:['exp','diametroValvulaMm']};
+  const lbl={P:'Presión de diseño',Sc:'Esfuerzo permisible S cuerpo',St:'Esfuerzo permisible S tapas',E:'Eficiencia E',Dcm:'Ø interior',Lmm:'Longitud soldadura–soldadura',CR:'Ceja recta (C.R.)',
+    tEnv:'Espesor medido del cuerpo (PND)',tTap:'Espesor medido de las tapas (PND)',Pc:'Presión de calibración',Td:'Temperatura de diseño',dv:'Ø de la válvula de seguridad'};
+  const donde={P:['exp','presionDiseno'],Sc:['plano','sCuerpo'],St:['plano','sTapas'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
+    tEnv:['pnd','espEnv'],tTap:['pnd','espSup'],Pc:['exp','presionCalibracion'],Td:['exp','tempDiseno'],dv:['exp','diametroValvulaMm']};
   const faltan=Object.keys(lbl).filter(k=>!ok(inp[k])).map(k=>({k,m:lbl[k],donde:donde[k][0],campo:donde[k][1]}));
   const ubic={modo:pl.ubicModo==='img'||pl.ubicModo==='esq'?pl.ubicModo:'',x:frac(pl.ubicX,.5),y:frac(pl.ubicY,.5),ang:isFinite(num(pl.ubicAng))?num(pl.ubicAng):135,
     puerta:['arriba','abajo','izquierda','derecha'].includes(pl.ubicPuerta)?pl.ubicPuerta:'abajo',puertaPos:frac(pl.ubicPuertaPos,.5),eqX:frac(pl.ubicEqX,.5),eqY:frac(pl.ubicEqY,.45),
-    rotulo:txt(pl.ubicRotulo)||txt(e.ubicacion),tag:txt(e.tag)||txt(e.nombre)};
+    rotulo:txt(pl.ubicRotulo)||txt(e.ubicacion),tag:txt(e.tag)||txt(e.nombre),nombre:txt(e.nombre),tagEq:txt(e.tag),lugar:txt(e.ubicacion)};
   return {v:VERSION,e,pl,lv,ctx,inp,r,faltan,boq,ubic};
 }
 function frac(v,def){const n=num(v);return isFinite(n)?Math.max(0,Math.min(1,n)):def;}
 
 // ---------- cálculo (§3 del prompt / FORMULAS-MEMORIA-EXACTAS §1–§5) ----------
 function calc(i){
-  const r={},{P,S,E,K,Rmm,Dmm,tEnv,tTap}=i;
+  // v3: Sc = S del cuerpo (envolvente, §1.1 / §2.1) · St = S de las tapas (§1.2 / §2.2)
+  const r={},{P,Sc,St,E,K,Rmm,Dmm,tEnv,tTap}=i;
   // 1.1 envolvente UG-27: t = P R / (S E − 0.6 P)
-  if(ok(P,Rmm,S,E)&&S*E-0.6*P>0)r.tEnvReq=P*Rmm/(S*E-0.6*P);
+  if(ok(P,Rmm,Sc,E)&&Sc*E-0.6*P>0)r.tEnvReq=P*Rmm/(Sc*E-0.6*P);
   // 1.2 tapas semielípticas: t = P D K / (2 S E − 0.2 P)
-  if(ok(P,Dmm,S,E)&&2*S*E-0.2*P>0)r.tTapReq=P*Dmm*K/(2*S*E-0.2*P);
+  if(ok(P,Dmm,St,E)&&2*St*E-0.2*P>0)r.tTapReq=P*Dmm*K/(2*St*E-0.2*P);
   // 2.1 Pm envolvente = S E t / (R + 0.6 t)   (t = espesor empleado)
-  if(ok(S,E,tEnv,Rmm))r.PmEnv=S*E*tEnv/(Rmm+0.6*tEnv);
+  if(ok(Sc,E,tEnv,Rmm))r.PmEnv=Sc*E*tEnv/(Rmm+0.6*tEnv);
   // 2.2 Pm tapas = 2 S E t / (K D + 0.2 t)
-  if(ok(S,E,tTap,Dmm))r.PmTap=2*S*E*tTap/(K*Dmm+0.2*tTap);
+  if(ok(St,E,tTap,Dmm))r.PmTap=2*St*E*tTap/(K*Dmm+0.2*tTap);
   if(ok(r.PmEnv,r.PmTap))r.Pm=Math.min(r.PmEnv,r.PmTap);
   // 3 / 4: área y volumen en metros
   const D=Dmm/1000,L=i.Lmm/1000,CR=i.CR/1000;
   if(ok(D,L))r.Aenv=PI_P*D*L;
-  if(ok(D,CR)&&CR>=0)r.Atap=(1.09*D*D+PI_P*D*CR)*N_TAPAS;
+  // 3.2 v3: AtapBase = (1.09 D² + π D C.R.) × 2 TAPAS; Atap = AtapBase × 2 (el área de tapas que se usa en todo lo demás)
+  if(ok(D,CR)&&CR>=0){r.AtapBase=(1.09*D*D+PI_P*D*CR)*N_TAPAS;r.Atap=r.AtapBase*F_AREA_TAPAS;}
   if(ok(r.Aenv,r.Atap))r.Atot=r.Aenv+r.Atap;
   if(ok(D,L))r.Venv=0.7854*D*D*L;
   if(ok(D,CR)&&CR>=0)r.Vtap=(0.1309*D*D*D+0.785*D*D*CR)*N_TAPAS;
@@ -2673,8 +2698,9 @@ function calc(i){
   if(ok(i.Pc))r.Pabs=i.Pc*1.1+1.033;
   if(ok(i.Td))r.Tk=i.Td+T_ABS;
   if(ok(r.W,i.C,i.Kd,r.Pabs,i.M,r.Tk)&&i.C>0&&i.Kd>0&&r.Pabs>0&&i.M>0&&r.Tk>0)r.A=r.W/(i.C*i.Kd*r.Pabs)*Math.sqrt(r.Tk/i.M);
-  r.Ainst=ok(i.Ainst)?i.Ainst:ok(i.dv)?0.7854*(i.dv/10)*(i.dv/10):NaN;
-  r.AinstSrc=ok(i.Ainst)?'captura':ok(i.dv)?'circulo':'';
+  // v3: área de descarga instalada = la de VALVULAS_RELEVO para el Ø elegido (sin respaldo π/4·d²)
+  r.Ainst=ok(i.Ainst)?i.Ainst:NaN;
+  r.AinstSrc=ok(i.Ainst)?'tabla':'';
   if(ok(r.A,r.Ainst))r.cumple=r.Ainst>r.A;
   if(ok(r.tEnvReq,i.tEnv))r.okEnv=i.tEnv>=r.tEnvReq;
   if(ok(r.tTapReq,i.tTap))r.okTap=i.tTap>=r.tTapReq;
@@ -2685,18 +2711,19 @@ function conclusion(d){
   return `EL EQUIPO CUENTA CON UNA VÁLVULA DE SEGURIDAD DE ${i.dv.toFixed(2)} mm DE DIÁMETRO, CON ÁREA DE DESCARGA = ${r.Ainst.toFixed(3)} cm² ${r.cumple?'>':'≤'} AL ÁREA DE DESCARGA CALCULADA = ${r.A.toFixed(4)} cm² Y CALIBRADA A ${i.Pc.toFixed(2)} kg/cm².`;
 }
 // ESPECIFICACIONES: [etiqueta exacta del plano, valor]
-// v2: capacidad = volumen calculado (3 decimales) cuando está completo; si no, la capacidad del expediente (placa).
-function capacidad(d){return ok(d.r.Vtot)?{v:d.r.Vtot.toFixed(3),vinc:true}:{v:txt(d.e.capacidadVolumetrica),vinc:false};}
+// v3: la ÚNICA capacidad es el volumen calculado (3 decimales). Sin volumen: '—' (ya no se usa la capacidad de placa).
+function capacidad(d){return ok(d.r.Vtot)?{v:d.r.Vtot.toFixed(3),vinc:true}:{v:'',vinc:false};}
 function hidrostatica(d){return ok(d.inp.P)?(d.inp.P*1.1).toFixed(2):txt(d.e.presionPruebaHidrostatica);}
 function especificaciones(d){
   const {e,pl,inp:i,r}=d,v=s=>txt(s)||'—';
+  // {par:[a,b]} = un renglón partido bajo las columnas CUERPO / TAPAS de MATERIALES
   return [['CÓDIGO DE FABRICACIÓN',v(pl.codigoFabricacion)],['FACTOR DE SEGURIDAD',v(pl.factorSeguridad)],['CAPACIDAD VOLUMETRICA (m³ )',v(capacidad(d).v)],
     ['FLUIDO',v(e.fluido)],['PRESIÓN DE DISEÑO  (kg/cm²)',v(e.presionDiseno)],['PRESIÓN DE OPERACIÓN.  (kg/cm²)',v(e.presionOperacion)],
     ['PRES. TRAB. MAX. PERM. (kg/cm²)',fx(r.Pm,2)],['PRES. PRUEB. HIDROSTÁTICA   (kg/cm²)',v(hidrostatica(d))],
     ['TEMPERATURA DE DISEÑO  (°C)',v(e.tempDiseno)],['TEMPERATURA DE OPERACIÓN  (°C)',v(e.tempOperacion)],['FABRICANTE',v(pl.fabricante||e.marca)],
     ['AÑO DE FABRICACIÓN',txt(e.anioFabricacion)||'S/D'],['NÚMERO DE SERIE',v(e.numeroSerie)],['NATIONAL BOARD',v(pl.nationalBoard)],['UBICACIÓN',v(e.ubicacion)],
-    ['RADIOGRAFIADO',v(pl.radiografiado)],['EFICIENCIA DE SOLDADURA (%)',ok(i.E)?String(+(i.E*100).toFixed(2)):'—'],['CORROSIÓN (mm)',v(pl.corrosionMm)],
-    ['MATERIALES',[v(e.materialCuerpo),v(e.materialTapa)]],['ESFUERZO PERMISIBLE (kg/cm²)',fx(i.S,2)]];
+    ['RADIOGRAFIADO',RADIOGRAFIADO],['EFICIENCIA DE SOLDADURA (%)',ok(i.E)?String(+(i.E*100).toFixed(2)):'—'],['CORROSIÓN (mm)',CORROSION_MM.toFixed(2)],
+    ['MATERIALES',[v(e.materialCuerpo),v(e.materialTapa)]],['ESFUERZO PERMISIBLE (kg/cm²)',{par:[fx(i.Sc,2),fx(i.St,2)]}]];
 }
 // v2: una letra por TIPO (orden de primera aparición, FXLev.grupos); un renglón por tipo y Ø distinto (misma letra), CANTIDAD = cuántas.
 function tipoDe(b){const X=root.FXLev;return X?X.normTipo(b&&b.tipo):txt(b&&b.tipo).toUpperCase();}
@@ -2706,7 +2733,9 @@ function grupos(d){
   const X=root.FXLev,bq=d.boq.filter(b=>tipoDe(b));
   const gl=X?X.grupos(bq):(()=>{const letraDe={},orden=[];bq.forEach(b=>{const t=tipoDe(b);if(!(t in letraDe)){letraDe[t]=letra(orden.length);orden.push(t);}});return {letraDe,orden};})();
   return gl.orden.map(t=>{const del=bq.filter(b=>tipoDe(b)===t),pd=new Map();
-    del.forEach(b=>{const p=pos(b.diametroPulgadas),k=ok(p)?(p*25.4).toFixed(2):'—';pd.set(k,(pd.get(k)||0)+1);});
+    // v3: las de VALVULA DE SEGURIDAD llevan el Ø elegido en «Dispositivo de relevo» (tabla VALVULAS_RELEVO)
+    const esV=sinAc(t)==='VALVULA DE SEGURIDAD'&&d.inp.dvTxt;
+    del.forEach(b=>{const p=pos(b.diametroPulgadas),k=esV?d.inp.dvTxt:ok(p)?(p*25.4).toFixed(2):'—';pd.set(k,(pd.get(k)||0)+1);});
     const a=del[0],ang=num(d.pl.angulos&&d.pl.angulos[t]);
     return {t,letra:gl.letraDe[t],n:del.length,serv:servicio(t),con:conexion(d,t),porD:[...pd.entries()],cara:a.cara,pos:a.pos||{u:.5,v:.5},
       ang:isFinite(ang)?((ang%360)+360)%360:angDefault(d.inp.o,a),angManual:isFinite(ang)};});
@@ -2753,20 +2782,32 @@ function lienzo(Mx){
 
 // ---------- croquis de ubicación (caja x,y,w,h). Devuelve el área interactiva (imagen o cuarto) para la vista previa ----------
 function ubicacion(d,c,x,y,w,h,opt){
-  opt=opt||{};const u=d.ubic,{T,Lh,Rc,add}=c;
+  opt=opt||{};const u=d.ubic,{T,Lh,Rc,add,Mx}=c;
   Rc(x,y,w,h,{lw:.6});T('CROQUIS DE UBICACIÓN',x+4,y+8.4,{z:6.4,b:1,max:w*0.55});
   if(u.rotulo)T(u.rotulo,x+w-4,y+8.4,{z:5.6,anc:'end',c:.35,max:w*0.42});
   Lh(x,y+11.5,x+w,y+11.5,.4,.5);
   const ax=x+4,ay=y+14,aw=w-8,ah=h-17;
-  const flecha=(px,py,ang,L,rot)=>{const a=ang*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a),qx=px-dx*L,qy=py-dy*L,hb=Math.min(8,L*.35),hw=hb*.5;
-    Lh(qx,qy,px-dx*hb*.8,py-dy*hb*.8,1.6,ROJO);
-    add({k:'p',d:`M${px} ${py}L${px-dx*hb-dy*hw} ${py-dy*hb+dx*hw}L${px-dx*hb+dy*hw} ${py-dy*hb-dx*hw}Z`,tx:0,ty:0,s:1,w:.4,c:ROJO,fillC:ROJO});
-    if(rot){const z=6.2,ab=dx>0.3?'end':dx<-0.3?'start':'middle',oy=dy>0.3?-3:dy<-0.3?8:3;T(rot,qx-dx*2,qy+oy,{z,b:1,anc:ab,c:ROJO,max:aw*.6});}};
+  // v3: flecha gruesa (halo blanco + rojo intenso, punta sólida) y rótulo de 3 renglones en caja blanca: NOMBRE / TAG: … / UBICACIÓN: …
+  const RF=[.85,0,0];
+  const rotulo3=[u.nombre||'—','TAG: '+(u.tagEq||'—'),'UBICACIÓN: '+(u.lugar||'—')];
+  const flecha=(px,py,ang,L)=>{const a=ang*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a),qx=px-dx*L,qy=py-dy*L,hb=Math.min(13,Math.max(8,L*.42)),hw=hb*.62;
+    const cab=`M${px} ${py}L${px-dx*hb-dy*hw} ${py-dy*hb+dx*hw}L${px-dx*hb+dy*hw} ${py-dy*hb-dx*hw}Z`;
+    Lh(qx,qy,px-dx*hb*.7,py-dy*hb*.7,6.2,1);add({k:'p',d:cab,tx:0,ty:0,s:1,w:2.6,c:1,fillC:[1,1,1]});
+    Lh(qx,qy,px-dx*hb*.7,py-dy*hb*.7,3.4,RF);add({k:'p',d:cab,tx:0,ty:0,s:1,w:.8,c:RF,fillC:RF});
+    // rótulo del lado de la cola, dentro del área (ax, ay, aw, ah)
+    const mw=aw*.74;let z=Math.min(7.6,Math.max(4.6,ah*.11));
+    const anchoDe=zz=>Math.max(...rotulo3.map((s,j)=>Mx.w(s,zz,j===0)));
+    while(z>4.2&&anchoDe(z)>mw-8)z-=.2;
+    const lh=z*1.22,bw=Math.min(mw,anchoDe(z)+8),bh=lh*3+4.5,g=3;
+    let bx=dx>0.3?qx-bw-g:dx<-0.3?qx+g:qx-bw/2,by=dy>0.3?qy-bh-g:dy<-0.3?qy+g:qy-bh/2;
+    bx=Math.max(ax+1,Math.min(ax+aw-bw-1,bx));by=Math.max(ay+1,Math.min(ay+ah-bh-1,by));
+    Rc(bx,by,bw,bh,{lw:.8,s:RF,fill:1});
+    rotulo3.forEach((s,j)=>T(s,bx+bw/2,by+2.6+lh*(j+.78),{z,b:j===0?1:0,anc:'middle',c:j===0?RF:0,max:bw-6}));};
   if(u.modo==='img'){
     if(opt.ubicImg&&opt.ubicDim&&opt.ubicDim.w>0&&opt.ubicDim.h>0){
       const k=Math.min(aw/opt.ubicDim.w,ah/opt.ubicDim.h),iw=opt.ubicDim.w*k,ih=opt.ubicDim.h*k,ix=ax+(aw-iw)/2,iy=ay+(ah-ih)/2;
       add({k:'img',src:'ubic',x:ix,y:iy,w:iw,h:ih});Rc(ix,iy,iw,ih,{lw:.3,s:.6});
-      flecha(ix+u.x*iw,iy+u.y*ih,u.ang,Math.max(16,Math.min(iw,ih)*.3),u.tag);
+      flecha(ix+u.x*iw,iy+u.y*ih,u.ang,Math.max(20,Math.min(iw,ih)*.32));
       return {modo:'img',x:ix,y:iy,w:iw,h:ih};
     }
     T('SIN IMAGEN DEL LUGAR',ax+aw/2,ay+ah/2+2,{z:6,anc:'middle',c:.5});return null;
@@ -2791,7 +2832,10 @@ function ubicacion(d,c,x,y,w,h,opt){
     const exq=rx+u.eqX*rw,eyq=ry+u.eqY*rh,ex0=Math.max(rx+2,Math.min(rx+rw-ew-2,exq-ew/2)),ey0=Math.max(ry+2,Math.min(ry+rh-eh-2,eyq-eh/2)),r_=Math.min(ew,eh)/2;
     add({k:'p',d:H_?`M${ex0+r_} ${ey0}H${ex0+ew-r_}A${r_} ${r_} 0 0 1 ${ex0+ew-r_} ${ey0+eh}H${ex0+r_}A${r_} ${r_} 0 0 1 ${ex0+r_} ${ey0}Z`
       :`M${ex0} ${ey0+r_}A${r_} ${r_} 0 0 1 ${ex0+ew} ${ey0+r_}V${ey0+eh-r_}A${r_} ${r_} 0 0 1 ${ex0} ${ey0+eh-r_}Z`,tx:0,ty:0,s:1,w:.9,c:ROJO,fillC:[.98,.9,.9]});
-    {const ty=ey0+eh+6.6<=ry+rh-1?ey0+eh+6.6:ey0-2.5;T(u.tag||'EQUIPO',ex0+ew/2,ty,{z:5.8,b:1,anc:'middle',c:ROJO,max:rw-6});}
+    // v3: misma flecha + rótulo de 3 renglones que el plano del lugar; la punta toca el borde del equipo
+    {const a=u.ang*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a),cx=ex0+ew/2,cy=ey0+eh/2,
+       t=Math.min(Math.abs(dx)>1e-6?(ew/2)/Math.abs(dx):1e9,Math.abs(dy)>1e-6?(eh/2)/Math.abs(dy):1e9)+1;
+     flecha(cx-dx*t,cy-dy*t,u.ang,Math.max(20,Math.min(rw,rh)*.34));}
     return {modo:'esq',x:rx,y:ry,w:rw,h:rh};
   }
   T('SIN CROQUIS DE UBICACIÓN',ax+aw/2,ay+ah/2+2,{z:6,anc:'middle',c:.5});return null;
@@ -2833,6 +2877,8 @@ function hoja(d,opt){
   {const rh=rhS,lw=170,zl=Math.min(7,rh*.54),zv=Math.min(7.6,rh*.58),by=rh*.7;
     Rc(RX,y,RW,14,{lw:.8});T('ESPECIFICACIONES',RX+RW/2,y+10,{z:8,b:1,anc:'middle'});y+=14;
     for(const [l,v] of filas){
+      if(v&&v.par){const half=(RW-lw)/2;Rc(RX,y,RW,rh);Lh(RX+lw,y,RX+lw,y+rh);Lh(RX+lw+half,y,RX+lw+half,y+rh);T(l,RX+4,y+by,{z:zl,max:lw-8});
+        T(v.par[0],RX+lw+half/2,y+by,{z:zv,anc:'middle',max:half-4});T(v.par[1],RX+lw+half*1.5,y+by,{z:zv,anc:'middle',max:half-4});y+=rh;continue;}
       if(Array.isArray(v)){Rc(RX,y,RW,rh*2);Lh(RX+lw,y,RX+lw,y+rh*2);T(l,RX+4,y+rh+by*.55,{z:zl,max:lw-8});
         const half=(RW-lw)/2;Lh(RX+lw,y+rh,RX+RW,y+rh);Lh(RX+lw+half,y,RX+lw+half,y+rh*2);
         T('CUERPO',RX+lw+half/2,y+by,{z:zl*.9,b:1,anc:'middle'});T('TAPAS',RX+lw+half*1.5,y+by,{z:zl*.9,b:1,anc:'middle'});
@@ -3002,40 +3048,33 @@ function memoria(d,Mx,cw,Z){
     {h:10*k,fn:(x,y,c)=>c.T(COD_FAB+'  ·  NOM-020-STPS-2011',x,y+7.5*k,{z:6.2*k,c:.3,max:cw})}]);
   {const lbW=34*k,rows=NOMEN.concat([null],NOMEN_R),lh=7.6*k;
     push([sub('NOMENCLATURA'),{h:rows.length*lh+3*k,fn:(x,y,c)=>{let yy=y+6*k;rows.forEach(rw=>{if(rw){c.T(rw[0],x+8,yy,{z:5.9*k,b:1});c.T(rw[1],x+8+lbW,yy,{z:5.9*k,max:cw-lbW-10});}yy+=lh;});}},esp(4)]);}
-  // tabla auxiliar (resumen)
-  {const fil=[['DIAMETRO INTERIOR (mm)',f2(i.Dmm),f2(i.Dmm)],['ESPESOR MEDIDO (mm)',f2(i.tEnv),f2(i.tTap)],['h  (mm)','—',f2(i.Tapmm)],['ESPESOR MINIMO (mm)',f2(r.tEnvReq),f2(r.tTapReq)],
-      ['PRESION MAXIMA (kg/cm²)',f2(r.PmEnv),f2(r.PmTap)],['LONGITUD (mm)',f2(i.Lmm),'—'],['C.R. (mm)','—',f2(i.CR)],['AREA (m²)',f3(r.Aenv),f3(r.Atap)],['VOLUMEN (m³)',f4(r.Venv),f4(r.Vtap)]];
-    const rh=8.6*k,c1=cw*0.46,c2=(cw-8-c1)/2,zt=5.6*k,zv=6*k,by=6.3*k;
-    push([{h:(fil.length+1)*rh+8*k,fn:(x,y,c)=>{const x0=x+8;c.Rc(x0,y,cw-8,(fil.length+1)*rh,{lw:.45});
-      c.T('ENVOLVENTE',x0+c1+c2/2,y+by,{z:zt,b:1,anc:'middle'});c.T('TAPA-ELIPTICA',x0+c1+c2*1.5,y+by,{z:zt,b:1,anc:'middle',max:c2-2});
-      fil.forEach((f,j)=>{const yy=y+rh*(j+1);c.Lh(x0,yy,x0+cw-8,yy,.3);c.T(f[0],x0+3,yy+by,{z:zt,max:c1-5});c.T(f[1],x0+c1+c2/2,yy+by,{z:zv,anc:'middle'});c.T(f[2],x0+c1+c2*1.5,yy+by,{z:zv,anc:'middle'});});
-      c.Lh(x0+c1,y,x0+c1,y+(fil.length+1)*rh,.3);c.Lh(x0+c1+c2,y,x0+c1+c2,y+(fil.length+1)*rh,.3);}}]);}
+  // v3: sin tabla auxiliar (resumen ENVOLVENTE / TAPA-ELIPTICA); el flujo de columnas recorre lo demás
 
-  // 1.- espesores
-  {const f=falta({P:i.P,R:i.Rmm,S:i.S,E:i.E});
+  // 1.- espesores (S del cuerpo en la envolvente, S de las tapas en las tapas)
+  {const f=falta({P:i.P,R:i.Rmm,'S cuerpo':i.Sc,E:i.E});
     push([titulo('1.- CÁLCULO DE ESPESORES'),sub('1.1) EN ENVOLVENTE CON ESFUERZO CIRCUNFERENCIAL   (UG-27)'),
       ex(['t = ',{f:['P R','S E − 0.6 P']}]),
-      ...(f.length?[pend(f)]:[ex(['t = ',{f:[`${f2(i.P)} × ${f2(i.Rmm)}`,`${f2(i.S)} × ${f2(i.E)} − 0.6 × ${f2(i.P)}`]},` = ${f2(r.tEnvReq)} mm`])]),
+      ...(f.length?[pend(f)]:[ex(['t = ',{f:[`${f2(i.P)} × ${f2(i.Rmm)}`,`${f2(i.Sc)} × ${f2(i.E)} − 0.6 × ${f2(i.P)}`]},` = ${f2(r.tEnvReq)} mm`])]),
       tx(`ESPESOR EMPLEADO: ${f2(i.tEnv)} mm`,{b:1}),esp(3)]);}
-  {const f=falta({P:i.P,D:i.Dmm,S:i.S,E:i.E});
+  {const f=falta({P:i.P,D:i.Dmm,'S tapas':i.St,E:i.E});
     push([sub('1.2) EN TAPAS SEMIELIPTICAS'),ex(['t = ',{f:['P D K','2 S E − 0.2 P']}]),
-      ...(f.length?[pend(f)]:[ex(['t = ',{f:[`${f2(i.P)} × ${f2(i.Dmm)} × ${f2(i.K)}`,`2 × ${f2(i.S)} × ${f2(i.E)} − 0.2 × ${f2(i.P)}`]},` = ${f2(r.tTapReq)} mm`])]),
+      ...(f.length?[pend(f)]:[ex(['t = ',{f:[`${f2(i.P)} × ${f2(i.Dmm)} × ${f2(i.K)}`,`2 × ${f2(i.St)} × ${f2(i.E)} − 0.2 × ${f2(i.P)}`]},` = ${f2(r.tTapReq)} mm`])]),
       tx(`ESPESOR EMPLEADO: ${f2(i.tTap)} mm`,{b:1}),esp(5)]);}
   // 2.- Pm
-  {const f=falta({S:i.S,E:i.E,t:i.tEnv,R:i.Rmm});
+  {const f=falta({'S cuerpo':i.Sc,E:i.E,t:i.tEnv,R:i.Rmm});
     push([titulo('2.- CÁLCULO DE PRESIÓN MAXIMA PERMISIBLE'),sub('2.1) EN ENVOLVENTE CON ESFUERZO CIRCUNFERENCIAL   (UG-27)'),
       ex(['Pm = ',{f:['S E t','R + 0.6 t']}]),
-      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`${f2(i.S)} × ${f2(i.E)} × ${f2(i.tEnv)}`,`${f2(i.Rmm)} + 0.6 × ${f2(i.tEnv)}`]},` = ${f2(r.PmEnv)} kg/cm²`])]),esp(3)]);}
-  {const f=falta({S:i.S,E:i.E,t:i.tTap,D:i.Dmm});
+      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`${f2(i.Sc)} × ${f2(i.E)} × ${f2(i.tEnv)}`,`${f2(i.Rmm)} + 0.6 × ${f2(i.tEnv)}`]},` = ${f2(r.PmEnv)} kg/cm²`])]),esp(3)]);}
+  {const f=falta({'S tapas':i.St,E:i.E,t:i.tTap,D:i.Dmm});
     push([sub('2.2) EN TAPAS SEMIELIPTICAS'),ex(['Pm = ',{f:['2 S E t','K D + 0.2 t']}]),
-      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`2 × ${f2(i.S)} × ${f2(i.E)} × ${f2(i.tTap)}`,`${f2(i.K)} × ${f2(i.Dmm)} + 0.2 × ${f2(i.tTap)}`]},` = ${f2(r.PmTap)} kg/cm²`])]),
+      ...(f.length?[pend(f)]:[ex(['Pm = ',{f:[`2 × ${f2(i.St)} × ${f2(i.E)} × ${f2(i.tTap)}`,`${f2(i.K)} × ${f2(i.Dmm)} + 0.2 × ${f2(i.tTap)}`]},` = ${f2(r.PmTap)} kg/cm²`])]),
       esp(5)]);}
   // 3.- área
   {const D=i.Dmm/1000,Lm=i.Lmm/1000,CR=i.CR/1000,fe=falta({D,L:Lm}),ft=falta({D,'C.R.':CR});
     push([titulo('3.- CÁLCULO DEL ÁREA SUJETA A PRESIÓN'),sub('3.1) EN ENVOLVENTE'),ex(['A = 3.1416 × D × L']),
       ...(fe.length?[pend(fe)]:[ex([`A = 3.1416 × ${f3(D)} × ${f3(Lm)} = ${f3(r.Aenv)} m²`])]),
       sub('3.2) EN TAPAS SEMIELIPTICAS'),ex(['A = (1.09 × D² + 3.1416 × D × C.R.) × 2 TAPAS']),
-      ...(ft.length?[pend(ft)]:[ex([`A = (1.09 × ${f3(D)}² + 3.1416 × ${f3(D)} × ${f3(CR)}) × 2 = ${f3(r.Atap)} m²`])]),
+      ...(ft.length?[pend(ft)]:[ex([`A = (1.09 × ${f3(D)}² + 3.1416 × ${f3(D)} × ${f3(CR)}) × 2 = ${f3(r.AtapBase)} m²`]),ex([`A = ${f3(r.AtapBase)} × 2 = ${f3(r.Atap)} m²`])]),
       tx(`ÁREA TOTAL = ${f3(r.Aenv)} + ${f3(r.Atap)} = ${f3(r.Atot)} m²`,{b:1}),esp(5)]);}
   // 4.- volumen
   {const D=i.Dmm/1000,Lm=i.Lmm/1000,CR=i.CR/1000,fe=falta({D,L:Lm}),ft=falta({D,'C.R.':CR});
@@ -3045,12 +3084,12 @@ function memoria(d,Mx,cw,Z){
       ...(ft.length?[pend(ft)]:[ex([`V = (0.1309 × ${f3(D)}³ + 0.785 × ${f3(D)}² × ${f3(CR)}) × 2 = ${f4(r.Vtap)} m³`])]),
       tx('VOLUMEN TOTAL = ENVOLVENTE + TAPAS'),tx(`VOLUMEN TOTAL = ${f4(r.Venv)} + ${f4(r.Vtap)} = ${f4(r.Vtot)} m³`,{b:1}),esp(5)]);}
   // 5.- relevo
-  {const fw=falta({V:r.Vtot}),fa=falta({W:r.W,C:i.C,K:i.Kd,Pc:i.Pc,M:i.M,'T diseño':i.Td});
+  {const fw=falta({V:r.Vtot}),fa=falta({W:r.W,Pc:i.Pc,'T diseño':i.Td});
     push([titulo('5.- CÁLCULO DEL ÁREA DE DESFOGUE DEL DISPOSITIVO DE RELEVO'),{h:11*k,fn:(x,y,c)=>c.T('     DE PRESIÓN (APÉNDICE 11)',x,y+8*k,{z:7.4*k,b:1,max:cw})},
       tx('Wa = 0.029 x V x 62.42 (m³ / min) DE FLUIDO'),...(fw.length?[pend(fw)]:[tx(`Wa = 0.029 x ${f4(r.Vtot)} x 62.42 = ${f4(r.Wa)} m³ / min DE FLUIDO`)]),
       tx('W = Wa x 73.596 (kg / hr) DE FLUIDO'),...(fw.length?[]:[tx(`W = ${f4(r.Wa)} x 73.596 = ${f2(r.W)} (kg / hr) DE FLUIDO`,{b:1})]),esp(2)]);
     push([ex(['A = ',{f:['W','C K P']},' × ',{raiz:{f:['T','M']}}]),
-      tx(`C = ${f2(i.C)}   K = ${fx(i.Kd,3)}   M = ${f2(i.M)}`+(i.cteSrc.C==='aire'||i.cteSrc.K==='aire'||i.cteSrc.M==='aire'?'   (AIRE)':'')),
+      tx(`C = ${f2(i.C)}   K = ${fx(i.Kd,3)}   M = ${f2(i.M)}`),
       tx(`P = Pc x 1.1 + 1.033 = ${f2(i.Pc)} x 1.1 + 1.033 = ${f2(r.Pabs)} kg/cm²`),
       tx(`T = °C + 273 = ${f2(i.Td)} + 273 = ${f2(r.Tk)} K`),
       ...(fa.length?[pend(fa)]:[ex(['A = ',{f:[f2(r.W),`${f2(i.C)} × ${fx(i.Kd,3)} × ${f2(r.Pabs)}`]},' × ',{raiz:{f:[f2(r.Tk),f2(i.M)]}},` = ${f4(r.A)} cm²`])]),esp(3)]);
@@ -3112,7 +3151,7 @@ async function pdf(d,opt){
   return await doc.save({useObjectStreams:true});
 }
 
-root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,SH,
+root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,F_AREA_TAPAS,SH,VALVULAS_RELEVO,valvulaDe,E_OPC,FS_OPC,RADIOGRAFIADO,CORROSION_MM,DIBUJO_DEF,
   reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,fechaCajetin,metricas,hoja,ubicLayout,svg,pdf};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -3121,7 +3160,7 @@ root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const MAX_IMG=4*1024*1024;
-const DEF_EQ={nombre:'COMPRESOR DE AIRE NO.1',numeroSerie:'',tag:'COM-01',clasificacion:'',fluido:'AIRE',capacidadVolumetrica:'',presionOperacion:'',presionCalibracion:'',presionDiseno:'',presionArranque:'',presionTrabajoMaxPermitida:'',presionPruebaHidrostatica:'',tempDiseno:'55',tempOperacion:'28',tipoDispositivoRelevo:'VALVULA DE SEGURIDAD',tipoValvula:'SILBATO',diametroValvulaMm:'',dimensionesRelevo:'',numDispositivosRelevo:'1',ubicacion:'CUARTO DE MÁQUINAS',marca:'',modelo:'S/D',anioFabricacion:'',materialCuerpo:'SA-414-G',materialTapa:'SA-414-G',tipoTapas:'SEMIELIPSOIDAL',pndSuperficial:'PARTICULAS MAGNETICAS (MT)',pndVolumetrica:'ULTRASONIDO INDUSTRIAL (UT)',fechaPnd:'',fechaProgramaCalibracion:'',codigoMemoriaCalculo:'',folio:''};
+const DEF_EQ={nombre:'COMPRESOR DE AIRE NO.1',numeroSerie:'',tag:'COM-01',clasificacion:'',fluido:'AIRE',capacidadVolumetrica:'',presionOperacion:'',presionCalibracion:'',presionDiseno:'',presionArranque:'',presionTrabajoMaxPermitida:'',presionPruebaHidrostatica:'',capacidadPlacaAnterior:'',tempDiseno:'55',tempOperacion:'28',tipoDispositivoRelevo:'VALVULA DE SEGURIDAD',tipoValvula:'SILBATO',diametroValvulaMm:'',dimensionesRelevo:'',numDispositivosRelevo:'1',ubicacion:'CUARTO DE MÁQUINAS',marca:'',modelo:'S/D',anioFabricacion:'',materialCuerpo:'SA-414-G',materialTapa:'SA-414-G',tipoTapas:'SEMIELIPSOIDAL',pndSuperficial:'PARTICULAS MAGNETICAS (MT)',pndVolumetrica:'ULTRASONIDO INDUSTRIAL (UT)',fechaPnd:'',fechaProgramaCalibracion:'',codigoMemoriaCalculo:'',folio:''};
 const DEF_G={firmanteIzquierdoNombre:'JOSE MARTINEZ ARGUETA',firmanteIzquierdoCedula:'14204870',pnd1Nombre:'JOSE MARTINEZ ARGUETA',pnd2Nombre:'CARLOS AARON CLORIO HERRERA'};
 // Memoria de cálculo: solo se edita XXX → RSP-020-XXX-2026
 const MEM_PRE='RSP-020-', MEM_POS='-2026';
@@ -3142,14 +3181,14 @@ const EQ_GRUPOS=[
   ['presionOperacion','Presión de operación',{req:1,num:1,u:KG,ph:'9.00',kpa:1}],
   ['presionTrabajoMaxPermitida','Presión de trabajo máx. permitida',{req:1,num:1,u:KG,ph:'18.65',kpa:1}],
   ['presionPruebaHidrostatica','Presión de prueba hidrostática',{auto:1,num:1,u:KG}],
-  ['capacidadVolumetrica','Capacidad volumétrica',{req:1,num:1,u:'m³',ph:'0.500',ayuda:'Se imprime con 3 decimales.'}],
+  ['capacidadVolumetrica','Capacidad volumétrica',{req:1,num:1,u:'m³',auto:1,vinc:'V',ayuda:'Vinculada al plano: volumen calculado (envolvente + tapas). Se imprime con 3 decimales.'}],
   ['tempDiseno','Temperatura de diseño',{req:1,num:1,u:'°C',ph:'55'}],
   ['tempOperacion','Temperatura de operación',{req:1,num:1,u:'°C',ph:'28'}]]},
  {t:'Válvula de seguridad',h:'Hojas 10 y 66',esp:'valvula',campos:[
   ['tipoDispositivoRelevo','Tipo de dispositivo de relevo',{req:1,mayus:1,cls:'medio'}],
   ['numDispositivosRelevo','Número de dispositivos',{req:1,num:0}],
   ['tipoValvula','Tipo de válvula',{req:1,sel:[['SILBATO','Silbato'],['CAMPANA','Campana'],['ARGOLLA','Argolla']]}],
-  ['diametroValvulaMm','Diámetro de la válvula (Ø)',{req:1,num:1,u:'mm',ph:'6'}],
+  ['diametroValvulaMm','Diámetro de la válvula (Ø, mm)',{req:1,num:1,sel:[['','— Elegir —'],...((window.FXPlano&&FXPlano.VALVULAS_RELEVO)||[]).map(x=>[x.d.toFixed(2),x.d.toFixed(2)+' mm'])],ayuda:'Tabla de válvulas del plano (área de descarga).'}],
   ['fechaProgramaCalibracion','Programa de calibración (válvula)',{date:1,p23:1}]]},
  {t:'Construcción y pruebas',h:'Hojas 16 y 20',campos:[
   ['materialCuerpo','Material del cuerpo',{mayus:1,ph:'SA-414-G'}],['materialTapa','Material de las tapas',{mayus:1,ph:'SA-414-G'}],['tipoTapas','Tipo de tapas',{mayus:1}],
@@ -3437,7 +3476,7 @@ function campoHTML(e,k,lbl,o){
   else if(o.mascara) ctrl=`<div class="caja mascara"><span class="pre">${MEM_PRE}</span><input id="${id}" data-mask="${k}" maxlength="3" placeholder="XXX" autocomplete="off" spellcheck="false" aria-describedby="${id}_a"><span class="pos">${MEM_POS}</span></div>`;
   else if(o.auto) ctrl=`<div class="caja auto"><input id="${id}" data-k="${k}" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u">${ICO.candado}${o.u}</span></div>`;
   else ctrl=`<div class="caja"><input id="${id}" data-k="${k}" ${o.date?'type="date"':''} ${o.num!=null?'inputmode="decimal"':''} ${o.ph?`placeholder="${o.ph}"`:''} autocomplete="off">${o.u?`<span class="u">${o.u}</span>`:''}</div>`;
-  const ay=o.p23?`<div class="ayuda" data-p23></div>`:o.auto?'<div class="ayuda">Diseño × 1.1, se calcula sola.</div>':o.kpa?`<div class="ayuda" data-kpa="${k}"></div>`:o.ayuda?`<div class="ayuda" id="${id}_a">${o.ayuda}</div>`:'';
+  const ay=o.p23?`<div class="ayuda" data-p23></div>`:o.auto?`<div class="ayuda" id="${id}_a">${o.ayuda||'Diseño × 1.1, se calcula sola.'}</div>`:o.kpa?`<div class="ayuda" data-kpa="${k}"></div>`:o.ayuda?`<div class="ayuda" id="${id}_a">${o.ayuda}</div>`:'';
   return `<div class="campo ${o.cls||''}" data-campo="${k}"><label for="${id}">${lbl}${req}${hint}</label>${ctrl}${ay}</div>`;
 }
 // Hoja 23 (v7): vista previa de dónde cae la marca de la válvula según la fecha del programa
@@ -3477,6 +3516,7 @@ function tarjeta(e,i){
   $$('[data-k]',el).forEach(inp=>{const k=inp.dataset.k;inp.value=e[k]??'';
     if(inp.tagName==='INPUT'&&EQ_CAMPOS.find(c=>c[0]===k)[2].mayus)mayus(inp);
     const on=()=>{if(inp.readOnly)return;e[k]=inp.value;
+      if(k==='diametroValvulaMm'&&e.plano)e.plano.dvLegado='';
       if(k==='presionDiseno'){e.presionPruebaHidrostatica=hidro(e);const h=$('[data-k="presionPruebaHidrostatica"]',el);if(h)h.value=e.presionPruebaHidrostatica;}
       if(k==='nombre'||k==='tag'||k==='numeroSerie'||k==='presionCalibracion'||k==='clasificacion')renderPndTabs();
       if(k==='fechaProgramaCalibracion'||k==='fechaPnd'||k==='nombre')actP23(el,e);
@@ -3520,6 +3560,8 @@ function actCab(el,e){
   const KPA_AY={presionArranque:['parrKpa','presión de disparo','Obligatoria en categoría III: es la presión de disparo de la hoja 66.'],presionOperacion:['popKpa','presión de cierre','En la hoja 66 es la presión de cierre.'],presionTrabajoMaxPermitida:['pmaxKpa','presión máxima','La hoja 66 la imprime también en kPa (× 98.07).']};
   $$('[data-kpa]',el).forEach(a=>{const k=a.dataset.kpa,n=nNum(e[k]),q=KPA_AY[k];if(!q)return;a.innerHTML=isNaN(n)?q[2]:`Hoja 66, ${q[1]}: <b>${x[q[0]]} kPa</b>`;});
   pintarPmVinc(el,e);   // plano v2: presión de trabajo máx. permitida vinculada a min(Pm) cuando el plano la calcula
+  {const a=$(`#e_${e.id}_diametroValvulaMm_a`,el),lg=String((e.plano&&e.plano.dvLegado)||'').trim();   // v3: Ø anterior fuera de la tabla
+    if(a){a.textContent=lg?`El Ø anterior «${lg}» no está en la tabla de válvulas: elige uno.`:'Tabla de válvulas del plano (área de descarga).';a.classList.toggle('alerta',!!lg);}}
   actFaltas();
 }
 
@@ -3583,6 +3625,7 @@ function validar(){
     for(const [k,l,o] of EQ_CAMPOS){const v=String(e[k]??'').trim();
       const req=o.req||(o.reqCat2&&c==='II')||(o.reqCat3&&c==='III');
       if(o.mascara){if(!/^RSP-020-[A-Z0-9]{3}-2026$/.test(e.codigoMemoriaCalculo||''))E(`${n}: completa los 3 caracteres del código de memoria de cálculo.`,'s-equipos',Object.assign({k},q));continue;}
+      if(o.vinc==='V'){if(!v)E(`${n}: sin capacidad volumétrica; en el plano captura Ø interior, longitud y C.R. para calcular el volumen.`,'s-equipos',Object.assign({k},q));continue;}
       if(o.auto){if(!v)E(`${n}: captura la presión de diseño para calcular la prueba hidrostática.`,'s-equipos',Object.assign({k:'presionDiseno'},q));continue;}
       if(req&&!v)E(`${n}: falta ${lc1(l)}.`,'s-equipos',Object.assign({k},q));
       else if(v&&o.num!=null&&isNaN(nNum(v)))E(`${n}: ${lc1(l)} debe ser un número.`,'s-equipos',Object.assign({k},q));}
@@ -3850,6 +3893,8 @@ function migrar(){
    const n=(D.usuarioEditado&&u)?u:(p||u);D.razonSocialPropietario=n;D.razonSocialUsuario=n;delete D.usuarioEditado;}
   D.rfcEmpresa=String(D.rfcEmpresa||'').toUpperCase().replace(/\s+/g,'').slice(0,12);
   D.equipos.forEach(e=>{
+    // v3: la capacidad capturada antes (placa / a mano) se guarda una sola vez como referencia; no se usa ni se imprime
+    if(e.capacidadPlacaAnterior==null)e.capacidadPlacaAnterior=String(e.capacidadVolumetrica??'').trim();
     if(e.tipoValvula==null){
       const dr=String(e.dimensionesRelevo||'').toUpperCase(),mt=dr.match(/SILBATO|CAMPANA|ARGOLLA/),md=dr.match(/Ø\s*(\d+(?:[.,]\d+)?)/)||dr.match(/(\d+(?:[.,]\d+)?)\s*MM/);
       const v=Fx().valvula(e);e.tipoValvula=mt?mt[0]:v.tipo;e.diametroValvulaMm=md?md[1].replace(',','.'):v.diam;
@@ -3862,7 +3907,14 @@ function migrar(){
     if(!e.id)e.id=uid();
     if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano: S, E (0.85), C.R., cajetín, conexiones, ángulos, ubicación…
     e.presionPruebaHidrostatica=hidro(e);
-    if(window.FXPlano)vincularPm(e);   // plano v2: presionTrabajoMaxPermitida = min(Pm) cuando se puede calcular
+    if(window.FXPlano){
+      // v3: Ø de válvula → tabla VALVULAS_RELEVO (6 → 6.00); un Ø que no está en la tabla se deja sin elegir y se marca en pantalla
+      const vt=FXPlano.valvulaDe(e.diametroValvulaMm),dv0=String(e.diametroValvulaMm??'').trim();
+      if(vt)e.diametroValvulaMm=vt.txt;else if(dv0){e.plano.dvLegado=dv0;e.diametroValvulaMm='';}
+      const r=vincDe(e);
+      vincularPm(e,r);    // plano v2: presionTrabajoMaxPermitida = min(Pm) cuando se puede calcular
+      vincularCap(e,r);   // v3: capacidadVolumetrica = volumen calculado (vacía si no se puede calcular)
+    }
     if(e.codigoMemoriaCalculo){const x=memXXX(e.codigoMemoriaCalculo);e.codigoMemoriaCalculo=memCodigo(/^\d{1,2}$/.test(x)?x.padStart(3,'0'):x);}
   });
 }
@@ -4261,7 +4313,7 @@ function levAlExpediente(L,j){
   pon('anioFabricacion',X.anioDe(m.fechaFabricacion));pon('fechaPnd',X.isoFecha(m.fechaInspeccion));
   pon('presionCalibracion',X.numTxt(m.presionCalibracion));pon('presionArranque',X.numTxt(m.presionArranque));
   pon('presionOperacion',X.numTxt(m.presionParo));pon('presionDiseno',X.numTxt(m.presionDiseno));
-  pon('capacidadVolumetrica',X.capM3(m.capacidad));
+  // v3: la capacidad de placa queda solo como referencia en el levantamiento (e.levantamiento.metadata.capacidad); la del expediente es el volumen calculado
   // espesores: punto n del papel (1–16) → punto n de la PND (índice n−1, igual que la pantalla de PND y la hoja 74)
   let nEsp=0;
   for(const [a,b] of [['tapaIzqOSup','espSup'],['cuerpo','espEnv'],['tapaDerOInf','espInf']]){
@@ -4331,8 +4383,11 @@ function plSync(){plSucio=true;if(plVisible())plPintar();}
 function plImgCambio(key){if(/:ubicPlano$/.test(String(key))){delete plDim[key];if(plVisible())plActualizar(true);}}
 
 // ----- vínculo PRES. TRAB. MAX. PERM. = min(Pm envolvente, Pm tapas) → expediente (presionTrabajoMaxPermitida) -----
-function pmDe(e){if(!window.FXPlano||!e)return NaN;try{return FXPlano.datos(e,{}).r.Pm;}catch(_){return NaN;}}
-function vincularPm(e){const pm=pmDe(e);if(!plOk(pm))return false;const v=pm.toFixed(2);if(e.presionTrabajoMaxPermitida!==v){e.presionTrabajoMaxPermitida=v;return true;}return false;}
+function vincDe(e){if(!window.FXPlano||!e)return null;try{return FXPlano.datos(e,{}).r;}catch(_){return null;}}
+function pmDe(e){const r=vincDe(e);return r?r.Pm:NaN;}
+function vincularPm(e,r){r=r||vincDe(e);const pm=r?r.Pm:NaN;if(!plOk(pm))return false;const v=pm.toFixed(2);if(e.presionTrabajoMaxPermitida!==v){e.presionTrabajoMaxPermitida=v;return true;}return false;}
+// v3: CAPACIDAD VOLUMÉTRICA = volumen calculado del plano (4 decimales; las hojas usan 3 o 4). Sin volumen queda vacía: no hay respaldo de placa.
+function vincularCap(e,r){r=r||vincDe(e);const v=r?r.Vtot:NaN,s=plOk(v)?v.toFixed(4):'';if(String(e.capacidadVolumetrica??'')!==s){e.capacidadVolumetrica=s;return true;}return false;}
 function pintarPmVinc(el,e){
   const inp=$('[data-k="presionTrabajoMaxPermitida"]',el);if(!inp)return;
   const pm=pmDe(e),vinc=plOk(pm),caja=inp.closest('.caja');
@@ -4346,7 +4401,10 @@ function pintarPmVinc(el,e){
 }
 function vincularTodo(){
   if(!D||!window.FXPlano)return;
-  D.equipos.forEach(e=>{const ch=vincularPm(e),el=$(`.equipo[data-eq="${e.id}"]`);if(!el)return;if(ch){const i=$('[data-k="presionTrabajoMaxPermitida"]',el);if(i)i.value=e.presionTrabajoMaxPermitida;actCab(el,e);}else pintarPmVinc(el,e);});
+  D.equipos.forEach(e=>{const r=vincDe(e),ch=vincularPm(e,r),cc=vincularCap(e,r),el=$(`.equipo[data-eq="${e.id}"]`);if(!el)return;
+    if(cc){const i=$('[data-k="capacidadVolumetrica"]',el);if(i)i.value=e.capacidadVolumetrica;}
+    if(ch){const i=$('[data-k="presionTrabajoMaxPermitida"]',el);if(i)i.value=e.presionTrabajoMaxPermitida;}
+    if(ch||cc)actCab(el,e);else pintarPmVinc(el,e);});
 }
 
 // ----- levantamiento del equipo (boquillas del plano). Si no hay, se crea uno mínimo al agregar boquillas en el plano. -----
@@ -4373,36 +4431,45 @@ function plSelector(){
 // valores de los campos (sin pisar el que tiene el foco)
 function plCampos(){
   const e=plEq();if(!e)return;const pl=e.plano,lv=e.levantamiento,ld=(lv&&lv.dimensiones)||{},X=FXP(),foco=document.activeElement;
-  $$('#vistaPlano [data-pl]').forEach(i=>{if(foco!==i)i.value=pl[i.dataset.pl]??'';});
-  $$('#vistaPlano [data-pe]').forEach(i=>{const k=i.dataset.pe;if(foco!==i)i.value=e[k]??'';if(ld[k]!=null&&ld[k]!=='')i.placeholder=String(ld[k]);});
+  $$('#vistaPlano [data-pl]').forEach(i=>{if(foco!==i){if(i.tagName==='SELECT')plSelVal(i,pl[i.dataset.pl]);else i.value=pl[i.dataset.pl]??'';}});
+  $$('#vistaPlano [data-pe]').forEach(i=>{const k=i.dataset.pe;if(foco!==i){if(i.tagName==='SELECT')plSelVal(i,e[k]);else i.value=e[k]??'';}if(i.tagName!=='SELECT'&&ld[k]!=null&&ld[k]!=='')i.placeholder=String(ld[k]);});
   $$('#vistaPlano [data-pd]').forEach(i=>{if(foco!==i)i.value=D[i.dataset.pd]??'';});
   const pm=$('#vistaPlano [data-pm]');if(pm&&foco!==pm)pm.value=memXXX(e.codigoMemoriaCalculo);
   const d=X.datos(e,plCtx()),aire=d.inp.aire;
   $('#pl_fab').placeholder=String(e.marca||'').trim()||'(marca)';
   $('#pl_fec').placeholder=X.fechaCajetin(e.fechaPnd)||'AGOSTO-2026';
   $('#pl_uro').placeholder=String(e.ubicacion||'').trim()||'CUARTO DE MÁQUINAS';
-  $('#pl_c').placeholder=aire?X.AIRE.C.toFixed(2):'';$('#pl_k').placeholder=aire?String(X.AIRE.K):'';$('#pl_m').placeholder=aire?String(X.AIRE.M):'';
-  $('#pl_ai').placeholder=d.r.AinstSrc==='circulo'?plF(d.r.Ainst,3):'';
   // croquis de ubicación: modo y caja de imagen del equipo
   $$('#vistaPlano [data-plu]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.plu===d.ubic.modo)));
   const cj=$('#plUbicCaja');cj.dataset.m=d.ubic.modo;
   const box=$('#plUbicImg'),key='e:'+e.id+':ubicPlano';if(box.dataset.img!==key){box.dataset.img=key;renderImg(box);}
 }
+// v3: valor de un select; si el valor guardado no está en la lista (archivo anterior) se agrega como opción marcada «fuera de la lista»
+function plSelVal(s,v){
+  v=String(v??'');$$('option[data-legado]',s).forEach(o=>{if(o.value!==v)o.remove();});
+  if(v&&!Array.from(s.options).some(o=>o.value===v)){const o=document.createElement('option');o.value=v;o.dataset.legado='1';o.textContent=v+' · fuera de la lista';s.appendChild(o);}
+  s.value=v;
+}
+function plOpciones(){
+  const X=FXP(),llena=(s,ops)=>{s.innerHTML=ops.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');};
+  $$('#vistaPlano [data-opc]').forEach(s=>{const t=s.dataset.opc;
+    if(t==='E')llena(s,X.E_OPC.map(v=>[v,v]));
+    else if(t==='FS')llena(s,X.FS_OPC.map(v=>[v,v]));
+    else if(t==='VALV')llena(s,[['','— Elegir —'],...X.VALVULAS_RELEVO.map(x=>[x.d.toFixed(2),x.d.toFixed(2)])]);});
+}
 function plAyudas(d){
   const {e,inp:i,r}=d,lv=e.levantamiento;
   $$('#vistaPlano [data-plo]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.plo===i.o)));
   $('#plOrAyuda').textContent=lv&&lv.origen!=='plano'?(e.plano.orientacion&&e.plano.orientacion!==lv.orientacion?`El levantamiento dice ${lv.orientacion==='V'?'vertical':'horizontal'}; elegiste otra plantilla.`:`Del levantamiento: ${lv.orientacion==='V'?'vertical':'horizontal'}.`):'Elige la plantilla.';
-  const a=(k,t)=>{const el=$(`#vistaPlano [data-pa="${k}"]`);if(el)el.textContent=t;};
+  const a=(k,t,al)=>{const el=$(`#vistaPlano [data-pa="${k}"]`);if(el){el.textContent=t;el.classList.toggle('alerta',!!al);}};
   a('diametroInteriorCm',plOk(i.Dmm)?`= ${plF(i.Dmm,2)} mm`:'Diámetro interior, en centímetros.');
   a('longitudMm',plOk(i.Lmm)?`Solo el cuerpo = ${plF(i.Lmm/1000,3)} m`:'Solo el cuerpo, entre soldaduras.');
-  a('eficiencia',plOk(i.E)?`Se usa E = ${i.E.toFixed(2)} (${+(i.E*100).toFixed(2)} %)`:'Fracción, por ejemplo 0.85.');
-  a('diametroValvulaMm',i.dvSrc==='boquilla'?`Vacío: se usa la boquilla de válvula del levantamiento (${plF(i.dv,2)} mm).`:'Hojas 10 y 66 del expediente.');
-  a('areaValvulaCm2',r.AinstSrc==='circulo'?`Vacío: círculo de Ø ${plF(i.dv,2)} mm = ${plF(r.Ainst,3)} cm²`:r.AinstSrc==='captura'?'Área capturada (placa de la válvula).':'Sin Ø de válvula: captura el área o el Ø.');
-  {const cap=String(e.capacidadVolumetrica||'').trim(),n=parseFloat(cap);let t='La del expediente (placa). Hoja 10.';
-    if(plOk(r.Vtot)&&n>0){const df=(r.Vtot-n)/n*100;t=Math.abs(df)<0.5?`✓ Coincide con el volumen calculado (${r.Vtot.toFixed(4)} m³).`:`El volumen calculado da ${r.Vtot.toFixed(4)} m³ (${df>0?'+':''}${df.toFixed(1)} %): ajusta L o C.R.`;}
-    a('capacidadVolumetrica',t);}
-  $('#plRelNota').innerHTML=i.aire?`Fluido <b>${esc(i.fluido)}</b>: con C, K y M vacíos se usan los de aire de la muestra (356.00 · 0.876 · 28.97).`
-    :`Fluido <b>${esc(i.fluido||'sin capturar')}</b>: no hay tabla de gases; captura C, K y M.`;
+  {const X=FXP(),fe=!X.E_OPC.includes(String(e.plano.eficiencia)),ff=!X.FS_OPC.includes(String(e.plano.factorSeguridad));
+    a('eficiencia',fe?`El valor anterior (${e.plano.eficiencia}) no está en la lista: elige uno.`:plOk(i.E)?`Se usa E = ${i.E.toFixed(2)} (${+(i.E*100).toFixed(2)} %)`:'Elige E.',fe);
+    a('factorSeguridad',ff?`El valor anterior (${e.plano.factorSeguridad}) no está en la lista: elige 3, 3.5 o 4.`:'Solo se imprime; S ya lo refleja.',ff);}
+  a('diametroValvulaMm',i.dvLegado?`El Ø anterior «${i.dvLegado}» no está en la tabla de válvulas: elige uno.`
+    :plOk(i.dv)?`Área de la tabla: ${plF(r.Ainst,3)} cm². Va a la tabla de boquillas y a las hojas 10 y 66.`:'Elige el Ø: el área de descarga sale de la tabla.',!!i.dvLegado);
+  $('#plRelNota').innerHTML=`C = ${FXP().AIRE.C.toFixed(2)}, K = ${FXP().AIRE.K} y M = ${FXP().AIRE.M} son constantes (siempre las mismas). El área de descarga instalada sale de la tabla de válvulas según el Ø.`;
 }
 // campos grises (vinculados)
 function plVinculados(d){
@@ -4412,8 +4479,9 @@ function plVinculados(d){
   pon('V',plF(r.Vtot,4),plOk(r.Vtot)?`Envolvente ${plF(r.Venv,4)} + tapas ${plF(r.Vtap,4)}.`:'Falta Ø, L o C.R.');
   pon('pm',plF(r.Pm,2),plOk(r.Pm)?`La menor: envolvente ${plF(r.PmEnv,2)} · tapas ${plF(r.PmTap,2)}. <b>Igual en el expediente</b> (hojas 10 y 66).`:'Falta S, E o el espesor medido: el expediente conserva su valor.');
   pon('hid',X.hidrostatica(d)||'—');
-  pon('cap',cap.v||'—',cap.vinc?'Volumen calculado, 3 decimales.':'Sin volumen calculado: se imprime la de placa.');
+  pon('cap',cap.v||'—',cap.vinc?'Volumen calculado, 3 decimales. Igual en el expediente (hoja 10).':'Falta Ø, L o C.R.: sin volumen no hay capacidad («—»).');
   pon('tEnv',plF(i.tEnv,2));pon('tTap',plF(i.tTap,2));
+  pon('Ainst',plF(r.Ainst,3),plOk(r.Ainst)?`Tabla de válvulas · Ø ${esc(i.dvTxt)} mm.`:'Elige el Ø de la válvula.');
   pon('A',plF(r.A,4),r.cumple==null?'':r.cumple?'✓ El área instalada es mayor.':'✗ El área instalada no supera la calculada.');
 }
 function plLeeCaj(d){
@@ -4441,32 +4509,32 @@ function plMemoria(d){
   const sec=(t,body)=>`<section class="pl-sec"><h4>${t}</h4>${body}</section>`;
   const D_=i.Dmm/1000,L_=i.Lmm/1000,CR_=i.CR/1000;
   let h='';
-  {const a=falt({P:i.P,R:i.Rmm,S:i.S,E:i.E}),b=falt({P:i.P,D:i.Dmm,S:i.S,E:i.E});
+  {const a=falt({P:i.P,R:i.Rmm,'S cuerpo':i.Sc,E:i.E}),b=falt({P:i.P,D:i.Dmm,'S tapas':i.St,E:i.E});
     h+=sec('1. Cálculo de espesores',
-      f('1.1 Envolvente · esfuerzo circunferencial (UG-27)',`t = ${fr('P R','S E − 0.6 P')}`,a.length?pend(a):`${fr(`${F(i.P,2)} × ${F(i.Rmm,2)}`,`${F(i.S,2)} × ${F(i.E,2)} − 0.6 × ${F(i.P,2)}`)}`,F(r.tEnvReq,2),'mm',
+      f('1.1 Envolvente · esfuerzo circunferencial (UG-27)',`t = ${fr('P R','S E − 0.6 P')}`,a.length?pend(a):`${fr(`${F(i.P,2)} × ${F(i.Rmm,2)}`,`${F(i.Sc,2)} × ${F(i.E,2)} − 0.6 × ${F(i.P,2)}`)}`,F(r.tEnvReq,2),'mm',
         r.okEnv==null?'':chk(r.okEnv,`espesor empleado ${F(i.tEnv,2)} mm ≥ requerido`,`espesor empleado ${F(i.tEnv,2)} mm < requerido`))+
-      f('1.2 Tapas semielípticas (K = 1.00)',`t = ${fr('P D K','2 S E − 0.2 P')}`,b.length?pend(b):`${fr(`${F(i.P,2)} × ${F(i.Dmm,2)} × 1.00`,`2 × ${F(i.S,2)} × ${F(i.E,2)} − 0.2 × ${F(i.P,2)}`)}`,F(r.tTapReq,2),'mm',
+      f('1.2 Tapas semielípticas (K = 1.00)',`t = ${fr('P D K','2 S E − 0.2 P')}`,b.length?pend(b):`${fr(`${F(i.P,2)} × ${F(i.Dmm,2)} × 1.00`,`2 × ${F(i.St,2)} × ${F(i.E,2)} − 0.2 × ${F(i.P,2)}`)}`,F(r.tTapReq,2),'mm',
         r.okTap==null?'':chk(r.okTap,`espesor empleado ${F(i.tTap,2)} mm ≥ requerido`,`espesor empleado ${F(i.tTap,2)} mm < requerido`)));}
-  {const a=falt({S:i.S,E:i.E,'t cuerpo':i.tEnv,R:i.Rmm}),b=falt({S:i.S,E:i.E,'t tapas':i.tTap,D:i.Dmm});
+  {const a=falt({'S cuerpo':i.Sc,E:i.E,'t cuerpo':i.tEnv,R:i.Rmm}),b=falt({'S tapas':i.St,E:i.E,'t tapas':i.tTap,D:i.Dmm});
     h+=sec('2. Presión máxima permisible',
-      f('2.1 Envolvente (UG-27) · t = espesor empleado',`Pm = ${fr('S E t','R + 0.6 t')}`,a.length?pend(a):fr(`${F(i.S,2)} × ${F(i.E,2)} × ${F(i.tEnv,2)}`,`${F(i.Rmm,2)} + 0.6 × ${F(i.tEnv,2)}`),F(r.PmEnv,2),'kg/cm²')+
-      f('2.2 Tapas semielípticas',`Pm = ${fr('2 S E t','K D + 0.2 t')}`,b.length?pend(b):fr(`2 × ${F(i.S,2)} × ${F(i.E,2)} × ${F(i.tTap,2)}`,`1.00 × ${F(i.Dmm,2)} + 0.2 × ${F(i.tTap,2)}`),F(r.PmTap,2),'kg/cm²'));}
+      f('2.1 Envolvente (UG-27) · t = espesor empleado',`Pm = ${fr('S E t','R + 0.6 t')}`,a.length?pend(a):fr(`${F(i.Sc,2)} × ${F(i.E,2)} × ${F(i.tEnv,2)}`,`${F(i.Rmm,2)} + 0.6 × ${F(i.tEnv,2)}`),F(r.PmEnv,2),'kg/cm²')+
+      f('2.2 Tapas semielípticas',`Pm = ${fr('2 S E t','K D + 0.2 t')}`,b.length?pend(b):fr(`2 × ${F(i.St,2)} × ${F(i.E,2)} × ${F(i.tTap,2)}`,`1.00 × ${F(i.Dmm,2)} + 0.2 × ${F(i.tTap,2)}`),F(r.PmTap,2),'kg/cm²'));}
   {const a=falt({D:D_,L:L_}),b=falt({D:D_,'C.R.':CR_});
     h+=sec('3. Área sujeta a presión',
       f('3.1 Envolvente','A = 3.1416 × D × L',a.length?pend(a):`3.1416 × ${F(D_,3)} × ${F(L_,3)}`,F(r.Aenv,3),'m²')+
-      f('3.2 Tapas semielípticas (× 2 tapas)','A = (1.09 D² + 3.1416 D · C.R.) × 2',b.length?pend(b):`(1.09 × ${F(D_,3)}² + 3.1416 × ${F(D_,3)} × ${F(CR_,3)}) × 2`,F(r.Atap,3),'m²')+
+      f('3.2 Tapas semielípticas (× 2 tapas, × 2)','A = (1.09 D² + 3.1416 D · C.R.) × 2 × 2',b.length?pend(b):`(1.09 × ${F(D_,3)}² + 3.1416 × ${F(D_,3)} × ${F(CR_,3)}) × 2 = ${F(r.AtapBase,3)} × 2`,F(r.Atap,3),'m²')+
       f('Área total','A<sub>env</sub> + A<sub>tapas</sub>','',F(r.Atot,3),'m²'));}
   {const a=falt({D:D_,L:L_}),b=falt({D:D_,'C.R.':CR_});
     h+=sec('4. Volumen',
       f('4.1 Envolvente','V = 0.7854 × D² × L',a.length?pend(a):`0.7854 × ${F(D_,3)}² × ${F(L_,3)}`,F(r.Venv,4),'m³')+
       f('4.2 Tapas semielípticas (× 2 tapas)','V = (0.1309 D³ + 0.785 D² · C.R.) × 2',b.length?pend(b):`(0.1309 × ${F(D_,3)}³ + 0.785 × ${F(D_,3)}² × ${F(CR_,3)}) × 2`,F(r.Vtap,4),'m³')+
-      f('Volumen total',`V<sub>env</sub> + V<sub>tapas</sub>${String(d.e.capacidadVolumetrica||'').trim()?` · placa: ${esc(d.e.capacidadVolumetrica)} m³`:''}`,'',F(r.Vtot,4),'m³'));}
-  {const a=falt({V:r.Vtot}),b=falt({W:r.W,C:i.C,K:i.Kd,Pc:i.Pc,M:i.M,'T diseño':i.Td});
+      f('Volumen total = capacidad','V<sub>env</sub> + V<sub>tapas</sub>','',F(r.Vtot,4),'m³'));}
+  {const a=falt({V:r.Vtot}),b=falt({W:r.W,Pc:i.Pc,'T diseño':i.Td});
     h+=sec('5. Área de desfogue del dispositivo de relevo (Apéndice 11)',
       f('Flujo','Wa = 0.029 × V × 62.42',a.length?pend(a):`0.029 × ${F(r.Vtot,4)} × 62.42`,F(r.Wa,4),'m³/min')+
       f('','W = Wa × 73.596',a.length?'':`${F(r.Wa,4)} × 73.596`,F(r.W,2),'kg/hr')+
       f('Presión y temperatura absolutas',`P = Pc × 1.1 + 1.033 · T = °C + 273`,`${F(i.Pc,2)} × 1.1 + 1.033 · ${F(i.Td,2)} + 273`,`${F(r.Pabs,2)} · ${F(r.Tk,2)}`,'kg/cm² · K')+
-      f(`Área calculada · C = ${F(i.C,2)}, K = ${plF(i.Kd,3)}, M = ${F(i.M,2)}${i.cteSrc.C==='aire'?' (aire)':''}`,`A = ${fr('W','C K P')} × ${rz('T','M')}`,b.length?pend(b):`${fr(F(r.W,2),`${F(i.C,2)} × ${plF(i.Kd,3)} × ${F(r.Pabs,2)}`)} × ${rz(F(r.Tk,2),F(i.M,2))}`,F(r.A,4),'cm²'));}
+      f(`Área calculada · C = ${F(i.C,2)}, K = ${plF(i.Kd,3)}, M = ${F(i.M,2)} (constantes)`,`A = ${fr('W','C K P')} × ${rz('T','M')}`,b.length?pend(b):`${fr(F(r.W,2),`${F(i.C,2)} × ${plF(i.Kd,3)} × ${F(r.Pabs,2)}`)} × ${rz(F(r.Tk,2),F(i.M,2))}`,F(r.A,4),'cm²'));}
   const cc=FXP().conclusion(d);
   h+=`<div class="pl-res"><span>Presión máxima permisible del equipo (la menor)</span><b>${F(r.Pm,2)} kg/cm²</b>
     ${plOk(r.Pm)?`<span class="ck si" style="grid-column:1/-1">✓ Vinculada: el expediente usa ${r.Pm.toFixed(2)} kg/cm² (hojas 10 y 66).</span>`:`<span style="grid-column:1/-1;font-size:12.5px;color:var(--tinta-2)">Sin Pm calculada: el expediente conserva <b style="font-size:inherit">${esc(String(d.e.presionTrabajoMaxPermitida||'').trim()||'vacía')}</b>.</span>`}
@@ -4577,9 +4645,13 @@ function initPlano(){
   $$('[data-plu]',v).forEach(b=>b.addEventListener('click',()=>{const e=plEq();if(!e)return;e.plano.ubicModo=b.dataset.plu;plCambio(true);}));
   $$('[data-mayus]',v).forEach(i=>{if(i.matches('[data-pl],[data-pe],[data-pd]'))mayus(i);});
   const dec=i=>{let x=i.value;if(i.inputMode==='decimal'&&x.includes(',')){x=x.replace(',','.');i.value=x;}return x;};
-  $$('[data-pl]',v).forEach(i=>{const ev=i.tagName==='SELECT'?'change':'input';i.addEventListener(ev,()=>{const e=plEq();if(!e)return;e.plano[i.dataset.pl]=dec(i);plCambio();});});
-  $$('[data-pe]',v).forEach(i=>i.addEventListener('input',()=>{const e=plEq();if(!e)return;const k=i.dataset.pe;e[k]=dec(i);
-    if(k==='presionDiseno')e.presionPruebaHidrostatica=hidro(e);if(k==='nombre'||k==='tag')plSelector();plCambio();}));
+  plOpciones();   // v3: E, factor de seguridad y Ø de válvula son listas (sin captura libre)
+  $$('[data-pl]',v).forEach(i=>{const ev=i.tagName==='SELECT'?'change':'input';i.addEventListener(ev,()=>{const e=plEq();if(!e)return;const k=i.dataset.pl;e.plano[k]=dec(i);
+    if(k==='dibujo')e.plano.dibujoBorrado=String(i.value).trim()?'':'1';   // vaciado a propósito: no se vuelve a poner ING. PABLO MOTA
+    plCambio();});});
+  $$('[data-pe]',v).forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{const e=plEq();if(!e)return;const k=i.dataset.pe;e[k]=dec(i);
+    if(k==='diametroValvulaMm')e.plano.dvLegado='';
+    if(k==='presionDiseno')e.presionPruebaHidrostatica=hidro(e);if(k==='nombre'||k==='tag')plSelector();plCambio(k==='diametroValvulaMm');}));
   $$('[data-pd]',v).forEach(i=>i.addEventListener('input',()=>{const k=i.dataset.pd;D[k]=i.value;if(k==='razonSocialPropietario')D.razonSocialUsuario=i.value;actEncabezado();plCambio();}));
   {const mk=$('[data-pm]',v);
     mk.addEventListener('input',()=>{const e=plEq();if(!e)return;const x=mk.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);if(x!==mk.value)mk.value=x;e.codigoMemoriaCalculo=memCodigo(x);plCambio();});
