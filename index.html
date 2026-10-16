@@ -425,6 +425,17 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 .croquis .ld{fill:none;stroke:var(--tinta-2);stroke-width:1.2}
 .croquis .bq{fill:var(--placa);stroke:var(--tinta);stroke-width:2}
 .croquis .bqc{fill:none;stroke:var(--tinta);stroke-width:2.2}
+/* estilo CAD (plano): soportes, piso y boquillas dibujadas por tipo */
+.croquis .sp{fill:none;stroke:var(--tinta-2);stroke-width:1.5}
+.croquis .gr{fill:none;stroke:var(--tinta-3);stroke-width:1.2}
+.croquis .gt{fill:none;stroke:var(--tinta-3);stroke-width:.8}
+.croquis .grx{fill:var(--tinta-3);stroke:none}
+.croquis .bqk{fill:var(--tinta);stroke:var(--tinta);stroke-width:1}
+.croquis .bql{fill:none;stroke:var(--tinta);stroke-width:1.4}
+.croquis .bqx{fill:var(--tinta);font-weight:800}
+.croquis .sel.bqk{fill:var(--laton);stroke:var(--laton)}
+.croquis .sel.bql{stroke:var(--laton)}
+.croquis .sel.bqx{fill:var(--laton)}
 .croquis .bg{fill:var(--placa);stroke:var(--tinta);stroke-width:1.5;cursor:pointer}
 .croquis .bgt{fill:var(--tinta);cursor:pointer}
 .croquis .hit{fill:transparent;stroke:none;cursor:grab;touch-action:none}
@@ -962,7 +973,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 
       <div class="tarjeta">
         <h3>Boquillas <span class="tag">una letra por tipo</span></h3>
-        <p class="nota">Cada <b>tipo</b> tiene su letra (A, B, C… en el orden en que aparece cada tipo); las del mismo tipo comparten letra y se dibujan en el mismo punto. Arrastra una boquilla en el croquis para moverla (se mueve todo su tipo). Los cambios se guardan en el equipo; el JSON del levantamiento no se toca.</p>
+        <p class="nota">Cada <b>tipo</b> tiene su letra (A, B, C… en el orden en que aparece cada tipo); las del mismo tipo comparten letra y se dibujan en el mismo punto. Arrastra una boquilla en el croquis para moverla (se mueve todo su tipo). Ángulo en la vista lateral / superior: 0° a la derecha y sentido antihorario (90° arriba, 270° abajo). Los cambios se guardan en el equipo; el JSON del levantamiento no se toca.</p>
         <div class="pl-croq"><svg id="plCroquis" class="croquis" viewBox="0 0 900 400" role="img" tabindex="0" aria-label="Croquis del plano. Arrastra una boquilla para moverla con todo su tipo; con una seleccionada, las flechas la mueven."></svg></div>
         <div class="pl-tabla-wrap"><table class="pl-tabla" id="plGrupos"></table></div>
         <div class="grid pl-grid" style="margin-top:12px">
@@ -1856,6 +1867,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if (tp === 68) specialP68(doc, page, map, ctx);
       if (tp === 96) await specialP96(page, kit, map, ctx);
       if (tp === 106) await specialP106(page, kit, map, ctx, role => img(role, roleBytes[role]));
+      // Hojas 71 (MT) y 75 (UT): croquis del equipo dibujado por la app desde el plano / levantamiento (A.croquisPnd); sin él, la caja queda como en la plantilla
+      if ((tp === 71 || tp === 75) && it.e && A.croquisPnd) await A.croquisPnd({ doc, page, tp, e: it.e, kit });
       const dy = tp === 108 ? map.spec.p108.dy[ctx.d.wd] : 0;
       for (const fd of fields) {
         if (fd.row) continue;
@@ -2224,19 +2237,91 @@ function pathTanque(g){const {x0,y0,tw,th,hd,R}=g;
   if(g.o==='H')return `M${f1(x0+hd)} ${f1(y0)}H${f1(x0+tw-hd)}A${f1(hd)} ${f1(R)} 0 0 1 ${f1(x0+tw-hd)} ${f1(y0+th)}H${f1(x0+hd)}A${f1(hd)} ${f1(R)} 0 0 1 ${f1(x0+hd)} ${f1(y0)}Z`;
   const Rx=tw/2;return `M${f1(x0)} ${f1(y0+hd)}A${f1(Rx)} ${f1(hd)} 0 0 1 ${f1(x0+tw)} ${f1(y0+hd)}V${f1(y0+th-hd)}A${f1(Rx)} ${f1(hd)} 0 0 1 ${f1(x0)} ${f1(y0+th-hd)}Z`;}
 function tic(x,y){return `M${f1(x-4.5)} ${f1(y+4.5)}L${f1(x+4.5)} ${f1(y-4.5)}`;}
+// ---------- estilo CAD (plano y hojas PND): soportes sobre piso texturizado y boquillas dibujadas por TIPO ----------
+// Azar con semilla: la misma banda da siempre la misma textura (no parpadea al repintar).
+function azar(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};}
+// Textura de concreto / piso en la banda (x0,y0)–(x1,y1): pts = puntitos (se rellenan), tri = triangulitos (trazo). k = tamaño base.
+function textura(x0,y0,x1,y1,k){
+  const w=x1-x0,h=y1-y0;if(!(w>4&&h>1.5&&k>0))return {pts:'',tri:''};
+  const r=azar(Math.round(w*7+h*13+k*5)),dot=f1(Math.max(.5,k*.17));let pts='',tri='';
+  for(let j=0,n=Math.round(w/(k*1.5));j<n;j++){const x=x0+k*.4+r()*(w-k*.8),y=y0+h*.2+r()*h*.6;pts+=`M${f1(x)} ${f1(y)}h${dot}v${dot}h${-dot}Z`;}
+  for(let j=0,n=Math.max(1,Math.round(w/(k*5.5)));j<n;j++){const x=x0+k+r()*Math.max(0,w-2*k),y=y0+h*.35+r()*h*.35,s=k*.6;
+    tri+=`M${f1(x-s/2)} ${f1(y+s*.43)}L${f1(x+s/2)} ${f1(y+s*.43)}L${f1(x)} ${f1(y-s*.43)}Z`;}
+  return {pts,tri};
+}
+// Boquilla por TIPO sobre el contorno: (x,y) en la pared, (nx,ny) normal hacia afuera, w = ancho del cuello, h = alto del cuello.
+// Roles: bq (cuerpo blanco), bqk (relleno negro: brida, tapa), bql (trazo: flechas, aguja, resorte, maneral), bqx (texto).
+// Devuelve {it, ext (alcance sobre la normal: ahí sale la guía), hw (media anchura sobre la tangente)}.
+function glifo(tipo,x,y,nx,ny,w,h,bq){
+  const t=normTipo(tipo),tx=-ny,ty=nx,it=[];
+  const Q=(s,d)=>[x+tx*s+nx*d,y+ty*s+ny*d],P=(s,d)=>{const q=Q(s,d);return `${f1(q[0])} ${f1(q[1])}`;};
+  const pol=(pts,r)=>it.push({k:'p',r,d:'M'+pts.map(q=>P(q[0],q[1])).join('L')+'Z',bq});
+  const lin=(pts)=>it.push({k:'p',r:'bql',d:'M'+pts.map(q=>P(q[0],q[1])).join('L'),bq});
+  const rect=(s0,s1,d0,d1,r)=>pol([[s0,d0],[s0,d1],[s1,d1],[s1,d0]],r||'bq');
+  const cuello=f=>rect(-w*f,w*f,-1.5,h);
+  let ext=h,hw=w/2;
+  switch(t){
+    case 'ENTRADA DE AIRE':case 'SALIDA DE AIRE':{   // cuello + brida + flecha (entra / sale)
+      cuello(.5);const fl=Math.max(1.6,h*.24);rect(-w*.8,w*.8,h,h+fl,'bqk');
+      const a0=h+fl+1.2,a1=h+fl+Math.max(12,h*2.6),ah=Math.max(3,w*.3),aw=Math.max(2,w*.22);
+      if(t==='ENTRADA DE AIRE'){lin([[0,a1],[0,a0]]);lin([[-aw,a0+ah],[0,a0],[aw,a0+ah]]);}
+      else{lin([[0,a0],[0,a1]]);lin([[-aw,a1-ah],[0,a1],[aw,a1-ah]]);}
+      ext=a1;hw=w*.8;break;}
+    case 'VALVULA DE SEGURIDAD':{   // cuello + cuerpo trapecial + bonete con resorte
+      cuello(.36);const b1=h+h*1.05;pol([[-w*.5,h],[-w*.26,b1],[w*.26,b1],[w*.5,h]],'bq');
+      const c1=b1+Math.max(8,h*1.7),cw=w*.24,k=(c1-b1)/5;rect(-cw,cw,b1,c1);
+      for(let j=0;j<4;j++)lin([[-cw,b1+k*(j+.15)],[cw,b1+k*(j+.95)]]);
+      ext=c1;hw=w*.5;break;}
+    case 'MANOMETRO':{   // cuello + carátula circular con aguja
+      cuello(.38);const s1=h+Math.max(2.2,h*.45),r=Math.max(4.2,w*.6),c=Q(0,s1+r);lin([[0,h],[0,s1]]);
+      it.push({k:'p',r:'bq',d:`M${f1(c[0]-r)} ${f1(c[1])}A${f1(r)} ${f1(r)} 0 1 0 ${f1(c[0]+r)} ${f1(c[1])}A${f1(r)} ${f1(r)} 0 1 0 ${f1(c[0]-r)} ${f1(c[1])}Z`,bq});
+      lin([[0,s1+r],[r*.6,s1+r+r*.6]]);ext=s1+2*r;hw=r;break;}
+    case 'TERMOSTATO':{   // cuello + caja con «T»
+      cuello(.38);const b=Math.max(7,w*1.05),c=Q(0,h+b/2);rect(-b/2,b/2,h,h+b);
+      it.push({k:'t',r:'bqx',x:f1(c[0]),y:f1(c[1]),s:'T',size:f1(b*.72),anc:'middle',rot:0,bold:1,bq});ext=h+b;hw=b/2;break;}
+    case 'TAPÓN':{   // cuello + tapa sólida (de lado se ve como brida lateral)
+      cuello(.5);const k=Math.max(2,h*.38);rect(-w*.78,w*.78,h,h+k,'bqk');ext=h+k;hw=w*.78;break;}
+    case 'DESFOGUE':{   // cuello + tubo con codo
+      cuello(.4);const p=Math.max(3.2,w*.5),L1=Math.max(7,h*1.5),L2=Math.max(8,w*1.1),fb=Math.max(1.3,p*.3);
+      pol([[-p/2,h],[-p/2,h+L1+p],[L2,h+L1+p],[L2,h+L1],[p/2,h+L1],[p/2,h]],'bq');rect(L2,L2+fb,h+L1-p*.25,h+L1+p*1.25,'bqk');
+      ext=h+L1+p*1.25;hw=L2+fb;break;}
+    case 'PURGA':{   // cuello hacia afuera (abajo) + válvula de bola (moño) con maneral
+      cuello(.4);const a=Math.max(3.6,w*.5),b=Math.max(2.8,w*.36),cd=h+b,hl=Math.max(3.6,w*.45);
+      pol([[-a,cd-b],[-a,cd+b],[0,cd]],'bq');pol([[a,cd-b],[a,cd+b],[0,cd]],'bq');lin([[a,cd],[a+hl,cd]]);lin([[a+hl,cd-b*.8],[a+hl,cd+b*.8]]);
+      ext=cd+b;hw=a+hl;break;}
+    default:cuello(.5);   // tipo desconocido: cuello genérico
+  }
+  return {it,ext,hw};
+}
 function croquis(L,opt){
   opt=opt||{};
-  const g=geo(L),out=contorno(g),it=[],RB=11,SP=2*RB+6,BASE=20,STEP=8;
+  // opt.cad: estilo AutoCAD (plano / PND): soportes y piso, boquillas por tipo; opt.pnd: además sin guías, globos, letras ni cotas.
+  const cad=!!(opt.cad||opt.pnd),pnd=!!opt.pnd;
+  const g=geo(L),out=contorno(g),it=[],RB=11,SP=2*RB+6,BASE=20,STEP=8,HH=g.H+(cad?(g.o==='H'?110:80):0);
   const add=o=>{it.push(o);return o;};
   const B={x0:Infinity,y0:Infinity,x1:-Infinity,y1:-Infinity},bb=(x,y)=>{if(x<B.x0)B.x0=x;if(x>B.x1)B.x1=x;if(y<B.y0)B.y0=y;if(y>B.y1)B.y1=y;};   // caja usada (el PDF recorta a ella)
   add({k:'p',r:'tq',d:pathTanque(g)});
   const {x0,y0,tw,th,hd}=g;
   if(g.o==='H')add({k:'p',r:'tg',d:`M${f1(x0+hd)} ${f1(y0)}V${f1(y0+th)}M${f1(x0+tw-hd)} ${f1(y0)}V${f1(y0+th)}`});
   else add({k:'p',r:'tg',d:`M${f1(x0)} ${f1(y0+hd)}H${f1(x0+tw)}M${f1(x0)} ${f1(y0+th-hd)}H${f1(x0+tw)}`});
-  const SAD=g.o==='H'?16:0;
-  bb(x0,y0);bb(x0+tw,y0+th+SAD);
-  if(g.o==='H'){const w=Math.max(18,tw*0.07),yb=y0+th;
-    for(const f of [0.22,0.78]){const cx=clamp(x0+tw*f,x0+hd+w/2,x0+tw-hd-w/2);add({k:'p',r:'sd',d:`M${f1(cx-w/2)} ${f1(yb-2)}V${f1(yb+SAD)}H${f1(cx+w/2)}V${f1(yb-2)}`});}}
+  let SAD=g.o==='H'?16:0;
+  const piso=(xa,ya,xb,yb2)=>{const t=textura(xa,ya,xb,yb2,clamp(Math.min(tw,th)*.045,3,6.5));if(t.pts)add({k:'p',r:'grx',d:t.pts});if(t.tri)add({k:'p',r:'gt',d:t.tri});};
+  if(cad&&g.o==='H'){   // H · vista frontal: 2 bloques rectangulares bajo el cuerpo sobre losa de concreto (puntos y triangulitos)
+    const w=Math.max(18,tw*0.07),yb=y0+th,hb=clamp(th*.22,12,36),hs=clamp(th*.18,10,28),ys=yb+hb,xa=x0-tw*.015,xb=x0+tw*1.015;
+    for(const f of [0.22,0.78]){const cx=clamp(x0+tw*f,x0+hd+w/2,x0+tw-hd-w/2);add({k:'p',r:'sp',d:`M${f1(cx-w/2)} ${f1(yb)}V${f1(ys)}H${f1(cx+w/2)}V${f1(yb)}`});}
+    add({k:'p',r:'gr',d:`M${f1(xa)} ${f1(ys)}H${f1(xb)}V${f1(ys+hs)}H${f1(xa)}Z`});piso(xa,ys,xb,ys+hs);
+    SAD=hb+hs;bb(xa,y0);bb(xb,y0+th+SAD);
+  }else if(cad){   // V · vista frontal: patas cortas curvas bajo la tapa inferior sobre piso punteado
+    const cxm=x0+tw/2,Rx=tw/2,cyH=y0+th-hd,yC=x=>cyH+hd*Math.sqrt(Math.max(0,1-((x-cxm)/Rx)**2)),lh=clamp(tw*.2,10,34),yg=y0+th+lh,hs=clamp(lh*.55,6,14);
+    for(const sg of [-1,1]){const xo=cxm+sg*Rx*.66,xi=cxm+sg*Rx*.36,fo=cxm+sg*Rx*.86,fi=cxm+sg*Rx*.6;
+      add({k:'p',r:'sp',d:`M${f1(xi)} ${f1(yC(xi))}L${f1(fi)} ${f1(yg)}H${f1(fo)}Q${f1(xo+sg*Rx*.14)} ${f1((yC(xo)+yg)/2)} ${f1(xo)} ${f1(yC(xo))}`});}
+    const xa=cxm-Rx*1.12,xb=cxm+Rx*1.12;add({k:'p',r:'gr',d:`M${f1(xa)} ${f1(yg)}H${f1(xb)}`});piso(xa,yg,xb,yg+hs);
+    SAD=lh+hs;bb(xa,y0);bb(xb,y0+th+SAD);
+  }else{
+    bb(x0,y0);bb(x0+tw,y0+th+SAD);
+    if(g.o==='H'){const w=Math.max(18,tw*0.07),yb=y0+th;
+      for(const f of [0.22,0.78]){const cx=clamp(x0+tw*f,x0+hd+w/2,x0+tw-hd-w/2);add({k:'p',r:'sd',d:`M${f1(cx-w/2)} ${f1(yb-2)}V${f1(yb+SAD)}H${f1(cx+w/2)}V${f1(yb-2)}`});}}
+  }
   // boquillas
   const nz=L.boquillas.map((b,i)=>{
     const st=sitio(g,out,b),tm=tamBq(g,b),n={b,i,st,tm,L:letra(i)};
@@ -2246,6 +2331,8 @@ function croquis(L,opt){
       n.glyph={k:'p',r:'bq',fill:1,d:`M${p(-w,-1.5)}L${p(-w,h)}L${p(w,h)}L${p(w,-1.5)}Z`,bq:b.id};
       n.hit={k:'c',r:'hit',cx:f1(st.x+st.nx*h/2),cy:f1(st.y+st.ny*h/2),rad:Math.max(14,w+4),bq:b.id};
       n.ax=st.x+st.nx*h;n.ay=st.y+st.ny*h;
+      if(cad){n.gw=Math.max(tm.w,15);n.gh=Math.max(tm.h,8);   // estilo CAD: tamaño mínimo legible del símbolo
+        const gl=glifo(b.tipo,st.x,st.y,st.nx,st.ny,n.gw,n.gh,b.id);n.glyph=gl.it;n.ext=gl.ext;n.hw=gl.hw;n.ax=st.x+st.nx*gl.ext;n.ay=st.y+st.ny*gl.ext;}
       n.lane=b.cara==='arriba'?'top':b.cara==='abajo'?'bot':(st.nx<0?'left':'right');
     }else{
       n.glyph={k:'c',r:'bqc',cx:f1(st.x),cy:f1(st.y),rad:f1(tm.rad),dash:b.cara==='atras'?[4,3.2]:null,bq:b.id};
@@ -2265,14 +2352,22 @@ function croquis(L,opt){
     nz.forEach(n=>{const t=n.b.tipo;if(!por.has(t))por.set(t,[]);por.get(t).push(n);});
     const anc=[...por.values()].map(arr=>{const a=arr[0];a.L=gl.letraDe[a.b.tipo]||a.L;a.miembros=arr;a.letras=[{L:a.L,bq:a.b.id}];return a;});
     dib=anc;nodos=[];
-    anc.forEach(n=>{const q=nodos.find(m=>m.lane===n.lane&&Math.abs(m.ax-n.ax)<RB*2&&Math.abs(m.ay-n.ay)<RB*2);if(q)q.letras.push(...n.letras);else nodos.push(n);});
+    anc.forEach(n=>{const q=nodos.find(m=>m.lane===n.lane&&Math.abs(m.ax-n.ax)<RB*2&&Math.abs(m.ay-n.ay)<RB*2);if(q){q.letras.push(...n.letras);(q.junto=q.junto||[q]).push(n);}else nodos.push(n);});
+    // estilo CAD: tipos distintos en el mismo orificio se dibujan lado a lado (sobre el contorno) y comparten guía y globos
+    if(cad)nodos.forEach(q=>{const m=(q.junto||[]).filter(n=>n.st.t==='tap');if(m.length<2)return;
+      const tx=-q.st.ny,ty=q.st.nx,gap=3,tot=m.reduce((a,n)=>a+2*n.hw,0)+gap*(m.length-1),x0q=q.st.x,y0q=q.st.y;let s=-tot/2;
+      m.forEach(n=>{const off=s+n.hw;s+=2*n.hw+gap;const P={x:x0q+tx*off,y:y0q+ty*off},z=ZONA[n.b.cara];let c=cercano(out,P,z);if(z&&!z(c))c=cercano(out,P);
+        const gl=glifo(n.b.tipo,c.x,c.y,c.nx,c.ny,n.gw,n.gh,n.b.id);n.st={x:c.x,y:c.y,nx:c.nx,ny:c.ny,t:'tap'};n.glyph=gl.it;n.ext=gl.ext;n.hw=gl.hw;
+        n.ax=c.x+c.nx*gl.ext;n.ay=c.y+c.ny*gl.ext;n.hit=Object.assign({},n.hit,{cx:f1(c.x+c.nx*n.tm.h/2),cy:f1(c.y+c.ny*n.tm.h/2)});});});
   }else{dib=nz;nodos=nz;nz.forEach(n=>n.letras=[{L:n.L,bq:n.b.id}]);}
-  dib.forEach(n=>{const st=n.st,tm=n.tm,e=st.t==='tap'?tm.w+tm.h:tm.rad;bb(st.x-e,st.y-e);bb(st.x+e,st.y+e);});
+  // V (estilo CAD): globos en columna a la derecha (las de la izquierda conservan su columna)
+  if(cad&&g.o==='V')nodos.forEach(n=>{if(n.lane==='top'||n.lane==='bot')n.lane='right';});
+  dib.forEach(n=>{const st=n.st,tm=n.tm,e=st.t==='tap'?(cad?Math.max(n.ext,n.hw):tm.w+tm.h):tm.rad;bb(st.x-e,st.y-e);bb(st.x+e,st.y+e);});
   // carriles de etiquetas (letra en círculo) con guías ortogonales tipo CAD; se separan solas si se amontonan
   const borde={top:y0,bot:y0+th+SAD,left:x0,right:x0+tw},ext={top:0,bot:0,left:0,right:0};
-  for(const ln of ['top','bot','left','right']){
+  for(const ln of (pnd?[]:['top','bot','left','right'])){
     const arr=nodos.filter(n=>n.lane===ln);if(!arr.length)continue;
-    const hz=ln==='top'||ln==='bot',sg=(ln==='top'||ln==='left')?-1:1,lim=hz?g.W:g.H;
+    const hz=ln==='top'||ln==='bot',sg=(ln==='top'||ln==='left')?-1:1,lim=hz?g.W:HH;
     const wl=n=>hz?n.letras.length:1,sep=(a,b)=>RB*(wl(a)+wl(b))+6;   // 1 letra: 2·RB + 6 (igual que v1)
     arr.forEach(n=>n.des=hz?n.ax:n.ay);arr.sort((a,b)=>a.des-b.des||a.i-b.i);
     let lo=(hz?x0:y0)-34,hi=(hz?x0+tw:y0+th)+34;let need=0;for(let k=1;k<arr.length;k++)need+=sep(arr[k-1],arr[k]);
@@ -2283,7 +2378,7 @@ function croquis(L,opt){
     der.forEach((n,k)=>n.lvl=der.length-k);izq.forEach((n,k)=>n.lvl=k+1);
     const mx=hz?1:Math.max(...arr.map(n=>n.letras.length));
     const dist=BASE+(Math.max(der.length,izq.length)+1)*STEP+RB;ext[ln]=dist+RB+(mx-1)*2*RB;
-    arr.forEach(n=>{const e=borde[ln];n.bc=clamp(e+sg*dist,RB+3,(hz?g.H:g.W)-RB-3);const el=n.lvl?e+sg*(BASE+n.lvl*STEP):null;
+    arr.forEach(n=>{const e=borde[ln];n.bc=clamp(e+sg*dist,RB+3,(hz?HH:g.W)-RB-3);const el=n.lvl?e+sg*(BASE+n.lvl*STEP):null;
       const m=n.letras.length;let d;
       if(hz){const be=m%2?n.bc-sg*RB:n.bc;d=el==null?`M${f1(n.ax)} ${f1(n.ay)}V${f1(be)}`:`M${f1(n.ax)} ${f1(n.ay)}V${f1(el)}H${f1(n.pos)}V${f1(be)}`;
         n.globos=n.letras.map((q,j)=>({x:n.pos+(j-(m-1)/2)*2*RB,y:n.bc,L:q.L,bq:q.bq}));}
@@ -2323,14 +2418,16 @@ function croquis(L,opt){
     }else{
       const cx=x0+tw/2,yr=libreDe(y0+hd+14,y0+th-hd-14,[cD],n=>n.st.y);
       if(yr!=null&&C.R){add({k:'p',r:'dm',d:`M${f1(cx)} ${f1(yr)}H${f1(x0+tw)}`+tic(x0+tw,yr)});add({k:'c',r:'dm',cx:f1(cx),cy:f1(yr),rad:1.6});tx(cx+tw/4,yr-8,C.R,z,'dmt');}
-      if(C.espTapa){const a=Math.PI*0.25;ese(cx+(tw/2)*Math.cos(a),y0+hd-hd*Math.sin(a),14,-16,C.espTapa,'start');
-        ese(cx+(tw/2)*Math.cos(a),y0+th-hd+hd*Math.sin(a),14,16,C.espTapa,'start');}
+      if(C.espTapa){const a=Math.PI*0.25,k=cad?-1:1,an=cad?'end':'start';   // estilo CAD: a la izquierda (la derecha es la columna de globos)
+        ese(cx+k*(tw/2)*Math.cos(a),y0+hd-hd*Math.sin(a),14*k,-16,C.espTapa,an);
+        ese(cx+k*(tw/2)*Math.cos(a),y0+th-hd+hd*Math.sin(a),14*k,16,C.espTapa,an);}
       if(C.espCuerpo){const yb=libreDe(y0+hd+14,y0+th-hd-14,[cD,yr==null?-1e9:yr],n=>n.st.y);
         if(yb!=null){mk(x0+tw,yb);tx(x0+tw-8,yb,C.espCuerpo,ZE,'dmt',{anc:'end'});}}
     }
   }
-  if(g.o==='H'){
-    const yd=Math.min(g.H-18,borde.bot+(ext.bot||6)+22),sw=tw-2*hd;
+  if(pnd){/* hojas PND: sin cotas */}
+  else if(g.o==='H'){
+    const yd=Math.min(HH-18,borde.bot+(ext.bot||6)+22),sw=tw-2*hd;
     add({k:'p',r:'dx',d:`M${f1(x0)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+tw)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+hd)} ${f1(y0+th+3)}V${f1(yd+5)}M${f1(x0+tw-hd)} ${f1(y0+th+3)}V${f1(yd+5)}`});
     add({k:'p',r:'dm',d:`M${f1(x0)} ${f1(yd)}H${f1(x0+tw)}`+tic(x0,yd)+tic(x0+hd,yd)+tic(x0+tw-hd,yd)+tic(x0+tw,yd)});bb(x0-5,yd+6);bb(x0+tw+5,yd+6);
     if(ap(tL,13)<=sw-8)tx(x0+tw/2,yd-10,tL,13,'dmt');else tx(x0+tw/2,yd-10,vL,12,'dmt');
@@ -2353,12 +2450,12 @@ function croquis(L,opt){
     if(opt.cotas)cotasCAD(yd);
   }
   // orden de dibujo: guías → boquillas → letras (arriba de todo) → áreas de arrastre
-  nodos.forEach(n=>add(n.leader));
-  dib.forEach(n=>add(n.glyph));
-  nodos.forEach(n=>n.globos.forEach(q=>{add({k:'c',r:'bg',cx:f1(q.x),cy:f1(q.y),rad:RB,bq:q.bq});tx(q.x,q.y,q.L,q.L.length>1?10.5:13,'bgt',{bold:1,bq:q.bq});}));
+  if(!pnd)nodos.forEach(n=>add(n.leader));
+  dib.forEach(n=>[].concat(n.glyph).forEach(add));
+  if(!pnd)nodos.forEach(n=>n.globos.forEach(q=>{add({k:'c',r:'bg',cx:f1(q.x),cy:f1(q.y),rad:RB,bq:q.bq});tx(q.x,q.y,q.L,q.L.length>1?10.5:13,'bgt',{bold:1,bq:q.bq});}));
   if(opt.hit)dib.forEach(n=>add(n.hit));
-  bb(x0,y0);if(!isFinite(B.x0))Object.assign(B,{x0:0,y0:0,x1:g.W,y1:g.H});
-  return {W:g.W,H:g.H,items:it,g,bb:B};
+  bb(x0,y0);if(!isFinite(B.x0))Object.assign(B,{x0:0,y0:0,x1:g.W,y1:HH});
+  return {W:g.W,H:HH,items:it,g,bb:B};
 }
 
 
@@ -2558,7 +2655,7 @@ async function pdf(L,opt){
 async function formato(o,opt){const L=nuevo();L.orientacion=o==='V'?'V':'H';return pdf(L,Object.assign({},opt||{},{blank:true}));}
 
 root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,META,META_KEYS,CAP_L_MIN,
-  nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,contorno,sitio,aUV,croquis,svg,aJSON,pdf,formato,
+  nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,contorno,sitio,aUV,croquis,glifo,textura,svg,aJSON,pdf,formato,
   letra,grupos,tapas,tapasUI,parsePulg,fmtPulg,numTxt,capM3,capTxt,isoFecha,anioDe,fechaMx,esTapita,normTipo,variar,baseCol,limpiarCol};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -2602,7 +2699,9 @@ const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
 const DEF={orientacion:'',cejaRectaMm:'',sCuerpo:'',sTapas:'',eficiencia:'0.85',factorSeguridad:'3.5',
   nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
   // v2 · croquis de ubicación: '' (sin croquis) | 'img' (plano del lugar + flecha) | 'esq' (cuarto + puerta + equipo). Posiciones 0–1.
-  ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:''};
+  ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:'',
+  // v4 · convención de ángulos de las boquillas: '2' = 0° a la derecha, sentido antihorario (90° arriba). Sin marca = archivo anterior (0° arriba, horario).
+  angConv:'2'};
 // v2 · por tipo de boquilla (llave = tipo del catálogo): conexión de la tabla (vacío → tipoConexion / COPLE) y ángulo en la vista lateral/superior
 const DEF_OBJ=['conexiones','angulos'];
 const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
@@ -2627,6 +2726,9 @@ function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(
   for(const k of DEF_OBJ){o[k]={};const src=p&&p[k];if(src&&typeof src==='object'&&!Array.isArray(src))for(const t in src){const v=txt(src[t]);if(v)o[k][t]=v;}}
   // v3 · migraciones (archivos anteriores): S único → S cuerpo y S tapas
   if(p&&typeof p==='object'&&p.esfuerzoPermisible!=null){const s=txt(p.esfuerzoPermisible);if(p.sCuerpo==null)o.sCuerpo=s;if(p.sTapas==null)o.sTapas=s;}
+  // v4 · ángulos guardados con la convención anterior (0° arriba, horario) → 0° a la derecha, antihorario: nuevo = 90 − anterior (una sola vez)
+  if(p&&typeof p==='object'&&txt(p.angConv)!=='2')for(const t in o.angulos){const n=num(o.angulos[t]);if(isFinite(n))o.angulos[t]=String(+(((90-n)%360+360)%360).toFixed(2));}
+  o.angConv='2';
   // E: a la opción de la lista (85 → 0.85, 0.8 → 0.80); vacío → 0.85; un valor fuera de la lista se conserva (se marca en pantalla)
   {const n=eficiencia(o.eficiencia),s=n>0?n.toFixed(2):'';o.eficiencia=!txt(o.eficiencia)?DEF.eficiencia:E_OPC.includes(s)?s:txt(o.eficiencia);}
   {const n=num(o.factorSeguridad),s=n>0?String(n):'';o.factorSeguridad=!txt(o.factorSeguridad)?DEF.factorSeguridad:FS_OPC.includes(s)?s:txt(o.factorSeguridad);}
@@ -2737,17 +2839,17 @@ function grupos(d){
     const esV=sinAc(t)==='VALVULA DE SEGURIDAD'&&d.inp.dvTxt;
     del.forEach(b=>{const p=pos(b.diametroPulgadas),k=esV?d.inp.dvTxt:ok(p)?(p*25.4).toFixed(2):'—';pd.set(k,(pd.get(k)||0)+1);});
     const a=del[0],ang=num(d.pl.angulos&&d.pl.angulos[t]);
-    return {t,letra:gl.letraDe[t],n:del.length,serv:servicio(t),con:conexion(d,t),porD:[...pd.entries()],cara:a.cara,pos:a.pos||{u:.5,v:.5},
+    return {t,letra:gl.letraDe[t],n:del.length,serv:servicio(t),con:conexion(d,t),porD:[...pd.entries()],cara:a.cara,pos:a.pos||{u:.5,v:.5},dpulg:pos(a.diametroPulgadas),
       ang:isFinite(ang)?((ang%360)+360)%360:angDefault(d.inp.o,a),angManual:isFinite(ang)};});
 }
 function boquillas(d){
   const out=[];grupos(d).forEach(g=>g.porD.forEach(([mm,c])=>out.push({item:g.letra,tipo:g.con,cant:String(c),mm,serv:g.serv,t:g.t})));return out;
 }
-// Ángulo por omisión en la vista lateral (H, mirando desde el extremo) o superior (V, desde arriba): 0° arriba, sentido horario.
-// H: arriba 0 · atrás 90 · abajo 180 · frente 270 · lado (en la tapa) = centro.  V: atrás 0 · frente 180 · lado 270 (izq.) / 90 (der.) · arriba / abajo (tapas) = centro.
+// Ángulo por omisión en la vista lateral (H, mirando desde el extremo) o superior (V, desde arriba): 0° a la derecha, sentido antihorario.
+// H: arriba 90 · atrás 0 · abajo 270 · frente 180 · lado (en la tapa) = centro.  V: atrás 90 · frente 270 · lado 180 (izq.) / 0 (der.) · arriba / abajo (tapas) = centro.
 function angDefault(o,b){const c=b&&b.cara,u=+(b&&b.pos&&b.pos.u);
-  if(o==='V')return c==='atras'?0:c==='frente'?180:c==='lado'?(u<0.5?270:90):null;
-  return c==='arriba'?0:c==='atras'?90:c==='abajo'?180:c==='frente'?270:null;}
+  if(o==='V')return c==='atras'?90:c==='frente'?270:c==='lado'?(u<0.5?180:0):null;
+  return c==='arriba'?90:c==='atras'?0:c==='abajo'?270:c==='frente'?180:null;}
 function letra(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
 
 // ---------- medidas de texto (Liberation Sans de FX_ASSETS vía fontkit; respaldo aproximado) ----------
@@ -2766,7 +2868,9 @@ function metricas(fonts){
 // l: línea · r: rectángulo · t: texto (y = línea base) · p: path SVG con transformación (fill: blanco; fillC: color) · c: círculo · img: imagen
 const SH={W:1224,H:792};
 const VINO=[.49,.10,.13],ROJO=[.75,.1,.1];
-const ROL={tq:{w:1.4},tg:{w:.6},sd:{w:.8,c:.25},dm:{w:.5,c:.35},dx:{w:.4,c:.55,dash:[2.4,2]},bq:{w:1,fill:1},bqc:{w:1},ld:{w:.5,c:.15},bg:{w:.7,fill:1}};
+const ROL={tq:{w:1.4},tg:{w:.6},sd:{w:.8,c:.25},dm:{w:.5,c:.35},dx:{w:.4,c:.55,dash:[2.4,2]},bq:{w:1,fill:1},bqc:{w:1},ld:{w:.5,c:.15},bg:{w:.7,fill:1},
+  // estilo CAD: soportes, piso (losa / línea), textura (triangulitos y puntos) y partes de las boquillas por tipo
+  sp:{w:.9},gr:{w:.8},gt:{w:.4,c:.15},grx:{w:.1,c:.15,fc:[.15,.15,.15]},bqk:{w:.5,fc:[0,0,0]},bql:{w:.7}};
 
 // Contexto de dibujo (misma API para la hoja y para la vista previa del croquis de ubicación)
 function lienzo(Mx){
@@ -2846,6 +2950,159 @@ function ubicLayout(d,opt){
   const area=ubicacion(d,c,1,1,W-2,H-2,opt);return {W,H,items:c.it,area};
 }
 
+// ---------- vistas del equipo (hoja del plano y hojas PND del expediente) ----------
+// Equipo «de levantamiento» con las dimensiones del plano: lo que dibuja FXLev.croquis
+function levDe(d){const lev=root.FXLev,i=d.inp;if(!lev)return null;const L=lev.nuevo();L.orientacion=i.o;
+  L.dimensiones.diametroInteriorCm=ok(i.Dcm)?String(i.Dcm):'';L.dimensiones.longitudMm=ok(i.Lmm)?String(i.Lmm):'';L.dimensiones.profundidadTapaMm=ok(i.Tapmm)?String(i.Tapmm):'';
+  L.boquillas=(d.boq||[]).filter(b=>lev.normTipo(b.tipo)&&lev.CARAS.includes(b.cara)&&b.pos).map((b,k)=>({id:'b'+k,tipo:lev.normTipo(b.tipo),diametroPulgadas:pos(b.diametroPulgadas)>0?pos(b.diametroPulgadas):null,cara:b.cara,pos:{u:+b.pos.u||0,v:+b.pos.v||0}}));
+  return L;}
+// Primitiva del croquis de FXLev → primitiva de la hoja (desplazada tx,ty y escalada s); las cotas se reescriben en mm con 2 decimales
+function deLev(c,q,tx,ty,s,i){
+  if(q.k==='t'){let s2=String(q.s);
+    if(q.r==='dmt'){let m;
+      if(/^Ø INT\./.test(s2))s2=ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm';
+      else if((m=/^LONGITUD SOLD\.–SOLD\.\s*(.*)$/.exec(s2)))s2=ok(i.Lmm)?`L = ${i.Lmm.toFixed(2)} mm`:'L = — mm';
+      else if((m=/^([\d,.]+)\s*mm$/.exec(s2)))s2=`${(+m[1].replace(/,/g,'')).toFixed(2)} mm`;}
+    const z=q.size*s*(q.r==='bgt'?1.02:.92),an=q.anc||'middle';
+    if(q.rot)c.add({k:'t',s:s2,x:tx+q.x*s+z*.35,y:ty+q.y*s,z,b:!!q.bold,anc:an,c:q.r==='dmt'?.25:0,rot:-90});
+    else c.add({k:'t',s:s2,x:tx+q.x*s,y:ty+q.y*s+z*.35,z,b:!!q.bold,anc:an,c:q.r==='dmt'?.25:0});return;}
+  const st=ROL[q.r]||{w:.6};
+  if(q.k==='c')c.add({k:'c',cx:tx+q.cx*s,cy:ty+q.cy*s,rad:q.rad*s,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill});
+  else c.add({k:'p',d:q.d,tx,ty,s,w:st.w,c:st.c,dash:st.dash,fill:st.fill,fillC:st.fc});
+}
+// Vista frontal (FXLev.croquis, estilo CAD: soportes, piso y boquillas por tipo) centrada en la caja (rx,ry,rw,rh).
+// opt: cotas (textos de R INT. / ESP. MIN.), pnd (sin cotas, guías ni globos), smax (escala máxima), medir (solo devuelve el tamaño).
+function frontal(c,d,L,rx,ry,rw,rh,opt){
+  opt=opt||{};const lev=root.FXLev;if(!L||!lev)return null;
+  const lay=lev.croquis(L,{hit:false,agrupar:true,cad:true,pnd:!!opt.pnd,cotas:opt.cotas}),bx=lay.bb,PAD=6;
+  const vx=Math.max(0,bx.x0-PAD),vy=Math.max(0,bx.y0-PAD),vw=Math.min(lay.W,bx.x1+PAD)-vx,vh=Math.min(lay.H,bx.y1+PAD)-vy;
+  const s=Math.min(rw/vw,rh/vh,opt.smax||0.95);if(opt.medir)return {s,w:vw*s,h:vh*s};
+  const tx=rx+(rw-vw*s)/2-vx*s,ty=ry+(rh-vh*s)/2-vy*s;
+  for(const q of lay.items)if(q.r!=='hit')deLev(c,q,tx,ty,s,d.inp);
+  return {lay,s,tx,ty,w:vw*s,h:vh*s,X:x=>tx+x*s,Y:y=>ty+y*s};
+}
+// Vista lateral (H, mirando desde el extremo) / superior (V, desde arriba) con centro (cx,cy) y radio R.
+// Ángulos: 0° a la derecha, sentido antihorario (90° arriba, 180° izquierda, 270° abajo).
+// H: patas cerradas (lado exterior curvo, interior recto) que salen del círculo hacia ~225° y ~315° y asientan sobre piso punteado;
+//    boquillas del cuerpo dibujadas por tipo en su ángulo; las de tapa, cuadrito en su proyección.
+// V: dos círculos concéntricos punteados; las boquillas como cuadrito (en el borde por ángulo; las de tapa en su proyección, abajo punteado).
+// Globos en columna (derecha; las del lado izquierdo en columna a la izquierda) con guías ortogonales; las del mismo orificio, lado a lado.
+// Las etiquetas de ángulo nunca pisan patas, piso, boquillas, guías ni globos: se recorren y, si no hay lugar, se omiten.
+// opt.pnd: sin ángulos, globos, letras ni cota (hojas PND). Devuelve la caja usada {x0,y0,x1,y1}.
+function vistaCirc(c,d,G,cx,cy,R,opt){
+  opt=opt||{};const {T,Lh,Rc,add,Mx}=c,i=d.inp,H_=i.o!=='V',pnd=!!opt.pnd,lev=root.FXLev;
+  const B={x0:Infinity,y0:Infinity,x1:-Infinity,y1:-Infinity},bb=(x,y)=>{if(x<B.x0)B.x0=x;if(x>B.x1)B.x1=x;if(y<B.y0)B.y0=y;if(y>B.y1)B.y1=y;};
+  const obst=[],caja=(x0,y0,x1,y1)=>{const q=[Math.min(x0,x1),Math.min(y0,y1),Math.max(x0,x1),Math.max(y0,y1)];obst.push(q);bb(q[0],q[1]);bb(q[2],q[3]);return q;};
+  const toca=q=>obst.some(o=>q[0]<o[2]&&q[2]>o[0]&&q[1]<o[3]&&q[3]>o[1]);
+  const rad=a=>a*Math.PI/180,Pt=(a,r)=>({x:cx+Math.cos(rad(a))*r,y:cy-Math.sin(rad(a))*r}),f=v=>Math.round(v*100)/100;
+  const pinta=q=>{if(q.k==='t'){add({k:'t',s:q.s,x:+q.x,y:+q.y+q.size*.35,z:+q.size,b:1,anc:'middle'});return;}
+    const st=ROL[q.r]||{w:.6};add({k:'p',d:q.d,tx:0,ty:0,s:1,w:st.w,c:st.c,fill:st.fill,fillC:st.fc});};
+  bb(cx-R,cy-R);bb(cx+R,cy+R);
+  let yG=null,gh=0;
+  if(H_){   // patas + piso punteado
+    yG=cy+R*1.32;gh=Math.max(4,R*.15);
+    for(const sg of [-1,1]){const Ao=Pt(sg<0?215:325,R),Ai=Pt(sg<0?250:290,R),Fo={x:cx+sg*R*.93,y:yG},Fi={x:cx+sg*R*.7,y:yG},Cq={x:cx+sg*R,y:cy+R*.92};
+      add({k:'p',d:`M${f(Ai.x)} ${f(Ai.y)}L${f(Fi.x)} ${f(Fi.y)}L${f(Fo.x)} ${f(Fo.y)}Q${f(Cq.x)} ${f(Cq.y)} ${f(Ao.x)} ${f(Ao.y)}A${f(R)} ${f(R)} 0 0 ${sg<0?0:1} ${f(Ai.x)} ${f(Ai.y)}Z`,tx:0,ty:0,s:1,w:1,fill:1});
+      const xs=[Ao.x,Ai.x,Fo.x,Fi.x,Cq.x];caja(Math.min(...xs)-1.5,Ao.y-1.5,Math.max(...xs)+1.5,yG);}
+    const xa=cx-R*1.15,xb=cx+R*1.15;Lh(xa,yG,xb,yG,.8);
+    if(lev){const t=lev.textura(xa,yG,xb,yG+gh,Math.max(2.2,R*.065));if(t.pts)pinta({k:'p',r:'grx',d:t.pts});if(t.tri)pinta({k:'p',r:'gt',d:t.tri});}
+    caja(xa,yG-1,xb,yG+gh);
+  }
+  add({k:'c',cx,cy,rad:R,w:1.4});
+  if(!H_){add({k:'c',cx,cy,rad:R*.72,w:.5,dash:[3,2]});add({k:'c',cx,cy,rad:R*.45,w:.5,dash:[3,2]});}
+  for(let a=0;a<360;a+=45){const p=Pt(a,a%90?R:R*1.08);Lh(cx,cy,p.x,p.y,.35,.35,a%90?[3,2]:[6,2,1.5,2]);}
+  // boquillas: las del cuerpo por ángulo (las que caen a menos de 12° forman un orificio y se dibujan lado a lado); las de tapa en su proyección
+  const qs=Math.max(4.2,R*.085),items=[];
+  const tam=g=>{let w=R*.2;if(g.dpulg>0&&i.Dmm>0)w=g.dpulg*25.4/i.Dmm*2*R;w=Math.max(R*.12,Math.min(R*.3,w));return {w,h:Math.max(R*.07,Math.min(R*.15,w*.5))};};
+  const cl=[];
+  G.filter(g=>g.ang!=null).sort((a,b)=>a.ang-b.ang).forEach(g=>{const k=cl.find(q=>Math.abs(((g.ang-q.a)%360+540)%360-180)<12);if(k)k.m.push(g);else cl.push({a:g.ang,m:[g]});});
+  cl.forEach(k=>{
+    const gs=k.m.map(g=>{const t=tam(g);return {g,t,hw:H_&&lev?lev.glifo(g.t,0,0,0,-1,t.w,t.h).hw:qs/2};});
+    const gap=3,tot=gs.reduce((a,x)=>a+2*x.hw,0)+gap*(gs.length-1);let s=-tot/2;
+    const tips=gs.map(x=>{const off=s+x.hw;s+=2*x.hw+gap;const a=k.a-off/R*180/Math.PI,p=Pt(a,R),nx=Math.cos(rad(a)),ny=-Math.sin(rad(a)),tx=-ny,ty=nx;
+      if(H_&&lev){const gl=lev.glifo(x.g.t,p.x,p.y,nx,ny,x.t.w,x.t.h);gl.it.forEach(pinta);const e=gl.ext,h=gl.hw;
+        const cs=[[p.x+tx*h,p.y+ty*h],[p.x-tx*h,p.y-ty*h],[p.x+tx*h+nx*e,p.y+ty*h+ny*e],[p.x-tx*h+nx*e,p.y-ty*h+ny*e]];
+        caja(Math.min(...cs.map(q=>q[0])),Math.min(...cs.map(q=>q[1])),Math.max(...cs.map(q=>q[0])),Math.max(...cs.map(q=>q[1])));
+        return {x:p.x+nx*e,y:p.y+ny*e};}
+      Rc(p.x-qs/2,p.y-qs/2,qs,qs,{lw:.9,fill:1});caja(p.x-qs/2-1,p.y-qs/2-1,p.x+qs/2+1,p.y+qs/2+1);return {x:p.x+nx*qs/2,y:p.y+ny*qs/2};});
+    items.push({letras:k.m.map(g=>g.letra),tips});});
+  const cen=[];
+  G.filter(g=>g.ang==null).forEach(g=>{const u=Math.max(0,Math.min(1,+g.pos.u||.5)),v=Math.max(0,Math.min(1,+g.pos.v||.5));
+    const p=H_?{x:cx,y:cy-(v-.5)*2*R*.7,dash:g.cara==='lado'&&u<.5}:{x:cx+(u-.5)*2*R*.7,y:cy,dash:g.cara==='abajo'};
+    const q=cen.find(k=>Math.abs(k.x-p.x)<qs&&Math.abs(k.y-p.y)<qs);if(q)q.letras.push(g.letra);else cen.push(Object.assign(p,{letras:[g.letra]}));});
+  cen.forEach(p=>{Rc(p.x-qs/2,p.y-qs/2,qs,qs,{lw:.9,fill:1,dash:p.dash?[1.4,1]:null});items.push({letras:p.letras,tips:[{x:p.x,y:p.y}],cen:1});});
+  // globos en columna
+  const RB=6.4,globo=(gx,gy,l)=>{add({k:'c',cx:gx,cy:gy,rad:RB,w:.7,fill:1});T(l,gx,gy+2.6,{z:l.length>1?6:7.4,b:1,anc:'middle'});};
+  if(!pnd&&items.length){
+    const bajo=H_?yG+gh+RB+3:null;
+    items.forEach(t=>{const mx=t.tips.reduce((a,q)=>a+q.x,0)/t.tips.length;t.izq=!t.cen&&mx<cx-R*.3;
+      t.tip=t.tips.reduce((a,q)=>t.izq?(q.x<a.x?q:a):(q.x>a.x?q:a));
+      t.des=t.tip.y;if(H_&&!t.cen&&t.tip.y>cy+R*.55)t.des=Math.max(t.des,bajo);});   // las de abajo: globo bajo el piso (la guía no cruza las patas)
+    for(const izq of [false,true]){const arr=items.filter(t=>t.izq===izq);if(!arr.length)continue;const sg=izq?-1:1;
+      const xc=(izq?Math.min(B.x0,cx-R):Math.max(B.x1,cx+R))+sg*(10+RB),sep=2*RB+2;
+      arr.sort((a,b)=>a.des-b.des);let pv=-Infinity;arr.forEach(t=>{t.by=Math.max(t.des,pv+sep);pv=t.by;});
+      arr.forEach(t=>{const p=t.tip,by=t.by,xe=xc-sg*RB,pts=[[p.x,p.y]];
+        if(Math.abs(by-p.y)<.6)pts.push([xe,by]);
+        else if(!t.cen&&(p.y<cy?by<p.y:by>p.y))pts.push([p.x,by],[xe,by]);
+        else{const xm=xc-sg*(RB+6);pts.push([xm,p.y],[xm,by],[xe,by]);}
+        for(let j=1;j<pts.length;j++){Lh(pts[j-1][0],pts[j-1][1],pts[j][0],pts[j][1],.45,.15);caja(pts[j-1][0]-.8,pts[j-1][1]-.8,pts[j][0]+.8,pts[j][1]+.8);}
+        t.letras.forEach((l,j)=>{const gx=xc+sg*j*2*RB;globo(gx,by,l);caja(gx-RB,by-RB,gx+RB,by+RB);});});
+    }
+  }
+  if(pnd)return B;
+  // etiquetas de ángulo (0° derecha, antihorario): se recorren hacia afuera / a los lados hasta no pisar nada
+  for(let a=0;a<360;a+=45){const s=a+'°',w=Mx.w(s,6)+2,h=7.2,ca=Math.cos(rad(a)),sx=Math.abs(ca)>.2?[Math.sign(ca)]:[1,-1];let en=null;
+    busca:for(const r of [R+9,R+15,R+22,R+30,R+40])for(const dx of [0,7,14,21,28])for(const sgn of (dx?sx:[1])){const p=Pt(a,r),X=p.x+sgn*dx;
+      if(!toca([X-w/2,p.y-h/2,X+w/2,p.y+h/2])){en={X,Y:p.y};break busca;}}
+    if(en)T(s,en.X,en.Y+2.2,{z:6,anc:'middle',c:.2});}
+  // cota Ø INT. bajo la vista
+  const yd=Math.max(H_?yG+gh+12:cy+R+30,B.y1+8);
+  Lh(cx-R,yd,cx+R,yd,.5,.35);Lh(cx-R,cy+R*.2,cx-R,yd+4,.35,.55,[2.4,2]);Lh(cx+R,cy+R*.2,cx+R,yd+4,.35,.55,[2.4,2]);
+  T(ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm',cx,yd-3,{z:6.6,anc:'middle',c:.25});bb(cx-R,yd+4);
+  return B;
+}
+
+// ---------- hojas PND del expediente: croquis automático (hoja 71 · MT, hoja 75 · UT) ----------
+// Caja de dibujo en la hoja carta de la plantilla (pt; x, y = esquina superior izquierda en coordenadas PDF, y hacia arriba).
+const PND_CAJA={71:{x:43,y:472,w:524.7,h:398},75:{x:30,y:666,w:552,h:596}};
+const PND_ROJO=[.9,0,0];
+// Puntos de medición UT, patrón fijo de las referencias: tapas en fracciones del radio (x →, y ↓); cuerpo en fracciones de la longitud y del Ø.
+const UT_TAPA=[[-.18,-.75],[.40,-.66],[-.61,-.45],[.16,-.45],[.49,-.36],[-.53,-.18],[.25,-.06],[.81,-.09],[-.82,.12],[-.33,.25],[.34,.22],[0,.38],[.63,.47],[-.44,.64],[.11,.75]];
+const UT_CUERPO={lados:[.07,.34,.66,.94],centro:[.2,.5,.8],v:[.13,.5,.87]};
+// Sin Ø interior o sin longitud no se dibuja nada (no se inventan datos): la caja queda vacía y la pantalla lo marca como pendiente.
+function pndFalta(d){const i=d.inp,f=[];if(!ok(i.Dcm))f.push('Ø interior');if(!ok(i.Lmm))f.push('longitud soldadura–soldadura');return f;}
+// Primitivas del croquis en la caja de la hoja tp (origen arriba-izquierda de la caja). MT: vista frontal + soldaduras circunferenciales en rojo.
+// UT: arriba las 2 tapas (H: 2 × VISTA LATERAL · V: 2 × VISTA SUPERIOR) con ~15 puntos rojos; abajo la vista frontal con 4 + 4 + 3 puntos.
+function pndLayout(d,tp,opt){
+  opt=opt||{};const caja=PND_CAJA[tp];if(!caja)return null;
+  const W=caja.w,H=caja.h,falta=pndFalta(d);if(falta.length)return {W,H,items:[],falta};
+  const Mx=opt.M||metricas(opt.fonts),c=lienzo(Mx),{T,add}=c,i=d.inp,o=i.o,L=levDe(d),G=grupos(d),PAD=10,TZ=10,TH=22;
+  const titulo=(s,x,y)=>T(s,x,y,{z:TZ,anc:'middle',u:1});
+  const punto=(x,y,r)=>add({k:'c',cx:x,cy:y,rad:r,w:.3,c:PND_ROJO,fillC:PND_ROJO});
+  // vista frontal centrada (dibujo + título) en la banda (x,y,w,h)
+  const frente=(x,y,w,h,marca)=>{
+    const m=frontal(c,d,L,0,0,w,h-TH,{pnd:true,smax:1.6,medir:true});if(!m)return;
+    const top=y+(h-m.h-TH)/2,f=frontal(c,d,L,x,top,w,m.h,{pnd:true,smax:1.6});titulo('VISTA FRONTAL',x+w/2,top+m.h+TH-6);
+    const {x0,y0,tw,th,hd}=f.lay.g,X=f.X,Y=f.Y;
+    if(marca==='MT'){   // soldaduras circunferenciales cuerpo–tapa: líneas rojas gruesas
+      if(o!=='V')[x0+hd,x0+tw-hd].forEach(xx=>add({k:'l',x1:X(xx),y1:Y(y0),x2:X(xx),y2:Y(y0+th),w:3.2,c:PND_ROJO}));
+      else [y0+hd,y0+th-hd].forEach(yy=>add({k:'l',x1:X(x0),y1:Y(yy),x2:X(x0+tw),y2:Y(yy),w:3.2,c:PND_ROJO}));
+    }else{   // UT: 4 arriba, 4 abajo y 3 al centro a lo largo del cuerpo (V: 4 a la izquierda, 4 a la derecha y 3 al centro)
+      const r=Math.max(1.8,Math.min(2.6,f.s*th*.016)),U=UT_CUERPO;
+      if(o!=='V'){const a=x0+hd,b=x0+tw-hd,xu=u=>X(a+(b-a)*u);U.lados.forEach(u=>{punto(xu(u),Y(y0+th*U.v[0]),r);punto(xu(u),Y(y0+th*U.v[2]),r);});U.centro.forEach(u=>punto(xu(u),Y(y0+th*U.v[1]),r));}
+      else{const a=y0+hd,b=y0+th-hd,yu=u=>Y(a+(b-a)*u);U.lados.forEach(u=>{punto(X(x0+tw*U.v[0]),yu(u),r);punto(X(x0+tw*U.v[2]),yu(u),r);});U.centro.forEach(u=>punto(X(x0+tw*U.v[1]),yu(u),r));}
+    }};
+  // vista de tapa (lateral H / superior V) ajustada a la caja (x,y,w,h), con sus puntos UT
+  const tapa=(x,y,w,h)=>{
+    const R0=50,B0=vistaCirc(lienzo(Mx),d,G,0,0,R0,{pnd:true}),bw=B0.x1-B0.x0,bh=B0.y1-B0.y0,k=Math.min((w-8)/bw,(h-TH-4)/bh);
+    const R=R0*k,cx=x+w/2-(B0.x0+B0.x1)/2*k,cy=y+(h-TH-bh*k)/2-B0.y0*k;vistaCirc(c,d,G,cx,cy,R,{pnd:true});
+    titulo(o==='V'?'VISTA SUPERIOR':'VISTA LATERAL',x+w/2,cy+B0.y1*k+TH-6);
+    const r=Math.max(1.8,Math.min(2.6,R*.035));UT_TAPA.forEach(([u,v])=>punto(cx+u*R,cy+v*R,r));};
+  if(tp===71)frente(PAD,PAD,W-2*PAD,H-2*PAD,'MT');
+  else{const hT=Math.round((H-2*PAD)*(o==='V'?.34:.42)),cw=(W-2*PAD)/2;   // V: tapas más chicas, el cuerpo alto ocupa el resto
+    tapa(PAD,PAD,cw,hT);tapa(PAD+cw,PAD,cw,hT);frente(PAD,PAD+hT+6,W-2*PAD,H-2*PAD-hT-6,'UT');}
+  return {W,H,items:c.it,falta:[]};
+}
 function hoja(d,opt){
   opt=opt||{};
   const Mx=opt.M||metricas(opt.fonts),{W,H}=SH,c=lienzo(Mx),{T,Lh,Rc,add,wrap}=c;
@@ -2923,64 +3180,19 @@ function hoja(d,opt){
     T('CORPORATIVO FENIXMEX',x0+w-6,yy+14,{z:8.6,b:1,anc:'end',c:V});
   }
 
-  // ---- croquis (FXLev, agrupado por tipo + cotas CAD)
-  const lev=root.FXLev,G=grupos(d);
-  const L=lev?lev.nuevo():null;
-  if(L){L.orientacion=o;L.dimensiones.diametroInteriorCm=ok(i.Dcm)?String(i.Dcm):'';L.dimensiones.longitudMm=ok(i.Lmm)?String(i.Lmm):'';L.dimensiones.profundidadTapaMm=ok(i.Tapmm)?String(i.Tapmm):'';
-    L.boquillas=(d.boq||[]).filter(b=>lev.normTipo(b.tipo)&&lev.CARAS.includes(b.cara)&&b.pos).map((b,k)=>({id:'b'+k,tipo:lev.normTipo(b.tipo),diametroPulgadas:pos(b.diametroPulgadas)>0?pos(b.diametroPulgadas):null,cara:b.cara,pos:{u:+b.pos.u||0,v:+b.pos.v||0}}));}
+  // ---- croquis: vista frontal (FXLev, estilo CAD, agrupado por tipo + cotas) y vista lateral / superior
+  const G=grupos(d),L=levDe(d);
   const vista=(x,y,w,h,titulo)=>{T(titulo,x+w/2,y+h-2,{z:8,b:1,anc:'middle',u:1});};
   const cotas={R:ok(i.Rmm)?`R INT. ${i.Rmm.toFixed(2)} mm`:'R INT. — mm',espCuerpo:`ESP. MIN. ${fx(i.tEnv,2)} mm`,espTapa:`ESP. MIN. ${fx(i.tTap,2)} mm`};
-  const pegaCroquis=(rx,ry,rw,rh)=>{
-    if(!L)return;const lay=lev.croquis(L,{hit:false,agrupar:true,cotas}),bx=lay.bb,PAD=6;
-    const vx=Math.max(0,bx.x0-PAD),vy=Math.max(0,bx.y0-PAD),vw=Math.min(lay.W,bx.x1+PAD)-vx,vh=Math.min(lay.H,bx.y1+PAD)-vy;
-    const s=Math.min(rw/vw,rh/vh,0.95),tx=rx+(rw-vw*s)/2-vx*s,ty=ry+(rh-vh*s)/2-vy*s;
-    for(const q of lay.items){if(q.r==='hit')continue;
-      if(q.k==='t'){let s2=String(q.s);
-        if(q.r==='dmt'){let m;
-          if(/^Ø INT\./.test(s2))s2=ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm';
-          else if((m=/^LONGITUD SOLD\.–SOLD\.\s*(.*)$/.exec(s2)))s2=ok(i.Lmm)?`L = ${i.Lmm.toFixed(2)} mm`:'L = — mm';
-          else if((m=/^([\d,.]+)\s*mm$/.exec(s2)))s2=`${(+m[1].replace(/,/g,'')).toFixed(2)} mm`;}
-        const z=q.size*s*(q.r==='bgt'?1.02:.92),an=q.anc||'middle';
-        if(q.rot)add({k:'t',s:s2,x:tx+q.x*s+z*.35,y:ty+q.y*s,z,b:!!q.bold,anc:an,c:q.r==='dmt'?.25:0,rot:-90});
-        else add({k:'t',s:s2,x:tx+q.x*s,y:ty+q.y*s+z*.35,z,b:!!q.bold,anc:an,c:q.r==='dmt'?.25:0});continue;}
-      const st=ROL[q.r]||{w:.6};
-      if(q.k==='c')add({k:'c',cx:tx+q.cx*s,cy:ty+q.cy*s,rad:q.rad*s,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill});
-      else add({k:'p',d:q.d,tx,ty,s,w:st.w,c:st.c,dash:st.dash,fill:st.fill});}
-  };
-  // vista lateral (H) / superior (V): ángulos + letras de las boquillas por ángulo (manual por tipo o por omisión según la cara)
-  const circulo=(cx,cy,R,sup,dy)=>{
-    add({k:'c',cx,cy,rad:R,w:1.4});if(sup)add({k:'c',cx,cy,rad:R*.62,w:.5,dash:[3,2]});
-    const ocupa=G.filter(g=>g.ang!=null).map(g=>g.ang);
-    for(let a=0;a<360;a+=45){const t=(a-90)*Math.PI/180,cc=Math.cos(t),sn=Math.sin(t);
-      Lh(cx,cy,cx+cc*R*1.08,cy+sn*R*1.08,.35,.35,a%90?[3,2]:null);
-      if(!ocupa.some(u=>Math.abs(((a-u)%360+540)%360-180)<12))T(a+'°',cx+cc*(R*1.08+10),cy+sn*(R*1.08+10)+2.3,{z:6,anc:'middle',c:.2});}
-    Lh(cx-R,cy+dy,cx+R,cy+dy,.5,.35);Lh(cx-R,cy+R*.2,cx-R,cy+dy+4,.35,.55,[2.4,2]);Lh(cx+R,cy+R*.2,cx+R,cy+dy+4,.35,.55,[2.4,2]);
-    T(ok(i.Dmm)?`Ø INT. ${i.Dmm.toFixed(2)} mm`:'Ø INT. — mm',cx,cy+dy-3,{z:6.6,anc:'middle',c:.25});
-    // letras: en el borde por ángulo; las de tapa (sin ángulo) sobre su proyección. Se omite la etiqueta de ángulo que tapa una boquilla.
-    const RB=6.4,RL=R+34,usados=[];
-    const globo=(gx,gy,l)=>{add({k:'c',cx:gx,cy:gy,rad:RB,w:.7,fill:1});T(l,gx,gy+2.6,{z:l.length>1?6:7.4,b:1,anc:'middle'});};
-    G.filter(g=>g.ang!=null).sort((a,b)=>a.ang-b.ang).forEach(g=>{let a=g.ang;
-      while(usados.some(u=>{const dd=Math.abs(((a-u)%360+540)%360-180);return dd<17;}))a+=17;usados.push(a);
-      const t0=(g.ang-90)*Math.PI/180,t1=(a-90)*Math.PI/180;
-      Lh(cx+Math.cos(t0)*R,cy+Math.sin(t0)*R,cx+Math.cos(t0)*(R+5),cy+Math.sin(t0)*(R+5),1.4);
-      Lh(cx+Math.cos(t0)*(R+5),cy+Math.sin(t0)*(R+5),cx+Math.cos(t1)*(RL-RB),cy+Math.sin(t1)*(RL-RB),.45,.15);
-      globo(cx+Math.cos(t1)*RL,cy+Math.sin(t1)*RL,g.letra);});
-    const cen=G.filter(g=>g.ang==null).map(g=>{const u=Math.max(0,Math.min(1,+g.pos.u||.5)),v=Math.max(0,Math.min(1,+g.pos.v||.5));
-      return o==='V'?{g,px:cx+(u-.5)*2*R*.7,py:cy,dash:g.cara==='abajo'}:{g,px:cx,py:cy-(v-.5)*2*R*.7,dash:g.cara==='lado'&&u<.5};});
-    if(o==='V')cen.sort((a,b)=>a.px-b.px);else cen.sort((a,b)=>a.py-b.py);
-    cen.forEach((q,k)=>{const off=(k-(cen.length-1)/2)*(2*RB+3),gx=o==='V'?cx+off:cx+R*.5,gy=o==='V'?cy-R*.5:cy+off;
-      Rc(q.px-2.6,q.py-2.6,5.2,5.2,{lw:.9,dash:q.dash?[1.4,1]:null});Lh(q.px,q.py,gx+(o==='V'?0:-RB),gy+(o==='V'?RB:0),.45,.15);globo(gx,gy,q.g.letra);});
-  };
+  const pegaCroquis=(rx,ry,rw,rh)=>frontal(c,d,L,rx,ry,rw,rh,{cotas});
   let memX,memY,memW,memH,cols;
   if(o==='H'){
     pegaCroquis(X0,Y0,580,272);vista(X0,Y0,580,292,'VISTA FRONTAL');
-    {const cx=756,cy=146,R=74;circulo(cx,cy,R,false,R+58);
-      for(const sg of [-1,1]){const a=(90+sg*38)*Math.PI/180,x1=cx+Math.cos(a)*R,y1=cy+Math.sin(a)*R;Lh(x1,y1,x1+sg*8,cy+R+26,.9);}
-      Lh(cx-R-18,cy+R+26,cx+R+18,cy+R+26,.9);vista(616,Y0,282,292,'VISTA LATERAL');}
+    vistaCirc(c,d,G,748,150,72);vista(616,Y0,282,292,'VISTA LATERAL');
     Lh(X0,328,898,328,.4,.6);Lh(902,Y0,902,Y1,.3,.75);
     memX=X0;memY=334;memW=898-X0;memH=Y1-memY;cols=3;
   }else{
-    {const cx=166,cy=128,R=58;circulo(cx,cy,R,true,R+30);vista(X0,Y0,272,214,'VISTA SUPERIOR');}
+    vistaCirc(c,d,G,166,122,58);vista(X0,Y0,272,214,'VISTA SUPERIOR');
     pegaCroquis(X0,250,272,486);vista(X0,250,272,Y1-250,'VISTA FRONTAL');
     Lh(308,Y0,308,Y1,.4,.6);Lh(902,Y0,902,Y1,.3,.75);
     memX=316;memY=Y0;memW=898-memX;memH=Y1-memY;cols=2;
@@ -3111,7 +3323,7 @@ function svg(lay,opt){
   for(const o of lay.items){
     if(o.k==='l')out.push(`<line x1="${n2(o.x1)}" y1="${n2(o.y1)}" x2="${n2(o.x2)}" y2="${n2(o.y2)}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
     else if(o.k==='r')out.push(`<rect x="${n2(o.x)}" y="${n2(o.y)}" width="${n2(o.w)}" height="${n2(o.h)}" fill="${o.fill?col(o.fill):'none'}" stroke="${col(o.s)}" stroke-width="${o.lw}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
-    else if(o.k==='c')out.push(`<circle cx="${n2(o.cx)}" cy="${n2(o.cy)}" r="${n2(o.rad)}" fill="${o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
+    else if(o.k==='c')out.push(`<circle cx="${n2(o.cx)}" cy="${n2(o.cy)}" r="${n2(o.rad)}" fill="${o.fillC?col(o.fillC):o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w}"${o.dash?` stroke-dasharray="${o.dash.join(' ')}"`:''}/>`);
     else if(o.k==='p')out.push(`<path d="${o.d}" transform="translate(${n2(o.tx)} ${n2(o.ty)}) scale(${o.s})" fill="${o.fillC?col(o.fillC):o.fill?'#fff':'none'}" stroke="${col(o.c)}" stroke-width="${o.w/o.s}"${o.dash?` stroke-dasharray="${o.dash.map(v=>v/o.s).join(' ')}"`:''} stroke-linejoin="round"/>`);
     else if(o.k==='t'){const a=o.anc==='middle'?'middle':o.anc==='end'?'end':'start',rot=o.rot?` transform="rotate(${o.rot} ${n2(o.x)} ${n2(o.y)})"`:'';
       out.push(`<text x="${n2(o.x)}" y="${n2(o.y)}" font-size="${n2(o.z)}" text-anchor="${a}"${o.b?' font-weight="700"':''} fill="${col(o.c)}"${o.u?' text-decoration="underline"':''}${rot}>${esc(o.s)}</text>`);}
@@ -3122,6 +3334,30 @@ function svg(lay,opt){
 }
 
 // ---------- backend PDF (pdf-lib; Liberation Sans de FX_ASSETS) ----------
+// Dibuja primitivas (origen arriba-izquierda) en una hoja de pdf-lib: x → ox + x, y → oy − y (la hoja del plano: ox 0, oy = alto).
+function dibuja(pg,items,o){
+  const {rgb,degrees}=root.PDFLib,{F,FB,Mx}=o,imgs=o.imgs||{},X=v=>(o.ox||0)+v,Y=v=>o.oy-v;
+  const C=c=>c==null?rgb(0,0,0):Array.isArray(c)?rgb(c[0],c[1],c[2]):rgb(c,c,c);
+  for(const it of items){
+    if(it.k==='l')pg.drawLine({start:{x:X(it.x1),y:Y(it.y1)},end:{x:X(it.x2),y:Y(it.y2)},thickness:it.w,color:C(it.c),dashArray:it.dash||undefined});
+    else if(it.k==='r')pg.drawRectangle({x:X(it.x),y:Y(it.y)-it.h,width:it.w,height:it.h,borderColor:C(it.s),borderWidth:it.lw,borderDashArray:it.dash||undefined,color:it.fill?C(it.fill):undefined});
+    else if(it.k==='c')pg.drawCircle({x:X(it.cx),y:Y(it.cy),size:it.rad,borderColor:C(it.c),borderWidth:it.w,borderDashArray:it.dash||undefined,color:it.fillC?C(it.fillC):it.fill?rgb(1,1,1):undefined});
+    else if(it.k==='p')pg.drawSvgPath(it.d,{x:X(it.tx),y:Y(it.ty),scale:it.s,borderColor:C(it.c),borderWidth:it.w/it.s,borderDashArray:it.dash?it.dash.map(v=>v/it.s):undefined,color:it.fillC?C(it.fillC):it.fill?rgb(1,1,1):undefined});
+    else if(it.k==='t'){const f=it.b?FB:F,s=Mx.limpia(it.s);let w=0;try{w=f.widthOfTextAtSize(s,it.z);}catch(_){continue;}
+      const off=it.anc==='middle'?w/2:it.anc==='end'?w:0;
+      if(it.rot)pg.drawText(s,{x:X(it.x),y:Y(it.y)-off,size:it.z,font:f,color:C(it.c),rotate:degrees(90)});
+      else{pg.drawText(s,{x:X(it.x)-off,y:Y(it.y),size:it.z,font:f,color:C(it.c)});if(it.u)pg.drawLine({start:{x:X(it.x)-off,y:Y(it.y)-1.4},end:{x:X(it.x)-off+w,y:Y(it.y)-1.4},thickness:.5,color:C(it.c)});}}
+    else if(it.k==='img'&&imgs[it.src]){const im=imgs[it.src],k=Math.min(it.w/im.width,it.h/im.height),w=im.width*k,h=im.height*k;
+      pg.drawImage(im,{x:X(it.izq?it.x:it.x+(it.w-w)/2),y:Y(it.y)-it.h+(it.h-h)/2,width:w,height:h});}
+  }
+}
+// Hojas PND (71 MT · 75 UT): dibuja el croquis en la caja de la hoja de la plantilla. opt: {F, FB (fuentes ya incrustadas), M (métricas)}.
+// Devuelve {falta}: si falta Ø interior o longitud, la caja queda vacía.
+function pndEnHoja(pg,tp,d,opt){
+  const caja=PND_CAJA[tp],lay=caja&&pndLayout(d,tp,opt);if(!lay)return {falta:[]};
+  if(lay.items.length)dibuja(pg,lay.items,{F:opt.F,FB:opt.FB,Mx:opt.M,ox:caja.x,oy:caja.y});
+  return {falta:lay.falta};
+}
 async function pdf(d,opt){
   opt=opt||{};const P=root.PDFLib;if(!P)throw new Error('PDFLib no disponible');
   const {PDFDocument,StandardFonts,rgb,degrees}=P;
@@ -3133,26 +3369,15 @@ async function pdf(d,opt){
   for(const k of ['logo','firma','ubic']){const b=opt[k];if(!b||!b.length)continue;try{imgs[k]=b[0]===0x89?await doc.embedPng(b):await doc.embedJpg(b);}catch(_){}}
   const lay=hoja(d,Object.assign({},opt,{M:Mx,logo:!!imgs.logo,firma:!!imgs.firma,ubicImg:!!imgs.ubic,ubicDim:imgs.ubic?{w:imgs.ubic.width,h:imgs.ubic.height}:null}));
   const {W,H}=lay,pg=doc.addPage([W,H]);
-  const C=c=>c==null?rgb(0,0,0):Array.isArray(c)?rgb(c[0],c[1],c[2]):rgb(c,c,c);
-  for(const o of lay.items){
-    if(o.k==='l')pg.drawLine({start:{x:o.x1,y:H-o.y1},end:{x:o.x2,y:H-o.y2},thickness:o.w,color:C(o.c),dashArray:o.dash||undefined});
-    else if(o.k==='r')pg.drawRectangle({x:o.x,y:H-o.y-o.h,width:o.w,height:o.h,borderColor:C(o.s),borderWidth:o.lw,borderDashArray:o.dash||undefined,color:o.fill?C(o.fill):undefined});
-    else if(o.k==='c')pg.drawCircle({x:o.cx,y:H-o.cy,size:o.rad,borderColor:C(o.c),borderWidth:o.w,borderDashArray:o.dash||undefined,color:o.fill?rgb(1,1,1):undefined});
-    else if(o.k==='p')pg.drawSvgPath(o.d,{x:o.tx,y:H-o.ty,scale:o.s,borderColor:C(o.c),borderWidth:o.w/o.s,borderDashArray:o.dash?o.dash.map(v=>v/o.s):undefined,color:o.fillC?C(o.fillC):o.fill?rgb(1,1,1):undefined});
-    else if(o.k==='t'){const f=o.b?FB:F,s=Mx.limpia(o.s);let w=0;try{w=f.widthOfTextAtSize(s,o.z);}catch(_){continue;}
-      const off=o.anc==='middle'?w/2:o.anc==='end'?w:0;
-      if(o.rot)pg.drawText(s,{x:o.x,y:H-o.y-off,size:o.z,font:f,color:C(o.c),rotate:degrees(90)});
-      else{pg.drawText(s,{x:o.x-off,y:H-o.y,size:o.z,font:f,color:C(o.c)});if(o.u)pg.drawLine({start:{x:o.x-off,y:H-o.y-1.4},end:{x:o.x-off+w,y:H-o.y-1.4},thickness:.5,color:C(o.c)});}}
-    else if(o.k==='img'&&imgs[o.src]){const im=imgs[o.src],k=Math.min(o.w/im.width,o.h/im.height),w=im.width*k,h=im.height*k;
-      pg.drawImage(im,{x:o.izq?o.x:o.x+(o.w-w)/2,y:H-o.y-o.h+(o.h-h)/2,width:w,height:h});}
-  }
+  dibuja(pg,lay.items,{F,FB,Mx,imgs,ox:0,oy:H});
   const md=d.e||{};
   doc.setTitle(('Plano '+[md.tag,md.nombre].filter(Boolean).join(' ')).trim());doc.setProducer('FenixMex');doc.setCreator('FenixMex · Plano v'+VERSION);doc.setSubject(COD_FAB+' · NOM-020-STPS-2011');
   return await doc.save({useObjectStreams:true});
 }
 
 root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,F_AREA_TAPAS,SH,VALVULAS_RELEVO,valvulaDe,E_OPC,FS_OPC,RADIOGRAFIADO,CORROSION_MM,DIBUJO_DEF,
-  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,fechaCajetin,metricas,hoja,ubicLayout,svg,pdf};
+  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,fechaCajetin,metricas,hoja,ubicLayout,svg,pdf,
+  PND_CAJA,UT_TAPA,UT_CUERPO,pndFalta,pndLayout,pndEnHoja};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
 <script>
@@ -3585,14 +3810,24 @@ function renderPnd(){
       <footer><span>Mínimo · hoja 73</span><b data-min="${k}">—</b></footer><div class="rango" data-rango="${k}"></div></div>`).join('')}</div></div></div>
    <div class="pnd-paso"><span class="letra">b</span><div><h4>Anexo fotográfico <span class="tag">Hoja 72</span></h4>
     <p class="nota">Cuatro muestras del equipo. Sin foto se imprime SIN DATO.</p>
-    <div class="muestras">${MUESTRAS.map(n=>`<div class="img foto" data-img="e:${e.id}:muestra${n}" data-label="Muestra ${n}" data-hint="Arrastra la foto aquí"></div>`).join('')}</div></div></div>`;
+    <div class="muestras">${MUESTRAS.map(n=>`<div class="img foto" data-img="e:${e.id}:muestra${n}" data-label="Muestra ${n}" data-hint="Arrastra la foto aquí"></div>`).join('')}</div></div></div>
+   <div class="pnd-paso" id="pndCroq"><span class="letra">c</span><div><h4>Croquis del equipo <span class="tag">Hojas 71 y 75</span> <span class="tag" data-croq-tag></span></h4>
+    <p class="nota" data-croq-txt></p></div></div>`;
   $$('[data-esp]',box).forEach(inp=>{inp.value=e[inp.dataset.esp][+inp.dataset.r]||'';inp.addEventListener('input',()=>{e[inp.dataset.esp][+inp.dataset.r]=inp.value.replace(',','.');actMin(box,e);guardar();});});
   $$('[data-base]',box).forEach(inp=>{const k=inp.dataset.base;inp.value=uniforme(e[k])||minCol(e[k]);inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();$(`[data-fill="${k}"]`,box).click();}});});
   $$('[data-fill]',box).forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.fill,v=$(`[data-base="${k}"]`,box).value.trim().replace(',','.');
     if(isNaN(parseFloat(v))){toast('Escribe el espesor mínimo en mm antes de rellenar.');$(`[data-base="${k}"]`,box).focus();return;}
     const j=Fx().jitterCol(Array(16).fill(v))||Array(16).fill(v);e[k]=j;$$(`[data-esp="${k}"]`,box).forEach(x=>x.value=j[+x.dataset.r]);actMin(box,e);guardar();
     toast(`16 puntos rellenados: ${j.reduce((a,b)=>nNum(b)<nNum(a)?b:a)} a ${j.reduce((a,b)=>nNum(b)>nNum(a)?b:a)} mm`);}));
-  initImgs(box);actMin(box,e);
+  initImgs(box);actMin(box,e);actCroqPnd(box,e);
+}
+// Estado del croquis automático de las hojas 71 (MT) y 75 (UT): se dibuja solo al generar con los datos del plano; sin Ø o longitud queda pendiente.
+function actCroqPnd(box,e){
+  const tg=$('[data-croq-tag]',box),tx=$('[data-croq-txt]',box);if(!tg||!tx)return;
+  const f=pndCroqFalta(e),o=(window.FXPlano&&FXPlano.datos(e,{}).inp.o)==='V'?'vertical':'horizontal';
+  tg.textContent=f.length?'Pendiente':'Automático';tg.dataset.s=f.length?'err':'ok';tg.style.color=f.length?'var(--vino-2)':'';
+  tx.innerHTML=f.length?`Falta ${esc(f.join(' y '))} del equipo: las cajas de croquis de las hojas 71 y 75 quedarán vacías. <a href="#plano">Captúralo en el plano</a>.`
+    :`Se dibuja solo al generar, con el equipo ${o} del plano: hoja 71 con la vista frontal y las soldaduras circunferenciales en rojo; hoja 75 con las dos tapas y la vista frontal con los puntos de medición.`;
 }
 function minCol(a){const v=(a||[]).map(nNum);return v.length>=16&&v.slice(0,16).every(x=>!isNaN(x))?Math.min(...v.slice(0,16)).toFixed(2):'';}
 function uniforme(a){const v=(a||[]).map(x=>String(x).trim());return v.length>=16&&v[0]&&v.every(x=>x&&nNum(x)===nNum(v[0]))?v[0]:'';}
@@ -3633,6 +3868,7 @@ function validar(){
     if(!c)E(`${n}: sin categoría; captura la presión de calibración.`,'s-equipos',Object.assign({k:'presionCalibracion'},q));
     const t=(e.tag||'').trim().toUpperCase();if(t){if(tags[t])W(`TAG repetido: ${t}.`,'s-equipos',Object.assign({k:'tag'},q));tags[t]=1;}
     ESP_COLS.forEach(([k,l])=>{if(e[k].filter(x=>String(x).trim()).length<16)W(`${n}: espesores incompletos (${l.toLowerCase()}).`,'s-pnd',{eq:e.id,esp:k});});
+    {const f=pndCroqFalta(e);if(f.length)W(`${n}: croquis de las hojas 71 y 75 pendiente (falta ${f.join(' y ')}); la caja quedará vacía.`,'s-pnd',{eq:e.id,croq:1});}
   });
   return {err,warn};
 }
@@ -3648,7 +3884,7 @@ function irA(x){
   const sec=$('#'+x.sec);let t=null;
   if(x.eq&&x.sec==='s-equipos'){const e=D.equipos.find(q=>q.id===x.eq);const el=$(`.equipo[data-eq="${x.eq}"]`);if(e&&el&&e._cerrado){e._cerrado=false;el.classList.remove('cerrado');$('.cab',el).setAttribute('aria-expanded','true');}
     t=el&&($(`[data-campo="${x.k}"] input,[data-campo="${x.k}"] select`,el));}
-  else if(x.eq&&x.sec==='s-pnd'){pndActivo=x.eq;renderPnd();t=$(`[data-col="${x.esp}"] [data-base]`);}
+  else if(x.eq&&x.sec==='s-pnd'){pndActivo=x.eq;renderPnd();t=x.croq?$('#pndCroq a'):$(`[data-col="${x.esp}"] [data-base]`);}
   else if(x.sel)t=$(x.sel);
   const dest=t||sec;dest.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:t?'center':'start'});
   if(t){setTimeout(()=>{try{t.focus({preventScroll:true});}catch(_){}},350);const c=t.closest('.campo')||t.closest('.img');if(c){c.classList.remove('destello');void c.offsetWidth;c.classList.add('destello');}}
@@ -3721,6 +3957,14 @@ function assets(){
   ASSETS={tplExp:b64(A.tplExp),tplPrevio:b64(A.tplPrevio),tplDict:b64(A.tplDict),fonts,map:A.map};return ASSETS;
 }
 
+// Hojas PND 71 (MT) y 75 (UT): croquis automático desde el plano / levantamiento del equipo. Un error de dibujo nunca detiene el expediente.
+async function croquisPnd({page,tp,e,kit}){
+  if(!window.FXPlano)return;
+  try{FXPlano.pndEnHoja(page,tp,FXPlano.datos(e,{}),{F:await kit.font('R'),FB:await kit.font('B'),M:plMetricas()});}
+  catch(err){console.error('croquis PND hoja '+tp,err);}
+}
+// Lo que falta para dibujar el croquis PND de un equipo ([] = se dibuja)
+function pndCroqFalta(e){if(!window.FXPlano||!e)return [];try{return FXPlano.pndFalta(FXPlano.datos(e,{}));}catch(_){return [];}}
 let SALIDA=[];
 async function generar(zip){
   const {err}=validar();if(err.length){mostrarFaltas=true;refrescar();toast('Faltan datos: toca un pendiente para ir directo al campo.');return;}
@@ -3729,7 +3973,7 @@ async function generar(zip){
   SALIDA.forEach(f=>URL.revokeObjectURL(f.url));SALIDA=[];$('#archivos').innerHTML='';$('#sellado').innerHTML='';
   try{
     txt.textContent='Preparando firmas…';
-    const A=Object.assign({},assets(),{globals:{logoFenix:IMG['g:logoFenix']||null,firmaPnd1:await recortarFirma(IMG['g:firmaPnd1']||null),firmaPnd2:await recortarFirma(IMG['g:firmaPnd2']||null),firmanteIzquierdoFirma:await recortarFirma(IMG['g:firmanteIzquierdoFirma']||null)}});
+    const A=Object.assign({},assets(),{globals:{logoFenix:IMG['g:logoFenix']||null,firmaPnd1:await recortarFirma(IMG['g:firmaPnd1']||null),firmaPnd2:await recortarFirma(IMG['g:firmaPnd2']||null),firmanteIzquierdoFirma:await recortarFirma(IMG['g:firmanteIzquierdoFirma']||null)}},{croquisPnd});
     const st=stGen();
     for(const k of ['representanteLegalFirma','testigo1Firma','testigo2Firma'])st[k]=await recortarFirma(st[k]);
     const N=Fx().estimatePages(st,A.map),nom=Fx().nombresArchivo(Fx().razonSocial(st));
@@ -4548,7 +4792,7 @@ function plMemoria(d){
 // ----- boquillas: croquis interactivo (agrupado por tipo) + tabla de grupos + lista una por una -----
 function plCroquis(d){
   const svg=$('#plCroquis');if(!svg)return;const e=d.e,L=plL(e,d);
-  const lay=LX().croquis(L,{hit:true,agrupar:true});
+  const lay=LX().croquis(L,{hit:true,agrupar:true,cad:true});
   svg.setAttribute('viewBox',`0 0 ${lay.W} ${lay.H}`);svg.dataset.o=L.orientacion;
   const sel=plSel&&L.boquillas.find(b=>b.tipo===plSel);
   svg.innerHTML=LX().svg(lay,sel?sel.id:null);
@@ -4560,7 +4804,7 @@ function plGrupos(d){
     const dft=FXP().angDefault(o,{cara:g.cara,pos:g.pos});
     return `<tr data-t="${esc(g.t)}"${g.t===plSel?' class="sel"':''}><td><button type="button" class="lev-letra" data-pgs>${g.letra}</button></td><td>${esc(g.serv)}</td><td class="n">${g.n}</td><td class="n vinc">${g.porD.map(([mm])=>mm).join(' · ')}</td>
       <td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>
-      <td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)}"><span class="u">°</span></div></td></tr>`;}).join('')}</tbody>`;
+      <td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)} (0° a la derecha, sentido antihorario)" title="0° a la derecha, 90° arriba, 180° a la izquierda, 270° abajo"><span class="u">°</span></div></td></tr>`;}).join('')}</tbody>`;
   $$('[data-mayus]',tb).forEach(mayus);
 }
 function plBqLista(d){
