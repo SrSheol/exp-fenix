@@ -3093,14 +3093,15 @@ function pndLayout(d,tp,opt){
       else{const a=y0+hd,b=y0+th-hd,yu=u=>Y(a+(b-a)*u);U.lados.forEach(u=>{punto(X(x0+tw*U.v[0]),yu(u),r);punto(X(x0+tw*U.v[2]),yu(u),r);});U.centro.forEach(u=>punto(X(x0+tw*U.v[1]),yu(u),r));}
     }};
   // vista de tapa (lateral H / superior V) ajustada a la caja (x,y,w,h), con sus puntos UT
-  const tapa=(x,y,w,h)=>{
+  const tapa=(x,y,w,h,tit)=>{
     const R0=50,B0=vistaCirc(lienzo(Mx),d,G,0,0,R0,{pnd:true}),bw=B0.x1-B0.x0,bh=B0.y1-B0.y0,k=Math.min((w-8)/bw,(h-TH-4)/bh);
     const R=R0*k,cx=x+w/2-(B0.x0+B0.x1)/2*k,cy=y+(h-TH-bh*k)/2-B0.y0*k;vistaCirc(c,d,G,cx,cy,R,{pnd:true});
-    titulo(o==='V'?'VISTA SUPERIOR':'VISTA LATERAL',x+w/2,cy+B0.y1*k+TH-6);
+    titulo(tit,x+w/2,cy+B0.y1*k+TH-6);
     const r=Math.max(1.8,Math.min(2.6,R*.035));UT_TAPA.forEach(([u,v])=>punto(cx+u*R,cy+v*R,r));};
   if(tp===71)frente(PAD,PAD,W-2*PAD,H-2*PAD,'MT');
   else{const hT=Math.round((H-2*PAD)*(o==='V'?.34:.42)),cw=(W-2*PAD)/2;   // V: tapas más chicas, el cuerpo alto ocupa el resto
-    tapa(PAD,PAD,cw,hT);tapa(PAD+cw,PAD,cw,hT);frente(PAD,PAD+hT+6,W-2*PAD,H-2*PAD-hT-6,'UT');}
+    // H: VISTA LATERAL en ambas tapas · V: VISTA SUPERIOR (izquierda) y VISTA INFERIOR (derecha); mismo dibujo y mismos puntos
+    tapa(PAD,PAD,cw,hT,o==='V'?'VISTA SUPERIOR':'VISTA LATERAL');tapa(PAD+cw,PAD,cw,hT,o==='V'?'VISTA INFERIOR':'VISTA LATERAL');frente(PAD,PAD+hT+6,W-2*PAD,H-2*PAD-hT-6,'UT');}
   return {W,H,items:c.it,falta:[]};
 }
 function hoja(d,opt){
