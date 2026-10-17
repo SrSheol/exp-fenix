@@ -547,6 +547,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 .pl-par{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:inherit}
 @media (max-width:420px){.pl-par{grid-template-columns:minmax(0,1fr)}}
 .campo .ayuda.alerta{color:var(--vino);font-weight:650}
+.campo .ayuda.rojo{color:var(--err);font-weight:650}
 .pl-or{margin:0 0 14px}
 .pl-or>label{display:block;font-size:13px;font-weight:600;color:var(--tinta-2);margin-bottom:6px}
 .pl-or .ayuda{font-size:12px;color:var(--tinta-3);margin-top:5px}
@@ -938,7 +939,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 
       <div class="tarjeta">
         <h3>Especificaciones <span class="tag">captura en blanco · gris = vinculado</span></h3>
-        <p class="nota">Las presiones, temperaturas y datos de placa son los del expediente. <b>S</b> se captura a mano junto a su material (no hay tabla de materiales): S cuerpo para la envolvente, S tapas para las tapas. Radiografiado (PUNTOS) y corrosión (0.00 mm) son fijos.</p>
+        <p class="nota">Las presiones, temperaturas y datos de placa son los del expediente. <b>S</b> sale de la tabla de materiales según el material del cuerpo y el factor de seguridad (las tapas llevan el mismo material): S cuerpo para la envolvente, S tapas para las tapas. Si la tabla no tiene valor, S queda vacío y se marca como pendiente. Radiografiado (PUNTOS) y corrosión (0.00 mm) son fijos.</p>
         <div class="grid pl-grid">
           <div class="campo "><label for="pl_flu">Fluido <span class="req">*</span></label><div class="caja"><input id="pl_flu" data-pe="fluido" data-mayus placeholder="AIRE" autocomplete="off"></div></div>
           <div class="campo "><label for="pl_pd">Presión de diseño <span class="req">*</span></label><div class="caja"><input id="pl_pd" data-pe="presionDiseno" inputmode="decimal" placeholder="12.00" autocomplete="off"><span class="u">kg/cm²</span></div></div>
@@ -953,19 +954,19 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
           <div class="campo"><label>Espesor empleado · cuerpo <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="tEnv" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="tEnv"><button type="button" class="btn chico fantasma" data-plpnd="espEnv">Editar en PND</button></div></div>
           <div class="campo"><label>Espesor empleado · tapas <span class="vinc-tag">vinculado</span></label><div class="caja auto"><input data-pv="tTap" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>mm</span></div><div class="ayuda" data-pva="tTap"><button type="button" class="btn chico fantasma" data-plpnd="espSup">Editar en PND</button></div></div>
           <div class="pl-par">
-            <div class="campo "><label for="pl_mc">Material del cuerpo</label><div class="caja"><input id="pl_mc" data-pe="materialCuerpo" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_sc">Esfuerzo permisible S cuerpo <span class="req">*</span></label><div class="caja"><input id="pl_sc" data-pl="sCuerpo" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div><div class="ayuda">Envolvente (1.1 y 2.1).</div></div>
+            <div class="campo "><label for="pl_mc">Material del cuerpo</label><div class="caja"><select id="pl_mc" data-pe="materialCuerpo" data-opc="MAT"></select></div><div class="ayuda" data-pa="materialCuerpo"></div></div>
+          <div class="campo"><label>Esfuerzo permisible S cuerpo <span class="req">*</span> <span class="vinc-tag">tabla</span></label><div class="caja auto"><input id="pl_sc" data-pv="Sc" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>kg/cm²</span></div><div class="ayuda" data-pva="Sc">Envolvente (1.1 y 2.1).</div></div>
           </div>
           <div class="pl-par">
-            <div class="campo "><label for="pl_mt">Material de las tapas</label><div class="caja"><input id="pl_mt" data-pe="materialTapa" data-mayus placeholder="SA-414-G" autocomplete="off"></div></div>
-          <div class="campo "><label for="pl_st">Esfuerzo permisible S tapas <span class="req">*</span></label><div class="caja"><input id="pl_st" data-pl="sTapas" inputmode="decimal" placeholder="1509.18" autocomplete="off"><span class="u">kg/cm²</span></div><div class="ayuda">Tapas semielípticas (1.2 y 2.2).</div></div>
+            <div class="campo"><label>Material de las tapas <span class="vinc-tag">= cuerpo</span></label><div class="caja auto"><input id="pl_mt" data-pv="mt" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div><div class="ayuda" data-pva="mt">El mismo material del cuerpo.</div></div>
+          <div class="campo"><label>Esfuerzo permisible S tapas <span class="req">*</span> <span class="vinc-tag">tabla</span></label><div class="caja auto"><input id="pl_st" data-pv="St" readonly tabindex="-1" aria-readonly="true" placeholder="—"><span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>kg/cm²</span></div><div class="ayuda" data-pva="St">Tapas semielípticas (1.2 y 2.2).</div></div>
           </div>
-          <div class="campo "><label for="pl_fs">Factor de seguridad</label><div class="caja"><select id="pl_fs" data-pl="factorSeguridad" data-opc="FS"></select></div><div class="ayuda" data-pa="factorSeguridad">Solo se imprime; S ya lo refleja.</div></div>
-          <div class="campo "><label for="pl_fab">Fabricante</label><div class="caja"><input id="pl_fab" data-pl="fabricante" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: se imprime la marca.</div></div>
+          <div class="campo "><label for="pl_fs">Factor de seguridad</label><div class="caja"><select id="pl_fs" data-pl="factorSeguridad" data-opc="FS"></select></div><div class="ayuda" data-pa="factorSeguridad">S sale de la tabla con este factor.</div></div>
+          <div class="campo "><label for="pl_fab">Fabricante</label><div class="caja"><input id="pl_fab" data-pl="fabricante" data-mayus autocomplete="off"></div><div class="ayuda" data-pa="fabricante">Igual a la marca.</div></div>
           <div class="campo "><label for="pl_mar">Marca</label><div class="caja"><input id="pl_mar" data-pe="marca" data-mayus autocomplete="off"></div></div>
           <div class="campo "><label for="pl_ser">Número de serie</label><div class="caja"><input id="pl_ser" data-pe="numeroSerie" data-mayus autocomplete="off"></div></div>
           <div class="campo "><label for="pl_anio">Año de fabricación</label><div class="caja"><input id="pl_anio" data-pe="anioFabricacion" inputmode="decimal" placeholder="S/D" autocomplete="off"></div><div class="ayuda">Vacío: se imprime S/D.</div></div>
-          <div class="campo "><label for="pl_nb">National Board</label><div class="caja"><input id="pl_nb" data-pl="nationalBoard" data-mayus placeholder="SIN DATO" autocomplete="off"></div></div>
+          <div class="campo "><label for="pl_nb">National Board</label><div class="caja"><input id="pl_nb" data-pl="nationalBoard" data-mayus placeholder="SIN DATO" autocomplete="off"></div><div class="ayuda">Por omisión SIN DATO; se puede cambiar.</div></div>
           <div class="campo "><label for="pl_ubi">Ubicación <span class="req">*</span></label><div class="caja"><input id="pl_ubi" data-pe="ubicacion" data-mayus placeholder="CUARTO DE MÁQUINAS" autocomplete="off"></div></div>
           <div class="campo medio"><label for="pl_cod">Código de fabricación</label><div class="caja"><input id="pl_cod" data-pl="codigoFabricacion" data-mayus autocomplete="off"></div></div>
         </div>
@@ -2002,8 +2003,8 @@ const CAP_L_MIN=20; // capacidad sin unidad y sin decimales: desde 20 se toma co
 const META=[
  ['cliente','Razón Social','RAZÓN SOCIAL',{mayus:1,cls:'ancho',ph:'FOCAS INDUSTRIALES, S.A. DE C.V.',ayuda:'En el expediente y el plano: razón social de la empresa, solo si está vacía.'}],
  ['planta','Ubicación','UBICACIÓN',{mayus:1,cls:'ancho',ph:'CUARTO DE MÁQUINAS',ayuda:'En el expediente y el plano: ubicación del equipo.'}],
- ['tanque','Nombre del equipo','NOMBRE DEL EQUIPO',{mayus:1,cls:'medio',ph:'COMPRESOR DE AIRE NO.1',ayuda:'En el expediente y el plano: nombre del equipo.'}],
- ['tag','TAG','TAG',{mayus:1,ph:'TQ-01'}],
+ ['tanque','Nombre del equipo','NOMBRE DEL EQUIPO',{sel:1,cls:'medio',ayuda:'En el expediente y el plano: nombre del equipo. Al elegirlo se pone el TAG.'}],
+ ['tag','TAG','TAG',{mayus:1,ph:'COM-01',ayuda:'Se pone solo al elegir el nombre: el número es la posición del equipo en el expediente (COM-01, COM-02…). Se puede editar.'}],
  ['modelo','Modelo','MODELO',{mayus:1,ph:'S/D'}],
  ['serie','Serie','SERIE',{mayus:1,ph:'1628'}],
  ['marca','Marca','MARCA',{mayus:1,ph:'ALANSA'}],
@@ -2016,6 +2017,15 @@ const META=[
  ['capacidad','Capacidad','CAPACIDAD',{ph:'0.500 m³ · 500 L',cap:1,ayuda:'Sin unidad: 0.500 o 1.250 se quedan en m³; un entero de 20 o más (500) se toma como litros → 0.500 m³. Con L, lt o litros se divide entre 1000; con gal × 0.003785. Máximo 3 decimales.'}]
 ];
 const META_KEYS=META.map(m=>m[0]);
+// Nombres de equipo (lista del levantamiento) y prefijo de su TAG. Para agregar uno basta con agregar un renglón.
+// TAG = prefijo + posición del equipo en el expediente con 2 dígitos (COM-01, COM-02, COM-03…).
+const EQUIPOS=[
+  {nombre:'COMPRESOR DE AIRE NO. 1',tag:'COM'},
+];
+function equipoDe(nombre){const k=String(nombre??'').trim().toUpperCase();return EQUIPOS.find(x=>x.nombre===k)||null;}
+function tagDe(nombre,n){const q=equipoDe(nombre);return q&&n>0?`${q.tag}-${String(n).padStart(2,'0')}`:'';}
+// TAG con la forma automática del nombre (prefijo-número): al pasar al expediente se renumera con la posición real
+function tagAuto(nombre,tag){const q=equipoDe(nombre);return !!q&&new RegExp('^'+q.tag+'-\\d+$').test(String(tag??'').trim().toUpperCase());}
 
 // ---------- utilidades ----------
 const num=v=>{const n=parseFloat(String(v??'').trim().replace(',','.'));return isFinite(n)?n:NaN;};
@@ -2654,7 +2664,7 @@ async function pdf(L,opt){
 // Formato en blanco H o V (sin datos del cliente): mismo armado que la hoja llena.
 async function formato(o,opt){const L=nuevo();L.orientacion=o==='V'?'V':'H';return pdf(L,Object.assign({},opt||{},{blank:true}));}
 
-root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,META,META_KEYS,CAP_L_MIN,
+root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,META,META_KEYS,CAP_L_MIN,EQUIPOS,equipoDe,tagDe,tagAuto,
   nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,contorno,sitio,aUV,croquis,glifo,textura,svg,aJSON,pdf,formato,
   letra,grupos,tapas,tapasUI,parsePulg,fmtPulg,numTxt,capM3,capTxt,isoFecha,anioDe,fechaMx,esTapita,normTipo,variar,baseCol,limpiarCol};
 })(typeof window!=='undefined'?window:globalThis);
@@ -2684,6 +2694,16 @@ const CORROSION_MM=0;                    // v3: fija en 0.00 mm
 const DIBUJO_DEF='ING. PABLO MOTA';      // v3: «Dibujó» por omisión (solo si está vacío o no existe)
 const E_OPC=Array.from({length:19},(_,k)=>(0.10+k*0.05).toFixed(2));   // 0.10 … 1.00
 const FS_OPC=['3','3.5','4'];
+// Tabla de materiales: esfuerzo permisible S (kg/cm²) por factor de seguridad. Para agregar un material basta con agregar un renglón.
+// null = la tabla no tiene valor para ese factor: S queda vacío y se marca como pendiente (no se inventa).
+const MATERIALES=[
+  {id:'SA-414-G',S:{'3':null,'3.5':1509.18,'4':null}},
+];
+const MAT_DEF='SA-414-G';
+function materialDe(m){const k=String(m??'').trim().toUpperCase();return MATERIALES.find(x=>x.id===k)||null;}
+// S de la tabla para material × factor de seguridad → {mat: renglón o null (fuera de la tabla), s: número o NaN}
+function sTabla(m,fs){const r=materialDe(m),v=r?r.S[String(parseFloat(String(fs??'').replace(',','.')))]:null;return {mat:r,s:typeof v==='number'&&v>0?v:NaN};}
+const NB_DEF='SIN DATO';   // National Board por omisión
 // v3: válvulas de seguridad (Ø mm → área de descarga cm²). Para agregar medidas basta con agregar renglones.
 // El área es la de la tabla (0.110 cm² para Ø 6.00 no es π/4·d²).
 const VALVULAS_RELEVO=[
@@ -2696,8 +2716,11 @@ const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
 // v3: S separado (sCuerpo / sTapas); radiografiado, corrosión, C/K/M y área instalada ya no se capturan.
 // dibujoBorrado = '1' cuando el usuario vació «Dibujó» a propósito (no se vuelve a poner el valor por omisión).
 // dvLegado = Ø de válvula anterior (texto libre) que no está en VALVULAS_RELEVO: se avisa en pantalla.
+// sCuerpo / sTapas: copia del S de la tabla MATERIALES (material del equipo × factor de seguridad); con un material fuera de la tabla, el S anterior.
+// fabricante = '' → se usa la marca (sigue a la marca); con texto = fabricante distinto de la marca.
+// nbBorrado = '1' cuando el usuario vació «National Board» a propósito (no se vuelve a poner SIN DATO).
 const DEF={orientacion:'',cejaRectaMm:'',sCuerpo:'',sTapas:'',eficiencia:'0.85',factorSeguridad:'3.5',
-  nationalBoard:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
+  nationalBoard:NB_DEF,nbBorrado:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
   // v2 · croquis de ubicación: '' (sin croquis) | 'img' (plano del lugar + flecha) | 'esq' (cuarto + puerta + equipo). Posiciones 0–1.
   ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:'',
   // v4 · convención de ángulos de las boquillas: '2' = 0° a la derecha, sentido antihorario (90° arriba). Sin marca = archivo anterior (0° arriba, horario).
@@ -2733,8 +2756,10 @@ function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(
   {const n=eficiencia(o.eficiencia),s=n>0?n.toFixed(2):'';o.eficiencia=!txt(o.eficiencia)?DEF.eficiencia:E_OPC.includes(s)?s:txt(o.eficiencia);}
   {const n=num(o.factorSeguridad),s=n>0?String(n):'';o.factorSeguridad=!txt(o.factorSeguridad)?DEF.factorSeguridad:FS_OPC.includes(s)?s:txt(o.factorSeguridad);}
   if(!txt(o.dibujo)&&o.dibujoBorrado!=='1')o.dibujo=DIBUJO_DEF;
+  if(!txt(o.nationalBoard)&&o.nbBorrado!=='1')o.nationalBoard=NB_DEF;
   return o;}
-function esDefault(p){if(!p)return true;for(const k in DEF)if(txt(p[k])!==txt(DEF[k]))return false;for(const k of DEF_OBJ)if(p[k]&&Object.keys(p[k]).length)return false;return true;}
+// S cuerpo / S tapas no cuentan: salen de la tabla de materiales (material × factor de seguridad)
+function esDefault(p){if(!p)return true;for(const k in DEF)if(k!=='sCuerpo'&&k!=='sTapas'&&txt(p[k])!==txt(DEF[k]))return false;for(const k of DEF_OBJ)if(p[k]&&Object.keys(p[k]).length)return false;return true;}
 // E: fracción; si viene en % (85) se divide entre 100
 function eficiencia(v){const n=num(v);return !(n>0)?NaN:n>1?n/100:n;}
 function minNum(arrs){const v=[].concat(...arrs.map(a=>Array.isArray(a)?a:[])).map(num).filter(x=>x>0);return v.length?Math.min(...v):NaN;}
@@ -2753,9 +2778,11 @@ function datos(e,ctx){
   const boq=(lv&&Array.isArray(lv.boquillas))?lv.boquillas:[];
   // v3: Ø de la válvula solo de la tabla VALVULAS_RELEVO (select); el área instalada es la de la tabla
   const vt=valvulaDe(e.diametroValvulaMm);
+  // S de la tabla MATERIALES (material × factor de seguridad); sin valor en la tabla → vacío (pendiente). Material fuera de la tabla (archivo anterior): el S guardado.
+  const sDe=(m,g)=>{const t=sTabla(m,pl.factorSeguridad);return t.mat?t.s:pos(g);};
   const inp={
     o,Dcm,Dmm:Dcm*10,Rmm:Dcm*10/2,Lmm,Tapmm,CR,
-    P:num(e.presionDiseno),Sc:pos(pl.sCuerpo),St:pos(pl.sTapas),E:eficiencia(pl.eficiencia),K:K_FORMA,
+    P:num(e.presionDiseno),Sc:sDe(e.materialCuerpo,pl.sCuerpo),St:sDe(e.materialTapa,pl.sTapas),E:eficiencia(pl.eficiencia),K:K_FORMA,
     tEnv:minNum([e.espEnv]),tTap:minNum([e.espSup,e.espInf]),
     Pc:num(e.presionCalibracion),Td:num(e.tempDiseno),C:AIRE.C,Kd:AIRE.K,M:AIRE.M,
     fluido,aire,dv:vt?vt.d:NaN,dvTxt:vt?vt.txt:'',Ainst:vt?vt.area:NaN,dvLegado:vt?'':txt(pl.dvLegado),
@@ -2763,7 +2790,7 @@ function datos(e,ctx){
   const r=calc(inp);
   const lbl={P:'Presión de diseño',Sc:'Esfuerzo permisible S cuerpo',St:'Esfuerzo permisible S tapas',E:'Eficiencia E',Dcm:'Ø interior',Lmm:'Longitud soldadura–soldadura',CR:'Ceja recta (C.R.)',
     tEnv:'Espesor medido del cuerpo (PND)',tTap:'Espesor medido de las tapas (PND)',Pc:'Presión de calibración',Td:'Temperatura de diseño',dv:'Ø de la válvula de seguridad'};
-  const donde={P:['exp','presionDiseno'],Sc:['plano','sCuerpo'],St:['plano','sTapas'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
+  const donde={P:['exp','presionDiseno'],Sc:['plano','materialCuerpo'],St:['plano','materialCuerpo'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
     tEnv:['pnd','espEnv'],tTap:['pnd','espSup'],Pc:['exp','presionCalibracion'],Td:['exp','tempDiseno'],dv:['exp','diametroValvulaMm']};
   const faltan=Object.keys(lbl).filter(k=>!ok(inp[k])).map(k=>({k,m:lbl[k],donde:donde[k][0],campo:donde[k][1]}));
   const ubic={modo:pl.ubicModo==='img'||pl.ubicModo==='esq'?pl.ubicModo:'',x:frac(pl.ubicX,.5),y:frac(pl.ubicY,.5),ang:isFinite(num(pl.ubicAng))?num(pl.ubicAng):135,
@@ -3376,7 +3403,7 @@ async function pdf(d,opt){
   return await doc.save({useObjectStreams:true});
 }
 
-root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,F_AREA_TAPAS,SH,VALVULAS_RELEVO,valvulaDe,E_OPC,FS_OPC,RADIOGRAFIADO,CORROSION_MM,DIBUJO_DEF,
+root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,F_AREA_TAPAS,SH,VALVULAS_RELEVO,valvulaDe,E_OPC,FS_OPC,MATERIALES,MAT_DEF,materialDe,sTabla,NB_DEF,RADIOGRAFIADO,CORROSION_MM,DIBUJO_DEF,
   reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,fechaCajetin,metricas,hoja,ubicLayout,svg,pdf,
   PND_CAJA,UT_TAPA,UT_CUERPO,pndFalta,pndLayout,pndEnHoja};
 })(typeof window!=='undefined'?window:globalThis);
@@ -3417,7 +3444,8 @@ const EQ_GRUPOS=[
   ['diametroValvulaMm','Diámetro de la válvula (Ø, mm)',{req:1,num:1,sel:[['','— Elegir —'],...((window.FXPlano&&FXPlano.VALVULAS_RELEVO)||[]).map(x=>[x.d.toFixed(2),x.d.toFixed(2)+' mm'])],ayuda:'Tabla de válvulas del plano (área de descarga).'}],
   ['fechaProgramaCalibracion','Programa de calibración (válvula)',{date:1,p23:1}]]},
  {t:'Construcción y pruebas',h:'Hojas 16 y 20',campos:[
-  ['materialCuerpo','Material del cuerpo',{mayus:1,ph:'SA-414-G'}],['materialTapa','Material de las tapas',{mayus:1,ph:'SA-414-G'}],['tipoTapas','Tipo de tapas',{mayus:1}],
+  ['materialCuerpo','Material del cuerpo',{sel:((window.FXPlano&&FXPlano.MATERIALES)||[]).map(m=>[m.id,m.id]),ayuda:'Tabla de materiales del plano: S sale de aquí con el factor de seguridad.'}],
+  ['materialTapa','Material de las tapas',{auto:1,u:'',ayuda:'El mismo material del cuerpo.'}],['tipoTapas','Tipo de tapas',{mayus:1}],
   ['pndSuperficial','PND superficial',{mayus:1,cls:'medio'}],['pndVolumetrica','PND volumétrica',{mayus:1,cls:'medio'}]]},
  {t:'Clasificación y documentos',h:'Hojas 6, 20 y Cat II',campos:[
   ['clasificacion','Categoría NOM-020',{sel:[['','Automática'],['I','I'],['II','II'],['III','III']]}],
@@ -3715,6 +3743,20 @@ function actP23(el,e){
   const M=+m[2],D=+m[3],w=D<=7?1:D<=14?2:D<=21?3:4,yp=String(e.fechaPnd||'').slice(0,4);
   a.textContent=`Hoja 23: válvula en ${MESES[M-1]}, semana ${w} (gris + negro); manómetro en noviembre, semana 1.`+(yp&&yp!==m[1]?` Ojo: el año (${m[1]}) no es el de la PND (${yp}); se usa solo mes y semana.`:'');
 }
+// Material fuera de la tabla de materiales (archivo anterior): en rojo, con su S anterior
+function pintarMatExp(el,e){
+  const m=String(e.materialCuerpo||'').trim(),fuera=!!m&&!!window.FXPlano&&!FXPlano.materialDe(m);
+  for(const k of ['materialCuerpo','materialTapa']){const c=$(`[data-campo="${k}"]`,el);if(!c)continue;c.classList.toggle('invalido',fuera);
+    const a=$('.ayuda',c);if(a){if(a.dataset.base==null)a.dataset.base=a.textContent;a.textContent=fuera?`«${m}» no está en la tabla de materiales: elige uno de la lista.`:a.dataset.base;a.classList.toggle('rojo',fuera);}}
+}
+// Tabla de materiales: las tapas llevan el material del cuerpo; S cuerpo / S tapas = tabla (material × factor de seguridad), vacío si no hay valor.
+// Se llama al cambiar el material del cuerpo o el factor de seguridad (y al cargar, para los materiales de la tabla).
+function matSync(e){
+  if(!window.FXPlano)return;if(!e.plano||!e.plano.conexiones)e.plano=FXPlano.reparar(e.plano);
+  e.materialTapa=e.materialCuerpo;
+  const fs=e.plano.factorSeguridad,c=FXPlano.sTabla(e.materialCuerpo,fs),t=FXPlano.sTabla(e.materialTapa,fs),f=v=>isFinite(v)?v.toFixed(2):'';
+  e.plano.sCuerpo=f(c.s);e.plano.sTapas=f(t.s);
+}
 function renderEquipos(){
   const box=$('#listaEquipos');box.innerHTML='';
   D.equipos.forEach((e,i)=>box.appendChild(tarjeta(e,i)));
@@ -3740,15 +3782,17 @@ function tarjeta(e,i){
    </div>`;
   $$('[data-campo="clasificacion"] select',el).forEach(s=>s.value=e.clasificacion||'');
   $$('[data-k]',el).forEach(inp=>{const k=inp.dataset.k;inp.value=e[k]??'';
+    if(k==='materialCuerpo')plSelVal(inp,e[k]);   // material anterior fuera de la tabla: se conserva y se marca
     if(inp.tagName==='INPUT'&&EQ_CAMPOS.find(c=>c[0]===k)[2].mayus)mayus(inp);
     const on=()=>{if(inp.readOnly)return;e[k]=inp.value;
+      if(k==='materialCuerpo'){matSync(e);const t=$('[data-k="materialTapa"]',el);if(t)t.value=e.materialTapa;pintarMatExp(el,e);}
       if(k==='diametroValvulaMm'&&e.plano)e.plano.dvLegado='';
       if(k==='presionDiseno'){e.presionPruebaHidrostatica=hidro(e);const h=$('[data-k="presionPruebaHidrostatica"]',el);if(h)h.value=e.presionPruebaHidrostatica;}
       if(k==='nombre'||k==='tag'||k==='numeroSerie'||k==='presionCalibracion'||k==='clasificacion')renderPndTabs();
       if(k==='fechaProgramaCalibracion'||k==='fechaPnd'||k==='nombre')actP23(el,e);
       actCab(el,e);guardar();};
     inp.addEventListener('input',on);inp.addEventListener('change',on);});
-  actP23(el,e);
+  actP23(el,e);pintarMatExp(el,e);
   const mk=$('[data-mask]',el);mk.value=memXXX(e.codigoMemoriaCalculo);
   mk.addEventListener('input',()=>{const v=mk.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);if(v!==mk.value)mk.value=v;e.codigoMemoriaCalculo=memCodigo(v);actCab(el,e);guardar();});
   mk.addEventListener('blur',()=>{if(/^\d{1,2}$/.test(mk.value)){mk.value=mk.value.padStart(3,'0');mk.dispatchEvent(new Event('input'));}});
@@ -3862,7 +3906,7 @@ function validar(){
       const req=o.req||(o.reqCat2&&c==='II')||(o.reqCat3&&c==='III');
       if(o.mascara){if(!/^RSP-020-[A-Z0-9]{3}-2026$/.test(e.codigoMemoriaCalculo||''))E(`${n}: completa los 3 caracteres del código de memoria de cálculo.`,'s-equipos',Object.assign({k},q));continue;}
       if(o.vinc==='V'){if(!v)E(`${n}: sin capacidad volumétrica; en el plano captura Ø interior, longitud y C.R. para calcular el volumen.`,'s-equipos',Object.assign({k},q));continue;}
-      if(o.auto){if(!v)E(`${n}: captura la presión de diseño para calcular la prueba hidrostática.`,'s-equipos',Object.assign({k:'presionDiseno'},q));continue;}
+      if(o.auto){if(!v&&k==='presionPruebaHidrostatica')E(`${n}: captura la presión de diseño para calcular la prueba hidrostática.`,'s-equipos',Object.assign({k:'presionDiseno'},q));continue;}
       if(req&&!v)E(`${n}: falta ${lc1(l)}.`,'s-equipos',Object.assign({k},q));
       else if(v&&o.num!=null&&isNaN(nNum(v)))E(`${n}: ${lc1(l)} debe ser un número.`,'s-equipos',Object.assign({k},q));}
     if(e.fechaPnd&&!/^\d{4}-\d{2}-\d{2}$/.test(e.fechaPnd))E(`${n}: la fecha de la PND no es válida.`,'s-equipos',Object.assign({k:'fechaPnd'},q));
@@ -4151,6 +4195,12 @@ function migrar(){
     ['espEnv','espSup','espInf'].forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});
     if(!e.id)e.id=uid();
     if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano: S, E (0.85), C.R., cajetín, conexiones, ángulos, ubicación…
+    if(window.FXPlano){
+      // tabla de materiales: tapas = material del cuerpo; S de la tabla. Un material fuera de la tabla se conserva con su S anterior (se marca en rojo).
+      if(FXPlano.materialDe(e.materialCuerpo))matSync(e);else e.materialTapa=e.materialCuerpo;
+      // fabricante igual a la marca → sigue a la marca
+      if(String(e.plano.fabricante||'').trim().toUpperCase()===String(e.marca||'').trim().toUpperCase())e.plano.fabricante='';
+    }
     e.presionPruebaHidrostatica=hidro(e);
     if(window.FXPlano){
       // v3: Ø de válvula → tabla VALVULAS_RELEVO (6 → 6.00); un Ø que no está en la tabla se deja sin elegir y se marca en pantalla
@@ -4347,11 +4397,23 @@ function levRellenar(k){
 function levMinimos(){LX().ESP_KEYS.forEach(k=>{const v=LEV.espesores[k].map(nNum).filter(x=>!isNaN(x)),el=$(`[data-lmin="${k}"]`);if(el)el.textContent=v.length?Math.min(...v).toFixed(2):'—';});}
 function levRenderMeta(){
   $('#levMeta').innerHTML=LX().META.map(([k,lbl,,o])=>{const id='lv_'+k;
+    if(o.sel)return `<div class="campo ${o.cls||''}"><label for="${id}">${lbl}</label><div class="caja"><select id="${id}" data-lm="${k}"><option value="">— Elegir —</option>${LX().EQUIPOS.map(q=>`<option value="${esc(q.nombre)}">${esc(q.nombre)}</option>`).join('')}</select></div>${o.ayuda?`<div class="ayuda">${o.ayuda}</div>`:''}</div>`;
     return `<div class="campo ${o.cls||''}"><label for="${id}">${lbl}</label><div class="caja"><input id="${id}" data-lm="${k}" ${o.date?'type="date"':''} ${o.num?'inputmode="decimal"':''} ${o.ph?`placeholder="${esc(o.ph)}"`:''} autocomplete="off">${o.u?`<span class="u">${o.u}</span>`:''}</div>${o.ayuda?`<div class="ayuda">${o.ayuda}</div>`:''}</div>`;}).join('');
   $$('#levMeta [data-lm]').forEach(inp=>{const k=inp.dataset.lm,o=LX().META.find(m=>m[0]===k)[3];
+    if(o.sel){inp.addEventListener('change',()=>{LEV.metadata[k]=inp.value;levNombreSel();
+      // TAG automático: prefijo del nombre + posición que tendrá el equipo en el expediente (COM-01, COM-02…)
+      const t=LX().tagDe(inp.value,levPos());if(t){LEV.metadata.tag=t;const g=$('#lv_tag');if(g)g.value=t;}levGuardar();});return;}
     if(o.mayus)mayus(inp);
     inp.addEventListener('input',()=>{let v=inp.value;if(o.num&&v.includes(',')){v=v.replace(',','.');inp.value=v;}LEV.metadata[k]=v;if(o.cap)levCapAyuda();levGuardar();});});
   levCapAyuda();
+}
+// Posición que tendrá el levantamiento en el expediente al pasarlo: llena el equipo en blanco de «Nuevo expediente» o se agrega al final
+function levPos(){if(!D||!D.equipos.length)return 1;return D.equipos.length===1&&equipoVirgen(D.equipos[0])?1:D.equipos.length+1;}
+// Nombre del equipo: un nombre anterior que no está en la lista se conserva y se marca en rojo
+function levNombreSel(){
+  const s=$('#lv_tanque');if(!s)return;const v=String(LEV.metadata.tanque||'').trim();plSelVal(s,v);
+  const fuera=!!v&&!LX().equipoDe(v),c=s.closest('.campo'),a=$('.ayuda',c);c.classList.toggle('invalido',fuera);
+  if(a){if(a.dataset.base==null)a.dataset.base=a.textContent;a.textContent=fuera?`«${v}» no está en la lista: elige un nombre.`:a.dataset.base;a.classList.toggle('rojo',fuera);}
 }
 function levCapAyuda(){
   const el=$('#lv_capacidad'),ay=el&&el.closest('.campo').querySelector('.ayuda');if(!ay)return;
@@ -4362,7 +4424,7 @@ function levCapAyuda(){
 function levCargarCampos(){
   $$('#vistaLev [data-or]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.or===LEV.orientacion)));
   $$('#vistaLev [data-ld]').forEach(i=>i.value=LEV.dimensiones[i.dataset.ld]||'');
-  $$('#levMeta [data-lm]').forEach(i=>i.value=LEV.metadata[i.dataset.lm]||'');
+  $$('#levMeta [data-lm]').forEach(i=>{if(i.tagName!=='SELECT')i.value=LEV.metadata[i.dataset.lm]||'';});levNombreSel();
   levCapAyuda();levAyudaDims();levRenderEsp();levRenderBq();levPintar();
 }
 // La selección solo cambia por una acción explícita: tocar otra boquilla / fila / chip, el mismo chip, Listo o Esc.
@@ -4555,6 +4617,8 @@ function levAlExpediente(L,j){
   else{e=nuevoEquipo();const n=D.equipos.length+1;e.nombre=`COMPRESOR DE AIRE NO.${n}`;e.tag=`COM-${String(n).padStart(2,'0')}`;D.equipos.push(e);}
   const pon=(k,v)=>{if(v!==''&&v!=null)e[k]=v;};
   pon('ubicacion',up(m.planta));pon('nombre',up(m.tanque));pon('modelo',up(m.modelo));pon('numeroSerie',up(m.serie));pon('marca',up(m.marca));pon('tag',up(m.tag));
+  // TAG automático del nombre de la lista (COM-NN): el número sigue a la posición real del equipo en el expediente
+  if(X.equipoDe(m.tanque)&&(!up(m.tag)||X.tagAuto(m.tanque,m.tag)))e.tag=X.tagDe(m.tanque,D.equipos.indexOf(e)+1);
   pon('anioFabricacion',X.anioDe(m.fechaFabricacion));pon('fechaPnd',X.isoFecha(m.fechaInspeccion));
   pon('presionCalibracion',X.numTxt(m.presionCalibracion));pon('presionArranque',X.numTxt(m.presionArranque));
   pon('presionOperacion',X.numTxt(m.presionParo));pon('presionDiseno',X.numTxt(m.presionDiseno));
@@ -4682,6 +4746,8 @@ function plCampos(){
   const pm=$('#vistaPlano [data-pm]');if(pm&&foco!==pm)pm.value=memXXX(e.codigoMemoriaCalculo);
   const d=X.datos(e,plCtx()),aire=d.inp.aire;
   $('#pl_fab').placeholder=String(e.marca||'').trim()||'(marca)';
+  // Fabricante: sigue a la marca mientras no se escriba otro (pl.fabricante vacío)
+  {const f=$('#pl_fab');if(foco!==f)f.value=String(pl.fabricante||'').trim()||String(e.marca||'').trim();}
   $('#pl_fec').placeholder=X.fechaCajetin(e.fechaPnd)||'AGOSTO-2026';
   $('#pl_uro').placeholder=String(e.ubicacion||'').trim()||'CUARTO DE MÁQUINAS';
   // croquis de ubicación: modo y caja de imagen del equipo
@@ -4700,6 +4766,7 @@ function plOpciones(){
   $$('#vistaPlano [data-opc]').forEach(s=>{const t=s.dataset.opc;
     if(t==='E')llena(s,X.E_OPC.map(v=>[v,v]));
     else if(t==='FS')llena(s,X.FS_OPC.map(v=>[v,v]));
+    else if(t==='MAT')llena(s,X.MATERIALES.map(m=>[m.id,m.id]));
     else if(t==='VALV')llena(s,[['','— Elegir —'],...X.VALVULAS_RELEVO.map(x=>[x.d.toFixed(2),x.d.toFixed(2)])]);});
 }
 function plAyudas(d){
@@ -4711,7 +4778,8 @@ function plAyudas(d){
   a('longitudMm',plOk(i.Lmm)?`Solo el cuerpo = ${plF(i.Lmm/1000,3)} m`:'Solo el cuerpo, entre soldaduras.');
   {const X=FXP(),fe=!X.E_OPC.includes(String(e.plano.eficiencia)),ff=!X.FS_OPC.includes(String(e.plano.factorSeguridad));
     a('eficiencia',fe?`El valor anterior (${e.plano.eficiencia}) no está en la lista: elige uno.`:plOk(i.E)?`Se usa E = ${i.E.toFixed(2)} (${+(i.E*100).toFixed(2)} %)`:'Elige E.',fe);
-    a('factorSeguridad',ff?`El valor anterior (${e.plano.factorSeguridad}) no está en la lista: elige 3, 3.5 o 4.`:'Solo se imprime; S ya lo refleja.',ff);}
+    a('factorSeguridad',ff?`El valor anterior (${e.plano.factorSeguridad}) no está en la lista: elige 3, 3.5 o 4.`:'S sale de la tabla de materiales con este factor.',ff);}
+  {const mb=String(e.marca||'').trim();a('fabricante',String(e.plano.fabricante||'').trim()?`Fabricante propio${mb?` (la marca es ${mb})`:''}. Bórralo para volver a la marca.`:mb?'Igual a la marca: cambia sola con la marca. Puedes escribir otro.':'Se llena con la marca. Puedes escribir otro.');}
   a('diametroValvulaMm',i.dvLegado?`El Ø anterior «${i.dvLegado}» no está en la tabla de válvulas: elige uno.`
     :plOk(i.dv)?`Área de la tabla: ${plF(r.Ainst,3)} cm². Va a la tabla de boquillas y a las hojas 10 y 66.`:'Elige el Ø: el área de descarga sale de la tabla.',!!i.dvLegado);
   $('#plRelNota').innerHTML=`C = ${FXP().AIRE.C.toFixed(2)}, K = ${FXP().AIRE.K} y M = ${FXP().AIRE.M} son constantes (siempre las mismas). El área de descarga instalada sale de la tabla de válvulas según el Ø.`;
@@ -4728,6 +4796,21 @@ function plVinculados(d){
   pon('tEnv',plF(i.tEnv,2));pon('tTap',plF(i.tTap,2));
   pon('Ainst',plF(r.Ainst,3),plOk(r.Ainst)?`Tabla de válvulas · Ø ${esc(i.dvTxt)} mm.`:'Elige el Ø de la válvula.');
   pon('A',plF(r.A,4),r.cumple==null?'':r.cumple?'✓ El área instalada es mayor.':'✗ El área instalada no supera la calculada.');
+}
+// Tabla de materiales: material del cuerpo (lista), tapas = cuerpo, S cuerpo / S tapas de la tabla (material × FS). Lo que no está en la tabla va en rojo.
+function plMateriales(d){
+  const {e,pl,inp:i}=d,X=FXP(),fs=String(pl.factorSeguridad||''),mc=String(e.materialCuerpo||'').trim(),mt=String(e.materialTapa||'').trim();
+  const marca=(el,rojo,t)=>{if(!el)return;const c=el.closest('.campo');if(c)c.classList.toggle('invalido',!!rojo);const a=c&&$('.ayuda',c);if(a&&t!=null){a.textContent=t;a.classList.toggle('rojo',!!rojo);}};
+  const fuera=m=>!!m&&!X.materialDe(m);
+  marca($('#pl_mc'),!mc||fuera(mc),!mc?'Elige el material del cuerpo.':fuera(mc)?`«${mc}» no está en la tabla de materiales: elige uno de la lista (S se conserva del archivo anterior).`:'S sale de la tabla con el factor de seguridad.');
+  $('#pl_mt').value=mt||'—';
+  marca($('#pl_mt'),fuera(mt),fuera(mt)?`«${mt}» no está en la tabla de materiales.`:'El mismo material del cuerpo.');
+  for(const [k,m,v,sub] of [['Sc',mc,i.Sc,'Envolvente (1.1 y 2.1).'],['St',mt,i.St,'Tapas semielípticas (1.2 y 2.2).']]){
+    const el=$(`#vistaPlano [data-pv="${k}"]`);if(!el)continue;el.value=plF(v,2);
+    const t=X.materialDe(m)?X.sTabla(m,fs):null;
+    marca(el,!plOk(v)||!t,!m?'Pendiente: elige el material.':!t?(plOk(v)?`S anterior (material fuera de la tabla): revísalo. ${sub}`:'Pendiente: el material no está en la tabla.')
+      :plOk(v)?`Tabla: ${m} con FS ${fs}. ${sub}`:`Pendiente: la tabla no tiene S para ${m} con FS ${fs}.`);
+  }
 }
 function plLeeCaj(d){
   const e=d.e,fila=(lbl,val,ir)=>`<dt>${lbl}</dt><dd class="v${val?'':' vacio'}">${val?esc(val):'Falta'}</dd><dd class="a">${ir?`<button type="button" class="btn chico fantasma" data-plir='${esc(JSON.stringify(ir))}'>Editar</button>`:''}</dd>`;
@@ -4855,7 +4938,7 @@ function plHoja(d){
 }
 function plActualizar(conHoja){
   const d=plDatos();if(!d)return;
-  plAyudas(d);plVinculados(d);plLeeCaj(d);plPendientes(d);plMemoria(d);plCampos();plCroquis(d);plGrupos(d);plBqLista(d);plUbic(d);
+  plAyudas(d);plVinculados(d);plMateriales(d);plLeeCaj(d);plPendientes(d);plMemoria(d);plCampos();plCroquis(d);plGrupos(d);plBqLista(d);plUbic(d);
   clearTimeout(plT);if(conHoja)plHoja(d);else plT=setTimeout(()=>plHoja(plDatos()),220);
 }
 function plPintar(){
@@ -4893,10 +4976,15 @@ function initPlano(){
   plOpciones();   // v3: E, factor de seguridad y Ø de válvula son listas (sin captura libre)
   $$('[data-pl]',v).forEach(i=>{const ev=i.tagName==='SELECT'?'change':'input';i.addEventListener(ev,()=>{const e=plEq();if(!e)return;const k=i.dataset.pl;e.plano[k]=dec(i);
     if(k==='dibujo')e.plano.dibujoBorrado=String(i.value).trim()?'':'1';   // vaciado a propósito: no se vuelve a poner ING. PABLO MOTA
+    if(k==='nationalBoard')e.plano.nbBorrado=String(i.value).trim()?'':'1';   // vaciado a propósito: no se vuelve a poner SIN DATO
+    if(k==='factorSeguridad')matSync(e);   // S de la tabla con el nuevo factor
+    if(k==='fabricante'){const f=String(i.value).trim().toUpperCase();if(!f||f===String(e.marca||'').trim().toUpperCase())e.plano.fabricante='';}   // vacío o = marca: sigue a la marca
     plCambio();});});
   $$('[data-pe]',v).forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{const e=plEq();if(!e)return;const k=i.dataset.pe;e[k]=dec(i);
     if(k==='diametroValvulaMm')e.plano.dvLegado='';
+    if(k==='materialCuerpo')matSync(e);   // tapas = cuerpo y S de la tabla
     if(k==='presionDiseno')e.presionPruebaHidrostatica=hidro(e);if(k==='nombre'||k==='tag')plSelector();plCambio(k==='diametroValvulaMm');}));
+  $('#pl_fab').addEventListener('blur',()=>{const e=plEq();if(e&&!String(e.plano.fabricante||'').trim())$('#pl_fab').value=String(e.marca||'').trim();});
   $$('[data-pd]',v).forEach(i=>i.addEventListener('input',()=>{const k=i.dataset.pd;D[k]=i.value;if(k==='razonSocialPropietario')D.razonSocialUsuario=i.value;actEncabezado();plCambio();}));
   {const mk=$('[data-pm]',v);
     mk.addEventListener('input',()=>{const e=plEq();if(!e)return;const x=mk.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);if(x!==mk.value)mk.value=x;e.codigoMemoriaCalculo=memCodigo(x);plCambio();});
