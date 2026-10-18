@@ -631,6 +631,29 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
 /* ---------- visita con varios levantamientos (v8): un levantamiento = un equipo = su plano ---------- */
 .lev-eqs{padding:14px 18px 8px}
 .lev-eqs-cab{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:0 0 8px}
+/* ---------- editor de imágenes a pantalla completa (v9) ---------- */
+.modal.ied{padding:0;place-items:stretch;background:rgba(12,8,7,.86)}
+.ied-caja{display:flex;flex-direction:column;gap:8px;width:100%;height:100vh;height:100dvh;background:var(--placa);color:var(--tinta);
+  padding:calc(10px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px))}
+.ied-cab{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.ied-cab h3{margin:0;font-size:19px;font-weight:750;font-stretch:82%}
+.ied-cab p{margin:2px 0 0;font-size:12.5px;color:var(--tinta-3)}
+.ied-stage{position:relative;flex:1;min-height:0;border-radius:var(--r-lg);overflow:hidden;touch-action:none;border:1px solid var(--acero);
+  background:repeating-conic-gradient(#dcdcdc 0 25%,#f4f4f4 0 50%) 0 0/18px 18px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.ied-stage canvas,.ied-stage svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ied-stage[data-m="img"] svg,.ied-stage[data-m="flecha"] canvas{display:none}
+.ied-stage[data-m="flecha"]{background:#fff;cursor:crosshair}
+.ied-barra{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;justify-content:center}
+.ied-barra[hidden]{display:none}
+.ied-barra .sep{width:1px;height:30px;background:var(--acero);margin:0 2px}
+.ied-barra label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--tinta-2);white-space:nowrap}
+.ied-barra input[type=range]{width:min(220px,38vw);accent-color:var(--laton)}
+.ied-barra .lev-ed-btn[aria-pressed="true"]{background:var(--laton-suave);border-color:var(--laton);color:var(--laton)}
+.ied-pie{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+#edInfo{flex:1 1 220px;min-width:0;font-size:12.5px;color:var(--tinta-3)}
+#edInfo.alerta{color:var(--err);font-weight:650}
+.img .acc .acciones .btn[data-editar] svg{width:15px;height:15px}
+@media (max-width:560px){.ied-barra .lev-ed-btn{width:40px;height:40px}.ied-barra .sep{display:none}.ied-pie .acciones{width:100%}.ied-pie .acciones .btn{flex:1}}
 .lev-eqs-cab h3{display:flex;align-items:center;gap:10px;margin:0;font-size:17px;font-weight:700;font-stretch:88%}
 .lev-eqs .pestanas{padding-bottom:6px}
 .lev-eqs .pestana .ps b{font-weight:650}
@@ -715,7 +738,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <section id="s-equipos" data-paso="2">
       <div class="sec-cab"><span class="num">2</span><div><h2>Equipos</h2><p>Un bloque por recipiente: datos de placa, presiones y válvula. La categoría se calcula sola con la presión de calibración. Cada levantamiento de la visita es uno de estos equipos; nombre y TAG se numeran por tipo (COMPRESOR DE AIRE NO. 1 / COM-01…).</p></div><span class="hojas">Hojas 3, 6 y 8–20</span></div>
       <div id="listaEquipos"></div>
-      <div class="acciones"><button class="btn prim" id="btnAgregar" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar equipo</button><label class="btn" for="fImportLev2" title="Llena el expediente y el plano: agrega un equipo por cada levantamiento (.json)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamiento (.json)<input id="fImportLev2" type="file" accept=".json,application/json" multiple class="oculto"></label></div>
+      <div class="acciones"><button class="btn prim" id="btnAgregar" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar equipo</button><label class="btn" for="fImportLev2" title="Uno o varios levantamientos (.json) o una visita completa: cada uno se agrega como equipo, en orden. No se borra ni se cambia ningún equipo existente."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamientos o visita (.json)<input id="fImportLev2" type="file" accept=".json,application/json" multiple class="oculto"></label></div>
       <div class="siguiente"><a class="btn fantasma" href="#s-responsables">Continuar con responsables</a></div>
     </section>
 
@@ -825,7 +848,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
           <span>Borrador</span>
           <button class="btn chico" id="btnExport" type="button">Exportar (.json)</button>
           <label class="btn chico" for="fImport">Importar<input id="fImport" type="file" accept=".json,application/json" class="oculto"></label>
-          <label class="btn chico" for="fImportLev" title="Llena el expediente y el plano: agrega un equipo por cada levantamiento; no borra los equipos que ya están">Importar levantamiento (.json)<input id="fImportLev" type="file" accept=".json,application/json" multiple class="oculto"></label>
+          <label class="btn chico" for="fImportLev" title="Uno o varios levantamientos (.json) o una visita completa: cada uno se agrega como equipo, en orden. No se borra ni se cambia ningún equipo existente.">Importar levantamientos o visita (.json)<input id="fImportLev" type="file" accept=".json,application/json" multiple class="oculto"></label>
           <button class="btn chico" id="btnEjemplo" type="button">Cargar ejemplo</button>
           <button class="btn chico peligro" id="btnNuevo" type="button">Nuevo expediente</button>
         </div>
@@ -855,11 +878,12 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
   <div class="lev-barra" role="toolbar" aria-label="Acciones del levantamiento">
     <span class="lev-estado" id="levEstado" role="status">—</span>
     <span class="lev-sp"></span>
-    <label class="btn chico" for="levAbrir" title="Uno o varios levantamientos (.json): cada uno entra como un equipo de la visita">Importar (.json)<input id="levAbrir" type="file" accept=".json,application/json" multiple class="oculto"></label>
+    <label class="btn chico" for="levAbrir" title="Uno o varios levantamientos (.json) o una visita completa: cada uno entra como un equipo, en orden; no se borra ni se cambia ningún equipo">Importar (.json)<input id="levAbrir" type="file" accept=".json,application/json" multiple class="oculto"></label>
     <button type="button" class="btn chico" id="levGuardar">Guardar</button>
     <details class="lev-menu" id="levFormatos"><summary class="btn chico" title="Hojas de campo en blanco para imprimir">Formatos ▾</summary><div class="lev-menu-caja" role="menu"><button type="button" role="menuitem" data-formato="H"><b>H</b>Formato horizontal (PDF)</button><button type="button" role="menuitem" data-formato="V"><b>V</b>Formato vertical (PDF)</button></div></details>
     <button type="button" class="btn chico laton" id="levPasar" title="Abre el plano de este equipo (sus datos ya están en el expediente)">Ver su plano</button>
-    <button type="button" class="btn chico" id="levJson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar JSON</button>
+    <button type="button" class="btn chico laton" id="levVisita" title="Un solo archivo con TODOS los levantamientos de esta visita, en su orden (datos, boquillas, espesores, plano y fotos)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar visita (.json)</button>
+    <button type="button" class="btn chico" id="levJson" title="Solo el equipo abierto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar JSON</button>
     <button type="button" class="btn chico prim" id="levPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar PDF</button>
   </div>
 
@@ -934,7 +958,7 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
     <span class="lev-estado" id="plEstado" role="status">—</span>
     <div class="caja pl-sel"><select id="plEquipo" aria-label="Equipo del plano"></select></div>
     <span class="lev-sp"></span>
-    <label class="btn chico" for="fImportLev3" title="Llena el expediente y el plano con el levantamiento (.json); el primero llena el equipo en blanco y los demás agregan equipos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamiento<input id="fImportLev3" type="file" accept=".json,application/json" multiple class="oculto"></label>
+    <label class="btn chico" for="fImportLev3" title="Uno o varios levantamientos (.json) o una visita completa: cada uno se agrega como equipo, en orden. No se borra ni se cambia ningún equipo existente."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/></svg>Importar levantamientos o visita<input id="fImportLev3" type="file" accept=".json,application/json" multiple class="oculto"></label>
     <button type="button" class="btn chico" id="plSvg" title="Descarga la hoja como SVG (vista previa vectorial)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>SVG</button>
     <button type="button" class="btn chico prim" id="plPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Exportar Plano PDF</button>
   </div>
@@ -1026,7 +1050,9 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
         <div class="pl-ubic" id="plUbicCaja">
           <div class="pl-ubic-ctl">
             <div class="img ancho" id="plUbicImg" data-label="Plano del lugar" data-hint="PNG o JPG; se guarda solo en este navegador y en el borrador."></div>
-            <div class="campo"><label for="pl_ua">Dirección de la flecha</label><div class="caja"><input id="pl_ua" type="range" min="0" max="345" step="15" data-pl="ubicAng"></div><div class="ayuda" id="plUaTxt"></div></div>
+            <button type="button" class="btn chico laton" id="plUbicFull" data-ubm="img" title="Imagen a pantalla completa: girar, espejo, recortar y poner la flecha">Pantalla completa: imagen y flecha</button>
+            <div class="campo"><label for="pl_ua">Dirección de la flecha</label><div class="caja"><input id="pl_ua" type="range" min="0" max="355" step="5" data-pl="ubicAng"></div><div class="ayuda" id="plUaTxt"></div></div>
+            <div class="campo" data-ubm="img"><label for="pl_ut">Tamaño de la flecha</label><div class="caja"><input id="pl_ut" type="range" min="0.5" max="2" step="0.1" data-pl="ubicTam"></div></div>
             <div class="campo" data-ubm="esq"><label for="pl_up">Puerta</label><div class="caja"><select id="pl_up" data-pl="ubicPuerta"><option value="abajo">Abajo</option><option value="arriba">Arriba</option><option value="izquierda">Izquierda</option><option value="derecha">Derecha</option></select></div></div>
             <div class="campo" data-ubm="esq"><label for="pl_upp">Posición de la puerta</label><div class="caja"><input id="pl_upp" type="range" min="0" max="1" step="0.05" data-pl="ubicPuertaPos"></div></div>
             <div class="campo "><label for="pl_uro">Rótulo</label><div class="caja"><input id="pl_uro" data-pl="ubicRotulo" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: la ubicación del equipo.</div></div>
@@ -1088,6 +1114,37 @@ html[data-theme="dark"] .img.firma.lleno .thumb{background-color:#f3eee6}
       <button type="button" class="btn fantasma" id="padLimpiar">Limpiar</button>
       <div class="acciones"><button type="button" class="btn" data-cerrar>Cancelar</button><button type="button" class="btn prim" id="padGuardar">Guardar firma</button></div>
     </div>
+  </div>
+</div>
+<!-- v9 · editor de imágenes: girar, espejo, recortar, zoom y (plano del lugar) la flecha. Lo que se aplica es lo que se guarda y se imprime. -->
+<div class="modal oculto ied" id="mImg" role="dialog" aria-modal="true" aria-labelledby="mImgT">
+  <div class="ied-caja">
+    <div class="ied-cab">
+      <div><h3 id="mImgT">Editar imagen</h3><p id="mImgSub">Lo que ves aquí es lo que se guarda y se imprime.</p></div>
+      <div class="seg" role="group" aria-label="Qué editar" id="edModos"><button type="button" data-edm="img" aria-pressed="true">Imagen</button><button type="button" data-edm="flecha" aria-pressed="false">Flecha</button></div>
+    </div>
+    <div class="ied-stage" id="edStage" data-m="img"><canvas id="edCv" aria-label="Imagen"></canvas><svg id="edSvg" viewBox="0 0 360 210" preserveAspectRatio="xMidYMid meet" aria-label="Plano del lugar: toca o arrastra para poner la punta de la flecha"><rect width="360" height="210" fill="#fff"/><image id="edSvgImg" x="0" y="0" width="0" height="0" preserveAspectRatio="none"/><g id="edSvgOver"></g></svg></div>
+    <div class="ied-barra" id="edBarImg" role="toolbar" aria-label="Editar imagen">
+      <button type="button" class="lev-ed-btn" data-ed="izq" title="Girar 90° a la izquierda" aria-label="Girar 90° a la izquierda"><svg viewBox="0 0 24 24"><path d="M9 4L4 9l5 5"/><path d="M4 9h9a7 7 0 0 1 0 14h-2"/></svg></button>
+      <button type="button" class="lev-ed-btn" data-ed="der" title="Girar 90° a la derecha" aria-label="Girar 90° a la derecha"><svg viewBox="0 0 24 24"><path d="M15 4l5 5-5 5"/><path d="M20 9h-9a7 7 0 0 0 0 14h2"/></svg></button>
+      <button type="button" class="lev-ed-btn" data-ed="espH" title="Espejo horizontal" aria-label="Espejo horizontal"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M9 7L4 12l5 5z"/><path d="M15 7l5 5-5 5z"/></svg></button>
+      <button type="button" class="lev-ed-btn" data-ed="espV" title="Espejo vertical" aria-label="Espejo vertical"><svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M7 9l5-5 5 5z"/><path d="M7 15l5 5 5-5z"/></svg></button>
+      <button type="button" class="lev-ed-btn" data-ed="recorte" aria-pressed="false" title="Recortar: arrastra las esquinas o los lados" aria-label="Recortar"><svg viewBox="0 0 24 24"><path d="M6 2v16h16"/><path d="M2 6h16v16"/></svg></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="lev-ed-btn" data-ed="zm" title="Alejar" aria-label="Alejar"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+      <button type="button" class="lev-ed-btn lev-ed-zt" data-ed="z0" title="Ver toda la imagen" id="edZoomTxt">1×</button>
+      <button type="button" class="lev-ed-btn" data-ed="zp" title="Acercar" aria-label="Acercar"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" class="btn chico fantasma" data-ed="reset" title="Vuelve a la imagen como estaba al abrir">Restablecer</button>
+    </div>
+    <div class="ied-barra" id="edBarFlecha" role="toolbar" aria-label="Flecha" hidden>
+      <button type="button" class="lev-ed-btn" data-ed="angM" title="Girar la flecha 15° (antihorario)" aria-label="Girar la flecha a la izquierda"><svg viewBox="0 0 24 24"><path d="M9 4L4 9l5 5"/><path d="M4 9h9a7 7 0 0 1 0 14h-2"/></svg></button>
+      <label>Dirección <input type="range" id="edAng" min="0" max="355" step="5"></label>
+      <button type="button" class="lev-ed-btn" data-ed="angP" title="Girar la flecha 15° (horario)" aria-label="Girar la flecha a la derecha"><svg viewBox="0 0 24 24"><path d="M15 4l5 5-5 5"/><path d="M20 9h-9a7 7 0 0 0 0 14h2"/></svg></button>
+      <label>Tamaño <input type="range" id="edTam" min="0.5" max="2" step="0.1"></label>
+    </div>
+    <div class="ied-pie"><span id="edInfo" role="status" aria-live="polite"></span>
+      <div class="acciones"><button type="button" class="btn" data-ed="cancelar">Cancelar</button><button type="button" class="btn prim" data-ed="aplicar">Aplicar</button></div></div>
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -2830,7 +2887,7 @@ const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
 const DEF={orientacion:'',cejaRectaMm:'',sCuerpo:'',sTapas:'',eficiencia:'0.85',factorSeguridad:'3.5',
   nationalBoard:NB_DEF,nbBorrado:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
   // v2 · croquis de ubicación: '' (sin croquis) | 'img' (plano del lugar + flecha) | 'esq' (cuarto + puerta + equipo). Posiciones 0–1.
-  ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:'',
+  ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicTam:'1',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:'',
   // v4 · convención de ángulos de las boquillas: '2' = 0° a la derecha, sentido antihorario (90° arriba). Sin marca = archivo anterior (0° arriba, horario).
   angConv:'2'};
 // v2 · por tipo de boquilla (llave = tipo del catálogo): conexión de la tabla (vacío → tipoConexion / COPLE) y ángulo en la vista lateral/superior
@@ -2901,7 +2958,7 @@ function datos(e,ctx){
   const donde={P:['exp','presionDiseno'],Sc:['plano','materialCuerpo'],St:['plano','materialCuerpo'],E:['plano','eficiencia'],Dcm:['plano','diametroInteriorCm'],Lmm:['plano','longitudMm'],CR:['plano','cejaRectaMm'],
     tEnv:['pnd','espEnv'],tTap:['pnd','espSup'],Pc:['exp','presionCalibracion'],Td:['exp','tempDiseno'],dv:['exp','diametroValvulaMm']};
   const faltan=Object.keys(lbl).filter(k=>!ok(inp[k])).map(k=>({k,m:lbl[k],donde:donde[k][0],campo:donde[k][1]}));
-  const ubic={modo:pl.ubicModo==='img'||pl.ubicModo==='esq'?pl.ubicModo:'',x:frac(pl.ubicX,.5),y:frac(pl.ubicY,.5),ang:isFinite(num(pl.ubicAng))?num(pl.ubicAng):135,
+  const ubic={modo:pl.ubicModo==='img'||pl.ubicModo==='esq'?pl.ubicModo:'',x:frac(pl.ubicX,.5),y:frac(pl.ubicY,.5),ang:isFinite(num(pl.ubicAng))?num(pl.ubicAng):135,tam:num(pl.ubicTam)>0?Math.max(.4,Math.min(2.5,num(pl.ubicTam))):1,
     puerta:['arriba','abajo','izquierda','derecha'].includes(pl.ubicPuerta)?pl.ubicPuerta:'abajo',puertaPos:frac(pl.ubicPuertaPos,.5),eqX:frac(pl.ubicEqX,.5),eqY:frac(pl.ubicEqY,.45),
     rotulo:txt(pl.ubicRotulo)||txt(e.ubicacion),tag:txt(e.tag)||txt(e.nombre),nombre:txt(e.nombre),tagEq:txt(e.tag),lugar:txt(e.ubicacion)};
   return {v:VERSION,e,pl,lv,ctx,inp,r,faltan,boq,ubic};
@@ -3046,7 +3103,7 @@ function ubicacion(d,c,x,y,w,h,opt){
     if(opt.ubicImg&&opt.ubicDim&&opt.ubicDim.w>0&&opt.ubicDim.h>0){
       const k=Math.min(aw/opt.ubicDim.w,ah/opt.ubicDim.h),iw=opt.ubicDim.w*k,ih=opt.ubicDim.h*k,ix=ax+(aw-iw)/2,iy=ay+(ah-ih)/2;
       add({k:'img',src:'ubic',x:ix,y:iy,w:iw,h:ih});Rc(ix,iy,iw,ih,{lw:.3,s:.6});
-      flecha(ix+u.x*iw,iy+u.y*ih,u.ang,Math.max(20,Math.min(iw,ih)*.32));
+      flecha(ix+u.x*iw,iy+u.y*ih,u.ang,Math.max(20,Math.min(iw,ih)*.32)*(u.tam||1));   // v9: tamaño de la flecha (1 = como antes)
       return {modo:'img',x:ix,y:iy,w:iw,h:ih};
     }
     T('SIN IMAGEN DEL LUGAR',ax+aw/2,ay+ah/2+2,{z:6,anc:'middle',c:.5});return null;
@@ -3531,7 +3588,7 @@ root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,
 (function(){
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const MAX_IMG=4*1024*1024;
+const MAX_IMG=4*1024*1024,MAX_IMG_ARCH=30*1024*1024;   // v9: se acepta la foto original del celular (hasta 30 MB) y se reduce al cargar
 const DEF_EQ={nombre:'COMPRESOR DE AIRE NO. 1',numeroSerie:'',tag:'COM-01',clasificacion:'',fluido:'AIRE',capacidadVolumetrica:'',presionOperacion:'',presionCalibracion:'',presionDiseno:'',presionArranque:'',presionTrabajoMaxPermitida:'',presionPruebaHidrostatica:'',capacidadPlacaAnterior:'',tempDiseno:'55',tempOperacion:'28',tipoDispositivoRelevo:'VALVULA DE SEGURIDAD',tipoValvula:'SILBATO',diametroValvulaMm:'',dimensionesRelevo:'',numDispositivosRelevo:'1',ubicacion:'CUARTO DE MÁQUINAS',marca:'',modelo:'S/D',anioFabricacion:'',materialCuerpo:'SA-414-G',materialTapa:'SA-414-G',tipoTapas:'SEMIELIPSOIDAL',pndSuperficial:'PARTICULAS MAGNETICAS (MT)',pndVolumetrica:'ULTRASONIDO INDUSTRIAL (UT)',fechaPnd:'',fechaProgramaCalibracion:'',codigoMemoriaCalculo:'',folio:''};
 const DEF_G={firmanteIzquierdoNombre:'JOSE MARTINEZ ARGUETA',firmanteIzquierdoCedula:'14204870',pnd1Nombre:'JOSE MARTINEZ ARGUETA',pnd2Nombre:'CARLOS AARON CLORIO HERRERA'};
 // Memoria de cálculo: solo se edita XXX → RSP-020-XXX-2026
@@ -3731,13 +3788,87 @@ function guardar(){ if(typeof vincularTodo==='function')vincularTodo(); setEstad
 
 // ---------- imágenes (arrastrar, cargar, dibujar firma) ----------
 async function ponerImg(key,buf){IMG[key]=buf;await DB.set('img:'+key,buf);imgDirty.add(key);$$(`.img[data-img="${CSS.escape(key)}"]`).forEach(renderImg);guardar();if(typeof plImgCambio==='function')plImgCambio(key);}
-async function leerArchivo(file){
+async function leerArchivo(file,key){
   if(!file)return null;
-  if(file.size>MAX_IMG){toast('La imagen pesa más de 4 MB. Redúcela y vuelve a cargarla.');return null;}
+  if(file.size>MAX_IMG_ARCH){toast('La imagen pesa más de 30 MB. Usa una más pequeña.');return null;}
   const buf=new Uint8Array(await file.arrayBuffer());
   const ok=(buf[0]===0x89&&buf[1]===0x50)||(buf[0]===0xff&&buf[1]===0xd8);
   if(!ok){toast('Formato no válido: usa PNG o JPG.');return null;}
-  return buf;
+  // v9: orientación EXIF horneada en los píxeles y resolución limitada: lo que se ve es lo que va al PDF
+  let out;try{out=await imgNormalizar(buf,key,true);}catch(e){console.warn('imagen',e);toast('No se pudo leer la imagen. Prueba con otra (PNG o JPG).');return null;}
+  if(out.length>MAX_IMG){toast('Aun reducida, la imagen pesa más de 4 MB. Usa una más pequeña.');return null;}
+  return out;
+}
+// ---------- imágenes v9: orientación y tamaño normalizados ----------
+// Las fotos de celular guardan la rotación en EXIF: el navegador la respeta al mostrarlas, pdf-lib no (la imagen salía de cabeza
+// en el PDF). Al cargar se «hornea» la orientación en los píxeles (el archivo resultante ya no trae EXIF) y se limita la resolución.
+const IMG_LADO=2400,IMG_LADO_G=1600,IMG_BYTES_G=650*1024,IMG_Q=0.9;
+// Orientación EXIF (1–8) de un JPEG; 1 si no tiene
+function exifOri(u8){
+  if(!u8||u8.length<4||u8[0]!==0xFF||u8[1]!==0xD8)return 1;
+  const n=u8.length;let p=2;
+  while(p+4<n){
+    if(u8[p]!==0xFF){p++;continue;}
+    const m=u8[p+1];if(m===0xD8||m===0x01||m===0xFF||(m>=0xD0&&m<=0xD7)){p+=m===0xFF?1:2;continue;}
+    if(m===0xDA||m===0xD9)break;
+    const len=(u8[p+2]<<8)|u8[p+3];
+    if(m===0xE1&&len>=16&&u8[p+4]===0x45&&u8[p+5]===0x78&&u8[p+6]===0x69&&u8[p+7]===0x66&&u8[p+8]===0&&u8[p+9]===0){
+      const t=p+10,le=u8[t]===0x49&&u8[t+1]===0x49;
+      const r16=o=>o+1<n?(le?u8[o]|(u8[o+1]<<8):(u8[o]<<8)|u8[o+1]):0;
+      const r32=o=>o+3<n?(le?(u8[o]|(u8[o+1]<<8)|(u8[o+2]<<16))+u8[o+3]*16777216:u8[o]*16777216+((u8[o+1]<<16)|(u8[o+2]<<8)|u8[o+3])):0;
+      if(r16(t+2)!==42)return 1;
+      const ifd=t+r32(t+4),cnt=r16(ifd);
+      for(let i=0;i<cnt&&i<200;i++){const e=ifd+2+i*12;if(e+12>n)break;if(r16(e)===0x0112){const v=r16(e+8);return v>=1&&v<=8?v:1;}}
+      return 1;
+    }
+    p+=2+len;
+  }
+  return 1;
+}
+// Ancho y alto crudos de un JPEG (marcador SOF), sin aplicar EXIF
+function jpegDims(u8){
+  let p=2;while(p+9<u8.length){if(u8[p]!==0xFF){p++;continue;}const m=u8[p+1];if(m===0xD8||m===0x01||m===0xFF||(m>=0xD0&&m<=0xD7)){p+=m===0xFF?1:2;continue;}
+    const len=(u8[p+2]<<8)|u8[p+3];if(m>=0xC0&&m<=0xCF&&m!==0xC4&&m!==0xC8&&m!==0xCC)return {w:(u8[p+7]<<8)|u8[p+8],h:(u8[p+5]<<8)|u8[p+6]};p+=2+len;}
+  return null;
+}
+// Imagen → canvas con la orientación ya aplicada, lado mayor ≤ lado. El navegador aplica EXIF al dibujar un <img>;
+// si no lo hiciera (alto y ancho sin intercambiar en 5–8), se aplica a mano.
+async function imgCanvas(bytes,lado){
+  const url=URL.createObjectURL(new Blob([bytes],{type:detectCt(bytes)}));
+  try{
+    const im=new Image();im.src=url;await im.decode();
+    const ori=exifOri(bytes),raw=ori>=5?jpegDims(bytes):null;
+    const manual=!!raw&&raw.w!==raw.h&&im.naturalWidth===raw.w&&im.naturalHeight===raw.h;
+    const W0=manual?im.naturalHeight:im.naturalWidth,H0=manual?im.naturalWidth:im.naturalHeight,k=Math.min(1,(lado||1e9)/Math.max(W0,H0));
+    const cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(W0*k));cv.height=Math.max(1,Math.round(H0*k));
+    const g=cv.getContext('2d');g.imageSmoothingQuality='high';
+    if(manual){const w=im.naturalWidth,h=im.naturalHeight,T={5:[0,1,1,0,0,0],6:[0,1,-1,0,h,0],7:[0,-1,-1,0,h,w],8:[0,-1,1,0,0,w]}[ori];g.scale(k,k);g.transform(...T);g.drawImage(im,0,0);}
+    else g.drawImage(im,0,0,cv.width,cv.height);
+    return {cv,ori,escalada:k<1};
+  }finally{URL.revokeObjectURL(url);}
+}
+async function cvBytes(cv,png,q){const b=await new Promise(r=>cv.toBlob(r,png?'image/png':'image/jpeg',q));if(!b)throw new Error('no se pudo codificar la imagen');return new Uint8Array(await b.arrayBuffer());}
+// subida=true (al cargar): JPEG siempre se vuelve a codificar (sin EXIF); PNG solo si es enorme. subida=false: solo si trae
+// orientación EXIF distinta de 1 (imágenes ya guardadas). Los activos globales (g:) quedan bajo ~650 KB para la nube.
+async function imgNormalizar(bytes,key,subida){
+  const t=detectCt(bytes);if(t!=='image/png'&&t!=='image/jpeg')return bytes;
+  const ori=exifOri(bytes);if(!subida&&ori<=1)return bytes;
+  const glob=String(key||'').startsWith('g:'),png=t==='image/png';let lado=glob?IMG_LADO_G:IMG_LADO;
+  let r=await imgCanvas(bytes,lado);
+  if(png&&!r.escalada&&(!glob||bytes.length<=IMG_BYTES_G))return bytes;
+  let q=IMG_Q,out=await cvBytes(r.cv,png,q);
+  while(glob&&out.length>IMG_BYTES_G&&lado>320){
+    if(!png&&q>0.66)q-=0.08;else{lado=Math.round(Math.max(r.cv.width,r.cv.height)*0.8);r=await imgCanvas(bytes,lado);}
+    out=await cvBytes(r.cv,png,q);
+  }
+  return out;
+}
+// Expedientes guardados antes de v9: las fotos con orientación EXIF se corrigen una vez (se ven igual y ya salen bien en el PDF)
+async function imgMigrarOrientacion(){
+  let n=0;
+  for(const k of Object.keys(IMG)){const b=IMG[k];if(!b||exifOri(b)<=1)continue;
+    try{const o=await imgNormalizar(b,k,false);if(o&&o!==b){IMG[k]=o;await DB.set('img:'+k,o);if(isGlobalImgKey(k))imgDirty.add(k);n++;}}catch(e){console.warn('orientación',k,e);}}
+  return n;
 }
 function renderImg(box){
   const key=box.dataset.img, bytes=IMG[key], esFirma=box.classList.contains('firma');
@@ -3746,18 +3877,19 @@ function renderImg(box){
   const id='f_'+key.replace(/[^\w]/g,'_');
   box.innerHTML=`<div class="thumb" role="button" tabindex="-1" aria-label="Cargar ${esc(box.dataset.label)}">${bytes?'':(esFirma?ICO.firma:ICO.imagen)}</div>
    <div class="acc"><strong>${esc(box.dataset.label)}</strong><span>${bytes?'Cargada · se usa al generar':esc(box.dataset.hint||'Arrastra aquí o elige un archivo')}</span>
-   <div class="acciones"><label class="btn chico" for="${id}">${ICO.subir}${bytes?'Reemplazar':'Cargar'}</label>${esFirma?`<button type="button" class="btn chico" data-dibujar>${ICO.pluma}Dibujar</button>`:''}${bytes?'<button type="button" class="btn chico fantasma peligro" data-quitar>Quitar</button>':''}</div></div>
+   <div class="acciones"><label class="btn chico" for="${id}">${ICO.subir}${bytes?'Reemplazar':'Cargar'}</label>${bytes?`<button type="button" class="btn chico" data-editar>${ICO_EDITAR}Editar imagen</button>`:''}${esFirma?`<button type="button" class="btn chico" data-dibujar>${ICO.pluma}Dibujar</button>`:''}${bytes?'<button type="button" class="btn chico fantasma peligro" data-quitar>Quitar</button>':''}</div></div>
    <input id="${id}" type="file" accept="image/png,image/jpeg">`;
   const th=$('.thumb',box);
   if(bytes){box._u=URL.createObjectURL(new Blob([bytes]));th.style.backgroundImage=`url("${box._u}")`;}
   th.addEventListener('click',()=>$('input',box).click());
-  $('input',box).addEventListener('change',async ev=>{const b=await leerArchivo(ev.target.files[0]);ev.target.value='';if(b){await ponerImg(key,b);toast('Imagen guardada');}});
+  $('input',box).addEventListener('change',async ev=>{const b=await leerArchivo(ev.target.files[0],key);ev.target.value='';if(b){await ponerImg(key,b);edAbrir(key,box.dataset.label,{nueva:true});}});
+  {const ed=$('[data-editar]',box);if(ed)ed.addEventListener('click',()=>edAbrir(key,box.dataset.label));}
   const q=$('[data-quitar]',box); if(q) q.addEventListener('click',async()=>{delete IMG[key];await DB.del('img:'+key);imgDirty.add(key);renderImg(box);guardar();if(typeof plImgCambio==='function')plImgCambio(key);toast('Imagen quitada');});
   const dz=$('[data-dibujar]',box); if(dz) dz.addEventListener('click',()=>abrirPad(key,box.dataset.label));
   if(!box._dnd){box._dnd=1;
     box.addEventListener('dragover',ev=>{ev.preventDefault();box.classList.add('sobre');});
     box.addEventListener('dragleave',()=>box.classList.remove('sobre'));
-    box.addEventListener('drop',async ev=>{ev.preventDefault();box.classList.remove('sobre');const b=await leerArchivo(ev.dataTransfer.files[0]);if(b){await ponerImg(box.dataset.img,b);toast('Imagen guardada');}});}
+    box.addEventListener('drop',async ev=>{ev.preventDefault();box.classList.remove('sobre');const k=box.dataset.img,b=await leerArchivo(ev.dataTransfer.files[0],k);if(b){await ponerImg(k,b);edAbrir(k,box.dataset.label,{nueva:true});}});}
 }
 function initImgs(root){$$('.img[data-img]',root).forEach(renderImg);}
 
@@ -3787,6 +3919,184 @@ function initPad(){
     const blob=await new Promise(r=>PAD.cv.toBlob(r,'image/png'));const raw=new Uint8Array(await blob.arrayBuffer());
     const k=PAD.key;const b=await recortarFirma(raw);cerrar();await ponerImg(k,b);toast('Firma guardada');});
   document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!m.classList.contains('oculto'))cerrar();});
+}
+
+// ---------- editor de imágenes (v9): girar, espejo, recortar, zoom y, en el plano del lugar, la flecha ----------
+// Pantalla completa, dedo o mouse. «Aplicar» guarda la imagen editada (es la que se imprime); «Cancelar» no cambia nada.
+// La flecha del plano del lugar vive en coordenadas de la imagen: al girar, voltear o recortar se transforma con ella.
+const ICO_EDITAR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v16h16"/><path d="M2 6h16v16"/></svg>';
+let ED=null;
+const edCl=(v,a,b)=>Math.max(a,Math.min(b,v));
+function edEq(key){const m=/^e:(.+):ubicPlano$/.exec(String(key));return m&&D?D.equipos.find(x=>x.id===m[1])||null:null;}
+async function edAbrir(key,label,opt){
+  opt=opt||{};const bytes=IMG[key];if(!bytes)return;
+  let r;try{r=await imgCanvas(bytes,IMG_LADO);}catch(e){console.warn(e);toast('No se pudo abrir la imagen.');return;}
+  const e=window.FXPlano?edEq(key):null,W=r.cv.width,H=r.cv.height;
+  ED={key,label,nueva:!!opt.nueva,png:detectCt(bytes)==='image/png',src:r.cv,work:r.cv,crop:{x:0,y:0,w:W,h:H},cambio:false,recorte:false,
+    v:{k:1,px:0,py:0},ptr:new Map(),gest:null,e,modo:'img',fl:null,raf:0};
+  if(e){if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);const u=FXP().datos(e,{}).ubic;ED.fl={x:u.x*W,y:u.y*H,ang:u.ang,tam:u.tam};ED.fl0=Object.assign({},ED.fl);}
+  $('#mImgT').textContent=(opt.nueva?'Imagen cargada · ':'Editar · ')+(label||'imagen');
+  $('#mImgSub').textContent=opt.nueva?'Revisa la orientación y el recorte. «Cancelar» la deja tal como se cargó.':'Lo que ves aquí es lo que se guarda y se imprime.';
+  $('#edModos').hidden=!e;$('[data-ed="recorte"]').setAttribute('aria-pressed','false');
+  $('#mImg').classList.remove('oculto');document.documentElement.style.overflow='hidden';
+  edModo(opt.modo==='flecha'&&e?'flecha':'img');
+}
+function edCerrar(cancelado){
+  if(!ED)return;const nueva=ED.nueva;ED=null;
+  $('#mImg').classList.add('oculto');document.documentElement.style.overflow='';$('#edSvgImg').setAttribute('href','');
+  if(cancelado)toast(nueva?'Imagen guardada tal como se cargó':'Sin cambios');
+}
+function edModo(m){
+  if(!ED)return;ED.modo=m;$('#edStage').dataset.m=m;$('#edBarImg').hidden=m!=='img';$('#edBarFlecha').hidden=m!=='flecha';
+  $$('#edModos [data-edm]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.edm===m)));
+  if(m==='flecha'){edFlechaImg();edFlechaPintar();}else requestAnimationFrame(edPintar);
+  edInfo();
+}
+function edPedir(){if(!ED||ED.raf)return;ED.raf=requestAnimationFrame(()=>{if(!ED)return;ED.raf=0;if(ED.modo==='flecha')edFlechaPintar();else edPintar();});}
+function edAsas(x,y,w,h){return [[x,y],[x+w/2,y],[x+w,y],[x+w,y+h/2],[x+w,y+h],[x+w/2,y+h],[x,y+h],[x,y+h/2]];}
+function edPintar(){
+  if(!ED||ED.modo!=='img')return;
+  const st=$('#edStage'),cv=$('#edCv'),dpr=Math.min(3,window.devicePixelRatio||1),Sw=st.clientWidth,Sh=st.clientHeight;if(!Sw||!Sh)return;
+  if(cv.width!==Math.round(Sw*dpr)||cv.height!==Math.round(Sh*dpr)){cv.width=Math.round(Sw*dpr);cv.height=Math.round(Sh*dpr);}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,Sw,Sh);
+  const w=ED.work,W=w.width,H=w.height,pad=18,s0=Math.min((Sw-2*pad)/W,(Sh-2*pad)/H),s=s0*ED.v.k,ox=(Sw-W*s)/2+ED.v.px,oy=(Sh-H*s)/2+ED.v.py;
+  ED.vs={s,s0,ox,oy,Sw,Sh};g.imageSmoothingQuality='high';g.drawImage(w,ox,oy,W*s,H*s);
+  const c=ED.crop,cx=ox+c.x*s,cy=oy+c.y*s,cw=c.w*s,ch=c.h*s,lleno=c.x<=0&&c.y<=0&&c.w>=W&&c.h>=H;
+  if(!lleno||ED.recorte){g.save();g.fillStyle='rgba(0,0,0,.55)';g.beginPath();g.rect(ox,oy,W*s,H*s);g.rect(cx,cy,cw,ch);g.fill('evenodd');g.restore();
+    g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(cx,cy,cw,ch);}
+  if(ED.recorte){g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=1;g.beginPath();
+    for(const f of [1/3,2/3]){g.moveTo(cx+cw*f,cy);g.lineTo(cx+cw*f,cy+ch);g.moveTo(cx,cy+ch*f);g.lineTo(cx+cw,cy+ch*f);}g.stroke();
+    g.fillStyle='#fff';g.strokeStyle='#94702a';g.lineWidth=2;for(const [hx,hy] of edAsas(cx,cy,cw,ch)){g.fillRect(hx-8,hy-8,16,16);g.strokeRect(hx-8,hy-8,16,16);}}
+  if(ED.fl){   // la flecha sigue pegada a su punto mientras se gira, voltea o recorta
+    const px=ox+ED.fl.x*s,py=oy+ED.fl.y*s,a=ED.fl.ang*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a),L=48*ED.fl.tam;
+    g.save();g.lineCap='round';g.beginPath();g.moveTo(px-dx*L,py-dy*L);g.lineTo(px-dx*10,py-dy*10);g.strokeStyle='#fff';g.lineWidth=8;g.stroke();g.strokeStyle='#d91f1f';g.lineWidth=4.5;g.stroke();
+    g.beginPath();g.moveTo(px,py);g.lineTo(px-dx*16-dy*9,py-dy*16+dx*9);g.lineTo(px-dx*16+dy*9,py-dy*16-dx*9);g.closePath();g.fillStyle='#d91f1f';g.strokeStyle='#fff';g.lineWidth=1.5;g.fill();g.stroke();g.restore();}
+  $('#edZoomTxt').textContent=(Math.round(ED.v.k*10)/10).toLocaleString('es-MX')+'×';
+}
+function edFueraRecorte(){if(!ED||!ED.fl)return false;const c=ED.crop,f=ED.fl;return f.x<c.x-0.5||f.x>c.x+c.w+0.5||f.y<c.y-0.5||f.y>c.y+c.h+0.5;}
+function edInfo(){
+  if(!ED)return;const i=$('#edInfo'),c=ED.crop,W=ED.work.width,H=ED.work.height,fuera=edFueraRecorte();
+  i.classList.toggle('alerta',fuera);
+  if(fuera){i.textContent='La punta de la flecha quedó fuera del recorte: ponla otra vez en «Flecha».';return;}
+  if(ED.modo==='flecha'){i.textContent=`Toca o arrastra sobre la imagen para poner la punta. Dirección ${Math.round(ED.fl.ang)}° · tamaño ${Math.round(ED.fl.tam*100)} %.`;return;}
+  const rc=c.x>0||c.y>0||c.w<W||c.h<H;
+  i.textContent=`${Math.round(rc?c.w:W)} × ${Math.round(rc?c.h:H)} px`+(rc?' · recortada':'')+(ED.recorte?' · arrastra las esquinas o los lados; dentro del recuadro lo mueves':' · dos dedos o rueda: zoom; arrastra para mover');
+}
+// ----- operaciones: la imagen de trabajo, el recorte y la flecha se transforman juntos -----
+function edOp(nuevo,P,angF){
+  const r=ED.crop,a=P(r.x,r.y),b=P(r.x+r.w,r.y+r.h);
+  ED.crop={x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),w:Math.abs(b[0]-a[0]),h:Math.abs(b[1]-a[1])};
+  if(ED.fl){const q=P(ED.fl.x,ED.fl.y);ED.fl.x=q[0];ED.fl.y=q[1];ED.fl.ang=((angF(ED.fl.ang)%360)+360)%360;}
+  ED.work=nuevo;ED.cambio=true;ED.v={k:1,px:0,py:0};edPintar();edInfo();
+}
+function edGirar(dir){   // dir 1 = 90° a la derecha (horario), -1 = a la izquierda
+  const w=ED.work,W=w.width,H=w.height,c=document.createElement('canvas');c.width=H;c.height=W;const g=c.getContext('2d');
+  if(dir>0){g.translate(H,0);g.rotate(Math.PI/2);}else{g.translate(0,W);g.rotate(-Math.PI/2);}
+  g.drawImage(w,0,0);edOp(c,dir>0?(x,y)=>[H-y,x]:(x,y)=>[y,W-x],a=>a+90*dir);
+}
+function edEspejo(horiz){
+  const w=ED.work,W=w.width,H=w.height,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  if(horiz){g.translate(W,0);g.scale(-1,1);}else{g.translate(0,H);g.scale(1,-1);}
+  g.drawImage(w,0,0);edOp(c,horiz?(x,y)=>[W-x,y]:(x,y)=>[x,H-y],horiz?a=>180-a:a=>-a);
+}
+function edZoom(f,sx,sy){
+  const V=ED.vs;if(!V)return;const k=edCl(ED.v.k*f,1,8);if(sx==null){sx=V.Sw/2;sy=V.Sh/2;}
+  const W=ED.work.width,H=ED.work.height,ix=(sx-V.ox)/V.s,iy=(sy-V.oy)/V.s,s=V.s0*k;
+  ED.v.k=k;if(k<=1.001){ED.v={k:1,px:0,py:0};}else{ED.v.px=sx-ix*s-(V.Sw-W*s)/2;ED.v.py=sy-iy*s-(V.Sh-H*s)/2;}
+  edPintar();
+}
+function edRestablecer(){ED.work=ED.src;ED.crop={x:0,y:0,w:ED.src.width,h:ED.src.height};ED.cambio=false;ED.recorte=false;ED.v={k:1,px:0,py:0};
+  if(ED.fl0)ED.fl=Object.assign({},ED.fl0);$('[data-ed="recorte"]').setAttribute('aria-pressed','false');if(ED.modo==='flecha'){edFlechaImg();edFlechaPintar();}else edPintar();edInfo();}
+// ----- flecha: la misma figura de la hoja (FXPlano.ubicLayout) sobre la imagen ya girada / recortada -----
+function edFlechaImg(){
+  const c=ED.crop,k=Math.min(1,1400/Math.max(c.w,c.h)),cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(c.w*k));cv.height=Math.max(1,Math.round(c.h*k));
+  const g=cv.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(ED.work,c.x,c.y,c.w,c.h,0,0,cv.width,cv.height);
+  $('#edSvgImg').setAttribute('href',cv.toDataURL(ED.png?'image/png':'image/jpeg',0.88));
+}
+function edFlechaPintar(){
+  if(!ED||!ED.e)return;const c=ED.crop,f=ED.fl,e=ED.e;
+  const pl=Object.assign({},e.plano,{ubicModo:'img',ubicX:String((f.x-c.x)/c.w),ubicY:String((f.y-c.y)/c.h),ubicAng:String(f.ang),ubicTam:String(f.tam)});
+  const d=FXP().datos(Object.assign({},e,{plano:pl}),plCtx()),lay=FXP().ubicLayout(d,{M:plMetricas(),w:360,h:210,ubicImg:true,ubicDim:{w:c.w,h:c.h}}),a=lay.area||{x:0,y:0,w:0,h:0};
+  ED.area=a;const im=$('#edSvgImg');im.setAttribute('x',a.x);im.setAttribute('y',a.y);im.setAttribute('width',a.w);im.setAttribute('height',a.h);
+  $('#edSvgOver').innerHTML=FXP().svg(lay,{imgs:{}}).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'').replace(/^<rect [^>]*fill="#fff"\/>/,'');
+  $('#edAng').value=String(Math.round(f.ang));$('#edTam').value=String(f.tam);
+}
+function edFlechaEn(ev){
+  const a=ED.area;if(!a||!a.w)return;const p=levPuntoSVG($('#edSvg'),ev),c=ED.crop;
+  ED.fl.x=c.x+edCl((p.x-a.x)/a.w,0,1)*c.w;ED.fl.y=c.y+edCl((p.y-a.y)/a.h,0,1)*c.h;edPedir();edInfo();
+}
+async function edAplicar(){
+  if(!ED)return;const E_=ED,c=E_.crop;
+  if(edFueraRecorte()&&!confirm('La punta de la flecha quedó fuera del recorte. ¿Ponerla en el borde más cercano? (Cancelar para volver y ubicarla)')){edModo('flecha');return;}
+  const btn=$('[data-ed="aplicar"]');btn.disabled=true;
+  try{
+    const recortada=c.x>0.5||c.y>0.5||c.w<E_.work.width-0.5||c.h<E_.work.height-0.5;
+    if(E_.cambio||recortada){
+      const glob=String(E_.key).startsWith('g:'),k=Math.min(1,(glob?IMG_LADO_G:IMG_LADO)/Math.max(c.w,c.h)),cv=document.createElement('canvas');
+      cv.width=Math.max(1,Math.round(c.w*k));cv.height=Math.max(1,Math.round(c.h*k));const g=cv.getContext('2d');g.imageSmoothingQuality='high';
+      g.drawImage(E_.work,c.x,c.y,c.w,c.h,0,0,cv.width,cv.height);
+      let out=await cvBytes(cv,E_.png,IMG_Q);if(glob&&out.length>IMG_BYTES_G)out=await imgNormalizar(out,E_.key,true);
+      await ponerImg(E_.key,out);
+    }
+    if(E_.fl&&E_.e){const e=E_.e;
+      e.plano.ubicX=edCl((E_.fl.x-c.x)/c.w,0,1).toFixed(3);e.plano.ubicY=edCl((E_.fl.y-c.y)/c.h,0,1).toFixed(3);
+      e.plano.ubicAng=String(Math.round(((E_.fl.ang%360)+360)%360));e.plano.ubicTam=(+E_.fl.tam).toFixed(2);e.plano.ubicModo='img';
+      expSucio=true;guardar();if(plVisible())plActualizar(true);}
+    edCerrar();toast(E_.cambio||recortada?'Imagen editada: así se guarda y se imprime':'Listo');
+  }catch(err){console.error(err);toast('No se pudo aplicar: '+(err&&err.message||err));}
+  finally{btn.disabled=false;}
+}
+function initEditor(){
+  const m=$('#mImg'),st=$('#edStage'),svg=$('#edSvg');if(!m)return;
+  svg.setAttribute('font-family',"'Liberation Sans',Arial,Helvetica,sans-serif");
+  $$('#edModos [data-edm]').forEach(b=>b.addEventListener('click',()=>edModo(b.dataset.edm)));
+  m.addEventListener('click',ev=>{const b=ev.target.closest('[data-ed]');if(!b||!ED)return;const a=b.dataset.ed;
+    if(a==='cancelar')edCerrar(true);else if(a==='aplicar')edAplicar();
+    else if(a==='izq')edGirar(-1);else if(a==='der')edGirar(1);else if(a==='espH')edEspejo(true);else if(a==='espV')edEspejo(false);
+    else if(a==='recorte'){ED.recorte=!ED.recorte;b.setAttribute('aria-pressed',String(ED.recorte));if(ED.recorte)ED.v={k:1,px:0,py:0};edPintar();edInfo();}
+    else if(a==='zp')edZoom(1.4);else if(a==='zm')edZoom(1/1.4);else if(a==='z0')edZoom(0.0001);
+    else if(a==='reset')edRestablecer();
+    else if(a==='angM'||a==='angP'){ED.fl.ang=((ED.fl.ang+(a==='angP'?15:-15))%360+360)%360;edFlechaPintar();edInfo();}});
+  $('#edAng').addEventListener('input',ev=>{if(!ED||!ED.fl)return;ED.fl.ang=+ev.target.value;edPedir();edInfo();});
+  $('#edTam').addEventListener('input',ev=>{if(!ED||!ED.fl)return;ED.fl.tam=+ev.target.value;edPedir();edInfo();});
+  const pt=ev=>{const r=st.getBoundingClientRect();return {x:ev.clientX-r.left,y:ev.clientY-r.top};};
+  st.addEventListener('pointerdown',ev=>{
+    if(!ED||(ev.pointerType==='mouse'&&ev.button!==0))return;ev.preventDefault();try{st.setPointerCapture(ev.pointerId);}catch(_){}
+    if(ED.modo==='flecha'){ED.gest={tipo:'flecha',pid:ev.pointerId};edFlechaEn(ev);return;}
+    const p=pt(ev);ED.ptr.set(ev.pointerId,p);
+    if(ED.ptr.size>=2){const [a,b]=[...ED.ptr.values()];ED.gest={tipo:'pinch',k0:ED.v.k,d0:Math.max(10,Math.hypot(a.x-b.x,a.y-b.y)),m0:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},px0:ED.v.px,py0:ED.v.py};return;}
+    const V=ED.vs;if(!V)return;
+    if(ED.recorte){const c=ED.crop,cx=V.ox+c.x*V.s,cy=V.oy+c.y*V.s,cw=c.w*V.s,ch=c.h*V.s;
+      const i=edAsas(cx,cy,cw,ch).findIndex(([hx,hy])=>Math.hypot(p.x-hx,p.y-hy)<=24);
+      if(i>=0){ED.gest={tipo:'asa',i,c0:Object.assign({},c),p0:p,pid:ev.pointerId};return;}
+      if(p.x>=cx&&p.x<=cx+cw&&p.y>=cy&&p.y<=cy+ch){ED.gest={tipo:'mover',c0:Object.assign({},c),p0:p,pid:ev.pointerId};return;}}
+    ED.gest={tipo:'pan',p0:p,px0:ED.v.px,py0:ED.v.py,pid:ev.pointerId};
+  });
+  st.addEventListener('pointermove',ev=>{
+    if(!ED||!ED.gest)return;const G=ED.gest;
+    if(G.tipo==='flecha'){if(ev.pointerId===G.pid)edFlechaEn(ev);return;}
+    const p=pt(ev);if(ED.ptr.has(ev.pointerId))ED.ptr.set(ev.pointerId,p);
+    if(G.tipo==='pinch'){const [a,b]=[...ED.ptr.values()];if(!a||!b)return;const d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+      ED.v.k=edCl(G.k0*d/G.d0,1,8);ED.v.px=ED.v.k<=1.001?0:G.px0+(mx-G.m0.x);ED.v.py=ED.v.k<=1.001?0:G.py0+(my-G.m0.y);edPedir();return;}
+    if(ev.pointerId!==G.pid)return;const V=ED.vs,dx=(p.x-G.p0.x)/V.s,dy=(p.y-G.p0.y)/V.s,W=ED.work.width,H=ED.work.height;
+    if(G.tipo==='pan'){if(ED.v.k>1.001){ED.v.px=G.px0+(p.x-G.p0.x);ED.v.py=G.py0+(p.y-G.p0.y);edPedir();}return;}
+    const MIN=Math.max(16,Math.min(W,H)*0.03),c=G.c0;
+    if(G.tipo==='mover'){ED.crop={x:edCl(c.x+dx,0,W-c.w),y:edCl(c.y+dy,0,H-c.h),w:c.w,h:c.h};}
+    else{let x1=c.x,y1=c.y,x2=c.x+c.w,y2=c.y+c.h;const i=G.i;
+      if([0,6,7].includes(i))x1=edCl(x1+dx,0,x2-MIN);if([2,3,4].includes(i))x2=edCl(x2+dx,x1+MIN,W);
+      if([0,1,2].includes(i))y1=edCl(y1+dy,0,y2-MIN);if([4,5,6].includes(i))y2=edCl(y2+dy,y1+MIN,H);
+      ED.crop={x:x1,y:y1,w:x2-x1,h:y2-y1};}
+    edPedir();edInfo();
+  });
+  const fin=ev=>{if(!ED)return;ED.ptr.delete(ev.pointerId);const G=ED.gest;if(!G)return;
+    if(G.tipo==='pinch'){if(ED.ptr.size<2)ED.gest=null;return;}
+    if(ev.pointerId===G.pid)ED.gest=null;edInfo();};
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>st.addEventListener(t,fin));
+  st.addEventListener('wheel',ev=>{if(!ED||ED.modo!=='img')return;ev.preventDefault();const p=pt(ev);edZoom(Math.exp(-ev.deltaY*0.0015),p.x,p.y);},{passive:false});
+  ['gesturestart','gesturechange'].forEach(t=>st.addEventListener(t,ev=>ev.preventDefault()));   // iOS: sin zoom de la página
+  st.addEventListener('contextmenu',ev=>ev.preventDefault());
+  window.addEventListener('resize',()=>{if(ED&&ED.modo==='img')edPedir();});
+  document.addEventListener('keydown',ev=>{if(ED&&ev.key==='Escape'){ev.preventDefault();edCerrar(true);}});
 }
 
 // ---------- datos ----------
@@ -4311,8 +4621,9 @@ async function importar(file){
   try{j=JSON.parse(await file.text());if(!j.draft||!Array.isArray(j.draft.equipos))throw 0;
     for(const k of Object.keys(IMG))if(!k.startsWith('g:')){delete IMG[k];await DB.del('img:'+k);}
     D=j.draft;for(const k in (j.imgs||{})){IMG[k]=b64(j.imgs[k]);await DB.set('img:'+k,IMG[k]);}
+    await imgMigrarOrientacion();   // v9: fotos con orientación EXIF → horneada
     montar();guardar();toast('Borrador importado');}
-  catch(e){toast(j&&j.schema===LX().SCHEMA?'Ese archivo es un levantamiento: usa «Importar levantamiento (.json)».':'El archivo no es un borrador válido.');}
+  catch(e){toast(j&&(j.schema===LX().SCHEMA||j.schema===VISITA_SCHEMA)?`Ese archivo es ${j.schema===VISITA_SCHEMA?'una visita':'un levantamiento'}: usa «Importar levantamientos o visita (.json)».`:'El archivo no es un borrador válido.');}
 }
 async function nuevo(){
   if(!confirm('¿Iniciar un expediente nuevo? Se borrarán los datos generales y equipos (los activos globales se conservan).'))return;
@@ -4699,7 +5010,8 @@ async function levExportarPDF(){
   finally{b.disabled=false;}
 }
 function levExportarJSON(){
-  const j=LX().aJSON(LEV);
+  const j=LX().aJSON(LEV),e=levEq();
+  if(e){j.orden=D.equipos.indexOf(e)+1;j.totalVisita=D.equipos.length;}   // v9: al importar varios archivos sueltos, se acomodan por este número
   descargar(new Blob([JSON.stringify(j,null,2)],{type:'application/json'}),levNombre('json'));
   toast(`JSON exportado · ${j.boquillas.length} boquilla${j.boquillas.length===1?'':'s'}`);
 }
@@ -4840,6 +5152,7 @@ async function initLev(){
   $('#levAbrir').addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';if(fs.length)importarLevantamientos(fs,'lev');});
   $('#levGuardar').addEventListener('click',async()=>{const ok=await levGuardar(true);toast(ok?'Levantamiento guardado en este navegador':'No se pudo guardar en este navegador');});
   $('#levJson').addEventListener('click',levExportarJSON);
+  $('#levVisita').addEventListener('click',levExportarVisita);
   $('#levPdf').addEventListener('click',levExportarPDF);
   const fm=$('#levFormatos');
   if(fm){$$('[data-formato]',fm).forEach(b=>b.addEventListener('click',()=>{fm.open=false;levFormato(b.dataset.formato);}));
@@ -4895,16 +5208,106 @@ function levAlExpediente(L,j,reusar){
   if(cli){if(!rsNombre()){D.razonSocialPropietario=cli;D.razonSocialUsuario=cli;rs='puesta';}else if(normRs(rsNombre())!==normRs(cli))rs='distinta';}
   return {e,reuso,nEsp,rs,cli};
 }
-// Plano v2: ÚNICA ruta de importación (botones del expediente, del plano y «Pasar a expediente y plano» del levantamiento).
-// Llena el equipo (expediente) y el plano lee ese mismo equipo; complementa: solo escribe los datos que trae el levantamiento.
-// lista: File[] o [{name, json}] · destino: 'exp' (por omisión) o 'plano'
+// ---------- VISITA (v9): todos los levantamientos de la visita en UN archivo, en su orden ----------
+// Cada equipo lleva sus datos (placa, presiones, espesores…), su levantamiento tal cual está guardado (metadatos, croquis,
+// boquillas y posiciones), lo del plano (C.R., material, ángulos, conexiones, flecha…) y sus fotos (base64).
+const VISITA_SCHEMA='fenix-visita',VISITA_VER=1;
+const EQ_FUERA=new Set(['id','_cerrado','levantamiento','plano','__proto__','constructor','prototype']);
+const IMG_EQ=['fotoPlaca','ubicPlano',...MUESTRAS.map(n=>'muestra'+n)];
+function isoAhora(){const d=new Date(),o=-d.getTimezoneOffset(),a=Math.abs(o);return `${d.getFullYear()}-${p2h(d.getMonth()+1)}-${p2h(d.getDate())}T${p2h(d.getHours())}:${p2h(d.getMinutes())}:${p2h(d.getSeconds())}${o>=0?'+':'-'}${p2h(Math.floor(a/60))}:${p2h(a%60)}`;}
+function levExportarVisita(){
+  if(!D||!D.equipos.length)return;
+  const X=LX(),n=D.equipos.length;
+  const equipos=D.equipos.map((e,i)=>{
+    const datos={};for(const k of Object.keys(e))if(!EQ_FUERA.has(k))datos[k]=plain(e[k]);
+    const imgs={};for(const s of IMG_EQ){const b=IMG['e:'+e.id+':'+s];if(b&&b.length)imgs[s]=u8ToB64(b);}
+    const t=X.tipoDe(e);
+    return {orden:i+1,tipoEquipo:(t&&t.id)||e.tipoEquipo||'',nombre:String(e.nombre||''),tag:String(e.tag||''),equipo:datos,
+      levantamiento:e.levantamiento&&typeof e.levantamiento==='object'?plain(e.levantamiento):null,plano:e.plano&&typeof e.plano==='object'?plain(e.plano):null,imgs};});
+  const ahora=isoAhora(),j={schema:VISITA_SCHEMA,version:VISITA_VER,exportedAt:ahora,razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),nEquipos:n,equipos};
+  const nom=`VISITA ${Fx().fileName(rsNombre())||'SIN NOMBRE'} ${ahora.slice(0,10)} (${n} equipo${n===1?'':'s'}).json`;
+  descargar(new Blob([JSON.stringify(j,null,1)],{type:'application/json'}),nom);
+  toast(`Visita exportada: ${n} equipo${n===1?'':'s'} en un archivo (${nom}).`,6000);
+}
+const valPlano=v=>v==null||['string','number','boolean'].includes(typeof v);
+function b64Seguro(s){try{return typeof s==='string'&&s?b64(s):null;}catch(_){return null;}}
+// Levantamiento guardado (puede venir del plano, sin espesores ni metadatos) → forma que acepta FXLev.validar
+function levParaValidar(lv){
+  const X=LX(),es={};for(const k of X.ESP_KEYS)es[k]=[];
+  if(lv.espesores&&typeof lv.espesores==='object')Object.assign(es,lv.espesores);
+  return Object.assign({},lv,{schema:X.SCHEMA,version:lv.version===1?1:X.VERSION,orientacion:lv.orientacion==='V'?'V':'H',
+    dimensiones:lv.dimensiones&&typeof lv.dimensiones==='object'?lv.dimensiones:{},metadata:lv.metadata&&typeof lv.metadata==='object'?lv.metadata:{},espesores:es});
+}
+// Archivo de visita: o está completo y sano, o no se importa nada de él
+function visitaValidar(j){
+  const err=[];
+  if(j.version!==VISITA_VER)err.push(`versión ${j.version} no soportada (se esperaba ${VISITA_VER})`);
+  if(!Array.isArray(j.equipos)||!j.equipos.length)return {ok:false,err:err.concat('no trae equipos')};
+  if(j.nEquipos!=null&&+j.nEquipos!==j.equipos.length)err.push(`dice ${j.nEquipos} equipos pero trae ${j.equipos.length}: el archivo está incompleto`);
+  j.equipos.forEach((q,i)=>{const n=`equipo ${i+1}`;
+    if(!q||typeof q!=='object'||!q.equipo||typeof q.equipo!=='object'||Array.isArray(q.equipo)){err.push(`${n}: faltan sus datos`);return;}
+    for(const [k,v] of Object.entries(q.equipo))if(!(valPlano(v)||(Array.isArray(v)&&v.every(valPlano)))){err.push(`${n}: el campo «${k}» no es válido`);break;}
+    if(q.levantamiento!=null){if(typeof q.levantamiento!=='object'||Array.isArray(q.levantamiento))err.push(`${n}: levantamiento no válido`);
+      else{const v=LX().validar(levParaValidar(q.levantamiento));if(!v.ok)err.push(`${n}: levantamiento — ${v.err[0]}`);}}
+    if(q.plano!=null&&(typeof q.plano!=='object'||Array.isArray(q.plano)))err.push(`${n}: datos del plano no válidos`);
+    if(q.imgs!=null&&(typeof q.imgs!=='object'||Array.isArray(q.imgs)))err.push(`${n}: imágenes no válidas`);
+    else for(const [k,s] of Object.entries(q.imgs||{})){
+      if(!IMG_EQ.includes(k)){err.push(`${n}: imagen «${k}» desconocida`);continue;}
+      const u=b64Seguro(s);if(!u||!/^image\/(png|jpeg)$/.test(detectCt(u)))err.push(`${n}: la imagen ${k} está dañada`);}
+  });
+  return {ok:!err.length,err};
+}
+// Un equipo de la visita → equipo del expediente, con TODOS sus datos (las fotos se guardan aparte, ya normalizadas)
+function visitaAlExpediente(q){
+  let e,reuso=false;
+  if(D.equipos.length===1&&equipoVirgen(D.equipos[0])){e=D.equipos[0];reuso=true;}   // como siempre: solo el único equipo en blanco
+  else{e=nuevoEquipo();D.equipos.push(e);}
+  const id=e.id;
+  for(const k of Object.keys(q.equipo))if(!EQ_FUERA.has(k))e[k]=plain(q.equipo[k]);
+  e.id=id;e._cerrado=false;
+  if(q.levantamiento)e.levantamiento=plain(q.levantamiento);else delete e.levantamiento;
+  e.plano=window.FXPlano?FXPlano.reparar(q.plano||{}):plain(q.plano||{});
+  return {e,reuso,imgs:q.imgs||{}};
+}
+// Plano v2 / v9: ÚNICA ruta de importación (expediente, plano y levantamiento). Acepta levantamientos sueltos (v1/v2),
+// archivos de visita y varios a la vez. Orden predecible: el número guardado en cada archivo (orden) y luego el nombre del
+// archivo; una visita conserva el orden de sus equipos. Antes de tocar nada muestra un resumen y pide confirmación.
+// Nunca borra ni cambia equipos existentes (solo reutiliza el único equipo en blanco de «Nuevo expediente»).
+// lista: File[] o [{name, json}] · destino: 'exp' (por omisión), 'plano' o 'lev'
 async function importarLevantamientos(lista,destino){
   const files=Array.from(lista||[]).filter(Boolean);if(!files.length)return;
-  const ok=[],mal=[];
+  const grupos=[],mal=[];
   for(const f of files){
-    let j;if(f.json)j=f.json;else{try{j=JSON.parse(await f.text());}catch(_){mal.push(`${f.name}: no es JSON`);continue;}}
-    const v=LX().validar(j);if(!v.ok){mal.push(`${f.name}: ${v.err[0]}`);continue;}
-    const r=levAlExpediente(LX().normalizar(j),j,destino==='lev'&&!ok.length?levEq():null);r.v1=j.version===1;ok.push(r);
+    let j;if(f.json)j=f.json;else{try{j=JSON.parse(await f.text());}catch(_){mal.push(`${f.name}: no es un JSON válido (¿archivo incompleto o dañado?)`);continue;}}
+    if(!j||typeof j!=='object'||Array.isArray(j)){mal.push(`${f.name}: no es un levantamiento ni una visita`);continue;}
+    if(j.schema===VISITA_SCHEMA){const v=visitaValidar(j);if(!v.ok){mal.push(`${f.name}: ${v.err.slice(0,2).join('; ')}`);continue;}
+      grupos.push({name:f.name,j,orden:Infinity,items:j.equipos.map(q=>({q,nombre:String(q.equipo.nombre||q.nombre||''),tag:String(q.equipo.tag||q.tag||'')}))});continue;}
+    const v=LX().validar(j);if(!v.ok){mal.push(`${f.name}: ${v.borrador?'es un borrador de expediente (usa «Importar» del borrador)':v.err[0]}`);continue;}
+    const md=j.metadata||{},o=+j.orden;
+    grupos.push({name:f.name,j,orden:o>0&&isFinite(o)?o:Infinity,items:[{j,nombre:String(md.tanque||'').trim(),tag:String(md.tag||'').trim().toUpperCase()}]});
+  }
+  const col=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
+  grupos.sort((a,b)=>a.orden!==b.orden?(a.orden<b.orden?-1:1):col.compare(a.name,b.name));
+  const items=grupos.flatMap(g=>g.items);
+  if(!items.length){if(mal.length)toast(`No se importó nada: ${mal.join(' · ')}.`,9000);return;}
+  // resumen: simulación sin tocar el expediente (dónde queda cada uno y con qué nombre / TAG)
+  {const reusa=D.equipos.length===1&&equipoVirgen(D.equipos[0]),base=reusa?0:D.equipos.length;
+    const sim=(reusa?[]:D.equipos.map(e=>({nombre:e.nombre,tag:e.tag,tipoEquipo:e.tipoEquipo}))).concat(items.map(it=>({nombre:it.nombre||DEF_EQ.nombre,tag:it.tag,tipoEquipo:LX().TIPO_EQ_DEF})));
+    LX().numerar(sim);const nv=sim.slice(base),n=nv.length,rango=n>1?`${base+1}–${base+n}`:`${base+1}`;
+    const lineas=nv.slice(0,14).map((x,k)=>`  ${base+k+1}. ${x.nombre} · ${x.tag||'sin TAG'}`);if(n>14)lineas.push(`  … y ${n-14} más`);
+    const msg=`${n} equipo${n===1?'':'s'}: ${items.map(it=>it.tag||it.nombre||'sin TAG').join(', ')} → se agregará${n===1?'':'n'} como ${rango}${grupos.length>1?` (${grupos.length} archivos, en este orden)`:''}:\n\n${lineas.join('\n')}\n\n`+
+      (reusa?'Se usa el equipo en blanco del expediente nuevo.':`Los ${base} equipo${base===1?'':'s'} que ya están no se borran ni se cambian.`)+
+      (mal.length?`\n\nNo se importa (archivo con error):\n• ${mal.join('\n• ')}`:'')+'\n\n¿Importar?';
+    if(!confirm(msg))return;}
+  const ok=[];
+  for(const g of grupos){
+    if(g.j.schema===VISITA_SCHEMA){
+      if(!rsNombre()&&String(g.j.razonSocial||'').trim()){D.razonSocialPropietario=D.razonSocialUsuario=String(g.j.razonSocial).trim();g.rs='puesta';}
+      if(!String(D.domicilio||'').trim()&&String(g.j.domicilio||'').trim())D.domicilio=String(g.j.domicilio).trim();
+      for(const it of g.items){const r=visitaAlExpediente(it.q);r.visita=true;ok.push(r);
+        for(const [s,b] of Object.entries(r.imgs)){const k='e:'+r.e.id+':'+s;let u=b64Seguro(b);try{u=await imgNormalizar(u,k,false);}catch(_){}IMG[k]=u;await DB.set('img:'+k,u);}}
+      if(g.rs)ok[ok.length-1].rs='puesta';
+    }else{const r=levAlExpediente(LX().normalizar(g.j),g.j);r.v1=g.j.version===1;ok.push(r);}
   }
   if(ok.length){
     renumerar();   // v8: nombre y TAG por tipo según el lugar de cada equipo
@@ -4917,9 +5320,9 @@ async function importarLevantamientos(lista,destino){
   }
   const nums=ok.map(r=>`${D.equipos.indexOf(r.e)+1}${r.e.tag?' ('+r.e.tag+')':''}`);
   let msg=ok.length?`${ok.length===1?'Levantamiento importado':ok.length+' levantamientos importados'} al expediente y al plano → equipo${nums.length>1?'s':''} ${nums.join(', ')}.`:'';
-  if(ok.some(r=>r.rs==='puesta'))msg+=' Razón social tomada del levantamiento.';
+  if(ok.some(r=>r.rs==='puesta'))msg+=' Razón social tomada del archivo.';
   const dist=ok.filter(r=>r.rs==='distinta');if(dist.length)msg+=` Se conservó la razón social actual (el levantamiento dice ${dist[0].cli}).`;
-  if(ok.length)msg+=' Revisa fluido, temperaturas, válvula, programa de calibración y en el plano S y C.R.';
+  if(ok.some(r=>!r.visita))msg+=' Revisa fluido, temperaturas, válvula, programa de calibración y en el plano S y C.R.';
   if(ok.some(r=>r.v1))msg+=' Hay levantamientos v1: su longitud era total y no traen el punto 16.';
   if(mal.length)msg+=(msg?' ':'')+`No se importó: ${mal.join(' · ')}.`;
   toast(msg,ok.length&&!mal.length?6500:8000);
@@ -5296,6 +5699,8 @@ function initPlano(){
   us.addEventListener('pointermove',ev=>{if(uDrag!==ev.pointerId)return;ubicar(ev);});
   const ufin=()=>{if(uDrag==null)return;uDrag=null;plCambio();};us.addEventListener('pointerup',ufin);us.addEventListener('pointercancel',ufin);
   $('#plPdf').addEventListener('click',plExportarPDF);
+  // v9: imagen del plano del lugar a pantalla completa (girar, espejo, recortar) y la flecha (punta, dirección y tamaño)
+  $('#plUbicFull').addEventListener('click',()=>{const e=plEq();if(!e)return;const k='e:'+e.id+':ubicPlano';if(!IMG[k]){toast('Primero carga la imagen del plano del lugar.');return;}edAbrir(k,'Plano del lugar',{modo:'flecha'});});
   $('#plSvg').addEventListener('click',plExportarSVG);
 }
 
@@ -5324,6 +5729,7 @@ function initPlano(){
   migrar();
   const keys=['g:logoFenix','g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma','d:fotoFachada',...D.equipos.flatMap(e=>['e:'+e.id+':fotoPlaca','e:'+e.id+':ubicPlano',...MUESTRAS.map(n=>'e:'+e.id+':muestra'+n)])];
   for(const k of keys){if(IMG[k])continue;const v=await DB.get('img:'+k);if(v)IMG[k]=v instanceof Uint8Array?v:new Uint8Array(v);}
+  try{const n=await imgMigrarOrientacion();if(n)console.info('v9: imágenes con orientación EXIF corregidas:',n);}catch(e){console.warn('orientación',e);}   // v9
   montar();
   try{await levLegadoCargar();levLegadoAviso();}catch(e){console.warn('levantamiento anterior',e);}
   if(fromCloud) setEstado('Globales en la nube'+(cloudImgs?' · '+cloudImgs+' img':'')+' · expediente solo aquí');
@@ -5337,7 +5743,7 @@ function initPlano(){
   $('#fImport').addEventListener('change',ev=>{const f=ev.target.files[0];if(f)importar(f);ev.target.value='';});
   $('#btnNuevo').addEventListener('click',nuevo);
   $('#btnEjemplo').addEventListener('click',ejemplo);
-  initDocs();initPad();initNav();
+  initDocs();initPad();initNav();initEditor();
   try{initPlano();if(document.body.dataset.vista==='plano')plPintar();}catch(e){console.warn('plano',e);}
   ['#fImportLev','#fImportLev2','#fImportLev3'].forEach(sel=>{const i=$(sel);if(i)i.addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';importarLevantamientos(fs,sel==='#fImportLev3'?'plano':'exp');});});
   // v8: el levantamiento ya es el equipo (expediente y plano): «Ver su plano» abre el plano de este equipo
