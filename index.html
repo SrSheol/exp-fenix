@@ -658,6 +658,8 @@ details.s-man[open]>summary{margin-bottom:8px}
 .pl-tabla .lev-letra{width:28px;height:28px}
 .pl-tabla tr.sel td{background:var(--laton-suave)}
 .pl-tabla tr.sel .lev-letra{border-color:var(--laton);color:var(--laton)}
+.pl-ang-av{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11.5px;color:var(--warn);white-space:nowrap}
+.pl-ang-av .btn{padding:1px 7px;font-size:11.5px;min-height:0}
 .pl-ubic{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start;margin-top:12px}
 .pl-ubic-ctl{display:grid;gap:12px}
 .pl-ubic-prev{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background:#fff}
@@ -1050,13 +1052,12 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <h3>Geometría, área y capacidad <span class="tag">§3 y §4 · hoja 10 y hoja 20</span></h3>
         <div class="calc">
           <div class="calc-in">
-            <h4>Entradas</h4>
-            <div class="grid">
-              <div class="campo" data-campo="cejaRectaMm"><label for="pl_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="pl_cr" data-pl="cejaRectaMm" inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda">Tramo recto de la tapa (no es la profundidad).</div></div>
-              <div class="cr-ref ancho" id="plCrRef" aria-live="polite"></div>
-            </div>
             <h4>Datos vinculados</h4>
             <div class="vincs" data-vincs="geo"></div>
+            <h4>C.R. ↔ capacidad de placa</h4>
+            <div class="grid">
+              <div class="cr-ref ancho" id="plCrRef" aria-live="polite"></div>
+            </div>
           </div>
           <div class="calc-out"><h4>Resultados</h4><div class="tabla-res" data-tr="geo"></div></div>
         </div>
@@ -1233,6 +1234,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
     <div class="campo" data-campo="diametroInteriorCm"><label for="lv_dcm">Ø interior <span class="req">*</span></label><div class="caja"><input id="lv_dcm" data-e="diametroInteriorCm" data-num inputmode="decimal" placeholder="40" autocomplete="off"><span class="u">cm</span></div><div class="ayuda" data-ldh="diametroInteriorCm"></div></div>
     <div class="campo" data-campo="longitudMm"><label for="lv_lmm">Longitud entre soldaduras <span class="req">*</span></label><div class="caja"><input id="lv_lmm" data-e="longitudMm" data-num inputmode="decimal" placeholder="900" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="longitudMm"></div></div>
     <div class="campo" data-campo="profundidadTapaMm"><label for="lv_tmm">Profundidad de tapa</label><div class="caja"><input id="lv_tmm" data-e="profundidadTapaMm" data-num inputmode="decimal" placeholder="120" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="profundidadTapaMm"></div></div>
+    <div class="campo" data-campo="cejaRectaMm"><label for="lv_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="lv_cr" data-epl="cejaRectaMm" data-num inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="cejaRectaMm"></div></div>
     <div class="res" data-res="capCroq"></div>
   </div>
   <div class="lev-dibujo">
@@ -1469,16 +1471,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return { tipo, imp: impValv(tipo), diam: d, ficha: 'VÁLVULA DE SEGURIDAD TIPO ' + impValv(tipo) + (d ? ', Ø ' + d + 'mm' : '') };
   }
   // Hoja 66 (v6): MODELO y ÁREA DE DESCARGA salen del catálogo de válvulas (FXPlano.valvulaDe) con el tipo y la medida elegidos.
-  // Se deja el texto de la plantilla (678-6-LA · 0.389 cm²) si la válvula es la de la plantilla (Argolla 678 Ø 6 mm), si el tipo no
-  // tiene modelo en el catálogo (Silbato / Campana) o si no está en el catálogo (expediente anterior; Revisión ya lo avisa).
+  // Se deja el texto de la plantilla (678-6-LA · 0.389 cm²) solo si el tipo no tiene modelo en el catálogo (Silbato / Campana) o si
+  // la válvula no está en el catálogo (expediente anterior; Revisión ya lo avisa). v7: Argolla 678 Ø 6 mm ya no es excepción, sale del
+  // catálogo como las demás («678» · 0.11). Se calcula al imprimir, así que los expedientes guardados también la toman (sin migración).
   // El DIÁMETRO DEL ASIENTO queda siempre como en la plantilla (no hay datos de asiento para estas válvulas).
-  const P66_TPL = { tipo: 'ARGOLLA', mm: '6', modelo: '678-6-LA', area: '0.389' };
+  const P66_TPL = { modelo: '678-6-LA', area: '0.389' };
   function valv66(vv) {
     const P = root.FXPlano, c = P && P.valvulaDe ? P.valvulaDe(vv.tipo, vv.diam) : null;
     const tpl = m => ({ fuente: 'plantilla', motivo: m, modelo: P66_TPL.modelo, area: P66_TPL.area });
     if (!c) return tpl('fuera');
     if (!c.modelo) return tpl('sinModelo');
-    if (c.tipo === P66_TPL.tipo && P.mmClave(c.mm) === P.mmClave(P66_TPL.mm)) return tpl('original');
     return { fuente: 'catalogo', motivo: '', modelo: c.modelo, area: c.areaTxt != null ? c.areaTxt : String(c.area) };
   }
   // Hoja 23 (v4): compresor = exactamente 2 renglones, manómetro y válvula (el "1" es fijo); otro equipo = solo su nombre.
@@ -2410,6 +2412,9 @@ const CARA_TIPO={'VALVULA DE SEGURIDAD':'arriba','MANOMETRO':'arriba','PURGA':'a
 function normTipo(t){const k=String(t??'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return TIPOS.find(x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'')===k)||'';}
 const ESP_KEYS=['tapaIzqOSup','cuerpo','tapaDerOInf'];
 const DIM_KEYS=['diametroInteriorCm','longitudMm','profundidadTapaMm'];
+// v6 · ceja recta (C.R.) en mm: se mide en campo junto a L y la tapa; una sola para las dos tapas. Opcional y puede ser 0 (no es DIM_KEYS).
+// En el expediente vive en e.plano.cejaRectaMm (una sola fuente: cálculos, «Ajustar C.R.» y el plano la leen de ahí).
+const DIM_CR='cejaRectaMm';
 const KG='kg/cm²';
 const CAP_L_MIN=20; // capacidad sin unidad y sin decimales: desde 20 se toma como litros (500 → 0.500 m³)
 // [clave JSON, etiqueta en pantalla, etiqueta en la hoja (papel), opciones]
@@ -2535,7 +2540,7 @@ const arr16=a=>Array.from({length:N_ESP},(_,i)=>String((Array.isArray(a)?a[i]:''
 // ---------- modelo ----------
 function nuevo(){
   return {schema:SCHEMA,version:VERSION,orientacion:'H',
-    dimensiones:Object.fromEntries(DIM_KEYS.map(k=>[k,''])),
+    dimensiones:Object.assign(Object.fromEntries(DIM_KEYS.map(k=>[k,''])),{[DIM_CR]:''}),
     metadata:Object.fromEntries(META_KEYS.map(k=>[k,''])),
     boquillas:[],espesores:Object.fromEntries(ESP_KEYS.map(k=>[k,Array(N_ESP).fill('')])),
     espAuto:Object.fromEntries(ESP_KEYS.map(k=>[k,Array(N_ESP).fill(false)]))};   // espAuto: celdas que llenó «Rellenar» (no se exporta)
@@ -2552,7 +2557,8 @@ function validar(j){
   if(j.orientacion!=='H'&&j.orientacion!=='V')err.push('orientación debe ser H o V');
   const dm=j.dimensiones;
   if(dm!=null&&typeof dm!=='object')err.push('dimensiones no válidas');
-  else for(const k of DIM_KEYS){const v=dm&&dm[k];if(v!=null&&v!==''&&!(num(v)>0))err.push(`dimensiones.${k} debe ser un número positivo`);}
+  else{for(const k of DIM_KEYS){const v=dm&&dm[k];if(v!=null&&v!==''&&!(num(v)>0))err.push(`dimensiones.${k} debe ser un número positivo`);}
+    {const v=dm&&dm[DIM_CR];if(v!=null&&v!==''&&!(num(v)>=0))err.push(`dimensiones.${DIM_CR} (ceja recta) debe ser un número`);}}
   if(j.metadata!=null&&(typeof j.metadata!=='object'||Array.isArray(j.metadata)))err.push('metadata no válida');
   if(!Array.isArray(j.boquillas))err.push('boquillas debe ser una lista');
   else j.boquillas.forEach((b,i)=>{const n=`boquilla ${i+1}`;
@@ -2576,6 +2582,7 @@ function normalizar(j){
   const L=nuevo();L.orientacion=j.orientacion==='V'?'V':'H';
   const dm=j.dimensiones||{};
   for(const k of DIM_KEYS)L.dimensiones[k]=dm[k]==null||dm[k]===''?'':String(num(dm[k]));
+  L.dimensiones[DIM_CR]=dm[DIM_CR]==null||dm[DIM_CR]===''||!(num(dm[DIM_CR])>=0)?'':String(num(dm[DIM_CR]));
   const md=j.metadata||{};for(const k of META_KEYS)L.metadata[k]=md[k]==null?'':String(md[k]);
   L.boquillas=(j.boquillas||[]).map(b=>{const d=parsePulg(b.diametroPulgadas);
     return Object.assign({id:uid(),tipo:normTipo(b.tipo),diametroPulgadas:d>0?d:null,cara:b.cara,pos:{u:clamp(+b.pos.u,0,1),v:clamp(+b.pos.v,0,1)}},orifJSON(b));});
@@ -2586,7 +2593,7 @@ function normalizar(j){
 function reparar(s){
   const L=nuevo();if(!s||typeof s!=='object')return L;
   L.orientacion=s.orientacion==='V'?'V':'H';
-  for(const k of DIM_KEYS)L.dimensiones[k]=String((s.dimensiones&&s.dimensiones[k])??'');
+  for(const k of [...DIM_KEYS,DIM_CR])L.dimensiones[k]=String((s.dimensiones&&s.dimensiones[k])??'');
   for(const k of META_KEYS)L.metadata[k]=String((s.metadata&&s.metadata[k])??'');
   L.boquillas=Array.isArray(s.boquillas)?s.boquillas.filter(b=>b&&normTipo(b.tipo)&&CARAS.includes(b.cara)).map(b=>Object.assign({id:b.id||uid(),tipo:normTipo(b.tipo),
     diametroPulgadas:parsePulg(b.diametroPulgadas)>0?parsePulg(b.diametroPulgadas):null,cara:b.cara,pos:{u:clamp(+(b.pos&&b.pos.u)||0,0,1),v:clamp(+(b.pos&&b.pos.v)||0,0,1)}},orifJSON(b))):[];
@@ -2633,16 +2640,32 @@ function limpiarCol(L,k){L.espesores[k]=Array(N_ESP).fill('');L.espAuto[k]=Array
 // Longitud total del dibujo = cuerpo soldadura–soldadura + 2 × profundidad de tapa. Sin profundidad capturada,
 // la tapa se dibuja semielíptica 2:1 (Ø/4), solo como referencia.
 const VP={H:{W:900,H:400,bx:120,by:88,bw:660,bh:190},V:{W:480,H:690,bx:130,by:82,bw:220,bh:526}};
-function geo(L){
+// v6 · crMm (solo el plano): ceja recta de cada tapa = tramo recto entre la soldadura (fin de L) y el inicio de la curva. Se suma al largo
+// del dibujo (L + 2 C.R. + 2 tapas); hd sigue siendo la curva y c = la C.R. en unidades del dibujo. Sin crMm, el dibujo de siempre (c = 0).
+function geo(L,crMm){
   const o=L.orientacion==='V'?'V':'H',vp=VP[o];
   const Dcm=num(L.dimensiones.diametroInteriorCm),Lmm=num(L.dimensiones.longitudMm),Tmm=num(L.dimensiones.profundidadTapaMm);
   const okD=Dcm>0,okL=Lmm>0,okT=Tmm>0;
-  const Dm=okD?Dcm*10:(okL?Lmm/2:600), Hm=okT?Tmm:Dm/4, Sm=okL?Lmm:Dm*2, Lm=Sm+2*Hm;
+  const Dm=okD?Dcm*10:(okL?Lmm/2:600), Hm=okT?Tmm:Dm/4, Sm=okL?Lmm:Dm*2, Cm=crMm>0?+crMm:0, Lm=Sm+2*Hm+2*Cm;
   const ax=o==='H'?vp.bw:vp.bh, cr=o==='H'?vp.bh:vp.bw;
   const s=Math.min(ax/Lm,cr/Dm);
-  const la=Lm*s, lr=Dm*s, hd=Math.max(0.001,Math.min(Hm*s,la/2));
+  const la=Lm*s, lr=Dm*s, hd=Math.max(0.001,Math.min(Hm*s,la/2)), c=Cm*s;
   const tw=o==='H'?la:lr, th=o==='H'?lr:la;
-  return {o,vp,W:vp.W,H:vp.H,s,la,lr,hd,R:lr/2,tw,th,x0:vp.bx+(vp.bw-tw)/2,y0:vp.by+(vp.bh-th)/2,okD,okL,okT,Dcm,Lmm,Tmm,Dm,Hm,Sm,Lm};
+  return {o,vp,W:vp.W,H:vp.H,s,la,lr,hd,c,R:lr/2,tw,th,x0:vp.bx+(vp.bw-tw)/2,y0:vp.by+(vp.bh-th)/2,okD,okL,okT,Dcm,Lmm,Tmm,Dm,Hm,Sm,Cm,Lm};
+}
+// v6 · posiciones guardadas (relativas al contorno sin C.R.) → contorno con C.R.: lo que está en una tapa conserva su lugar en la tapa y lo del
+// cuerpo se recorre con su soldadura, así cada boquilla queda donde se capturó respecto al cuerpo. Solo cambia la coordenada a lo largo del eje.
+function conCR(L,crMm){
+  const g=geo(L),Cm=crMm>0?+crMm:0;if(!Cm)return L;
+  const T=g.Sm+2*g.Hm,ax=g.o==='H'?'u':'v',mapa=f=>{let a=clamp(+f||0,0,1)*T;a+=a<=g.Hm?0:a>=g.Hm+g.Sm?2*Cm:Cm;return a/(T+2*Cm);};
+  return Object.assign({},L,{boquillas:L.boquillas.map(b=>Object.assign({},b,{pos:Object.assign({},b.pos,{[ax]:mapa(b.pos&&b.pos[ax])})}))});
+}
+// v6 · altura de una boquilla de frente / atrás en la vista frontal, TAL COMO SE DIBUJA (mismos geo + sitio que croquis, con la misma C.R.):
+// h = desplazamiento desde el eje del tanque / radio, −1…1. H: vertical (arriba = +1) · V: horizontal (derecha = +1). La vista lateral /
+// superior saca de aquí su ángulo (FXPlano.angDefault). b = {cara, pos, diametroPulgadas}.
+function alturaFrontal(L,b,crMm){
+  if(!b||!b.pos)return NaN;const q=conCR(Object.assign({},L,{boquillas:[b]}),crMm),g=geo(q,crMm),s=sitio(g,contorno(g),q.boquillas[0]);
+  return g.o==='H'?clamp((g.y0+g.R-s.y)/g.R,-1,1):clamp((s.x-(g.x0+g.R))/g.R,-1,1);
 }
 // local (a: a lo largo del eje, r: a lo ancho) → pantalla
 function aPant(g,a,r,na,nr){const n=Math.hypot(na,nr)||1;na/=n;nr/=n;
@@ -2757,9 +2780,16 @@ const LAT={
   'SALIDA DE AIRE':(g,d0,det)=>flecha(g,cople(g,d0,det),true,det),     // cople + flecha que sale
   'TAPÓN':(g,d0,det)=>{let e=cople(g,d0,det);g.R(-.42,e,.42,e+.12);if(det)rosca(g,-.42,.42,e,e+.12,3);e+=.12;   // #04: cople + rosca + cabeza hexagonal
     HX(g,-.5,.5,e,e+.32,det,[-.5,.5]);if(det){g.Ln(-.44,e+.32,-.5,e+.27);g.Ln(.44,e+.32,.5,e+.27);}return e+.32;},
-  'VALVULA DE SEGURIDAD':(g,d0,det,cuello)=>{if(!cuello){g.R(-.5,d0,.5,d0+.25);d0+=.25;}   // bloque A$C: banda hex, tuerca, vástago y argolla elíptica
-    HX(g,-.66,.66,d0,d0+.16,det,[-.66,0,.66]);const d1=d0+.16;HX(g,-.48,.48,d1,d1+.27,det,[-.4,.4]);const d2=d1+.27;
-    g.R(-.13,d2,.13,d2+.53);const yc=d2+.45;g.El(.56,yc,.56,.29,'bql');if(det)g.Ci(0,yc,.035,'bqk');return d2+.74;},
+  // v6 · A$C de argolla, esbelta (cuerpo ≈ 2.7 : 1): rosca de entrada, hexágono, cuerpo de asiento con puerto de descarga, hombro,
+  // bonete alto (resorte), tuerca de ajuste, vástago y la argolla de jalar a un lado, colgada del barreno del vástago
+  'VALVULA DE SEGURIDAD':(g,d0,det,cuello)=>{if(!cuello){g.R(-.3,d0,.3,d0+.2);if(det)rosca(g,-.3,.3,d0+.02,d0+.18,2);d0+=.2;}
+    HX(g,-.46,.46,d0,d0+.22,det,[-.5,.5]);const d1=d0+.22;
+    g.R(-.3,d1,.3,d1+.42);if(det){g.R(-.09,d1+.13,.09,d1+.29,'bqt');g.Ln(-.3,d1+.04,.3,d1+.04);}const d2=d1+.42;
+    g.pl([[-.3,d2],[.3,d2],[.24,d2+.08],[-.24,d2+.08]]);const d3=d2+.08;
+    g.R(-.24,d3,.24,d3+.8);if(det){g.Ln(-.24,d3+.06,.24,d3+.06);g.Ln(-.24,d3+.74,.24,d3+.74);g.Ln(0,d3+.12,0,d3+.68,'bqe');}const d4=d3+.8;
+    HX(g,-.19,.19,d4,d4+.13,det,[-.5,.5]);const d5=d4+.13;
+    g.R(-.05,d5,.05,d5+.17);const yc=d5+.11;if(det)g.Ci(0,yc,.025,'bqk');
+    g.Ci(.24,yc-.08,.19,'bql');if(det)g.Ci(.24,yc-.08,.13,'bqt');return d5+.17;},
   'MANOMETRO':(g,d0,det)=>{HX(g,-.4,.4,d0,d0+.17,det,[-.4,.4]);const d1=d0+.17,Rr=.66;   // DWG #00: tuerca, vástago roscado y carátula
     g.R(-.18,d1,.18,d1+.3);if(det)rosca(g,-.18,.18,d1+.03,d1+.2,2);const dc=d1+.3+Rr;esfera(g,dc,Rr,det);return dc+Rr;},
   'TERMOSTATO':(g,d0,det)=>{HX(g,-.42,.42,d0,d0+.16,det,[-.42,.42]);const d1=d0+.16;   // #08/#10: tuerca, niple roscado, placa y caja
@@ -2781,7 +2811,7 @@ const PLANTA={
   'ENTRADA DE AIRE':(g,det)=>{pCople(g,det);g.Ci(0,0,.13,'bqk');},   // punto = flujo que entra
   'SALIDA DE AIRE':(g,det)=>{pCople(g,det);g.Ln(-.12,-.12,.12,.12,'bql');g.Ln(-.12,.12,.12,-.12,'bql');},   // cruz = flujo que sale
   'TAPÓN':(g,det)=>{g.Ci(0,0,.62);hexag(g,.5);g.R(-.15,-.15,.15,.15);if(det)ejesP(g,.9);},
-  'VALVULA DE SEGURIDAD':(g,det)=>{g.Ci(0,0,.66);hexag(g,.48);g.Ci(0,0,.13);g.El(.56,0,.56,.1,'bql');if(det)ejesP(g,.9);},
+  'VALVULA DE SEGURIDAD':(g,det)=>{hexag(g,.53);g.Ci(0,0,.3);g.Ci(0,0,.24);hexag(g,.22);g.Ci(0,0,.05);g.El(.24,0,.19,.05,'bql');if(det)ejesP(g,.8);},   // v6: esbelta, vista sobre su eje
   'MANOMETRO':(g,det)=>{hexag(g,.4);g.R(-.66,-.2,.66,.2);g.Ln(-.66,-.12,.66,-.12);if(det)ejesP(g,.9);},
   'TERMOSTATO':(g,det)=>{g.R(-.88,-.6,.88,.6);if(det){g.Ci(0,0,.42,'bqh');ejesP(g,1.1);}},
   'PURGA':(g,det)=>{g.Ci(0,0,.44);g.Ci(0,0,.2);g.R(.44,-.07,.52,.07);g.p([['M',.52,-.05],['L',1.05,-.05],Q2C(1.05,-.05,1.13,0,1.05,.05),['L',.52,.05],['Z']]);if(det)ejesP(g,.9);},
@@ -2880,13 +2910,18 @@ function croquis(L,opt){
   opt=opt||{};
   // opt.cad: estilo AutoCAD (plano / PND): soportes y piso, boquillas por tipo; opt.pnd: además sin guías, globos, letras ni cotas.
   const cad=!!(opt.cad||opt.pnd),pnd=!!opt.pnd;
-  const g=geo(L),out=contorno(g),it=[],RB=11,SP=2*RB+6,BASE=20,STEP=8,HH=g.H+(cad?(g.o==='H'?110:80):0);
+  // v6 · opt.cr (mm, solo el plano): ceja recta dibujada entre la soldadura y la curva de cada tapa, con su cota propia
+  const crMm=!pnd&&+opt.cr>0?+opt.cr:0;if(crMm)L=conCR(L,crMm);
+  const g=geo(L,crMm),out=contorno(g),it=[],RB=11,SP=2*RB+6,BASE=20,STEP=8,HH=g.H+(cad?(g.o==='H'?110:80):0);
   const add=o=>{it.push(o);return o;};
   const B={x0:Infinity,y0:Infinity,x1:-Infinity,y1:-Infinity},bb=(x,y)=>{if(x<B.x0)B.x0=x;if(x>B.x1)B.x1=x;if(y<B.y0)B.y0=y;if(y>B.y1)B.y1=y;};   // caja usada (el PDF recorta a ella)
   add({k:'p',r:'tq',d:pathTanque(g)});
-  const {x0,y0,tw,th,hd}=g;
-  if(g.o==='H')add({k:'p',r:'tg',d:`M${f1(x0+hd)} ${f1(y0)}V${f1(y0+th)}M${f1(x0+tw-hd)} ${f1(y0)}V${f1(y0+th)}`});
-  else add({k:'p',r:'tg',d:`M${f1(x0)} ${f1(y0+hd)}H${f1(x0+tw)}M${f1(x0)} ${f1(y0+th-hd)}H${f1(x0+tw)}`});
+  const {x0,y0,tw,th,hd,c:cr}=g;
+  // soldaduras (fin de L); con C.R., además la línea fina donde empieza la curva de la tapa (el tramo recto queda entre las dos)
+  if(g.o==='H'){add({k:'p',r:'tg',d:`M${f1(x0+hd+cr)} ${f1(y0)}V${f1(y0+th)}M${f1(x0+tw-hd-cr)} ${f1(y0)}V${f1(y0+th)}`});
+    if(cr)add({k:'p',r:'bqt',d:`M${f1(x0+hd)} ${f1(y0)}V${f1(y0+th)}M${f1(x0+tw-hd)} ${f1(y0)}V${f1(y0+th)}`});}
+  else{add({k:'p',r:'tg',d:`M${f1(x0)} ${f1(y0+hd+cr)}H${f1(x0+tw)}M${f1(x0)} ${f1(y0+th-hd-cr)}H${f1(x0+tw)}`});
+    if(cr)add({k:'p',r:'bqt',d:`M${f1(x0)} ${f1(y0+hd)}H${f1(x0+tw)}M${f1(x0)} ${f1(y0+th-hd)}H${f1(x0+tw)}`});}
   let SAD=g.o==='H'?16:0,pisoY=null;   // v5: pisoY = altura del piso / losa (las boquillas de abajo no la pisan)
   const piso=(xa,ya,xb,yb2)=>{const t=textura(xa,ya,xb,yb2,clamp(Math.min(tw,th)*.045,3,6.5));if(t.pts)add({k:'p',r:'grx',d:t.pts});if(t.tri)add({k:'p',r:'gt',d:t.tri});};
   if(cad&&g.o==='H'){   // H · vista frontal: 2 bloques rectangulares bajo el cuerpo sobre losa de concreto (puntos y triangulitos)
@@ -3048,10 +3083,15 @@ function croquis(L,opt){
   }
   if(pnd){/* hojas PND: sin cotas */}
   else if(g.o==='H'){
-    const yd=cad?borde.bot+(ext.bot||6)+22:Math.min(HH-18,borde.bot+(ext.bot||6)+22),sw=tw-2*hd;   // v5 (CAD): sin tope del lienzo
-    add({k:'p',r:'dx',d:`M${f1(x0)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+tw)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+hd)} ${f1(y0+th+3)}V${f1(yd+5)}M${f1(x0+tw-hd)} ${f1(y0+th+3)}V${f1(yd+5)}`});
-    add({k:'p',r:'dm',d:`M${f1(x0)} ${f1(yd)}H${f1(x0+tw)}`+tic(x0,yd)+tic(x0+hd,yd)+tic(x0+tw-hd,yd)+tic(x0+tw,yd)});bb(x0-5,yd+6);bb(x0+tw+5,yd+6);
+    const yd=cad?borde.bot+(ext.bot||6)+22:Math.min(HH-18,borde.bot+(ext.bot||6)+22),sw=tw-2*hd-2*cr;   // v5 (CAD): sin tope del lienzo
+    add({k:'p',r:'dx',d:`M${f1(x0)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+tw)} ${f1(y0+th/2+4)}V${f1(yd+5)}M${f1(x0+hd)} ${f1(y0+th+3)}V${f1(yd+5)}M${f1(x0+tw-hd)} ${f1(y0+th+3)}V${f1(yd+5)}`+
+      (cr?`M${f1(x0+hd+cr)} ${f1(y0+th+3)}V${f1(yd+5)}M${f1(x0+tw-hd-cr)} ${f1(y0+th+3)}V${f1(yd+5)}`:'')});
+    add({k:'p',r:'dm',d:`M${f1(x0)} ${f1(yd)}H${f1(x0+tw)}`+tic(x0,yd)+tic(x0+hd,yd)+tic(x0+tw-hd,yd)+tic(x0+tw,yd)+(cr?tic(x0+hd+cr,yd)+tic(x0+tw-hd-cr,yd):'')});bb(x0-5,yd+6);bb(x0+tw+5,yd+6);
     if(ap(tL,13)<=sw-8)tx(x0+tw/2,yd-10,tL,13,'dmt');else tx(x0+tw/2,yd-10,vL,12,'dmt');
+    // v6 · C.R.: su propio tramo de la cadena (soldadura → inicio de la curva) en cada tapa; el texto sale con guía bajo la cadena, hacia afuera
+    if(cr){const tC=`C.R. = ${crMm.toFixed(2)} mm`,yc=yd+16;
+      for(const sg of [-1,1]){const xc=sg<0?x0+hd+cr/2:x0+tw-hd-cr/2;add({k:'p',r:'dm',d:`M${f1(xc)} ${f1(yd+1.5)}V${f1(yc)}H${f1(xc+sg*7)}`});
+        tx(xc+sg*9,yc,tC,11,'dmt',{anc:sg<0?'end':'start'});}}
     if(vT){if(ap(vT,11)<=hd-4){tx(x0+hd/2,yd-9,vT,11,'dmt');tx(x0+tw-hd/2,yd-9,vT,11,'dmt');}
       else{tx(x0-7,yd,vT,11,'dmt',{anc:'end'});tx(x0+tw+7,yd,vT,11,'dmt',{anc:'start'});}}
     const xd=libre(x0+hd+8,x0+tw-hd-24,(n,c)=>n.st.x+n.tm.rad+3>c-6&&n.st.x-n.tm.rad-3<c+20);
@@ -3059,10 +3099,15 @@ function croquis(L,opt){
     tx(xd+11,y0+th/2,tD,12,'dmt',{rot:-90});
     if(opt.cotas)cotasCAD(xd);
   }else{
-    const xd=cad?borde.left-(ext.left||6)-22:Math.max(18,borde.left-(ext.left||6)-22),sh=th-2*hd,xm=x0+tw/2;
-    add({k:'p',r:'dx',d:`M${f1(xm-4)} ${f1(y0)}H${f1(xd-5)}M${f1(xm-4)} ${f1(y0+th)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+hd)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+th-hd)}H${f1(xd-5)}`});
-    add({k:'p',r:'dm',d:`M${f1(xd)} ${f1(y0)}V${f1(y0+th)}`+tic(xd,y0)+tic(xd,y0+hd)+tic(xd,y0+th-hd)+tic(xd,y0+th)});bb(xd-6,y0-5);bb(xd-6,y0+th+5);
+    const xd=cad?borde.left-(ext.left||6)-22:Math.max(18,borde.left-(ext.left||6)-22),sh=th-2*hd-2*cr,xm=x0+tw/2;
+    add({k:'p',r:'dx',d:`M${f1(xm-4)} ${f1(y0)}H${f1(xd-5)}M${f1(xm-4)} ${f1(y0+th)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+hd)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+th-hd)}H${f1(xd-5)}`+
+      (cr?`M${f1(x0-3)} ${f1(y0+hd+cr)}H${f1(xd-5)}M${f1(x0-3)} ${f1(y0+th-hd-cr)}H${f1(xd-5)}`:'')});
+    add({k:'p',r:'dm',d:`M${f1(xd)} ${f1(y0)}V${f1(y0+th)}`+tic(xd,y0)+tic(xd,y0+hd)+tic(xd,y0+th-hd)+tic(xd,y0+th)+(cr?tic(xd,y0+hd+cr)+tic(xd,y0+th-hd-cr):'')});bb(xd-6,y0-5);bb(xd-6,y0+th+5);
     if(ap(tL,13)<=sh-8)tx(xd-11,y0+th/2,tL,13,'dmt',{rot:-90});else tx(xd-11,y0+th/2,vL,12,'dmt',{rot:-90});
+    // v6 · C.R. en cada tapa: su tramo de la cadena, con el texto hacia afuera (izquierda) por una guía
+    if(cr){const tC=`C.R. = ${crMm.toFixed(2)} mm`,xt=xd-19;   // la guía va hacia el cuerpo: del lado de la tapa está el texto de su profundidad
+      for(const sg of [-1,1]){const yc=sg<0?y0+hd+cr/2:y0+th-hd-cr/2,ye=yc-sg*8;add({k:'p',r:'dm',d:`M${f1(xd-1.5)} ${f1(yc)}H${f1(xd-9)}L${f1(xt+2)} ${f1(ye)}`});
+        tx(xt,ye,tC,11,'dmt',{anc:'end'});}}
     if(vT){if(ap(vT,11)<=hd-4){tx(xd-10,y0+hd/2,vT,11,'dmt',{rot:-90});tx(xd-10,y0+th-hd/2,vT,11,'dmt',{rot:-90});}
       else{tx(xd,y0-10,vT,11,'dmt');tx(xd,y0+th+13,vT,11,'dmt');}}
     const yd=libre(y0+hd+8,y0+th-hd-24,(n,c)=>n.st.y+n.tm.rad+3>c-6&&n.st.y-n.tm.rad-3<c+20);
@@ -3097,14 +3142,14 @@ function aJSON(L,ahora){
   const nOrNull=v=>{const n=num(v);return n>0?n:null;};
   const md={};for(const k of META_KEYS){let v=String(L.metadata[k]??'').trim();if(k==='fechaInspeccion')v=isoFecha(v)||v;if(k==='capacidad')v=capM3(v)||v;md[k]=v;}
   return {schema:SCHEMA,version:VERSION,exportedAt:isoLocal(ahora||new Date()),orientacion:L.orientacion==='V'?'V':'H',
-    dimensiones:Object.fromEntries(DIM_KEYS.map(k=>[k,nOrNull(L.dimensiones[k])])),
+    dimensiones:Object.assign(Object.fromEntries(DIM_KEYS.map(k=>[k,nOrNull(L.dimensiones[k])])),{[DIM_CR]:(()=>{const t=String(L.dimensiones[DIM_CR]??'').trim(),n=num(t);return t&&n>=0?n:null;})()}),
     metadata:md,
     boquillas:L.boquillas.map((b,i)=>Object.assign({letra:letra(i),tipo:b.tipo,diametroPulgadas:parsePulg(b.diametroPulgadas)>0?+parsePulg(b.diametroPulgadas).toFixed(4):null,cara:b.cara,pos:ajustar(L,b)},orifJSON(b))),
     espesores:Object.fromEntries(ESP_KEYS.map(k=>[k,arr16(L.espesores[k])])),
     croquis:{plantilla:L.orientacion==='V'?'V':'H',
       note:'pos.u 0→1 = izquierda→derecha y pos.v 0→1 = abajo→arriba, relativas al contorno exterior del tanque (cuerpo + tapas) en la plantilla indicada. '+
            'Tapita (arriba/abajo/lado) se ajusta al contorno; frente/atrás quedan dentro del cuerpo. Sin profundidad de tapa, la tapa se dibuja semielíptica 2:1 solo como referencia. '+
-           'Unidades: Ø interior en cm; longitud soldadura–soldadura (solo cuerpo) y profundidad de tapa en mm; boquillas en pulgadas; presiones en kg/cm²; capacidad en m³; espesores en mm (puntos 1–16). '+
+           'Unidades: Ø interior en cm; longitud soldadura–soldadura (solo cuerpo), profundidad de tapa y ceja recta (C.R., tramo recto de cada tapa) en mm; boquillas en pulgadas; presiones en kg/cm²; capacidad en m³; espesores en mm (puntos 1–16). '+
            'orificio (texto) + ordenOrif (1 = hacia afuera): piezas montadas en el mismo orificio; comparten cara y posición.'}};
 }
 
@@ -3279,7 +3324,7 @@ async function formato(o,opt){const L=nuevo();L.orientacion=o==='V'?'V':'H';retu
 
 root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,META,META_KEYS,CAP_L_MIN,EQUIPOS,equipoDe,tagDe,tagAuto,
   TIPOS_EQUIPO,TIPO_EQ_DEF,tipoEquipo,tipoDe,nombreEsAuto,tagEsAuto,nombreNum,tagNum,numerar,
-  nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,contorno,sitio,aUV,croquis,glifo,textura,svg,aJSON,pdf,formato,
+  nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,conCR,alturaFrontal,DIM_CR,contorno,sitio,aUV,croquis,glifo,textura,svg,aJSON,pdf,formato,
   orificios,orifDe,ordOr,orifJSON,sincOrificio,unirOrificio,separarOrificio,agregarEnOrificio,ordenOrificio,renumOrif,
   letra,grupos,tapas,tapasUI,parsePulg,fmtPulg,numTxt,capM3,capTxt,isoFecha,anioDe,fechaMx,esTapita,normTipo,variar,baseCol,limpiarCol};
 })(typeof window!=='undefined'?window:globalThis);
@@ -3546,18 +3591,33 @@ function grupos(d){
     // v3: las de VALVULA DE SEGURIDAD llevan el Ø elegido en «Dispositivo de relevo» (tabla VALVULAS_RELEVO)
     const esV=sinAc(t)==='VALVULA DE SEGURIDAD'&&d.inp.dvTxt;
     del.forEach(b=>{const p=pos(b.diametroPulgadas),k=esV?d.inp.dvTxt:ok(p)?(p*25.4).toFixed(2):'—';pd.set(k,(pd.get(k)||0)+1);});
-    const a=del[0],ang=num(d.pl.angulos&&d.pl.angulos[t]);
+    const a=del[0],ang=num(d.pl.angulos&&d.pl.angulos[t]),auto=angAuto(d,a);
+    // v6: angAuto = ángulo que corresponde a donde está dibujada en la vista frontal; un ángulo escrito en el plano (angManual) manda
     return {t,b:a,letra:gl.letraDe[t],n:del.length,serv:servicio(t),con:conexion(d,t),porD:[...pd.entries()],cara:a.cara,pos:a.pos||{u:.5,v:.5},dpulg:pos(a.diametroPulgadas),
-      ang:isFinite(ang)?((ang%360)+360)%360:angDefault(d.inp.o,a),angManual:isFinite(ang)};});
+      ang:isFinite(ang)?((ang%360)+360)%360:auto,angAuto:auto,angManual:isFinite(ang)};});
+}
+// v6 · ángulo automático de una boquilla: frente / atrás desde su altura TAL COMO SE DIBUJA en la vista frontal del plano (FXLev.alturaFrontal,
+// con las dimensiones y la C.R. del plano); arriba / abajo / lado como siempre (angDefault).
+function angAuto(d,b){
+  const X=root.FXLev,i=d.inp;let h;
+  if(X&&X.alturaFrontal&&b&&b.pos&&(b.cara==='frente'||b.cara==='atras')){const L=levDe(d);
+    if(L)h=X.alturaFrontal(L,{cara:b.cara,pos:{u:+b.pos.u||0,v:+b.pos.v||0},diametroPulgadas:pos(b.diametroPulgadas)>0?pos(b.diametroPulgadas):null},ok(i.CR)&&i.CR>0?i.CR:0);}
+  return angDefault(i.o,b,h);
 }
 function boquillas(d){
   const out=[];grupos(d).forEach(g=>g.porD.forEach(([mm,c])=>out.push({item:g.letra,tipo:g.con,cant:String(c),mm,serv:g.serv,t:g.t})));return out;
 }
-// Ángulo por omisión en la vista lateral (H, mirando desde el extremo) o superior (V, desde arriba): 0° a la derecha, sentido antihorario.
-// H: arriba 90 · atrás 0 · abajo 270 · frente 180 · lado (en la tapa) = centro.  V: atrás 90 · frente 270 · lado 180 (izq.) / 0 (der.) · arriba / abajo (tapas) = centro.
-function angDefault(o,b){const c=b&&b.cara,u=+(b&&b.pos&&b.pos.u);
-  if(o==='V')return c==='atras'?90:c==='frente'?270:c==='lado'?(u<0.5?180:0):null;
-  return c==='arriba'?90:c==='atras'?0:c==='abajo'?270:c==='frente'?180:null;}
+// Ángulo automático en la vista lateral (H, mirando desde el extremo) o superior (V, desde arriba): 0° a la derecha, sentido antihorario (90° arriba).
+// v6 · frente / atrás salen de la altura h donde está dibujada en la vista frontal (desplazamiento desde el eje / radio, −1…1; FXLev.alturaFrontal;
+// sin h, la de pos con el mismo mapeo del croquis). Así la lateral cae exactamente donde la frontal la muestra, para cualquier posición:
+// H: atrás = mitad derecha, θ = asin(h) · frente = mitad izquierda, θ = 180° − asin(h) · arriba 90 · abajo 270 · lado (en la tapa) = centro.
+// V: h horizontal (derecha +1): atrás = mitad de arriba, θ = 90° − asin(h) · frente = mitad de abajo, θ = 270° + asin(h) · lado 180 (izq.) / 0 (der.) ·
+// arriba / abajo (tapas) = centro. Redondeado a 0.1°.
+function angDefault(o,b,h){const c=b&&b.cara,u=+(b&&b.pos&&b.pos.u),v=+(b&&b.pos&&b.pos.v);
+  if(c==='atras'||c==='frente'){if(!isFinite(h))h=o==='V'?2*u-1:2*v-1;if(!isFinite(h))h=0;h=Math.max(-1,Math.min(1,h));
+    const a=Math.asin(h)*180/Math.PI,t=o==='V'?(c==='atras'?90-a:270+a):(c==='atras'?a:180-a);return +((((t%360)+360)%360)).toFixed(1)%360;}
+  if(o==='V')return c==='lado'?(u<0.5?180:0):null;
+  return c==='arriba'?90:c==='abajo'?270:null;}
 function letra(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
 
 // ---------- medidas de texto (Liberation Sans de FX_ASSETS vía fontkit; respaldo aproximado) ----------
@@ -3687,7 +3747,7 @@ function deLev(c,q,tx,ty,s,i){
 // v5: hojas PND (opt.pnd) siempre simplificado; el plano, detallado mientras el cuello impreso mida ≥ DET_MIN_PT (se mide en una primera pasada).
 function frontal(c,d,L,rx,ry,rw,rh,opt){
   opt=opt||{};const lev=root.FXLev;if(!L||!lev)return null;
-  const arma=det=>{const lay=lev.croquis(L,{hit:false,agrupar:true,cad:true,pnd:!!opt.pnd,cotas:opt.cotas,det}),bx=lay.bb,PAD=6;
+  const arma=det=>{const lay=lev.croquis(L,{hit:false,agrupar:true,cad:true,pnd:!!opt.pnd,cotas:opt.cotas,cr:opt.pnd?0:opt.cr,det}),bx=lay.bb,PAD=6;
     const vx=bx.x0-PAD,vy=bx.y0-PAD,vw=bx.x1+PAD-vx,vh=bx.y1+PAD-vy;return {lay,vx,vy,vw,vh,s:Math.min(rw/vw,rh/vh,opt.smax||0.95)};};
   let A=arma(opt.pnd?false:true);
   if(!opt.pnd){const s0=A.s;A=arma(w=>w*s0>=DET_MIN_PT);}
@@ -3929,7 +3989,7 @@ function hoja(d,opt){
   const G=grupos(d),L=levDe(d);
   const vista=(x,y,w,h,titulo)=>{T(titulo,x+w/2,y+h-2,{z:8,b:1,anc:'middle',u:1});};
   const cotas={R:ok(i.Rmm)?`R INT. ${i.Rmm.toFixed(2)} mm`:'R INT. — mm',espCuerpo:`ESP. MIN. ${fx(i.tEnv,2)} mm`,espTapa:`ESP. MIN. ${fx(i.tTap,2)} mm`};
-  const pegaCroquis=(rx,ry,rw,rh)=>frontal(c,d,L,rx,ry,rw,rh,{cotas});
+  const pegaCroquis=(rx,ry,rw,rh)=>frontal(c,d,L,rx,ry,rw,rh,{cotas,cr:ok(i.CR)&&i.CR>0?i.CR:0});   // v6: con la C.R. y su cota en cada tapa
   let memX,memY,memW,memH,cols;
   if(o==='H'){
     pegaCroquis(X0,Y0,580,272);vista(X0,Y0,580,292,'VISTA FRONTAL');
@@ -5106,7 +5166,11 @@ function renderEqForm(){
   $$('[data-mayus]',box).forEach(mayus);
   // entradas del equipo (delegado): lo escrito va directo a SU campo del equipo
   const dec=i=>{let x=i.value;if(i.hasAttribute('data-num')&&x.includes(',')){x=x.replace(',','.');i.value=x;}return x;};
-  const on=ev=>{const i=ev.target.closest('[data-e]');if(!i||!box.contains(i))return;const e=eqAct();if(!e)return;const k=i.dataset.e,v=dec(i);if(e[k]===v&&ev.type==='change'&&!['nombre','tag'].includes(k))return;e[k]=v;
+  // v6 · C.R. del croquis (levantamiento): se guarda en e.plano.cejaRectaMm, la misma que leen los cálculos, «Ajustar C.R.» y el plano
+  const onPl=ev=>{const i=ev.target.closest('[data-epl]');if(!i||!box.contains(i))return false;const e=eqAct();if(!e)return true;
+    if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);const k=i.dataset.epl,v=dec(i);if(String(e.plano[k]??'')===v)return true;
+    e.plano[k]=v;if(LEV)LEV.dimensiones[k]=v;levAyudaDims();expSucio=true;guardar();actEq();return true;};
+  const on=ev=>{if(onPl(ev))return;const i=ev.target.closest('[data-e]');if(!i||!box.contains(i))return;const e=eqAct();if(!e)return;const k=i.dataset.e,v=dec(i);if(e[k]===v&&ev.type==='change'&&!['nombre','tag'].includes(k))return;e[k]=v;
     if(k==='fechaFabricacion')e.anioFabricacion=LX().anioDe(v);
     if(k==='presionDiseno')e.presionPruebaHidrostatica=hidro(e);
     if(k==='tipoValvula'){const sm=$('#e_diametroValvulaMm',box),fx=window.FXPlano;   // v5: otro tipo → su lista de medidas; la medida se conserva si existe en el tipo nuevo
@@ -5130,6 +5194,7 @@ function renderEqForm(){
 function eqCargar(){
   const e=eqAct(),box=$('#eqForm');if(!e||!box)return;const foco=document.activeElement;
   $$('[data-e]',box).forEach(i=>{if(i===foco)return;const k=i.dataset.e;if(i.tagName==='SELECT'){if(k==='diametroValvulaMm'){valvOpcMm(i,e.tipoValvula);plSelVal(i,e[k]);}else if(k==='tipoValvula')plSelVal(i,e[k]);else i.value=e[k]??'';}else i.value=e[k]??'';});
+  $$('[data-epl]',box).forEach(i=>{if(i!==foco)i.value=String((e.plano&&e.plano[i.dataset.epl])??'');});   // v6: C.R. (vive en el plano)
   const mk=$('[data-mask]',box);if(mk&&mk!==foco)mk.value=memXXX(e.codigoMemoriaCalculo);
   $$('[data-img-eq]',box).forEach(b=>{const k='e:'+e.id+':'+b.dataset.imgEq;if(b.dataset.img!==k){b.dataset.img=k;renderImg(b);}});
   LEV=levDe(e);levCargarCampos();espRender();actEq();
@@ -5143,7 +5208,7 @@ function ponRes(el,o){
   const viejo=el.dataset.v;el.className=cls;if(el.innerHTML!==h){el.innerHTML=h;}
   const nv=o.pend?'':String(o.v);if(viejo!=null&&viejo!==nv){el.classList.remove('cambio');void el.offsetWidth;el.classList.add('cambio');}el.dataset.v=nv;
 }
-const IR={croqDims:e=>({paso:'equipos',eq:e.id,sec:'croq',sel:'#lv_dcm'}),cr:e=>({paso:'plano',eq:e.id,sel:'#pl_cr'}),pm:e=>({paso:'plano',eq:e.id,sel:'#pc-pm'}),rel:e=>({paso:'plano',eq:e.id,sel:'#pc-rel'}),mat:e=>({paso:'plano',eq:e.id,sel:'#pl_mc'}),
+const IR={croqDims:e=>({paso:'equipos',eq:e.id,sec:'croq',sel:'#lv_dcm'}),cr:e=>({paso:'equipos',eq:e.id,sec:'croq',k:'cejaRectaMm'}),pm:e=>({paso:'plano',eq:e.id,sel:'#pc-pm'}),rel:e=>({paso:'plano',eq:e.id,sel:'#pc-rel'}),mat:e=>({paso:'plano',eq:e.id,sel:'#pl_mc'}),
   pres:(e,k)=>({paso:'equipos',eq:e.id,sec:'pres',k}),valv:e=>({paso:'equipos',eq:e.id,sec:'valv',k:'diametroValvulaMm'}),esp:(e,k)=>({paso:'equipos',eq:e.id,sec:'esp',esp:k}),ident:(e,k)=>({paso:'equipos',eq:e.id,sec:'ident',k}),doc:(e,k)=>({paso:'equipos',eq:e.id,sec:'doc',k})};
 function actEq(){
   const e=eqAct(),box=$('#eqForm');if(!e||!box||!window.FXPlano)return;
@@ -5179,8 +5244,8 @@ function actEq(){
   {const a=$('[data-ay="capacidadPlaca"]',box),v=String(e.capacidadPlaca||'').trim(),cm=LX().capM3(v),cmN=parseFloat(cm),df=cm&&plOk(r.Vtot)&&cmN>0?` Calculada ${r.Vtot.toFixed(4)} m³ (${crSg(r.Vtot-cmN,4)} m³ · ${crSg((r.Vtot-cmN)/cmN*100,2)} %); «Ajustar C.R.» en el plano la acerca.`:'';
     if(a)a.innerHTML=v?(cm?`= ${cm} m³ · solo referencia: la capacidad del expediente es el volumen calculado.${df}`:'No se entiende: usa 0.500, 500 L o 132 gal.'):'Solo referencia del papel (500 L, 0.500 m³, 132 gal). La capacidad del expediente es el volumen calculado.';}
   // croquis: capacidad junto a Ø, L (y la C.R. del plano)
-  {const vr=crRefM3(e);ponRes($('[data-res="capCroq"]',box),plOk(r.Vtot)?{n:'Capacidad volumétrica',v:r.Vtot.toFixed(3),u:'m³',f:`= V(D, L, C.R. ${plF(inp.CR,0)} mm) · hoja 10`+(plOk(vr)?` · placa ${vr.toFixed(3)} m³ (${crSg((r.Vtot-vr)/vr*100,2)} %)`:''),ir:IR.cr(e),irT:'C.R. en el plano'}:
-    {n:'Capacidad volumétrica',pend:1,f:'= V(D, L, C.R.) · falta '+[!plOk(inp.Dcm)&&'Ø',!plOk(inp.Lmm)&&'L',!plOk(inp.CR)&&'C.R. (plano)'].filter(Boolean).join(', ')+(plOk(vr)?` · placa ${vr.toFixed(3)} m³`:''),ir:plOk(inp.Dcm)&&plOk(inp.Lmm)?IR.cr(e):null,irT:'capturar C.R.'});}
+  {const vr=crRefM3(e);ponRes($('[data-res="capCroq"]',box),plOk(r.Vtot)?{n:'Capacidad volumétrica',v:r.Vtot.toFixed(3),u:'m³',f:`= V(D, L, C.R. ${+inp.CR.toFixed(2)} mm) · hoja 10`+(plOk(vr)?` · placa ${vr.toFixed(3)} m³ (${crSg((r.Vtot-vr)/vr*100,2)} %)`:''),ir:{paso:'plano',eq:e.id,sel:'#plCrRef'},irT:'C.R. ↔ placa en el plano'}:
+    {n:'Capacidad volumétrica',pend:1,f:'= V(D, L, C.R.) · falta '+[!plOk(inp.Dcm)&&'Ø',!plOk(inp.Lmm)&&'L',!plOk(inp.CR)&&'C.R.'].filter(Boolean).join(', ')+(plOk(vr)?` · placa ${vr.toFixed(3)} m³`:''),ir:plOk(inp.Dcm)&&plOk(inp.Lmm)?IR.cr(e):null,irT:'capturar C.R.'});}
   // construcción: material (se elige en el plano, junto a su S)
   ponRes($('[data-res="mat"]',box),String(e.materialCuerpo||'').trim()?{n:'Material del cuerpo / de las tapas',cls:'vinc',v:inp.matT&&inp.matT!==inp.matC?`${inp.matC} / ${inp.matT}`:inp.matC,f:`Plano · Material y esfuerzo permisible · S cuerpo = ${fS(inp.Sc)} · S tapas = ${fS(inp.St)} kg/cm²`,ir:IR.mat(e),irT:'editar en el plano'}:{n:'Material del cuerpo / de las tapas',cls:'vinc',pend:1,f:'Elige el material en el plano.',ir:IR.mat(e),irT:'editar en el plano'});
   espActRes(e,d);actCroqPnd(e);actSecciones();
@@ -5217,7 +5282,7 @@ function valvOpcMm(s,tipo){if(!s||!window.FXPlano)return;const ms=FXPlano.valvMe
   const h=[['',ms.length?'— Elegir medida —':'— Elige el tipo —'],...ms.map(m=>[m.mm,`${m.mm} mm · ${m.pulg} in`])].map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');
   if(s.dataset.tipo!==String(tipo)||s.innerHTML!==h){s.innerHTML=h;s.dataset.tipo=String(tipo);}}
 // v6 · hoja 66: de dónde salen el MODELO y el ÁREA DE DESCARGA que se imprimen (FXEngine.valv66 vía equipoCtx). Solo lectura.
-function v66Fuente(x){return x.v66Fuente==='catalogo'?'catálogo de válvulas':'texto de la plantilla'+({original:' (es la válvula de la plantilla: Argolla 678 Ø 6 mm)',sinModelo:' (tipo sin modelo en el catálogo)',fuera:' (válvula fuera del catálogo)'}[x.v66Motivo]||'');}
+function v66Fuente(x){return x.v66Fuente==='catalogo'?'catálogo de válvulas':'texto de la plantilla'+({sinModelo:' (tipo sin modelo en el catálogo)',fuera:' (válvula fuera del catálogo)'}[x.v66Motivo]||'');}
 // tipo + medida del catálogo → datos de la válvula guardados en el equipo (se exportan en el JSON). manual = lo eligió el usuario:
 // una medida vacía limpia los datos. Una selección anterior que no está en el catálogo conserva sus valores y se marca (valvulaRevisar).
 function valvSync(e,manual){
@@ -5351,7 +5416,7 @@ function validar(){
     for(const [k,l,o,sec] of CAMPOS_VAL){const v=String(e[k]??'').trim(),x=Object.assign({sec,k:o.campo||k},q);
       const req=o.req||(o.reqCat2&&c==='II')||(o.reqCat3&&c==='III');
       if(o.mascara){if(!/^RSP-020-[A-Z0-9]{3}-2026$/.test(e.codigoMemoriaCalculo||''))E(`${n}: completa los 3 caracteres del código de memoria de cálculo.`,x);continue;}
-      if(o.vinc==='V'){if(!v){const g=planoPend(e);E(`${n}: sin capacidad volumétrica; `+(g.length?`captura ${g.join(' y ')} en el croquis`:'captura la ceja recta (C.R.) en el plano')+' para calcular el volumen.',g.length?Object.assign({},q,{sec:'croq',k:'diametroInteriorCm'}):{paso:'plano',eq:e.id,sel:'#pl_cr',k:'cejaRectaMm'});}continue;}
+      if(o.vinc==='V'){if(!v){const g=planoPend(e);E(`${n}: sin capacidad volumétrica; `+(g.length?`captura ${g.join(' y ')} en el croquis`:'captura la ceja recta (C.R.) en el croquis')+' para calcular el volumen.',g.length?Object.assign({},q,{sec:'croq',k:'diametroInteriorCm'}):Object.assign({},q,{sec:'croq',k:'cejaRectaMm'}));}continue;}
       if(o.auto){if(!v&&k==='presionPruebaHidrostatica')E(`${n}: captura la presión de diseño para calcular la prueba hidrostática.`,Object.assign({},q,{sec:'pres',k:'presionDiseno'}));continue;}
       if(req&&!v)E(`${n}: falta ${lc1(l)}.`,x);
       else if(v&&o.num!=null&&isNaN(nNum(v)))E(`${n}: ${lc1(l)} debe ser un número.`,x);}
@@ -5365,6 +5430,9 @@ function validar(){
     {const f=pndCroqFalta(e);if(f.length)W(`${n}: croquis de las hojas 71 y 75 pendiente (falta ${f.join(' y ')}); la caja quedará vacía.`,Object.assign({sec:'fotos',croq:1},q));}
     // v8: hoja 20 = plano generado de este equipo; sin geometría sale marcada PLANO PENDIENTE (nunca el plano de muestra)
     {const f=planoPend(e);if(f.length)W(`${n}: plano pendiente (falta ${f.join(' y ')}); su hoja 20 saldrá marcada PLANO PENDIENTE.`,Object.assign({sec:'croq',k:'diametroInteriorCm'},q));}
+    // v6: ángulo escrito a mano en el plano (vista lateral / superior) que no coincide con donde está dibujada en la vista frontal
+    if(window.FXPlano&&e.plano&&e.plano.angulos&&Object.keys(e.plano.angulos).length){try{const d=FXPlano.datos(e,{}),vl=d.inp.o==='V'?'superior':'lateral';
+      angAvisos(d).forEach(a=>W(`${n}: el ángulo de ${a.letra} (${String(LX().TIPO_UI[a.t]||a.serv).toLowerCase()}) en la vista ${vl} está escrito a mano (${a.man}°) y no coincide con la vista frontal (${a.auto==null?'ahí está en una tapa':'automático '+a.auto+'°'}).`,{paso:'plano',eq:e.id,sel:'#plGrupos',angAuto:a.t}));}catch(_){}}
     orifSugeridos(e).forEach(s=>W(`${n}: las boquillas ${s.letras.join(', ')} están juntas en el croquis. ¿Van en un mismo orificio?`,Object.assign({sec:'croq',unir:s.ids,nokey:s.key,letras:s.letras},q)));
     {const m=String(e.codigoMemoriaCalculo||'').trim();if(m){if(mems[m])W(`${n}: código de memoria repetido (${m}); cada plano lleva el suyo.`,Object.assign({sec:'doc',k:'codigoMemoriaCalculo'},q));mems[m]=1;}}
     // memoria de cálculo incompleta: no impide generar, pero lo que falta queda en blanco en el plano
@@ -5459,13 +5527,15 @@ function revRender(){
       return `<tr><td><b>${i+1}. ${esc(e.tag||'sin TAG')}</b></td><td>${esc(vt?vt.ui:x.valvTipo)} Ø ${esc(x.valvDiam||'—')} mm</td><td>${esc(x.v66Modelo)}</td><td>${esc(x.v66Area)} cm²</td><td>${esc(v66Fuente(x))}</td></tr>`;}).join('')}</tbody>`:'';}}
   // pendientes y avisos agrupados por paso y equipo
   {const box=$('#revPend'),grupo=(arr,cls)=>{const por={};arr.forEach((x,k)=>{const g=(PASO_NOM[x.paso]||'Otros')+(x.eq?' · '+eqNom(x.eq):'');(por[g]=por[g]||[]).push(k);});
-      return Object.entries(por).map(([g,ks])=>`<div class="grupo-rev"><h4>${esc(g)}</h4><ul>${ks.map(k=>`<li><button type="button" data-${cls}="${k}">${esc(arr[k].m)}<span class="ir">${esc(arr[k].sec?SEC_EQ_NOM[arr[k].sec]||'':PASO_NOM[arr[k].paso]||'')} →</span></button>${arr[k].unir?`<span class="rev-unir"><button type="button" class="btn mini" data-unir="${k}">Unir en un orificio</button><button type="button" class="btn mini fantasma" data-nounir="${k}">No, van separadas</button></span>`:''}</li>`).join('')}</ul></div>`).join('');};
+      return Object.entries(por).map(([g,ks])=>`<div class="grupo-rev"><h4>${esc(g)}</h4><ul>${ks.map(k=>`<li><button type="button" data-${cls}="${k}">${esc(arr[k].m)}<span class="ir">${esc(arr[k].sec?SEC_EQ_NOM[arr[k].sec]||'':PASO_NOM[arr[k].paso]||'')} →</span></button>${arr[k].unir?`<span class="rev-unir"><button type="button" class="btn mini" data-unir="${k}">Unir en un orificio</button><button type="button" class="btn mini fantasma" data-nounir="${k}">No, van separadas</button></span>`:''}${arr[k].angAuto?`<span class="rev-unir"><button type="button" class="btn mini" data-angauto="${k}">Volver a automático</button></span>`:''}</li>`).join('')}</ul></div>`).join('');};
     box.innerHTML=(err.length?`<div class="aviso err"><strong>Falta${err.length>1?'n':''} ${err.length} dato${err.length>1?'s':''} para generar</strong>${grupo(err,'err')}</div>`:'<div class="aviso ok">Sin pendientes: todo listo para generar.</div>')+
       (warn.length?`<div class="aviso warn"><strong>Avisos (${warn.length}) · no impiden generar</strong>${grupo(warn,'warn')}</div>`:'');
     $$('[data-err]',box).forEach(b=>b.addEventListener('click',()=>{mostrarFaltas=true;irA(err[+b.dataset.err]);}));
     $$('[data-warn]',box).forEach(b=>b.addEventListener('click',()=>irA(warn[+b.dataset.warn])));
     $$('[data-unir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.unir],true)));
-    $$('[data-nounir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.nounir],false)));}
+    $$('[data-nounir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.nounir],false)));
+    $$('[data-angauto]',box).forEach(b=>b.addEventListener('click',()=>{const x=warn[+b.dataset.angauto],e=x&&D.equipos.find(q=>q.id===x.eq);if(!e)return;   // v6
+      angVolverAuto(e,x.angAuto);plSucio=true;refrescar();revRender();toast('Ángulo automático: sale de la vista frontal.');}));}
 }
 function eqNom(id){const e=D.equipos.find(x=>x.id===id);return e?`Equipo ${D.equipos.indexOf(e)+1}${e.tag?' ('+e.tag+')':''}`:'';}
 // ---------- Personas › Dibujó: un nombre por plano (equipo), todos en el mismo bloque ----------
@@ -5492,9 +5562,9 @@ function camposIndice(){
   const secs=SECC_EQ.filter(s=>s.items);
   D.equipos.forEach((e,n)=>{const q=`Equipo ${n+1}${e.tag?' · '+e.tag:''}`;
     for(const s of secs)for(const it of s.items){if(typeof it[1]!=='string')continue;const k=it[0];out.push({t:it[1],d:`${q} › ${s.t}`,v:k==='codigoMemoriaCalculo'?e[k]:e[k],x:{paso:'equipos',eq:e.id,sec:s.id,k}});}
-    for(const [k,t] of [['diametroInteriorCm','Ø interior'],['longitudMm','Longitud soldadura–soldadura'],['profundidadTapaMm','Profundidad de tapa']])out.push({t,d:`${q} › Croquis y boquillas`,v:e[k],x:{paso:'equipos',eq:e.id,sec:'croq',k}});
+    for(const [k,t] of [['diametroInteriorCm','Ø interior'],['longitudMm','Longitud soldadura–soldadura'],['profundidadTapaMm','Profundidad de tapa'],['cejaRectaMm','Ceja recta (C.R.)']])out.push({t,d:`${q} › Croquis y boquillas`,v:k==='cejaRectaMm'?e.plano&&e.plano.cejaRectaMm:e[k],x:{paso:'equipos',eq:e.id,sec:'croq',k}});
     out.push({t:'Espesores (16 puntos por columna)',d:`${q} › Espesores`,v:(e.espEnv||[]).filter(Boolean).length+'/16',x:{paso:'equipos',eq:e.id,sec:'esp',esp:'espEnv'}});
-    for(const [sel,t] of [['#pl_cr','Ceja recta (C.R.)'],['#pl_mc','Material del cuerpo'],['#pl_mt','Material de las tapas'],['#pl_fs','Factor de seguridad'],['#pl_e','Eficiencia de soldadura E'],['#pl_fab','Fabricante'],['#pl_nb','National Board'],['#pl_cod','Código de fabricación'],['#pl_fec','Fecha del plano'],['#pl_con','Conexión por omisión']]){
+    for(const [sel,t] of [['#pl_mc','Material del cuerpo'],['#pl_mt','Material de las tapas'],['#pl_fs','Factor de seguridad'],['#pl_e','Eficiencia de soldadura E'],['#pl_fab','Fabricante'],['#pl_nb','National Board'],['#pl_cod','Código de fabricación'],['#pl_fec','Fecha del plano'],['#pl_con','Conexión por omisión']]){
       const k=($(sel)&&($(sel).dataset.pl||$(sel).dataset.pe));const v=k?(e.plano&&e.plano[k]!=null?e.plano[k]:e[k]):'';out.push({t,d:`${q} › Plano`,v,x:{paso:'plano',eq:e.id,sel}});}
     out.push({t:'Dibujó',d:`${q} › Personas › Dibujó`,v:e.plano&&e.plano.dibujo,x:{paso:'personas',sel:`[data-dib="${e.id}"]`}});});
   return out;
@@ -5817,6 +5887,9 @@ function migrarV10(e,origen){
     // dimensiones: el plano (y la hoja 20) usaban e[k] y, si faltaba, la del levantamiento → queda en e[k]
     if(dm)for(const k of X.DIM_KEYS){const a=nNum(e[k]),b=nNum(dm[k]);
       if(!(a>0)&&b>0)e[k]=String(b);else if(a>0&&b>0&&Math.abs(a-b)>1e-9)C({diametroInteriorCm:'Ø interior (cm)',longitudMm:'Longitud soldadura–soldadura (mm)',profundidadTapaMm:'Profundidad de tapa (mm)'}[k],e[k],dm[k],'croq',k);}
+    // v6 · C.R.: la del archivo llena la del plano solo si está vacía; si ya hay otra distinta, se conserva y la del archivo queda en Revisión
+    if(dm&&dm[X.DIM_CR]!=null&&String(dm[X.DIM_CR]).trim()!==''){const pl=e.plano||(e.plano={}),a=s(pl.cejaRectaMm),b=s(dm[X.DIM_CR]);
+      if(!a&&nNum(b)>=0)pl.cejaRectaMm=String(nNum(b));else if(a&&nNum(b)>=0&&Math.abs(nNum(a)-nNum(b))>1e-9)C('Ceja recta C.R. (mm)',a,b,'croq','cejaRectaMm');}
     // orientación: el plano usaba e.plano.orientacion y, si no había, la del levantamiento → una sola (las dos copias quedan iguales)
     {const pl=e.plano||(e.plano={}),po=pl.orientacion==='H'||pl.orientacion==='V'?pl.orientacion:'',lo=lv.orientacion==='V'?'V':lv.orientacion==='H'?'H':'',o=po||lo||'H';
       if(po&&lo&&po!==lo)C('Orientación (plantilla H / V)',o==='V'?'Vertical (V)':'Horizontal (H)',lo==='V'?'Vertical (V) · hoja de campo':'Horizontal (H) · hoja de campo','croq');
@@ -5864,6 +5937,7 @@ function levDe(e){
   const X=LX(),L=X.nuevo(),s=v=>String(v??'').trim(),lv=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:null;
   L.orientacion=orientDe(e);
   for(const k of X.DIM_KEYS)L.dimensiones[k]=s(e[k]);
+  L.dimensiones[X.DIM_CR]=s(e.plano&&e.plano.cejaRectaMm);   // v6: la C.R. se captura en el croquis y vive en el plano
   if(lv&&Array.isArray(lv.boquillas))lv.boquillas.forEach(b=>{if(b&&!b.id)b.id=uid();});
   L.boquillas=X.reparar({boquillas:(lv&&lv.boquillas)||[]}).boquillas;
   const m=L.metadata;
@@ -6036,6 +6110,8 @@ function levAyudaDims(){
   if(hd)hd.textContent=d>0?`= ${fm(d*10)} mm`+(d>400?' · ¿seguro que es en cm?':''):'Diámetro interior, en centímetros.';
   if(hl)hl.textContent=l>0?`Solo el cuerpo, entre soldaduras = ${fm(l/10)} cm`+(d>0&&l<d*2?' · ¿seguro que es en mm?':''):'Solo el cuerpo, entre soldaduras, en milímetros.';
   if(ht)ht.textContent=t>0?`Cada tapa · total ≈ ${fm((l>0?l:0)+2*t)} mm`+(d>0&&t>d*10?' · ¿mayor que el Ø?':''):'Profundidad de cada tapa (iguales). Vacío: se dibuja 2:1.';
+  {const hc=$('[data-ldh="cejaRectaMm"]'),cs=String(LEV.dimensiones.cejaRectaMm??'').trim(),c=nNum(cs);   // v6
+    if(hc)hc.textContent=cs&&c>=0?`Cada tapa (iguales) = ${fm(c/10)} cm · área y volumen de tapas y cota en el plano`+(t>0&&c>t?' · ¿mayor que la tapa?':''):cs?'Escribe un número (mm).':'Tramo recto de cada tapa, de la soldadura al inicio de la curva (no es la profundidad).';}
 }
 function levRenderBq(){
   const X=LX(),ol=$('#levBqLista');$('#levBqCuenta').textContent=LEV.boquillas.length;
@@ -6259,6 +6335,9 @@ function levAlExpediente(L,j,reusar){
   // v10: placa, presiones, dimensiones y espesores ya quedaron en el equipo; el levantamiento guarda solo croquis y boquillas
   e.levantamiento={schema:jx.schema,version:jx.version,modelo:MODELO,exportedAt:String((j&&j.exportedAt)||''),importadoEn:jx.exportedAt,orientacion:jx.orientacion,boquillas:jx.boquillas.map(b=>Object.assign({id:uid()},b))};
   if(!e.plano||!e.plano.conexiones)e.plano=window.FXPlano?FXPlano.reparar(e.plano):{};e.plano.orientacion=jx.orientacion;
+  // v6: C.R. del levantamiento → plano solo si está vacía; si ya tiene otra, se conserva y la del archivo queda en Revisión
+  {const c=String(L.dimensiones[X.DIM_CR]??'').trim(),a=String(e.plano.cejaRectaMm??'').trim();
+    if(c&&!a)e.plano.cejaRectaMm=c;else if(c&&a&&nNum(c)!==nNum(a))conflicto({eq:e.id,eqNom:String(e.tag||e.nombre||''),campo:'Ceja recta C.R. (mm)',usado:a,descartado:c,origen:'levantamiento importado (.json)',ir:{paso:'equipos',eq:e.id,sec:'croq',k:'cejaRectaMm'}});}
   {const au=espAuto(e);for(const [ek,lk] of ESP_COL)au[ek]=au[ek].map((f,i)=>!!(L.espAuto&&L.espAuto[lk]&&L.espAuto[lk][i])&&!!String(e[ek][i]??'').trim());}
   e.presionPruebaHidrostatica=hidro(e);e._cerrado=false;
   let rs='';const cli=up(m.cliente);
@@ -6534,19 +6613,30 @@ function plCroquis(d){
   const sel=plSel&&L.boquillas.find(b=>b.tipo===plSel);
   svg.innerHTML=LX().svg(lay,sel?sel.id:null);
 }
+// v6 · ángulos escritos a mano en el plano que no coinciden con la vista frontal (más de ANG_TOL°): Revisión y la tabla lo avisan.
+// Los que siguen a otra pieza de su orificio no cuentan (usan el ángulo del orificio). auto = null: en la frontal está en una tapa.
+const ANG_TOL=10;
+const angDif=(a,b)=>Math.abs((((a-b)%360)+540)%360-180);
+function angAvisos(d,G_){
+  G_=G_||FXP().grupos(d);const sig=new Set();
+  for(const [,a] of LX().orificios(d.boq)){const reps=G_.filter(g=>a.includes(g.b));if(reps.length<2)continue;const g1=reps.find(g=>g.b===a[0])||reps[0];reps.forEach(g=>{if(g!==g1)sig.add(g.t);});}
+  return G_.filter(g=>g.angManual&&!sig.has(g.t)&&(g.angAuto==null||angDif(g.ang,g.angAuto)>ANG_TOL)).map(g=>({t:g.t,letra:g.letra,serv:g.serv,man:+g.ang.toFixed(1),auto:g.angAuto}));
+}
+// vuelve al ángulo automático (borra el escrito a mano en el plano)
+function angVolverAuto(e,t){if(!e||!e.plano||!e.plano.angulos)return;delete e.plano.angulos[t];expSucio=true;guardar();}
 function plGrupos(d){
-  const G_=FXP().grupos(d),tb=$('#plGrupos'),def=String(d.pl.tipoConexion||'').trim()||'COPLE',o=d.inp.o;
+  const G_=FXP().grupos(d),tb=$('#plGrupos'),def=String(d.pl.tipoConexion||'').trim()||'COPLE',o=d.inp.o,avs=new Map(angAvisos(d,G_).map(a=>[a.t,a]));
   if(!G_.length){tb.innerHTML='<tbody><tr><td class="vacio">Sin boquillas. Importa el levantamiento o agrégalas abajo.</td></tr></tbody>';return;}
   // v5: en un orificio con varias piezas el ángulo es del orificio: lo pone el tipo de su 1.ª pieza (los demás lo siguen)
   const guia=new Map();for(const [,a] of LX().orificios(d.boq)){const reps=G_.filter(g=>a.includes(g.b));if(reps.length<2)continue;const g1=reps.find(g=>g.b===a[0])||reps[0];reps.forEach(g=>{if(g!==g1)guia.set(g.t,g1);});}
   tb.innerHTML=`<thead><tr><th>Letra</th><th>Servicio</th><th>Cant.</th><th>Ø mm</th><th>Tipo (conexión)</th><th>Ángulo en vista ${o==='V'?'superior':'lateral'}</th></tr></thead><tbody>${G_.map(g=>{
-    const dft=FXP().angDefault(o,{cara:g.cara,pos:g.pos}),gi=guia.get(g.t);
+    const dft=g.angAuto,gi=guia.get(g.t),av=avs.get(g.t);   // v6: el automático sale de donde está dibujada en la vista frontal
     if(gi)return `<tr data-t="${esc(g.t)}"${g.t===plSel?' class="sel"':''}><td><button type="button" class="lev-letra" data-pgs>${g.letra}</button></td><td>${esc(g.serv)}</td><td class="n">${g.n}</td><td class="n vinc">${g.porD.map(([mm])=>mm).join(' · ')}</td>
       <td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>
       <td class="vinc" title="Va en el mismo orificio que ${esc(gi.serv)}: usa su ángulo">= orificio de ${gi.letra}</td></tr>`;
     return `<tr data-t="${esc(g.t)}"${g.t===plSel?' class="sel"':''}><td><button type="button" class="lev-letra" data-pgs>${g.letra}</button></td><td>${esc(g.serv)}</td><td class="n">${g.n}</td><td class="n vinc">${g.porD.map(([mm])=>mm).join(' · ')}</td>
       <td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>
-      <td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)} (0° a la derecha, sentido antihorario)" title="0° a la derecha, 90° arriba, 180° a la izquierda, 270° abajo"><span class="u">°</span></div></td></tr>`;}).join('')}</tbody>`;
+      <td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)} (0° a la derecha, sentido antihorario)" title="Vacío = automático (${dft==null?'centro de la tapa':dft+'°'}, según la vista frontal). 0° a la derecha, 90° arriba, 180° a la izquierda, 270° abajo"><span class="u">°</span></div>${av?`<div class="pl-ang-av" title="El ángulo escrito no coincide con donde está dibujada en la vista frontal">⚠ frontal: ${av.auto==null?'tapa':av.auto+'°'} <button type="button" class="btn chico fantasma" data-pgauto="${esc(g.t)}">Auto</button></div>`:''}</td></tr>`;}).join('')}</tbody>`;
   $$('[data-mayus]',tb).forEach(mayus);
 }
 // ----- croquis de ubicación (vista previa interactiva) -----
@@ -6633,7 +6723,6 @@ function plAyudas(d){
   $('#pl_mc').closest('.campo').classList.toggle('invalido',!mc||fuera);$('#pl_mt').closest('.campo').classList.toggle('invalido',!mt||fueraT);
   for(const [k,m,lbl] of [['sCuerpoMan',mc,'cuerpo'],['sTapasMan',mt,'tapas']]){const t=String(e.plano[k]||'').trim(),n=nNum(t),tb=X.materialDe(m)?X.sTabla(m,e.plano.factorSeguridad).s:NaN;
     a(k,!t?`Vacío: S de la tabla${plOk(tb)?` (${fS(tb)})`:''}.`:n>0?`Se usa ${fS(n)} kg/cm² (2 decimales como máximo) en lugar de la tabla${plOk(tb)?` (${fS(tb)})`:''}.`:'Escribe un número mayor que 0.',!!t&&!(n>0));}
-  $('#pl_cr').closest('.campo').classList.toggle('invalido',mostrarFaltas&&!plOk(i.CR));
   {const mb=String(e.marca||'').trim();a('fabricante',String(e.plano.fabricante||'').trim()?`Fabricante propio${mb?` (la marca es ${mb})`:''}. Bórralo para volver a la marca.`:mb?'Igual a la marca (cambia sola con ella).':'Se llena con la marca.');}
 }
 // ----- v11 · C.R. ↔ capacidad de referencia (placa): diferencia en vivo y «Ajustar C.R.» con la MISMA fórmula del volumen -----
@@ -6708,7 +6797,9 @@ function plCalc(d){
     {n:'Plantilla (orientación)',v:i.o==='V'?'V · vertical':'H · horizontal',f:SRC.croq,ir:ir('croq')},
     plOk(i.Dcm)?{n:'Ø interior D',v:F(i.Dcm,2),u:'cm',f:`= ${F(i.Dmm,2)} mm · ${SRC.croq}`,ir:ir('croq','diametroInteriorCm')}:{n:'Ø interior D',pend:1,f:`Falta en ${SRC.croq}.`,ir:ir('croq','diametroInteriorCm'),irT:'capturar'},
     plOk(i.Lmm)?{n:'Longitud L (soldadura–soldadura)',v:F(i.Lmm,0),u:'mm',f:`= ${F(i.Lmm/1000,3)} m · ${SRC.croq}`,ir:ir('croq','longitudMm')}:{n:'Longitud L',pend:1,f:`Falta en ${SRC.croq}.`,ir:ir('croq','longitudMm'),irT:'capturar'},
-    {n:'Profundidad de tapa',v:plOk(i.Tapmm)?F(i.Tapmm,0):'—',u:plOk(i.Tapmm)?'mm':'',f:'Solo para el dibujo (no entra al cálculo).',ir:ir('croq','profundidadTapaMm')}]);
+    {n:'Profundidad de tapa',v:plOk(i.Tapmm)?F(i.Tapmm,0):'—',u:plOk(i.Tapmm)?'mm':'',f:'Solo para el dibujo (no entra al cálculo).',ir:ir('croq','profundidadTapaMm')},
+    // v6: la C.R. se mide en campo y se captura en el croquis (junto a L y la tapa); aquí solo se muestra
+    plOk(i.CR)?{n:'Ceja recta C.R. (cada tapa)',v:String(+i.CR.toFixed(2)),u:'mm',f:`= ${F(i.CR/1000,3)} m · ${SRC.croq}`,ir:ir('croq','cejaRectaMm')}:{n:'Ceja recta C.R.',pend:1,f:`Falta en ${SRC.croq}.`,ir:ir('croq','cejaRectaMm'),irT:'capturar'}]);
   const gD={D:D_,L:L_},gC={D:D_,'C.R.':CR_};
   ponTR('geo',[
     {k:'R',n:'Radio interior R',f:'R = D / 2',v:F(i.Rmm,2),u:'mm',pend:plOk(i.Rmm)?'':'Falta Ø interior.'},
@@ -6780,9 +6871,9 @@ function plPendientes(d){
   const dest=f=>{const c=f.campo;
     if(['presionDiseno','presionCalibracion','tempDiseno'].includes(c))return [{paso:'equipos',eq:e.id,sec:'pres',k:c},'Equipos › Presiones'];
     if(c==='diametroValvulaMm')return [{paso:'equipos',eq:e.id,sec:'valv',k:c},'Equipos › Válvula'];
-    if(c==='diametroInteriorCm'||c==='longitudMm')return [{paso:'equipos',eq:e.id,sec:'croq',k:c},'Equipos › Croquis'];
+    if(c==='diametroInteriorCm'||c==='longitudMm'||c==='cejaRectaMm')return [{paso:'equipos',eq:e.id,sec:'croq',k:c},'Equipos › Croquis'];   // v6: C.R. también
     if(f.donde==='pnd')return [{paso:'equipos',eq:e.id,sec:'esp',esp:c},'Equipos › Espesores'];
-    return [{paso:'plano',eq:e.id,sel:{cejaRectaMm:'#pl_cr',eficiencia:'#pl_e',materialCuerpo:'#pl_mc',materialTapa:'#pl_mt'}[c]||'#pc-geo'},'Este plano'];};
+    return [{paso:'plano',eq:e.id,sel:{eficiencia:'#pl_e',materialCuerpo:'#pl_mc',materialTapa:'#pl_mt'}[c]||'#pc-geo'},'Este plano'];};
   box.innerHTML=(g.length?`<div class="aviso err"><strong>Plano pendiente: falta ${esc(g.join(' y '))}</strong>Sin esa geometría no se puede dibujar el plano. En el expediente su hoja 20 saldrá marcada PLANO PENDIENTE.</div>`:'')+
     `<div class="aviso warn"><strong>Faltan ${d.faltan.length} dato${d.faltan.length>1?'s':''} para la memoria completa · lo que falta queda en blanco</strong><ul>${d.faltan.map((f,k)=>`<li><button type="button" data-plf="${k}">${esc(f.m)}<span class="ir">${esc(dest(f)[1])} →</span></button></li>`).join('')}</ul></div>`;
   $$('[data-plf]',box).forEach(b=>b.addEventListener('click',()=>irA(dest(d.faltan[+b.dataset.plf])[0])));
@@ -6817,7 +6908,8 @@ function initPlano(){
   tb.addEventListener('input',ev=>{const e=plEq();if(!e)return;const c=ev.target.dataset.pgc,a=ev.target.dataset.pga;
     if(c!=null){const x=ev.target.value.trim();if(x)e.plano.conexiones[c]=x.toUpperCase();else delete e.plano.conexiones[c];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}
     if(a!=null){let x=ev.target.value.trim().replace(',','.');if(x&&!/^\d{0,3}(\.\d*)?$/.test(x))return;if(x)e.plano.angulos[a]=x;else delete e.plano.angulos[a];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}});
-  tb.addEventListener('click',ev=>{const b=ev.target.closest('[data-pgs]');if(!b)return;const t=b.closest('tr').dataset.t;plSel=plSel===t?null:t;const d=plDatos();plCroquis(d);plGrupos(d);});
+  tb.addEventListener('click',ev=>{const au=ev.target.closest('[data-pgauto]');if(au){const e=plEq();if(!e)return;angVolverAuto(e,au.dataset.pgauto);plActualizar(true);toast('Ángulo automático: sale de la vista frontal.');return;}
+    const b=ev.target.closest('[data-pgs]');if(!b)return;const t=b.closest('tr').dataset.t;plSel=plSel===t?null:t;const d=plDatos();plCroquis(d);plGrupos(d);});
   // croquis del plano: vista previa; tocar una boquilla resalta su tipo (la posición se edita en el croquis del levantamiento)
   const svg=$('#plCroquis');
   svg.addEventListener('pointerdown',ev=>{const t=ev.target.closest('[data-bq]'),e=plEq();if(!e)return;
