@@ -479,6 +479,11 @@ html[data-tono="oscuro"] .img.firma.lleno .thumb{background-color:#ece6dd}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);background:var(--tinta);color:var(--horno);padding:11px 18px;border-radius:12px;
   font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:90;width:max-content;max-width:min(92vw,560px);box-shadow:var(--sombra-3)}
 .toast.ver{opacity:1;transform:translate(-50%,0)}
+.toast.acc.ver{pointer-events:auto}
+.toast button{margin-left:12px;font:inherit;font-weight:750;color:inherit;background:transparent;border:1px solid currentColor;border-radius:8px;padding:4px 10px;cursor:pointer;min-height:32px}
+.conf-imp{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:12px;font-size:13px}
+.conf-imp b{font-weight:700}
+.pl-croq-ir{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:6px 10px;font-size:12.5px;color:var(--tinta-3);min-height:34px}
 .modal{position:fixed;inset:0;z-index:70;background:rgba(8,6,10,.62);display:grid;place-items:center;padding:16px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 .modal-caja{background:var(--placa);color:var(--tinta);border-radius:20px;max-width:480px;width:100%;padding:24px;border:1px solid var(--acero);box-shadow:var(--sombra-3);animation:subir .22s ease-out}
 @keyframes subir{from{transform:translateY(10px);opacity:0}}
@@ -638,6 +643,7 @@ html[data-tono="oscuro"] .img.firma.lleno .thumb{background-color:#ece6dd}
 .pl-croq{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background-color:var(--hundido);
   background-image:radial-gradient(color-mix(in srgb,var(--acero-2) 55%,transparent) 1px,transparent 1.3px);background-size:20px 20px}
 .pl-croq .croquis{max-height:46vh}
+#plCroquis .hit{cursor:pointer;touch-action:manipulation}   /* v12: el croquis del plano es solo vista (no se arrastra) */
 .pl-croq .croquis[data-o="V"]{max-width:340px}
 .pl-tabla-wrap{overflow-x:auto;margin-top:12px;border:1px solid var(--acero);border-radius:var(--r)}
 /* v5 · material de las tapas («= cuerpo») y S escrito a mano */
@@ -974,6 +980,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <button type="button" data-eqa="despues">Moverlo después →</button>
         <hr>
         <label for="fImportEq">Importar levantamientos o visita (.json)<input id="fImportEq" type="file" accept=".json,application/json" multiple class="oculto"></label>
+        <label for="fImportPdfEq">Importar PDF del levantamiento<input id="fImportPdfEq" type="file" accept=".pdf,application/pdf" class="oculto"></label>
         <hr>
         <button type="button" data-eqa="del" class="peligro">Eliminar el equipo activo</button>
       </div></details>
@@ -1117,9 +1124,9 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
 
       <div class="tarjeta" id="pc-bq">
         <h3>Boquillas en el plano <span class="tag">una letra por tipo</span></h3>
-        <p class="nota">Las boquillas (tipo, Ø, cara y posición) se capturan en <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levCroquis"}'>Equipos › Croquis y boquillas</button>. Aquí solo va lo del plano: conexión y ángulo de cada tipo. Ángulo en la vista lateral / superior: 0° a la derecha, sentido antihorario.</p>
+        <p class="nota">Las boquillas (tipo, Ø, cantidad, cara, posición y piezas por orificio) se capturan solo en <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levCroquis"}'>Equipos › Croquis y boquillas</button>; este dibujo es solo vista y se arma desde ahí (con Ø, L, tapa y C.R.). Aquí solo va lo del plano: conexión y ángulo de cada tipo. Ángulo en la vista lateral / superior: 0° a la derecha, sentido antihorario; vacío = automático desde la vista frontal.</p>
         <div class="bq-plano">
-          <div class="pl-croq"><svg id="plCroquis" class="croquis" viewBox="0 0 900 400" role="img" tabindex="0" aria-label="Croquis del plano (vista previa). Toca una letra para resaltar su renglón."></svg></div>
+          <div class="pl-croq"><svg id="plCroquis" class="croquis" viewBox="0 0 900 400" role="img" tabindex="0" aria-label="Croquis del plano (solo vista; se edita en Equipos › Croquis y boquillas). Toca una boquilla para resaltar su tipo."></svg><div class="pl-croq-ir" id="plCroqIr" aria-live="polite"></div></div>
           <div>
             <div class="grid" style="margin-bottom:10px"><div class="campo" data-campo="tipoConexion"><label for="pl_con">Conexión por omisión</label><div class="caja"><input id="pl_con" data-pl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div><div class="ayuda">Columna TIPO cuando el renglón no trae otra.</div></div></div>
             <div class="pl-tabla-wrap"><table class="pl-tabla" id="plGrupos"></table></div>
@@ -1219,7 +1226,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <h3>Archivo del expediente</h3>
         <p class="nota">El expediente se guarda solo en este navegador. Exporta el borrador para respaldarlo o pasarlo a otro equipo.</p>
         <div class="fila"><span>Borrador</span><button class="btn chico" id="btnExport" type="button">Exportar (.json)</button><label class="btn chico" for="fImport">Importar borrador<input id="fImport" type="file" accept=".json,application/json" class="oculto"></label></div>
-        <div class="fila"><span>Levantamientos</span><label class="btn chico" for="fImportLev" title="Uno o varios levantamientos (.json) o una visita completa: cada uno se agrega como equipo, en orden.">Importar levantamientos o visita (.json)<input id="fImportLev" type="file" accept=".json,application/json" multiple class="oculto"></label></div>
+        <div class="fila"><span>Levantamientos</span><label class="btn chico" for="fImportLev" title="Uno o varios levantamientos (.json) o una visita completa: cada uno se agrega como equipo, en orden.">Importar levantamientos o visita (.json)<input id="fImportLev" type="file" accept=".json,application/json" multiple class="oculto"></label><label class="btn chico" for="fImportPdf" title="Hoja de campo (PDF) generada por la app: llena o actualiza el equipo con el mismo TAG (o nombre); las diferencias quedan en Revisión.">Importar PDF del levantamiento<input id="fImportPdf" type="file" accept=".pdf,application/pdf" class="oculto"></label></div>
         <div class="fila"><span>Otros</span><button class="btn chico" id="btnEjemplo" type="button">Cargar ejemplo</button><button class="btn chico peligro" id="btnNuevo" type="button">Nuevo expediente</button></div>
       </div>
       <div class="paso-pie"><button type="button" class="btn" data-ir-paso="revision">← Revisión</button><span></span></div>
@@ -3202,13 +3209,18 @@ async function pdf(L,opt){
   campo('Ø INTERIOR:',g0.okD?miles(g0.Dcm):'','cm',M+250,170,y);
   T('Acotaciones: cm / mm',W-M,y,{z:7,c:GR,anc:'end'});
   y-=17;
-  campo('LONGITUD (soldadura–soldadura):',g0.okL?miles(g0.Lmm):'','mm',M,282,y);
-  campo('PROFUNDIDAD DE TAPA:',g0.okT?miles(g0.Tmm):'','mm',M+300,CW-300,y);
+  // v12 · ceja recta (C.R.) junto a la longitud y la tapa (mismo estilo); en el croquis, su cota en cada tapa como en el plano
+  const crT=String(L.dimensiones[DIM_CR]??'').trim(),crN=num(crT),okCR=!blank&&crT!==''&&crN>=0;
+  campo('LONGITUD (soldadura–soldadura):',g0.okL?miles(g0.Lmm):'','mm',M,206,y);
+  campo('PROFUNDIDAD DE TAPA:',g0.okT?miles(g0.Tmm):'','mm',M+222,158,y);
+  campo('CEJA RECTA (C.R.):',okCR?miles(crN):'','mm',M+396,CW-396,y);
   y-=11;
 
   // ---- croquis (recortado a lo dibujado) en un marco con margen
-  const lay=croquis(L,{hit:false,blank});
-  const PADC=6,bx=lay.bb,vx=Math.max(0,bx.x0-PADC),vy=Math.max(0,bx.y0-PADC),vw=Math.min(lay.W,bx.x1+PADC)-vx,vh=Math.min(lay.H,bx.y1+PADC)-vy;
+  const crDib=okCR&&crN>0?crN:0,lay=croquis(L,{hit:false,blank,cr:crDib});
+  // con C.R. el marco sigue a lo dibujado aunque las cotas salgan del lienzo (sin C.R., igual que antes)
+  const PADC=6,bx=lay.bb,lim=(v,a,b)=>crDib?v:Math.max(a,Math.min(b,v));
+  const vx=lim(bx.x0-PADC,0,Infinity),vy=lim(bx.y0-PADC,0,Infinity),vw=lim(bx.x1+PADC,-Infinity,lay.W)-vx,vh=lim(bx.y1+PADC,-Infinity,lay.H)-vy;
   const n=L.boquillas.length,RH=11;
   let sc,cx,cy,leyX,leyW,leyTop;
   if(o==='H'){
@@ -3317,14 +3329,289 @@ async function pdf(L,opt){
   pages.forEach((p,i)=>{T(blank?`FenixMex · Formato de levantamiento v${VERSION} · plantilla ${o}`:`FenixMex · Levantamiento v${VERSION} · generado el ${fh}`,M,M-14,{z:6.5,c:GR,p});
     if(pages.length>1)T(`Hoja ${i+1} de ${pages.length}`,W-M,M-14,{z:6.5,c:GR,anc:'end',p});});
   doc.setTitle(blank?`Formato levantamiento ${o}`:('Levantamiento '+[md.tanque,md.tag].filter(Boolean).join(' ')).trim());doc.setProducer('FenixMex');doc.setCreator('FenixMex · Levantamiento v'+VERSION);
+  // v12 · datos completos del equipo dentro del PDF, invisibles: adjunto «levantamiento.json» (mismo JSON que «Levantamiento de este equipo» y
+  // que el levantamiento de cada equipo en la visita) + copia compacta (base64 de UTF-8) en la clave /FenixLevantamiento del diccionario Info
+  if(!blank){const j=Object.assign(aJSON(L,hoy),{espAuto:Object.fromEntries(ESP_KEYS.map(k=>[k,Array.from({length:N_ESP},(_,i)=>!!(L.espAuto&&L.espAuto[k]&&L.espAuto[k][i]))]))});
+    const u8=new TextEncoder().encode(JSON.stringify(j));
+    await doc.attach(u8,ADJ_NOMBRE,{mimeType:'application/json',description:`Levantamiento FenixMex (${SCHEMA} v${VERSION}) de este equipo`,creationDate:hoy,modificationDate:hoy,afRelationship:P.AFRelationship.Data});
+    doc.getInfoDict().set(P.PDFName.of(INFO_CLAVE),P.PDFString.of(aB64(u8)));}
   return await doc.save({useObjectStreams:true});
 }
+const ADJ_NOMBRE='levantamiento.json',INFO_CLAVE='FenixLevantamiento';
+function aB64(u8){let s='';for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return root.btoa(s);}
+function deB64(s){const b=root.atob(String(s).replace(/[^A-Za-z0-9+/=]/g,'')),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
 // Formato en blanco H o V (sin datos del cliente): mismo armado que la hoja llena.
 async function formato(o,opt){const L=nuevo();L.orientacion=o==='V'?'V':'H';return pdf(L,Object.assign({},opt||{},{blank:true}));}
 
+// ---------- v12 · leer una hoja de campo (PDF) generada por la app ----------
+// Contenido de una página: textos con posición (ToUnicode de cada fuente) y trazos con su matriz (CTM). Solo lo que usa pdf-lib al dibujar.
+function lectorPDF(P,doc){
+  const ctx=doc.context,N=n=>P.PDFName.of(n),look=o=>o instanceof P.PDFRef?ctx.lookup(o):o;
+  const dec=s=>{s=look(s);return s instanceof P.PDFRawStream?P.decodePDFRawStream(s).decode():s&&s.getContents?s.getContents():new Uint8Array(0);};
+  const lat=u=>{let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return s;};
+  const fuentes=new Map();
+  function fuente(ref){const k=ref instanceof P.PDFRef?ref.toString():null;if(k&&fuentes.has(k))return fuentes.get(k);
+    const f=look(ref),F={map:new Map(),w:new Map(),dw:1000,dos:false,bold:false};
+    try{F.bold=/bold/i.test(String(f.get(N('BaseFont'))||''));F.dos=String(f.get(N('Subtype')))==='/Type0';
+      const tu=f.get(N('ToUnicode'));
+      if(tu){const t=lat(dec(tu)),hx=s=>parseInt(s,16),u16=s=>{let r='';for(let i=0;i+3<s.length;i+=4)r+=String.fromCharCode(hx(s.substr(i,4)));return r;};
+        for(const b of t.matchAll(/beginbfchar([\s\S]*?)endbfchar/g))for(const m of b[1].matchAll(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/g))F.map.set(hx(m[1]),u16(m[2]));
+        for(const b of t.matchAll(/beginbfrange([\s\S]*?)endbfrange/g))for(const m of b[1].matchAll(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*(<[0-9a-fA-F]+>|\[[^\]]*\])/g)){
+          const a=hx(m[1]),z=hx(m[2]);
+          if(m[3][0]==='<'){const b0=u16(m[3].slice(1,-1));for(let c=a;c<=z;c++)F.map.set(c,b0.slice(0,-1)+String.fromCharCode(b0.charCodeAt(b0.length-1)+c-a));}
+          else{const q=[...m[3].matchAll(/<([0-9a-fA-F]+)>/g)].map(x=>u16(x[1]));for(let c=a;c<=z;c++)F.map.set(c,q[c-a]||'');}}}
+      if(F.dos){const d=look(look(f.get(N('DescendantFonts'))).asArray()[0]),dw=d.get(N('DW')),W=look(d.get(N('W')));if(dw)F.dw=dw.asNumber();
+        if(W){const a=W.asArray().map(look);for(let i=0;i<a.length;){const c=a[i].asNumber();
+          if(a[i+1] instanceof P.PDFArray){a[i+1].asArray().forEach((x,j)=>F.w.set(c+j,look(x).asNumber()));i+=2;}
+          else{const z=a[i+1].asNumber(),w=a[i+2].asNumber();for(let q=c;q<=z;q++)F.w.set(q,w);i+=3;}}}}
+      else{const fc=f.get(N('FirstChar')),ws=look(f.get(N('Widths')));if(fc&&ws)ws.asArray().forEach((x,j)=>F.w.set(fc.asNumber()+j,look(x).asNumber()));}
+    }catch(_){}
+    if(k)fuentes.set(k,F);return F;}
+  function tokens(s){const out=[],n=s.length,ws=c=>c===32||c===10||c===13||c===9||c===12||c===0,dl=c=>c===40||c===41||c===60||c===62||c===91||c===93||c===123||c===125||c===47||c===37;let i=0;
+    while(i<n){const c=s.charCodeAt(i);if(ws(c)){i++;continue;}const ch=s[i];
+      if(ch==='%'){while(i<n&&s[i]!=='\n'&&s[i]!=='\r')i++;continue;}
+      if(ch==='/'){let j=i+1;while(j<n&&!ws(s.charCodeAt(j))&&!dl(s.charCodeAt(j)))j++;out.push({t:'n',v:s.slice(i+1,j)});i=j;continue;}
+      if(ch==='<'&&s[i+1]==='<'){out.push({t:'o',v:'<<'});i+=2;continue;}
+      if(ch==='>'&&s[i+1]==='>'){out.push({t:'o',v:'>>'});i+=2;continue;}
+      if(ch==='<'){let j=s.indexOf('>',i);if(j<0)j=n;const hx=s.slice(i+1,j).replace(/\s+/g,''),b=[];for(let q=0;q<hx.length;q+=2)b.push(parseInt((hx.substr(q,2)+'0').slice(0,2),16));out.push({t:'s',v:b});i=j+1;continue;}
+      if(ch==='('){let d=1,j=i+1;const b=[];
+        while(j<n&&d>0){const x=s[j];
+          if(x==='\\'){const y=s[j+1],E={n:10,r:13,t:9,b:8,f:12};
+            if(y in E){b.push(E[y]);j+=2;continue;}
+            if(/[0-7]/.test(y)){let o='',q=j+1;while(q<j+4&&/[0-7]/.test(s[q]))o+=s[q++];b.push(parseInt(o,8)&255);j=q;continue;}
+            if(y==='\r'||y==='\n'){j+=2;if(y==='\r'&&s[j]==='\n')j++;continue;}
+            b.push(y.charCodeAt(0));j+=2;continue;}
+          if(x==='(')d++;else if(x===')'){d--;if(!d)break;}b.push(x.charCodeAt(0));j++;}
+        out.push({t:'s',v:b});i=j+1;continue;}
+      if(ch==='['||ch===']'||ch==='{'||ch==='}'){out.push({t:'o',v:ch});i++;continue;}
+      let j=i;while(j<n&&!ws(s.charCodeAt(j))&&!dl(s.charCodeAt(j)))j++;if(j===i)j++;const w=s.slice(i,j);i=j;
+      out.push(/^[+-]?(\d+\.?\d*|\.\d+)$/.test(w)?{t:'#',v:+w}:{t:'op',v:w});}
+    return out;}
+  const mul=(a,b)=>[a[0]*b[0]+a[1]*b[2],a[0]*b[1]+a[1]*b[3],a[2]*b[0]+a[3]*b[2],a[2]*b[1]+a[3]*b[3],a[4]*b[0]+a[5]*b[2]+b[4],a[4]*b[1]+a[5]*b[3]+b[5]];
+  // página → {txt:[{s,x,y,z,w,rot,bold}], paths:[{sub (espacio de usuario), m (CTM), w, op, S, F, dash}], W, H}
+  function pagina(pg){
+    const node=pg.node,res=node.Resources(),fd=res&&look(res.get(N('Font'))),txt=[],paths=[],cs=[];
+    const add=o=>{o=look(o);if(o instanceof P.PDFArray)o.asArray().forEach(add);else if(o)cs.push(o);};add(node.get(N('Contents')));
+    const tk=tokens(cs.map(s=>lat(dec(s))).join('\n'));
+    let G={m:[1,0,0,1,0,0],w:1,S:[0,0,0],F:[0,0,0],dash:0},pila=[],path=[],cur=null,ops=[];
+    let tf=null,tz=0,TL=0,Tm=null,Tlm=null,Tc=0,Th=1,Tr=0;
+    const muestra=b=>{if(!tf||!Tm)return;const F=tf.F,codes=[];let s='',w=0;
+      if(F.dos){for(let q=0;q+1<b.length;q+=2)codes.push(b[q]*256+b[q+1]);}else codes.push(...b);
+      for(const c of codes){s+=F.map.has(c)?F.map.get(c):String.fromCharCode(c);w+=(F.w.has(c)?F.w.get(c):F.dos?F.dw:556)/1000*tz+Tc;}
+      const M=mul(mul([tz*Th,0,0,tz,0,Tr],Tm),G.m),R=mul(Tm,G.m),sc=Math.hypot(R[0],R[1]);
+      txt.push({s,x:M[4],y:M[5],z:tz*sc,w:w*Th*sc,rot:Math.round(Math.atan2(R[1],R[0])*180/Math.PI),bold:F.bold});
+      Tm=mul([1,0,0,1,w*Th,0],Tm);};
+    const salto=(dx,dy)=>{Tlm=mul([1,0,0,1,dx,dy],Tlm||[1,0,0,1,0,0]);Tm=Tlm.slice();};
+    for(const t of tk){if(t.t!=='op'){ops.push(t);continue;}
+      const o=t.v,nums=ops.filter(x=>x.t==='#').map(x=>x.v),str=()=>{const s=ops.filter(x=>x.t==='s');return s.length?s[s.length-1].v:null;};
+      switch(o){
+        case 'q':pila.push({m:G.m.slice(),w:G.w,S:G.S.slice(),F:G.F.slice(),dash:G.dash});break;
+        case 'Q':if(pila.length)G=pila.pop();break;
+        case 'cm':if(nums.length>=6)G.m=mul(nums.slice(-6),G.m);break;
+        case 'w':G.w=nums[0];break;
+        case 'd':G.dash=nums.length>1?1:0;break;
+        case 'RG':G.S=nums.slice(-3);break;case 'G':G.S=[nums[0],nums[0],nums[0]];break;
+        case 'rg':G.F=nums.slice(-3);break;case 'g':G.F=[nums[0],nums[0],nums[0]];break;
+        case 'm':cur=[['M',nums[0],nums[1]]];path.push(cur);break;
+        case 'l':if(cur)cur.push(['L',nums[0],nums[1]]);break;
+        case 'c':if(cur)cur.push(['C',...nums.slice(0,6)]);break;
+        case 'v':case 'y':if(cur)cur.push(['C',nums[0],nums[1],nums[0],nums[1],nums[2],nums[3]]);break;
+        case 'h':if(cur)cur.push(['Z']);break;
+        case 're':{const [x,y,w,hh]=nums;cur=[['M',x,y],['L',x+w,y],['L',x+w,y+hh],['L',x,y+hh],['Z']];path.push(cur);break;}
+        case 'S':case 's':case 'f':case 'F':case 'f*':case 'B':case 'B*':case 'b':case 'b*':case 'n':
+          path=path.filter(s=>s.length>1);   // pdf-lib repite el «m» antes de cada línea: los «m» sueltos no son trazo
+          if(o!=='n'&&path.length)paths.push({sub:path,m:G.m.slice(),w:G.w,op:o,S:G.S.slice(),F:G.F.slice(),dash:G.dash});path=[];cur=null;break;
+        case 'BT':Tm=[1,0,0,1,0,0];Tlm=Tm.slice();break;
+        case 'ET':Tm=null;break;
+        case 'Tf':{const nm=ops.filter(x=>x.t==='n').pop(),ref=fd&&nm?fd.get(N(nm.v)):null;tz=nums[nums.length-1]||0;tf=ref?{F:fuente(ref)}:null;break;}
+        case 'TL':TL=nums[0];break;case 'Tc':Tc=nums[0];break;case 'Tz':Th=nums[0]/100;break;case 'Ts':Tr=nums[0];break;
+        case 'Tm':if(nums.length>=6){Tm=nums.slice(-6);Tlm=Tm.slice();}break;
+        case 'Td':salto(nums[0],nums[1]);break;
+        case 'TD':TL=-nums[1];salto(nums[0],nums[1]);break;
+        case 'T*':salto(0,-TL);break;
+        case 'Tj':{const s=str();if(s)muestra(s);break;}
+        case "'":case '"':{salto(0,-TL);const s=str();if(s)muestra(s);break;}
+        case 'TJ':{const b=[];ops.forEach(x=>{if(x.t==='s')b.push(...x.v);});if(b.length)muestra(b);break;}
+      }
+      ops=[];}
+    const sz=pg.getSize();return {txt,paths,W:sz.width,H:sz.height};}
+  return {pagina};
+}
+// Datos embebidos (v12): adjunto «levantamiento.json» o, si no está, la copia de /Info. null si el PDF no los trae.
+function embebido(P,doc){
+  const look=o=>o instanceof P.PDFRef?doc.context.lookup(o):o,N=n=>P.PDFName.of(n),txt=o=>{o=look(o);try{return o&&o.decodeText?o.decodeText():'';}catch(_){return '';}};
+  const json=u8=>{try{const j=JSON.parse(new TextDecoder().decode(u8));return j&&typeof j==='object'&&!Array.isArray(j)?j:null;}catch(_){return null;}};
+  try{const nm=look(doc.catalog.get(N('Names'))),ef=nm&&look(nm.get(N('EmbeddedFiles'))),pares=[];
+    const recorre=(d,k)=>{d=look(d);if(!d||k>8)return;const a=look(d.get(N('Names')));if(a)for(let i=0;i+1<a.size();i+=2)pares.push([txt(a.get(i)),look(a.get(i+1))]);
+      const ks=look(d.get(N('Kids')));if(ks)ks.asArray().forEach(x=>recorre(x,k+1));};
+    if(ef)recorre(ef,0);
+    for(const [n,fs] of pares){if(n!==ADJ_NOMBRE&&txt(fs.get(N('UF')))!==ADJ_NOMBRE&&txt(fs.get(N('F')))!==ADJ_NOMBRE)continue;
+      const e=look(fs.get(N('EF'))),st=e&&look(e.get(N('F'))||e.get(N('UF')));if(!st)continue;
+      const j=json(st instanceof P.PDFRawStream?P.decodePDFRawStream(st).decode():st.getContents());if(j)return {j,via:'adjunto'};}
+  }catch(_){}
+  try{const v=look(doc.getInfoDict().get(N(INFO_CLAVE)));const s=v&&(v.asString?v.asString():txt(v));if(s){const j=json(deB64(s));if(j)return {j,via:'info'};}}catch(_){}
+  return null;
+}
+// v12 · inverso de conCR para una posición: lo dibujado con C.R. → posición guardada (relativa al contorno sin C.R.)
+function sinCR(L,crMm,p){
+  const g=geo(L),Cm=crMm>0?+crMm:0;if(!Cm)return {u:p.u,v:p.v};
+  const T=g.Sm+2*g.Hm,ax=g.o==='H'?'u':'v',inv=f=>{let a=clamp(+f||0,0,1)*(T+2*Cm);
+    a=a<=g.Hm?a:a<g.Hm+Cm?g.Hm:a<=g.Hm+Cm+g.Sm?a-Cm:a<g.Hm+g.Sm+2*Cm?g.Hm+g.Sm:a-2*Cm;return clamp(a/T,0,1);};
+  return Object.assign({u:p.u,v:p.v},{[ax]:inv(p[ax])});
+}
+// Leer una hoja de campo de la app. Devuelve {ok, err} o {ok:true, fuente:'embebido'|'dibujo', via, j (JSON del levantamiento, como el .json), avisos, detalle}.
+// Sin datos embebidos (hojas anteriores) se lee el dibujo: textos con posición y, para las boquillas, la guía de cada letra del croquis llevada
+// a pos {u,v} con el mismo croquis que dibujó la hoja (se ajusta hasta que el croquis vuelve a dibujar cada guía donde está en el PDF).
+const ERR_NO_APP='Este PDF no es una hoja de campo generada por FenixMex (menú Levantamiento › «Hoja de campo de este equipo»). Solo se pueden importar esas hojas; no se cambió nada.';
+async function leerHoja(bytes){
+  const P=root.PDFLib;if(!P)return {ok:false,err:'No está disponible el lector de PDF.'};
+  let doc;try{doc=await P.PDFDocument.load(bytes,{updateMetadata:false});}
+  catch(e){return {ok:false,err:/encrypt/i.test(String(e&&e.message))?'El PDF está protegido con contraseña; no se puede leer. No se cambió nada.':'No se pudo abrir el archivo como PDF (¿dañado o incompleto?). No se cambió nada.'};}
+  const creador=String(doc.getCreator()||''),avisos=[];
+  const emb=embebido(P,doc);
+  if(emb){const v=validar(emb.j);if(v.ok)return {ok:true,fuente:'embebido',via:emb.via,j:emb.j,avisos,detalle:null};avisos.push('Los datos embebidos no son válidos ('+v.err[0]+'); se leyó el dibujo.');}
+  let pags;try{const rd=lectorPDF(P,doc);pags=doc.getPages().map(p=>rd.pagina(p));}catch(e){return {ok:false,err:ERR_NO_APP};}
+  const T0=(pags[0]&&pags[0].txt)||[],K=s=>sinAcento(s).replace(/\s+/g,' ').trim(),hay=re=>T0.some(t=>re.test(K(t.s)));
+  if(hay(/^FORMATO DE CAMPO/))return {ok:false,err:'Es un formato de levantamiento en blanco: no trae datos que importar. No se cambió nada.'};
+  if(!(/^FenixMex · Levantamiento/.test(creador)||hay(/^FENIXMEX · LEVANTAMIENTO V\d/))||!hay(/^LEVANTAMIENTO DE TANQUE$/)||!hay(/^HOJA DE CAMPO/))return {ok:false,err:ERR_NO_APP};
+  try{return leerDibujo(pags,avisos);}catch(e){return {ok:false,err:'No se pudo leer la hoja de campo ('+(e&&e.message||e)+'). No se cambió nada.'};}
+}
+function leerDibujo(pags,avisos){
+  const K=s=>sinAcento(s).replace(/\s+/g,' ').trim(),T0=pags[0].txt,P0=pags[0].paths;
+  const lbl=(T,s)=>T.find(t=>t.bold&&K(t.s)===s),fin=t=>t.x+t.w;
+  // número tal como se imprimió: miles con coma («1,500»), coma decimal o punto; '' si no hay
+  const numP=s=>{let t=String(s??'').trim();if(/^-?\d{1,3}(,\d{3})+(\.\d+)?/.test(t))t=t.replace(/,(?=\d{3}(\D|$))/g,'');else t=t.replace(',','.');const m=t.match(/-?\d+(?:\.\d+)?/);return m?m[0]:'';};
+  const recortado=[];
+  // valor de una etiqueta: el texto normal que empieza justo después (misma línea)
+  const valor=(T,t)=>{if(!t)return null;const c=T.filter(x=>!x.bold&&!x.rot&&Math.abs(x.y-t.y)<2.6&&x.x>fin(t)-1&&x.x<fin(t)+24).sort((a,b)=>a.x-b.x)[0];
+    if(c&&/…$/.test(c.s))recortado.push(K(t.s).replace(/:$/,''));return c||null;};
+  const unidad=(T,t)=>{if(!t)return '';const sig=T.filter(x=>x.bold&&Math.abs(x.y-t.y)<2.6&&x.x>fin(t)+2).sort((a,b)=>a.x-b.x)[0],lim=sig?sig.x:Infinity;
+    const u=T.filter(x=>!x.bold&&Math.abs(x.y-t.y)<2.6&&x.x>fin(t)+2&&x.x<lim&&/^(cm|mm|m|pulg)$/i.test(x.s.trim())).sort((a,b)=>a.x-b.x)[0];return u?u.s.trim().toLowerCase():'';};
+  // ---- encabezado
+  const lo=lbl(T0,'ORIENTACION DEL TANQUE:');let o='';
+  if(lo){const hv=T0.filter(t=>t.bold&&/^[HV]$/.test(t.s)&&Math.abs(t.y-lo.y)<2&&t.x>fin(lo));
+    const X=P0.filter(p=>p.sub.length===1&&p.sub[0].length===2).map(p=>{const [a,b]=p.sub[0],m=p.m,q=(x,y)=>[m[0]*x+m[2]*y+m[4],m[1]*x+m[3]*y+m[5]],A=q(a[1],a[2]),B=q(b[1],b[2]);return {A,B};})
+      .filter(s=>Math.abs(s.A[0]-s.B[0])>3&&Math.abs(s.A[1]-s.B[1])>3&&Math.min(s.A[1],s.B[1])>lo.y-6&&Math.max(s.A[1],s.B[1])<lo.y+12);
+    const marcas=new Set();X.forEach(s=>{const x=Math.min(s.A[0],s.B[0]),c=hv.filter(t=>fin(t)<=x+0.5).sort((a,b)=>b.x-a.x)[0];if(c)marcas.add(c.s);});
+    if(marcas.size===1)o=[...marcas][0];else if(marcas.size>1)avisos.push('La orientación tiene marcadas H y V.');}
+  const oEsp=T0.some(t=>t.bold&&K(t.s)==='TAPA SUPERIOR')?'V':T0.some(t=>t.bold&&K(t.s)==='TAPA IZQUIERDA')?'H':'';
+  if(!o){o=oEsp||'H';avisos.push(`La orientación no está marcada en la hoja; se tomó ${o==='V'?'V (vertical)':'H (horizontal)'} por los encabezados de espesores.`);}
+  else if(oEsp&&oEsp!==o)avisos.push('La orientación marcada no coincide con los encabezados de espesores; se usó la marcada.');
+  const dimDe=(et,uBase)=>{const t=lbl(T0,et),v=valor(T0,t);if(!t)return {ok:false};const n=numP(v&&v.s);if(!n)return {ok:true,v:''};
+    const u=unidad(T0,t)||uBase,f={cm:{cm:1,mm:0.1,m:100},mm:{mm:1,cm:10,m:1000}}[uBase][u]||1;return {ok:true,v:String(+(+n*f).toFixed(4)),u};};
+  const dD=dimDe('Ø INTERIOR:','cm'),dL=dimDe('LONGITUD (SOLDADURA–SOLDADURA):','mm'),dT=dimDe('PROFUNDIDAD DE TAPA:','mm'),dC=dimDe('CEJA RECTA (C.R.):','mm');
+  if(!dD.ok||!dL.ok)throw new Error('no se encontró el encabezado de dimensiones');
+  // ---- tabla de boquillas (puede seguir en la hoja 2)
+  const filas=[];
+  pags.forEach((pg,ip)=>{const T=pg.txt;
+    T.filter(t=>t.bold&&t.s==='LETRA').forEach(h=>{
+      const enL=s=>T.filter(t=>t.bold&&K(t.s)===s&&Math.abs(t.y-h.y)<1&&t.x>h.x).sort((a,b)=>a.x-b.x)[0];
+      const hT=enL('TIPO'),hD=enL('Ø (PULG)'),hC=enL('CARA');if(!hT||!hC)return;
+      const xD=hD?fin(hD):null,xC=fin(hC);
+      const letras=T.filter(t=>t.bold&&/^[A-Z]{1,2}$/.test(t.s)&&t.y<h.y-3&&t.y>h.y-400&&Math.abs(t.x+t.w/2-(h.x+5))<4).sort((a,b)=>b.y-a.y);
+      let yAnt=h.y;
+      for(const l of letras){if(yAnt-l.y>24)break;yAnt=l.y;
+        const fila=T.filter(t=>!t.bold&&Math.abs(t.y-(l.y-0.4))<1.6&&t.x>=h.x-2&&t.x<=xC+2);
+        const tipo=fila.find(t=>Math.abs(t.x-hT.x)<2.5),di=xD!=null?fila.find(t=>Math.abs(fin(t)-xD)<2.5):null,ca=fila.find(t=>Math.abs(fin(t)-xC)<2.5);
+        filas.push({L:l.s,tipo:tipo?tipo.s:'',d:di?di.s:'',cara:ca?ca.s:'',pag:ip+1});}});});
+  const idxDe=s=>{let n=0;for(const c of s)n=n*26+(c.charCodeAt(0)-64);return n-1;};
+  const porI=new Map();filas.forEach(f=>{const i=idxDe(f.L);if(!porI.has(i))porI.set(i,f);});
+  const nB=porI.size?Math.max(...porI.keys())+1:0;
+  if(nB!==porI.size)avisos.push('Faltan renglones en la tabla de boquillas.');
+  const caraDe=s=>{const k=K(s);return {FRENTE:'frente',ATRAS:'atras',LADO:'lado',ARRIBA:'arriba',ABAJO:'abajo'}[k]||'';};
+  const tipoDe=s=>{const k=K(String(s).replace(/…$/,''));return normTipo(k)||(/…$/.test(s)&&k?TIPOS.find(t=>sinAcento(t).startsWith(k))||'':'');};
+  const bqs=[];
+  for(let i=0;i<nB;i++){const f=porI.get(i);if(!f)continue;const tp=tipoDe(f.tipo),ca=caraDe(f.cara),d=parsePulg(String(f.d).replace(/—/g,''));
+    if(!tp||!ca){avisos.push(`Boquilla ${letra(i)}: no se entendió ${!tp?'el tipo «'+f.tipo+'»':'la cara «'+f.cara+'»'}; no se importa.`);continue;}
+    bqs.push({i,L:letra(i),tipo:tp,diametroPulgadas:d>0?d:null,cara:ca});}
+  // ---- datos del tanque
+  const md={};
+  for(const [k,,et] of META){const t=lbl(T0,K(et)+':');const v=valor(T0,t);let s=v?v.s.trim():'';
+    if(/…$/.test(s)){s='';}
+    else if(/^presion/.test(k))s=numP(s);
+    md[k]=s;}
+  // ---- espesores (3 columnas × puntos 1–16)
+  const es=Object.fromEntries(ESP_KEYS.map(k=>[k,Array(N_ESP).fill('')])),cab=tapas(o).map(s=>lbl(T0,s));
+  if(cab.every(Boolean)){const cx=cab.map(c=>c.x+c.w/2),lim=[-Infinity,(cx[0]+cx[1])/2,(cx[1]+cx[2])/2,Infinity],yC=cab[0].y;
+    T0.filter(t=>t.bold&&/^\d{1,2}$/.test(t.s)&&+t.s>=1&&+t.s<=N_ESP&&t.y<yC-2&&t.y>yC-180).forEach(t=>{
+      const c=[0,1,2].find(q=>t.x>=lim[q]&&t.x<lim[q+1]);if(c==null)return;
+      const v=T0.filter(x=>!x.bold&&Math.abs(x.y-(t.y-0.2))<1.6&&x.x>fin(t)&&x.x<fin(t)+70&&/^-?\d+(?:[.,]\d+)?$/.test(x.s.trim())).sort((a,b)=>a.x-b.x)[0];
+      if(v)es[ESP_KEYS[c]][+t.s-1]=numP(v.s);});}
+  else avisos.push('No se encontraron las columnas de espesores.');
+  // ---- croquis: marco (matriz del croquis), letras → globo → guía; la guía empieza en la boquilla
+  const L=nuevo();L.orientacion=o;L.dimensiones.diametroInteriorCm=dD.v;L.dimensiones.longitudMm=dL.v;L.dimensiones.profundidadTapaMm=dT.ok?dT.v:'';L.dimensiones[DIM_CR]=dC.ok?dC.v:'';
+  const crDib=dC.ok&&+dC.v>0?+dC.v:0;
+  L.boquillas=bqs.map(b=>({id:'q'+b.i,tipo:b.tipo,diametroPulgadas:b.diametroPulgadas,cara:b.cara,pos:{u:.5,v:.5}}));
+  const cq=P0.filter(p=>p.m[0]>0&&p.m[3]<0&&Math.abs(p.m[0]+p.m[3])<1e-6&&Math.abs(p.m[1])<1e-9&&Math.abs(p.m[2])<1e-9);
+  const det={puntos:[]};
+  if(L.boquillas.length){
+    if(!cq.length)throw new Error('no se encontró el croquis');
+    const M=cq[0].m,sc=M[0],cx=M[4],cy=M[5],aC=(X,Y)=>({x:(X-cx)/sc,y:(cy-Y)/sc});
+    const pts=p=>{const r=[];p.sub.forEach(s=>s.forEach(c=>{for(let i=1;i+1<c.length;i+=2)r.push([c[i],c[i+1]]);}));return r;};
+    const caja=a=>({x0:Math.min(...a.map(q=>q[0])),x1:Math.max(...a.map(q=>q[0])),y0:Math.min(...a.map(q=>q[1])),y1:Math.max(...a.map(q=>q[1]))});
+    const est=p=>p.w*sc,gris=(p,c)=>Math.abs(p.S[0]-c)<0.02&&Math.abs(p.S[1]-c)<0.02;
+    const globos=cq.filter(p=>p.op[0]==='B'&&Math.abs(est(p)-0.8)<0.05&&p.F[0]>0.9).map(p=>{const b=caja(pts(p));return {x:(b.x0+b.x1)/2,y:(b.y0+b.y1)/2};});
+    const guias=cq.filter(p=>p.op==='S'&&Math.abs(est(p)-0.55)<0.05&&gris(p,0.15)).map(p=>{const a=pts(p);return {a:a[0],z:a[a.length-1]};});
+    const bbP=caja(cq.flatMap(p=>pts(p)).map(q=>[cx+q[0]*sc,cy-q[1]*sc]));
+    const letrasC=T0.filter(t=>t.bold&&/^[A-Z]{1,2}$/.test(t.s)&&t.x>bbP.x0-2&&fin(t)<bbP.x1+2&&t.y>bbP.y0-2&&t.y<bbP.y1+2);
+    const obs=new Map();
+    for(const t of letrasC){const c=aC(t.x+t.w/2,t.y+t.z*0.35),g=globos.map(q=>({q,d:Math.hypot(q.x-c.x,q.y-c.y)})).sort((a,b)=>a.d-b.d)[0];if(!g||g.d>6)continue;
+      const ld=guias.map(q=>({q,d:Math.abs(Math.hypot(q.z[0]-g.q.x,q.z[1]-g.q.y)-11)})).sort((a,b)=>a.d-b.d)[0];if(!ld||ld.d>2.5)continue;
+      obs.set(idxDe(t.s),{x:ld.q.a[0],y:ld.q.a[1]});}
+    det.puntos=ajustarDibujo(L,crDib,obs,avisos);
+  }
+  // ---- JSON del levantamiento (mismo esquema que el .json)
+  const j={schema:SCHEMA,version:VERSION,orientacion:o,
+    dimensiones:{diametroInteriorCm:dD.v===''?null:+dD.v,longitudMm:dL.v===''?null:+dL.v,profundidadTapaMm:dT.ok&&dT.v!==''?+dT.v:null,[DIM_CR]:dC.ok&&dC.v!==''?+dC.v:null},
+    metadata:md,boquillas:L.boquillas.map((b,k)=>Object.assign({letra:letra(bqs[k].i),tipo:b.tipo,diametroPulgadas:b.diametroPulgadas,cara:b.cara,pos:{u:b.pos.u,v:b.pos.v}},orifJSON(b))),
+    espesores:es};
+  if(recortado.length)avisos.push(`Texto recortado en el PDF (no se importa): ${recortado.join(', ')}.`);
+  const v=validar(j);if(!v.ok)return {ok:false,err:'La hoja de campo no se pudo leer completa ('+v.err[0]+'). No se cambió nada.'};
+  return {ok:true,fuente:'dibujo',via:'dibujo',j,avisos,detalle:Object.assign(det,{unidades:{D:dD.u||'cm',L:dL.u||'mm',T:dT.u||'mm',CR:dC.u||'mm'},crEnHoja:dC.ok})};
+}
+// Posiciones desde el dibujo: obs = índice → inicio de la guía (unidades del croquis). Se dibuja el croquis con las posiciones supuestas y se
+// corrige cada boquilla por la diferencia entre su guía dibujada y la del PDF, hasta que coinciden. Si dos o más guías salen de UN glifo de orificio
+// (piezas montadas juntas), se prueban como orificio (y su orden) y se queda lo que reproduce el PDF.
+function ajustarDibujo(L,crMm,obs,avisos){
+  const gC=geo(conCR(L,crMm),crMm),dib=b=>conCR(Object.assign({},L,{boquillas:[b]}),crMm).boquillas[0].pos;
+  const lead=lay=>{const m=new Map();for(const o of lay.items)if(o.r==='ld'&&!m.has(o.bq)){const r=/^M(-?[\d.]+) (-?[\d.]+)/.exec(o.d);if(r)m.set(o.bq,{x:+r[1],y:+r[2]});}return m;};
+  const aPos=(b,x,y)=>{const p=ajustar(L,Object.assign({},b,{pos:sinCR(L,crMm,aUV(gC,x,y))}));return {u:p.u,v:p.v};};
+  const mover=(arr,dx,dy)=>{const q=aXY(gC,dib(arr[0])),p=aPos(arr[0],q.x+dx,q.y+dy);arr.forEach(m=>m.pos={u:p.u,v:p.v});};
+  // posición inicial: el inicio de la guía llevado al contorno; sin letra en el croquis, la de omisión de su cara
+  L.boquillas.forEach(b=>{const A=obs.get(+b.id.slice(1));b.pos=A?aPos(b,A.x,A.y):posInicial(L,b.cara);});
+  const ajusta=(grupos,it)=>{let err=0;
+    for(let n=0;n<(it||14);n++){const P=lead(croquis(L,{hit:false,cr:crMm}));err=0;
+      for(const gr of grupos){let dx=0,dy=0,c=0;for(const b of gr){const k=+b.id.slice(1),A=obs.get(k),Q=P.get(b.id);if(!A||!Q)continue;dx+=A.x-Q.x;dy+=A.y-Q.y;c++;}
+        if(!c)continue;dx/=c;dy/=c;const e=Math.hypot(dx,dy);err=Math.max(err,e);if(e>0.04)mover(gr,dx,dy);}
+      if(err<0.06)break;}
+    const P=lead(croquis(L,{hit:false,cr:crMm})),res=new Map();
+    for(const b of L.boquillas){const A=obs.get(+b.id.slice(1)),Q=P.get(b.id);res.set(b.id,A&&Q?Math.hypot(A.x-Q.x,A.y-Q.y):NaN);}
+    return res;};
+  let res=ajusta(L.boquillas.map(b=>[b]));
+  // piezas de un orificio: guías que no se reproducen solas y salen cerca unas de otras, con la misma cara
+  const malas=L.boquillas.filter(b=>res.get(b.id)>0.6&&obs.get(+b.id.slice(1)));
+  const usadas=new Set();
+  for(const b of malas){if(usadas.has(b))continue;const A=obs.get(+b.id.slice(1));
+    const gr=malas.filter(m=>!usadas.has(m)&&m.cara===b.cara&&(()=>{const B=obs.get(+m.id.slice(1));return Math.hypot(A.x-B.x,A.y-B.y)<70;})());
+    if(gr.length<2)continue;
+    const perms=a=>a.length<=1?[a]:a.flatMap((x,i)=>perms(a.slice(0,i).concat(a.slice(i+1))).map(r=>[x].concat(r)));
+    const antes=L.boquillas.map(m=>({m,pos:m.pos,o:m.orificio,n:m.ordenOrif}));let mejor=null;
+    for(const ord of (gr.length<=4?perms(gr):[gr])){const k='o'+uid();ord.forEach((m,i)=>{m.orificio=k;m.ordenOrif=i+1;});sincOrificio(L,ord[0]);
+      const r=ajusta(L.boquillas.map(m=>orifDe(m)===k?null:[m]).filter(Boolean).concat([ord]),10),e=Math.max(...ord.map(m=>r.get(m.id)).filter(isFinite));
+      if(!mejor||e<mejor.e)mejor={e,ord:ord.slice(),pos:L.boquillas.map(m=>({m,pos:m.pos,o:m.orificio,n:m.ordenOrif})),r};
+      antes.forEach(s=>{s.m.pos=s.pos;s.m.orificio=s.o;if(s.n==null)delete s.m.ordenOrif;else s.m.ordenOrif=s.n;});}
+    if(mejor&&mejor.e<0.6){mejor.pos.forEach(s=>{s.m.pos=s.pos;s.m.orificio=s.o;if(s.n==null)delete s.m.ordenOrif;else s.m.ordenOrif=s.n;});res=mejor.r;gr.forEach(m=>usadas.add(m));}
+    else{antes.forEach(s=>{if(!s.o){delete s.m.orificio;delete s.m.ordenOrif;}});}}
+  L.boquillas.forEach(b=>{if(!orifDe(b)){delete b.orificio;delete b.ordenOrif;}});
+  const sin=L.boquillas.filter(b=>!obs.get(+b.id.slice(1))).map(b=>letra(+b.id.slice(1))),lej=L.boquillas.filter(b=>res.get(b.id)>0.6).map(b=>letra(+b.id.slice(1)));
+  if(sin.length)avisos.push(`Sin letra en el croquis: ${sin.join(', ')} (posición por omisión).`);
+  if(lej.length)avisos.push(`Posición aproximada (no se reprodujo exacta): ${lej.join(', ')}.`);
+  return L.boquillas.map(b=>({L:letra(+b.id.slice(1)),res:res.get(b.id),pos:{u:b.pos.u,v:b.pos.v},orificio:orifDe(b)||'',ordenOrif:b.ordenOrif||null}));
+}
+
 root.FXLev={SCHEMA,VERSION,N_ESP,TIPOS,TIPO_UI,CARAS,CARA_UI,ESP_KEYS,DIM_KEYS,META,META_KEYS,CAP_L_MIN,EQUIPOS,equipoDe,tagDe,tagAuto,
   TIPOS_EQUIPO,TIPO_EQ_DEF,tipoEquipo,tipoDe,nombreEsAuto,tagEsAuto,nombreNum,tagNum,numerar,
-  nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,conCR,alturaFrontal,DIM_CR,contorno,sitio,aUV,croquis,glifo,textura,svg,aJSON,pdf,formato,
+  nuevo,validar,normalizar,reparar,agregar,ajustar,ajustarTodas,geo,conCR,alturaFrontal,DIM_CR,contorno,sitio,aUV,croquis,glifo,textura,svg,aJSON,pdf,formato,leerHoja,
   orificios,orifDe,ordOr,orifJSON,sincOrificio,unirOrificio,separarOrificio,agregarEnOrificio,ordenOrificio,renumOrif,
   letra,grupos,tapas,tapasUI,parsePulg,fmtPulg,numTxt,capM3,capTxt,isoFecha,anioDe,fechaMx,esTapita,normTipo,variar,baseCol,limpiarCol};
 })(typeof window!=='undefined'?window:globalThis);
@@ -4325,7 +4612,10 @@ const DB={db:null,
 };
 function estadoCorto(m){if(/Cargando/.test(m))return 'Cargando…';if(/Guardando|sincronizando/.test(m))return 'Guardando…';if(/error|No se pudo|Sin almacenamiento/i.test(m))return 'Sin guardar en la nube';if(/sin conexión/i.test(m))return 'Guardado · sin conexión';if(/nube/.test(m)&&!/Solo local/.test(m))return 'Guardado y sincronizado';return 'Guardado en este equipo';}
 function setEstado(msg){const el=$('#estadoGuardado');if(!el)return;el.textContent=estadoCorto(msg);el.title=msg;el.dataset.s=/Guardando|Cargando|sincronizando/.test(msg)?'work':/error|No se pudo|Sin almacenamiento/i.test(msg)?'warn':/nube/.test(msg)&&!/Solo local/.test(msg)?'ok':'';}
-function toast(m,ms){const t=$('#toast');t.textContent=m;t.classList.add('ver');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('ver'),ms||3200);}
+function toast(m,ms){const t=$('#toast');t._acc=null;t.classList.remove('acc');t.textContent=m;t.classList.add('ver');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('ver'),ms||3200);}
+// v12 · aviso con un botón (p. ej. «Deshacer»); el botón vive lo que dura el aviso
+function toastAcc(m,lbl,fn,ms){const t=$('#toast');t.textContent=m;const b=document.createElement('button');b.type='button';b.textContent=lbl;t.appendChild(b);t._acc=fn;t.classList.add('ver','acc');
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.classList.remove('ver','acc');t._acc=null;},ms||12000);}
 function plain(o){try{return JSON.parse(JSON.stringify(o));}catch(e){return o;}}
 function imgStoragePath(key){return 'exp-fenix/imgs/'+String(key).replace(/[^a-zA-Z0-9._-]+/g,'_');}
 function imgDocId(key){return String(key).replace(/[^a-zA-Z0-9._-]+/g,'_').slice(0,700);}
@@ -5129,6 +5419,7 @@ function initEqBar(){
   document.addEventListener('click',ev=>{$$('details.menu[open]').forEach(d=>{if(!d.contains(ev.target))d.open=false;});});
   document.addEventListener('keydown',ev=>{if(ev.key==='Escape')$$('details.menu[open]').forEach(d=>{d.open=false;});});
   $('#fImportEq').addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';m.open=false;if(fs.length)importarLevantamientos(fs,pasoAct==='plano'?'plano':'lev');});
+  $('#fImportPdfEq').addEventListener('change',ev=>{const f=ev.target.files&&ev.target.files[0];ev.target.value='';m.open=false;if(f)importarHojaPDF(f);});
 }
 function eqTrasCambio(id,msg){eqActivo=id;try{localStorage.setItem('fenixmex-eq',id);}catch(_){}LEV_SEL=null;levDeshacer=[];guardar();refrescar();if(pasoAct==='plano')plPintar();else eqPintar();if(msg)toast(msg);}
 
@@ -5468,6 +5759,8 @@ function irA(x){
   let t=null;
   if(paso==='equipos'){
     const s=x.sec&&$(`#eqForm .bloque[data-sec="${x.sec}"]`);if(s&&s.classList.contains('cerrado')){s.classList.remove('cerrado');$('.bloque-cab',s).setAttribute('aria-expanded','true');ESTADO_SEC[x.sec]=false;if(x.sec==='croq')requestAnimationFrame(levPintar);}
+    // v12 · «Editar en Equipos» desde el plano: esa boquilla queda seleccionada en el croquis (lista y dibujo)
+    if(x.bq&&LEV&&LEV.boquillas.some(b=>b.id===x.bq))levSel(x.bq,true);
     if(x.sel)t=$(x.sel);
     else if(x.esp)t=$(`#eqEsp [data-col="${x.esp}"] [data-base]`);
     else if(x.croq)t=$('#pndCroq');
@@ -5510,12 +5803,19 @@ function revRender(){
   if(!D)return;const {err,warn}=ULT;
   // conflictos de la migración: dos copias del mismo dato que no coincidían
   {const cs=conflictosVivos(),box=$('#revConflictos');
-    box.innerHTML=cs.length?`<div class="aviso warn"><strong>${cs.length} dato${cs.length>1?'s':''} con dos versiones distintas al cargar archivos anteriores</strong><p>Se conservó el valor que usaba el PDF (marcado en verde). El otro queda aquí como respaldo; revísalo y toca «Entendido».</p><div class="conf-grid">
+    // v12: las diferencias de una hoja de campo (PDF) se pueden resolver a favor del PDF, una por una o todas las de esa importación
+    const imps=[...new Set(cs.filter(c=>c.aplicar&&c.imp).map(c=>c.imp))];
+    box.innerHTML=cs.length?`<div class="aviso warn"><strong>${cs.length} dato${cs.length>1?'s':''} con dos versiones distintas al cargar archivos</strong><p>Se conservó el valor que ya tenía el expediente (marcado en verde). El otro queda aquí como respaldo: revísalo y toca «Entendido»${imps.length?' o, si viene de una hoja de campo (PDF), «Usar el del PDF»':''}.</p><div class="conf-grid">
       ${cs.map((c,k)=>{const e=D.equipos.find(x=>x.id===c.eq),n=e?`Equipo ${D.equipos.indexOf(e)+1} · ${esc(e.tag||e.nombre||'')}`:c.eqNom?esc(c.eqNom):'Expediente';
-        return `<div class="conf"><b>${n} · ${esc(c.campo)}</b><span>${c.ir?irHTML(c.ir,'ir al campo').replace('class="ir"','class="btn mini"'):''} <button type="button" class="btn mini" data-conf="${k}">Entendido</button></span>
-          <div class="q"><span>Se usa</span><span class="usado">${esc(c.usado||'(vacío)')}</span><span>Descartado</span><span class="desc">${esc(c.descartado)}</span><span>Origen</span><span>${esc(c.origen||'')}${c.fecha?' · '+esc(c.fecha.slice(0,10)):''}</span></div></div>`;}).join('')}</div>
+        return `<div class="conf"><b>${n} · ${esc(c.campo)}</b><span>${c.ir?irHTML(c.ir,'ir al campo').replace('class="ir"','class="btn mini"'):''}${c.aplicar?` <button type="button" class="btn mini laton" data-confap="${k}">Usar el del PDF</button>`:''} <button type="button" class="btn mini" data-conf="${k}">Entendido</button></span>
+          <div class="q"><span>Se usa</span><span class="usado">${esc(c.usado||'(vacío)')}</span><span>${c.aplicar?'Del PDF':'Descartado'}</span><span class="desc">${esc(c.descartado)}</span><span>Origen</span><span>${esc(c.origen||'')}${c.fecha?' · '+esc(c.fecha.slice(0,10)):''}</span></div></div>`;}).join('')}</div>
+      ${imps.map(im=>{const g=cs.filter(c=>c.imp===im&&c.aplicar),e=D.equipos.find(x=>x.id===g[0].aplicarEq);
+        return `<div class="conf-imp"><span>${esc(g[0].origen||ORIG_PDF)} → <b>${e?`equipo ${D.equipos.indexOf(e)+1} · ${esc(e.tag||e.nombre||'')}`:'equipo'}</b>: ${g.length} diferencia${g.length>1?'s':''}</span><button type="button" class="btn chico laton" data-confimp="${esc(im)}">Usar todo lo del PDF</button></div>`;}).join('')}
       <div class="acciones" style="margin-top:10px"><button type="button" class="btn chico" data-conf="todos">Entendido, todos</button></div></div>`:'';
-    $$('[data-conf]',box).forEach(b=>b.addEventListener('click',()=>{const v=conflictosVivos();if(b.dataset.conf==='todos')v.forEach(c=>c.visto=true);else if(v[+b.dataset.conf])v[+b.dataset.conf].visto=true;guardar();revRender();}));}
+    $$('[data-conf]',box).forEach(b=>b.addEventListener('click',()=>{const v=conflictosVivos();if(b.dataset.conf==='todos')v.forEach(c=>c.visto=true);else if(v[+b.dataset.conf])v[+b.dataset.conf].visto=true;guardar();revRender();}));
+    $$('[data-confap]',box).forEach(b=>b.addEventListener('click',()=>{const c=conflictosVivos()[+b.dataset.confap];if(c)confAplicar([c]);}));
+    $$('[data-confimp]',box).forEach(b=>b.addEventListener('click',()=>{const g=conflictosVivos().filter(c=>c.imp===b.dataset.confimp&&c.aplicar);
+      if(g.length&&confirm(`Usar lo del PDF en ${g.length} dato${g.length>1?'s':''}:\n• ${g.map(c=>c.campo).join('\n• ')}\n\n¿Continuar?`))confAplicar(g);}));}
   // estado por equipo
   {const t=$('#revEquipos'),cel=(e,secs,lbl)=>{const n=err.filter(x=>x.eq===e.id&&secs.includes(x.sec||'')).length,w=warn.filter(x=>x.eq===e.id&&secs.includes(x.sec||'')).length;
       return `<td><button type="button" class="p ${n?'e':w?'w':'o'}" data-revir='${esc(JSON.stringify({paso:secs[0]===''?'plano':'equipos',eq:e.id,sec:secs[0]||undefined}))}'>${n?`● ${n} pendiente${n>1?'s':''}`:w?`● ${w} aviso${w>1?'s':''}`:'✓ '+lbl}</button></td>`;};
@@ -5840,6 +6140,7 @@ function migrar(origen){
     delete e.presionDisparo;delete e.diametroInteriorMm;
     ESP_KEYS_E.forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});
     if(!e.id)e.id=uid();
+    migrarPlanoBq(e);   // v12: boquillas = solo las de Equipos (antes de reparar, que descarta lo que el plano ya no guarda)
     if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano: S, E (0.85), C.R., cajetín, conexiones, ángulos, ubicación…
     if(window.FXPlano){
       // tabla de materiales: S de la tabla (material × FS). v5: las tapas tienen su propio material; sin elección propia (archivos anteriores) = el del cuerpo.
@@ -5916,6 +6217,21 @@ function migrarV10(e,origen){
   }else{espAuto(e);}
 }
 const normRs=s=>String(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Z0-9]/g,'');
+// v12 · el croquis del plano es solo vista: las boquillas (tipo, Ø, cara, posición, orificio) viven SOLO en e.levantamiento.boquillas
+// (Equipos › Croquis y boquillas). Un borrador que traiga boquillas o desplazamientos propios del plano se migra: las de Equipos mandan
+// y nunca se pierden; solo si Equipos no tiene ninguna, las del plano pasan a Equipos. Los desplazamientos de dibujo del plano se descartan.
+// Lo que sí es del plano (ángulo manual por tipo en plano.angulos, conexiones) se conserva.
+const PL_BQ_VIEJO=['boquillas','posiciones','posBoquillas','bqPos','desplazamientos','offsets','bqOffsets','arrastre'];
+let plBqMigrado=false;   // al arrancar: si se migró algo, el borrador se guarda una vez
+function migrarPlanoBq(e){
+  const p=e.plano;if(!p||typeof p!=='object'||Array.isArray(p))return;
+  if(PL_BQ_VIEJO.some(k=>k in p))plBqMigrado=true;
+  const viejas=Array.isArray(p.boquillas)?p.boquillas:null,lv=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:null;
+  if(viejas&&viejas.length&&!(lv&&Array.isArray(lv.boquillas)&&lv.boquillas.length)){
+    const X=LX(),L=X.reparar({boquillas:viejas});
+    if(L.boquillas.length){const n=plLevDe(e,true);n.boquillas=L.boquillas.map((b,i)=>Object.assign({id:uid(),letra:X.letra(i),tipo:b.tipo,diametroPulgadas:b.diametroPulgadas,cara:b.cara,pos:{u:b.pos.u,v:b.pos.v}},X.orifJSON(b)));}}
+  for(const k of PL_BQ_VIEJO)delete p[k];
+}
 function montar(origen){migrar(origen);initDatos();vistaCargar();if(VISTA&&VISTA.eq&&D.equipos.some(e=>e.id===VISTA.eq))eqActivo=VISTA.eq;if(!D.equipos.some(e=>e.id===eqActivo))eqActivo=D.equipos[0]&&D.equipos[0].id;initImgs(document);refrescar();if(pasoAct==='equipos')eqPintar();else if(pasoAct==='plano')plPintar();else if(pasoAct==='personas')dibRender();else if(pasoAct==='revision')revRender();}
 
 // ---------- LEVANTAMIENTO: croquis y boquillas del equipo activo ----------
@@ -6507,9 +6823,121 @@ async function importarLevantamientos(lista,destino){
   toast(msg,ok.length&&!mal.length?6500:8000);
 }
 
+// ---------- v12 · IMPORTAR LA HOJA DE CAMPO (PDF) ----------
+// El PDF trae sus datos embebidos (hojas nuevas) o se lee su dibujo (hojas anteriores). El equipo se busca por TAG y luego por nombre:
+//  · nuevo o en blanco → se llena todo (como un levantamiento .json);
+//  · con datos → solo se llena lo vacío; cada diferencia queda en Revisión con «Usar el del PDF» (y «Usar todo lo del PDF»).
+// Antes de tocar nada se muestra un resumen; después, «Deshacer» deja el expediente como estaba.
+const ORIG_PDF='hoja de campo importada (PDF)';
+// [metadata del levantamiento, campo del equipo, etiqueta, comparación, sección]
+const PDF_EQ=[['planta','ubicacion','Ubicación','t','ident'],['tanque','nombre','Nombre del equipo','t','ident'],['tag','tag','TAG','t','ident'],['modelo','modelo','Modelo','t','ident'],
+  ['serie','numeroSerie','Número de serie','t','ident'],['marca','marca','Marca','t','ident'],['fechaFabricacion','fechaFabricacion','Fecha de fabricación','f','ident'],
+  ['fechaInspeccion','fechaPnd','Fecha de inspección (PND)','i','ident'],['presionDiseno','presionDiseno','Presión de diseño','n','pres'],['presionCalibracion','presionCalibracion','Presión de calibración','n','pres'],
+  ['presionArranque','presionArranque','Presión de arranque','n','pres'],['presionParo','presionOperacion','Presión de operación (paro)','n','pres'],['capacidad','capacidadPlaca','Capacidad de placa (referencia)','c','ident']];
+const ESP_LBL={espSup:'tapa sup. / izq.',espEnv:'envolvente',espInf:'tapa inf. / der.'};
+// boquillas tal como se guardan en el equipo (formato del .json, sin recalcular posiciones)
+function pdfBoquillas(L){const X=LX();return L.boquillas.map((b,i)=>Object.assign({letra:X.letra(i),tipo:b.tipo,diametroPulgadas:X.parsePulg(b.diametroPulgadas)>0?+X.parsePulg(b.diametroPulgadas).toFixed(4):null,cara:b.cara,pos:{u:+b.pos.u,v:+b.pos.v}},X.orifJSON(b)));}
+function bqTxt(a){const X=LX();if(!a.length)return '(sin boquillas)';
+  return a.map((b,i)=>{const d=X.fmtPulg(X.parsePulg(b.diametroPulgadas));return `${X.letra(i)} ${String(X.TIPO_UI[X.normTipo(b.tipo)]||b.tipo).toLowerCase()}${d?' '+d+'"':''} ${String(X.CARA_UI[b.cara]||b.cara).toLowerCase()} (${(+b.pos.u).toFixed(3)}, ${(+b.pos.v).toFixed(3)})${X.orifDe(b)?' · orificio '+X.orifDe(b).slice(-4)+'/'+(b.ordenOrif||1):''}`;}).join(' · ');}
+function bqIguales(a,b){const X=LX();if(a.length!==b.length)return false;const ok=(x,y)=>Math.abs((+x||0)-(+y||0))<0.0025,grp=l=>{const m=new Map();return l.map((q,i)=>{const k=X.orifDe(q);if(!k)return '';if(!m.has(k))m.set(k,i);return m.get(k)+':'+(q.ordenOrif||1);});};
+  const ga=grp(a),gb=grp(b);
+  return a.every((x,i)=>{const y=b[i];return X.normTipo(x.tipo)===X.normTipo(y.tipo)&&x.cara===y.cara&&ok(X.parsePulg(x.diametroPulgadas)||0,X.parsePulg(y.diametroPulgadas)||0)&&ok(x.pos&&x.pos.u,y.pos&&y.pos.u)&&ok(x.pos&&x.pos.v,y.pos&&y.pos.v)&&ga[i]===gb[i];});}
+// Qué haría la importación en el equipo e (sin tocar nada). todo = equipo nuevo o en blanco: se llena todo lo que trae el PDF.
+function pdfPlan(e,L,j,todo){
+  const X=LX(),s=v=>String(v??'').trim(),up=v=>s(v).toUpperCase(),m=L.metadata,out=[];
+  const pon=(o,igual)=>{if(igual&&s(o.act))return;out.push(Object.assign(o,!s(o.act)||todo?{llenar:true}:{dif:true}));};
+  const sinEsp=v=>up(v).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
+  for(const [mk,ek,campo,t,sec] of PDF_EQ){let v=s(m[mk]);if(!v)continue;
+    if(t==='t')v=up(v);else if(t==='n')v=X.numTxt(v);else if(t==='i')v=X.isoFecha(v)||v;else if(t==='c')v=X.capM3(v)||v;   // capacidad en m³ (3 decimales), como el .json
+    let a=s(e[ek]);if(ek==='fechaFabricacion')a=a||s(e.anioFabricacion);
+    let igual=t==='n'?nNum(a)===nNum(v):t==='c'?(X.capM3(a)||a)===(X.capM3(v)||v):t==='i'?(X.isoFecha(a)||a)===v:sinEsp(a)===sinEsp(v);
+    if(t==='f'&&!igual&&X.anioDe(a)&&X.anioDe(a)===X.anioDe(v)){if(/^\d{4}$/.test(v))igual=true;else if(/^\d{4}$/.test(a)){out.push({campo,sec,k:ek,act:a,nuevo:v,llenar:true,ap:{t:'eq',k:ek,v}});continue;}}
+    pon({campo,sec,k:ek,act:a,nuevo:v,ap:{t:'eq',k:ek,v}},igual);}
+  // dimensiones y C.R. (la C.R. vive en el plano)
+  for(const [k,campo] of [['diametroInteriorCm','Ø interior (cm)'],['longitudMm','Longitud soldadura–soldadura (mm)'],['profundidadTapaMm','Profundidad de tapa (mm)']]){
+    const v=nNum(L.dimensiones[k]);if(!(v>0))continue;pon({campo,sec:'croq',k,act:s(e[k]),nuevo:String(v),ap:{t:'eq',k,v:String(v)}},nNum(e[k])===v);}
+  {const c=s(L.dimensiones[X.DIM_CR]);if(c&&nNum(c)>=0){const a=s(e.plano&&e.plano.cejaRectaMm);pon({campo:'Ceja recta C.R. (mm)',sec:'croq',k:'cejaRectaMm',act:a,nuevo:String(nNum(c)),ap:{t:'pl',k:'cejaRectaMm',v:String(nNum(c))}},nNum(a)===nNum(c));}}
+  // croquis: orientación y boquillas
+  const lv=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:null,bAct=(lv&&Array.isArray(lv.boquillas))?lv.boquillas:[],bNew=pdfBoquillas(L);
+  const hayCroq=bAct.length||X.DIM_KEYS.some(k=>s(e[k])),oA=orientDe(e),oN=L.orientacion==='V'?'V':'H',oT=o=>o==='V'?'Vertical (V)':'Horizontal (H)';
+  if(oA!==oN)out.push({campo:'Orientación (plantilla H / V)',sec:'croq',sel:'#levCroquis',act:oT(oA),nuevo:oT(oN),ap:{t:'or',v:oN},[!hayCroq||todo?'llenar':'dif']:true});
+  if(bNew.length)pon({campo:`Boquillas del croquis (${bNew.length})`,sec:'croq',sel:'#levCroquis',act:bAct.length?bqTxt(bAct):'',nuevo:bqTxt(bNew),ap:{t:'bq',v:bNew,o:oN}},bqIguales(bAct,bNew));
+  // espesores: punto por punto (vacíos se llenan; los distintos van juntos por columna)
+  const au=j&&j.espAuto&&typeof j.espAuto==='object'?j.espAuto:null;
+  for(const [ek,lk] of ESP_COL){const a=Array.isArray(e[ek])?e[ek]:[],b=L.espesores[lk]||[],ll={},df={},fa={};
+    for(let i=0;i<16;i++){const vb=s(b[i]).replace(',','.');if(!vb)continue;const va=s(a[i]).replace(',','.');
+      if(va&&nNum(va)===nNum(vb))continue;
+      if(!va||todo){ll[i]=vb;fa[i]=!!(au&&Array.isArray(au[lk])&&au[lk][i]);}else if(nNum(va)!==nNum(vb))df[i]=vb;}
+    const lista=(o,src)=>Object.keys(o).map(i=>`${+i+1}: ${src?s(src[i]):o[i]}`).join(' · ');
+    if(Object.keys(ll).length)out.push({campo:`Espesores · ${ESP_LBL[ek]} (${Object.keys(ll).length} punto${Object.keys(ll).length>1?'s':''})`,sec:'esp',esp:ek,act:'',nuevo:lista(ll),llenar:true,ap:{t:'esp',k:ek,p:ll,auto:fa}});
+    if(Object.keys(df).length)out.push({campo:`Espesores · ${ESP_LBL[ek]} · punto${Object.keys(df).length>1?'s':''} ${Object.keys(df).map(i=>+i+1).join(', ')}`,sec:'esp',esp:ek,act:lista(df,a),nuevo:lista(df),dif:true,ap:{t:'esp',k:ek,p:df,auto:{}}});}
+  // razón social: es del expediente (todos los equipos); nunca se cambia sola
+  {const cli=up(m.cliente);if(cli){const rs=rsNombre();if(!rs)out.push({campo:'Razón social',rs:1,act:'',nuevo:cli,llenar:true,ap:{t:'rs',v:cli}});else if(normRs(rs)!==normRs(cli))out.push({campo:'Razón social',rs:1,act:rs,nuevo:cli,dif:true,ap:{t:'rs',v:cli}});}}
+  return out;
+}
+// Aplica un dato de la hoja de campo al equipo (también desde «Usar el del PDF» en Revisión)
+function pdfAplicar(e,ap){
+  const X=LX();
+  if(ap.t==='eq'){e[ap.k]=ap.v;if(ap.k==='fechaFabricacion'){const y=X.anioDe(ap.v);if(y)e.anioFabricacion=y;}if(ap.k==='nombre'){const t=X.tipoDe(e);if(t)e.tipoEquipo=t.id;}}
+  else if(ap.t==='pl'){if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);e.plano[ap.k]=ap.v;}
+  else if(ap.t==='or')ponOrient(e,ap.v);
+  else if(ap.t==='rs'){D.razonSocialPropietario=ap.v;D.razonSocialUsuario=ap.v;}
+  else if(ap.t==='esp'){if(!Array.isArray(e[ap.k])||e[ap.k].length<16)e[ap.k]=Array.from({length:16},(_,i)=>String((e[ap.k]||[])[i]??''));const au=espAuto(e);
+    for(const [i,v] of Object.entries(ap.p||{})){e[ap.k][+i]=v;au[ap.k][+i]=!!(ap.auto&&ap.auto[i]);}}
+  else if(ap.t==='bq'){const prev=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:{origen:'campo'};
+    e.levantamiento=Object.assign(prev,{schema:X.SCHEMA,version:X.VERSION,modelo:MODELO,importadoEn:isoAhora(),orientacion:ap.o||orientDe(e),boquillas:ap.v.map(b=>Object.assign({id:uid()},plain(b)))});
+    if(prev.origen==='plano')e.levantamiento.origen='campo';ponOrient(e,ap.o||orientDe(e));}
+  e.presionPruebaHidrostatica=hidro(e);
+}
+async function importarHojaPDF(file){
+  const X=LX();let r;
+  try{r=await X.leerHoja(new Uint8Array(await file.arrayBuffer()));}catch(err){r={ok:false,err:'No se pudo leer el archivo ('+(err&&err.message||err)+'). No se cambió nada.'};}
+  if(!r.ok){toast(r.err,9000);return;}
+  const j=r.j,L=X.normalizar(j),m=L.metadata,clave=v=>String(v??'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
+  // equipo: mismo TAG; si no, mismo nombre; si no, el único equipo en blanco o uno nuevo
+  let e=null,por='';
+  if(clave(m.tag)){e=D.equipos.find(x=>clave(x.tag)===clave(m.tag))||null;if(e)por='TAG';}
+  if(!e&&clave(m.tanque)){e=D.equipos.find(x=>clave(x.nombre)===clave(m.tanque))||null;if(e)por='nombre';}
+  let modo=e?(equipoVirgen(e)?'vacio':'mezcla'):'nuevo';
+  if(!e&&D.equipos.length===1&&equipoVirgen(D.equipos[0])){e=D.equipos[0];modo='vacio';}
+  const eq=e||nuevoEquipo(),plan=pdfPlan(eq,L,j,modo!=='mezcla'),ll=plan.filter(x=>x.llenar),df=plan.filter(x=>x.dif);
+  const nomPdf=[m.tag,m.tanque].map(x=>String(x||'').trim()).filter(Boolean).join(' · ')||'sin TAG ni nombre';
+  const dest=modo==='nuevo'?`se agrega como equipo ${D.equipos.length+1}`:`equipo ${D.equipos.indexOf(e)+1} · ${e.tag||e.nombre||'sin TAG'}${por?` (mismo ${por})`:''}${modo==='vacio'?', en blanco: se llena todo':', ya tiene datos: solo se llena lo vacío'}`;
+  if(!ll.length&&!df.length){toast(`La hoja de campo (${nomPdf}) coincide con el ${dest.replace(/ \(.*$/,'')}: no hay nada que importar.`,7000);return;}
+  const msg=`Importar hoja de campo: ${nomPdf}\n${r.fuente==='embebido'?'Datos completos embebidos en el PDF.':'PDF sin datos embebidos (hoja anterior): se leyó el dibujo.'}\n\nEquipo: ${dest}.\n\n`+
+    `Se llenan (${ll.length}): ${ll.map(x=>x.campo).join(', ')||'nada'}\n`+
+    `Diferencias que quedan en Revisión para elegir (${df.length})${df.length?': '+df.map(x=>x.campo).join(', '):''}`+
+    (r.avisos.length?`\n\nAvisos:\n• ${r.avisos.join('\n• ')}`:'')+'\n\nSe puede deshacer. ¿Importar?';
+  if(!confirm(msg))return;
+  const antes=JSON.stringify(D),eqAntes=eqActivo;
+  if(modo==='nuevo')D.equipos.push(eq);
+  const imp='pdf'+uid(),origen=`${ORIG_PDF} · ${file.name}`,irDe=x=>x.rs?{paso:'visita',sel:'#d_rsp'}:{paso:'equipos',eq:eq.id,sec:x.sec,k:x.k,esp:x.esp,sel:x.sel};
+  for(const x of ll)pdfAplicar(eq,x.ap);
+  for(const x of df)conflicto({eq:x.rs?undefined:eq.id,eqNom:String(eq.tag||eq.nombre||''),campo:x.campo,usado:x.act,descartado:x.nuevo,origen,ir:irDe(x),aplicar:x.ap,aplicarEq:eq.id,imp});
+  eq._cerrado=false;renumerar();
+  montar();guardar();
+  eqActivo=eq.id;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;plSel=null;
+  mostrarPaso('equipos');
+  const n=D.equipos.indexOf(eq)+1;
+  toastAcc(`Hoja de campo importada → equipo ${n}${eq.tag?' ('+eq.tag+')':''}: ${ll.length} dato${ll.length===1?'':'s'} llenado${ll.length===1?'':'s'}${df.length?`; ${df.length} diferencia${df.length>1?'s':''} en Revisión`:''}.`,'Deshacer',()=>{
+    D=JSON.parse(antes);eqActivo=eqAntes;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;plSel=null;montar();guardar();toast('Importación del PDF deshecha: el expediente quedó como estaba.');},15000);
+}
+// Revisión: «Usar el del PDF» (una diferencia) o «Usar todo lo del PDF» (las de una importación)
+function confAplicar(lista){
+  const hechos=[];
+  for(const c of lista){if(!c||!c.aplicar||c.visto)continue;const e=D.equipos.find(x=>x.id===(c.aplicarEq||c.eq));
+    if(!e&&c.aplicar.t!=='rs'){c.visto=true;continue;}
+    pdfAplicar(e||{},c.aplicar);c.visto=true;c.aplicado=new Date().toISOString();hechos.push(c);
+    // las boquillas van con su orientación: la diferencia de orientación de la misma hoja queda resuelta
+    if(c.aplicar.t==='bq')(D.conflictos||[]).forEach(x=>{if(x.imp&&x.imp===c.imp&&x.aplicar&&x.aplicar.t==='or'&&!x.visto){x.visto=true;x.aplicado=c.aplicado;}});}
+  if(!hechos.length)return;
+  renumerar();guardar();refrescar();plSync();revRender();
+  toast(hechos.length===1?`Se usó el valor del PDF: ${hechos[0].campo}.`:`Se usaron ${hechos.length} valores del PDF.`);
+}
+
 // ---------- PLANO ----------
 const FXP=()=>window.FXPlano;
-let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true,plSel=null,plDrag=null,expSucio=false,plDim={};
+let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true,plSel=null,plSelBq=null,expSucio=false,plDim={};
 function plFonts(){if(!plFontsC){const A=window.FX_ASSETS;plFontsC={R:b64(A.fonts.R),B:b64(A.fonts.B)};}return plFontsC;}
 function plMetricas(){if(!plMx)plMx=FXP().metricas(plFonts());return plMx;}
 function plCtx(){return {razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),firmante:String(G.firmanteIzquierdoNombre||'').trim(),cedula:String(G.firmanteIzquierdoCedula||'').trim()};}
@@ -6604,15 +7032,23 @@ function plMemoria(d){
   const tg=$('#plMemTag');tg.textContent=d.faltan.length?`${d.faltan.length} pendiente${d.faltan.length>1?'s':''}`:'Completa';tg.dataset.s=d.faltan.length?'err':'ok';
 }
 
-// ----- boquillas: croquis interactivo (agrupado por tipo) + tabla de grupos + lista una por una -----
+// ----- boquillas: croquis del plano (SOLO VISTA, agrupado por tipo) + tabla de grupos -----
+// v12: una sola fuente = Equipos › Croquis y boquillas (posición, cara, Ø, cantidad, tipo y piezas por orificio). Aquí no se mueve nada:
+// el dibujo se arma cada vez desde el equipo, con su C.R., y tocar una boquilla solo resalta su tipo y ofrece «Editar en Equipos».
 function plCroquis(d){
-  const svg=$('#plCroquis');if(!svg)return;const e=d.e,L=plL(e,d);
-  const lay=LX().croquis(L,{hit:true,agrupar:true,cad:true});
+  const svg=$('#plCroquis');if(!svg)return;const e=d.e,L=plL(e,d),cr=plOk(d.inp.CR)&&d.inp.CR>0?d.inp.CR:0;
+  const lay=LX().croquis(L,{hit:true,agrupar:true,cad:true,cr});
   {const b=lay.bb,P=10,x=Math.min(0,b.x0-P),y=Math.min(0,b.y0-P),w=Math.max(lay.W,b.x1+P)-x,h=Math.max(lay.H,b.y1+P)-y;   // v5: la caja crece si los globos salen del lienzo
     svg.setAttribute('viewBox',`${x.toFixed(1)} ${y.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);}svg.dataset.o=L.orientacion;
   const sel=plSel&&L.boquillas.find(b=>b.tipo===plSel);
   svg.innerHTML=LX().svg(lay,sel?sel.id:null);
+  const ir=$('#plCroqIr');if(!ir)return;
+  if(!sel){ir.innerHTML=L.boquillas.length?'Solo vista: toca una boquilla para resaltar su tipo.':'';return;}
+  const q=plSelBq!=null&&L.boquillas.find(b=>b.k===plSelBq&&b.tipo===plSel)||sel,n=L.boquillas.filter(b=>b.tipo===plSel).length,g=LX().grupos(L.boquillas);
+  ir.innerHTML=`<span><b>${esc(g.letraDe[plSel]||'')}</b> · ${esc(LX().TIPO_UI[plSel]||plSel)}${n>1?` (${n})`:''}</span><button type="button" class="btn mini" data-pleq="${q.k}">Editar en Equipos ›</button>`;
 }
+// lleva a Equipos › Croquis y boquillas con la boquilla k (índice en e.levantamiento.boquillas) seleccionada
+function plEditarEnEquipos(k){const e=plEq();if(!e)return;const lv=plLevDe(e,false),b=lv&&lv.boquillas[k];irA({paso:'equipos',eq:e.id,sec:'croq',bq:b&&b.id,sel:'#levCroquis'});}
 // v6 · ángulos escritos a mano en el plano que no coinciden con la vista frontal (más de ANG_TOL°): Revisión y la tabla lo avisan.
 // Los que siguen a otra pieza de su orificio no cuentan (usan el ángulo del orificio). auto = null: en la frontal está en una tapa.
 const ANG_TOL=10;
@@ -6909,12 +7345,14 @@ function initPlano(){
     if(c!=null){const x=ev.target.value.trim();if(x)e.plano.conexiones[c]=x.toUpperCase();else delete e.plano.conexiones[c];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}
     if(a!=null){let x=ev.target.value.trim().replace(',','.');if(x&&!/^\d{0,3}(\.\d*)?$/.test(x))return;if(x)e.plano.angulos[a]=x;else delete e.plano.angulos[a];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}});
   tb.addEventListener('click',ev=>{const au=ev.target.closest('[data-pgauto]');if(au){const e=plEq();if(!e)return;angVolverAuto(e,au.dataset.pgauto);plActualizar(true);toast('Ángulo automático: sale de la vista frontal.');return;}
-    const b=ev.target.closest('[data-pgs]');if(!b)return;const t=b.closest('tr').dataset.t;plSel=plSel===t?null:t;const d=plDatos();plCroquis(d);plGrupos(d);});
-  // croquis del plano: vista previa; tocar una boquilla resalta su tipo (la posición se edita en el croquis del levantamiento)
+    const b=ev.target.closest('[data-pgs]');if(!b)return;const t=b.closest('tr').dataset.t;plSel=plSel===t?null:t;plSelBq=null;const d=plDatos();plCroquis(d);plGrupos(d);});
+  // croquis del plano: SOLO VISTA (v12). Un toque (clic) resalta el tipo; nada se arrastra ni se mueve aquí: se edita en Equipos › Croquis y boquillas.
   const svg=$('#plCroquis');
-  svg.addEventListener('pointerdown',ev=>{const t=ev.target.closest('[data-bq]'),e=plEq();if(!e)return;
-    if(!t){if(plSel){plSel=null;const d=plDatos();plCroquis(d);plGrupos(d);}return;}
-    const L=plL(e,plDatos()),q=L.boquillas.find(x=>x.id===t.dataset.bq);if(!q)return;plSel=plSel===q.tipo?null:q.tipo;const d=plDatos();plCroquis(d);plGrupos(d);});
+  svg.addEventListener('click',ev=>{const t=ev.target.closest('[data-bq]'),e=plEq();if(!e)return;
+    if(!t){if(plSel){plSel=null;plSelBq=null;const d=plDatos();plCroquis(d);plGrupos(d);}return;}
+    const d=plDatos(),q=plL(e,d).boquillas.find(x=>x.id===t.dataset.bq);if(!q)return;
+    if(plSel===q.tipo&&plSelBq===q.k){plSel=null;plSelBq=null;}else{plSel=q.tipo;plSelBq=q.k;}plCroquis(d);plGrupos(d);});
+  $('#plCroqIr').addEventListener('click',ev=>{const b=ev.target.closest('[data-pleq]');if(b)plEditarEnEquipos(+b.dataset.pleq);});
   // croquis de ubicación: tocar = punta de la flecha (imagen) o posición del equipo (esquema)
   const us=$('#plUbic');
   const ubicar=ev=>{const e=plEq();if(!e||!plUbicArea)return;const p=levPuntoSVG(us,ev),A=plUbicArea,fx=Math.max(0,Math.min(1,(p.x-A.x)/A.w)),fy=Math.max(0,Math.min(1,(p.y-A.y)/A.h));
@@ -6963,7 +7401,7 @@ function initPlano(){
   try{initPlano();}catch(e){console.warn('plano',e);}
   initEqBar();initDib();initBuscar();
   montar('borrador guardado en este navegador');
-  if(antes&&DB.db){await DB.set('draft',D);}   // v10: la estructura migrada se guarda una vez (las copias descartadas quedan en D.conflictos)
+  if((antes||plBqMigrado)&&DB.db){await DB.set('draft',D);}   // v10: la estructura migrada se guarda una vez (las copias descartadas quedan en D.conflictos) · v12: también las boquillas del plano
   try{await levLegadoCargar();levLegadoAviso();}catch(e){console.warn('levantamiento anterior',e);}
   if(fromCloud) setEstado('Globales en la nube'+(cloudImgs?' · '+cloudImgs+' img':'')+' · expediente solo aquí');
   else if(!DB.db) setEstado('Sin almacenamiento: los datos no se conservarán');
@@ -6977,6 +7415,8 @@ function initPlano(){
   $('#btnEjemplo').addEventListener('click',ejemplo);
   initDocs();initPad();initEditor();initLimpia();initCam();
   $('#fImportLev').addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';importarLevantamientos(fs,'lev');});
+  $('#fImportPdf').addEventListener('change',ev=>{const f=ev.target.files&&ev.target.files[0];ev.target.value='';if(f)importarHojaPDF(f);});
+  $('#toast').addEventListener('click',ev=>{const t=$('#toast');if(ev.target.closest('button')&&t._acc){const fn=t._acc;t._acc=null;t.classList.remove('ver','acc');fn();}});
   $('#topRs').addEventListener('click',()=>irA({paso:'visita',sel:'#d_rsp'}));
   $('#topListo').addEventListener('click',()=>{if(ULT.err.length){mostrarFaltas=true;refrescar();mostrarPaso('revision');}else mostrarPaso('generar');});
   let p=pasoDeHash(location.hash);if(!p){try{p=localStorage.getItem('fenixmex-paso');}catch(_){}}
