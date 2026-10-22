@@ -483,7 +483,6 @@ html[data-tono="oscuro"] .img.firma.lleno .thumb{background-color:#ece6dd}
 .toast button{margin-left:12px;font:inherit;font-weight:750;color:inherit;background:transparent;border:1px solid currentColor;border-radius:8px;padding:4px 10px;cursor:pointer;min-height:32px}
 .conf-imp{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:12px;font-size:13px}
 .conf-imp b{font-weight:700}
-.pl-croq-ir{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:6px 10px;font-size:12.5px;color:var(--tinta-3);min-height:34px}
 .modal{position:fixed;inset:0;z-index:70;background:rgba(8,6,10,.62);display:grid;place-items:center;padding:16px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 .modal-caja{background:var(--placa);color:var(--tinta);border-radius:20px;max-width:480px;width:100%;padding:24px;border:1px solid var(--acero);box-shadow:var(--sombra-3);animation:subir .22s ease-out}
 @keyframes subir{from{transform:translateY(10px);opacity:0}}
@@ -640,11 +639,6 @@ html[data-tono="oscuro"] .img.firma.lleno .thumb{background-color:#ece6dd}
 .croquis .dx{fill:none;stroke:var(--laton);stroke-width:.8;stroke-dasharray:3 3;opacity:.75}
 .pl-hoja{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:auto;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
 .pl-hoja svg{display:block;width:100%;height:auto;min-width:860px}
-.pl-croq{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background-color:var(--hundido);
-  background-image:radial-gradient(color-mix(in srgb,var(--acero-2) 55%,transparent) 1px,transparent 1.3px);background-size:20px 20px}
-.pl-croq .croquis{max-height:46vh}
-#plCroquis .hit{cursor:pointer;touch-action:manipulation}   /* v12: el croquis del plano es solo vista (no se arrastra) */
-.pl-croq .croquis[data-o="V"]{max-width:340px}
 .pl-tabla-wrap{overflow-x:auto;margin-top:12px;border:1px solid var(--acero);border-radius:var(--r)}
 /* v5 · material de las tapas («= cuerpo») y S escrito a mano */
 .campo label .mt-igual{margin-left:8px;vertical-align:middle}
@@ -666,6 +660,14 @@ details.s-man[open]>summary{margin-bottom:8px}
 .pl-tabla tr.sel .lev-letra{border-color:var(--laton);color:var(--laton)}
 .pl-ang-av{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11.5px;color:var(--warn);white-space:nowrap}
 .pl-ang-av .btn{padding:1px 7px;font-size:11.5px;min-height:0}
+/* v13 · Equipos › Croquis y boquillas: datos del plano por tipo (conexión y ángulo) */
+.lev-pl{margin-top:16px;padding-top:12px;border-top:1px solid var(--acero)}
+.lev-pl>h4{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:13px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-2)}
+.lev-pl>.nota{margin:0 0 10px;color:var(--tinta-3);font-size:12.5px}
+.lev-pl .pl-tabla-wrap{margin-top:10px}
+.lev-pl-tabla{min-width:0}
+.lev-pl-tabla td:nth-child(3){width:38%}.lev-pl-tabla td:nth-child(4){width:92px}
+.lev-pl-tabla td small{color:var(--tinta-3);font-variant-numeric:tabular-nums}
 .pl-ubic{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start;margin-top:12px}
 .pl-ubic-ctl{display:grid;gap:12px}
 .pl-ubic-prev{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background:#fff}
@@ -728,13 +730,10 @@ details.s-man[open]>summary{margin-bottom:8px}
 .pl-toolbar .lev-estado[data-s="ok"]::before{background:var(--ok)}
 .pl-toolbar .lev-estado[data-s="warn"]::before{background:var(--err)}
 .pl-toolbar .lev-estado[data-s="work"]::before{background:var(--laton)}
-.bq-plano{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
-.bq-plano .pl-croq .croquis{max-height:42vh}
 
 @media (max-width:1100px){
   .lev-dibujo{grid-template-columns:minmax(0,1fr)}.lev-bq-lista{max-height:none}
   .calc{grid-template-columns:minmax(0,1fr)}
-  .bq-plano{grid-template-columns:minmax(0,1fr)}
   .muestras{grid-template-columns:repeat(2,minmax(0,1fr))}
   .plan{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -1120,18 +1119,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         </div>
         <h4 style="margin:16px 0 8px;font-size:11.5px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)">Datos vinculados y fijos</h4>
         <div class="vincs" data-vincs="espec"></div>
-      </div>
-
-      <div class="tarjeta" id="pc-bq">
-        <h3>Boquillas en el plano <span class="tag">una letra por tipo</span></h3>
-        <p class="nota">Las boquillas (tipo, Ø, cantidad, cara, posición y piezas por orificio) se capturan solo en <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levCroquis"}'>Equipos › Croquis y boquillas</button>; este dibujo es solo vista y se arma desde ahí (con Ø, L, tapa y C.R.). Aquí solo va lo del plano: conexión y ángulo de cada tipo. Ángulo en la vista lateral / superior: 0° a la derecha, sentido antihorario; vacío = automático desde la vista frontal.</p>
-        <div class="bq-plano">
-          <div class="pl-croq"><svg id="plCroquis" class="croquis" viewBox="0 0 900 400" role="img" tabindex="0" aria-label="Croquis del plano (solo vista; se edita en Equipos › Croquis y boquillas). Toca una boquilla para resaltar su tipo."></svg><div class="pl-croq-ir" id="plCroqIr" aria-live="polite"></div></div>
-          <div>
-            <div class="grid" style="margin-bottom:10px"><div class="campo" data-campo="tipoConexion"><label for="pl_con">Conexión por omisión</label><div class="caja"><input id="pl_con" data-pl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div><div class="ayuda">Columna TIPO cuando el renglón no trae otra.</div></div></div>
-            <div class="pl-tabla-wrap"><table class="pl-tabla" id="plGrupos"></table></div>
-          </div>
-        </div>
+        <p class="nota" style="margin:14px 0 0">Boquillas, conexión y ángulo de cada tipo: <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levPl"}'>Equipos › Croquis y boquillas</button></p>
       </div>
 
       <div class="tarjeta" id="pc-ubic">
@@ -1279,6 +1267,12 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
       <p class="nota">Letras A, B, C… en el orden de la lista; se puede repetir el tipo. Toca una fila o su letra para ubicarla en el croquis. En el plano se agrupan por tipo. Varias piezas en un mismo orificio (manómetro + válvula + entrada…): «+ pieza aquí» o elige su orificio en la fila; mover una pieza mueve el orificio completo.</p>
       <ol class="lev-bq-lista" id="levBqLista"></ol>
       <button type="button" class="btn chico laton" id="levBqAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar boquilla</button>
+      <div class="lev-pl" id="levPl">
+        <h4>Datos del plano <span class="tag">una letra por tipo</span></h4>
+        <p class="nota">Tabla de boquillas y vista <span data-lpvista>lateral</span> del plano. Conexión vacía = la de por omisión. Ángulo vacío = automático desde la vista frontal (0° a la derecha, sentido antihorario).</p>
+        <div class="campo" data-campo="tipoConexion"><label for="lv_con">Conexión por omisión</label><div class="caja"><input id="lv_con" data-epl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div><div class="ayuda">Columna TIPO cuando el tipo no trae otra.</div></div>
+        <div class="pl-tabla-wrap"><table class="pl-tabla lev-pl-tabla" id="levPlGrupos"></table></div>
+      </div>
     </div>
   </div>
 </template>
@@ -3213,7 +3207,7 @@ async function pdf(L,opt){
   const crT=String(L.dimensiones[DIM_CR]??'').trim(),crN=num(crT),okCR=!blank&&crT!==''&&crN>=0;
   campo('LONGITUD (soldadura–soldadura):',g0.okL?miles(g0.Lmm):'','mm',M,206,y);
   campo('PROFUNDIDAD DE TAPA:',g0.okT?miles(g0.Tmm):'','mm',M+222,158,y);
-  campo('CEJA RECTA (C.R.):',okCR?miles(crN):'','mm',M+396,CW-396,y);
+  campo('CEJA RECTA (C.R.):',okCR?crN.toFixed(2):'','mm',M+396,CW-396,y);
   y-=11;
 
   // ---- croquis (recortado a lo dibujado) en un marco con margen
@@ -5310,7 +5304,7 @@ function initDatos(){
 // aparte del expediente (no va en el borrador, la visita ni los PDF). La visita se reconoce por los id de sus equipos
 // (el expediente no tiene id propio y no se le agrega nada). Primera vez en un paso: arriba.
 const VISTA_LS='fenixmex-vistas',VISTA_MAX=12;
-const VISTA_SCROLL={visita:[],equipos:['.lev-bq-lista'],plano:['.pl-hoja','.pl-tabla-wrap'],personas:[],revision:['.tabla-wrap'],generar:[]};
+const VISTA_SCROLL={visita:[],equipos:['.lev-bq-lista'],plano:['.pl-hoja'],personas:[],revision:['.tabla-wrap'],generar:[]};
 let VISTA=null,vistaT=null,vistaS=null,vistaRest=null;
 function vistaLista(){try{const a=JSON.parse(localStorage.getItem(VISTA_LS)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x==='object'&&x.pasos&&typeof x.pasos==='object'):[];}catch(_){return [];}}
 function vistaCargar(){
@@ -5332,7 +5326,7 @@ function vistaCapturar(p){
   (VISTA_SCROLL[p]||[]).forEach(sel=>{const el=$(sel,sec);if(el&&(el.scrollTop||el.scrollLeft))v.sc[sel]=[Math.round(el.scrollTop),Math.round(el.scrollLeft)];});
   if(p==='equipos'||p==='plano'){v.eq=eqActivo;VISTA.eq=eqActivo;}
   if(p==='equipos')v.lev={sel:LEV_SEL,k:levVista.k,x:levVista.x,y:levVista.y,W:levVista.W,H:levVista.H};
-  if(p==='plano'){v.plSel=plSel;const b=$('#p-plano [data-prev][aria-pressed="true"]');v.prev=b?b.dataset.prev:'hoja';}
+  if(p==='plano'){const b=$('#p-plano [data-prev][aria-pressed="true"]');v.prev=b?b.dataset.prev:'hoja';}
   VISTA.pasos[p]=v;
 }
 // antes de pintar el paso: selección y encuadre (solo si es el mismo equipo; si ya no existe, se ignora)
@@ -5340,7 +5334,6 @@ function vistaPrevia(p){
   const v=VISTA&&VISTA.pasos[p];if(!v||!D)return;
   if(p==='equipos'&&v.lev&&v.eq===eqActivo){LEV_SEL=v.lev.sel||null;const k=+v.lev.k;
     Object.assign(levVista,k>1?{k,x:+v.lev.x||0,y:+v.lev.y||0,W:+v.lev.W||0,H:+v.lev.H||0}:{k:1,x:0,y:0});}
-  if(p==='plano'&&v.eq===eqActivo)plSel=v.plSel||null;
 }
 // después de pintar: subpestaña y scroll (varios intentos mientras la página termina de crecer; se cancela si el usuario se mueve)
 function vistaDespues(p,conScroll){
@@ -5395,7 +5388,7 @@ function initPasos(){
 
 // ---------- equipo activo (uno solo para Equipos y Plano) ----------
 function eqAct(){if(!D||!D.equipos.length)return null;let e=D.equipos.find(x=>x.id===eqActivo);if(!e){e=D.equipos[0];eqActivo=e.id;}return e;}
-function setEq(id){if(id&&id!==eqActivo){eqActivo=id;try{localStorage.setItem('fenixmex-eq',id);}catch(_){}LEV_SEL=null;levDeshacer=[];levVista.k=1;plSel=null;}
+function setEq(id){if(id&&id!==eqActivo){eqActivo=id;try{localStorage.setItem('fenixmex-eq',id);}catch(_){}LEV_SEL=null;levDeshacer=[];levVista.k=1;}
   eqTabs();if(pasoAct==='equipos')eqPintar();else if(pasoAct==='plano')plPintar();}
 function eqTabs(){
   const box=$('#eqTabs');if(!box||!D)return;const act=eqAct();
@@ -5459,8 +5452,8 @@ function renderEqForm(){
   const dec=i=>{let x=i.value;if(i.hasAttribute('data-num')&&x.includes(',')){x=x.replace(',','.');i.value=x;}return x;};
   // v6 · C.R. del croquis (levantamiento): se guarda en e.plano.cejaRectaMm, la misma que leen los cálculos, «Ajustar C.R.» y el plano
   const onPl=ev=>{const i=ev.target.closest('[data-epl]');if(!i||!box.contains(i))return false;const e=eqAct();if(!e)return true;
-    if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);const k=i.dataset.epl,v=dec(i);if(String(e.plano[k]??'')===v)return true;
-    e.plano[k]=v;if(LEV)LEV.dimensiones[k]=v;levAyudaDims();expSucio=true;guardar();actEq();return true;};
+    if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);const k=i.dataset.epl,v=i.hasAttribute('data-mayus')?dec(i).toUpperCase():dec(i);if(String(e.plano[k]??'')===v)return true;
+    e.plano[k]=v;if(LEV&&k in LEV.dimensiones){LEV.dimensiones[k]=v;levAyudaDims();}expSucio=true;guardar();actEq();return true;};
   const on=ev=>{if(onPl(ev))return;const i=ev.target.closest('[data-e]');if(!i||!box.contains(i))return;const e=eqAct();if(!e)return;const k=i.dataset.e,v=dec(i);if(e[k]===v&&ev.type==='change'&&!['nombre','tag'].includes(k))return;e[k]=v;
     if(k==='fechaFabricacion')e.anioFabricacion=LX().anioDe(v);
     if(k==='presionDiseno')e.presionPruebaHidrostatica=hidro(e);
@@ -5479,7 +5472,7 @@ function renderEqForm(){
   $('#eqPlegar').addEventListener('click',()=>{const todos=$$('.bloque',box),abrir=todos.every(s=>s.classList.contains('cerrado'));
     todos.forEach(s=>{s.classList.toggle('cerrado',!abrir);$('.bloque-cab',s).setAttribute('aria-expanded',String(abrir));ESTADO_SEC[s.dataset.sec]=!abrir;});
     $('#eqPlegar').textContent=abrir?'Contraer todo':'Expandir todo';try{localStorage.setItem('fenixmex-secs',JSON.stringify(ESTADO_SEC));}catch(_){}if(abrir)requestAnimationFrame(levPintar);});
-  initEsp();initLevEditor();
+  initEsp();initLevEditor();initLevPl();
 }
 // Equipo activo → formulario (valores, fotos, croquis y espesores)
 function eqCargar(){
@@ -5539,7 +5532,7 @@ function actEq(){
     {n:'Capacidad volumétrica',pend:1,f:'= V(D, L, C.R.) · falta '+[!plOk(inp.Dcm)&&'Ø',!plOk(inp.Lmm)&&'L',!plOk(inp.CR)&&'C.R.'].filter(Boolean).join(', ')+(plOk(vr)?` · placa ${vr.toFixed(3)} m³`:''),ir:plOk(inp.Dcm)&&plOk(inp.Lmm)?IR.cr(e):null,irT:'capturar C.R.'});}
   // construcción: material (se elige en el plano, junto a su S)
   ponRes($('[data-res="mat"]',box),String(e.materialCuerpo||'').trim()?{n:'Material del cuerpo / de las tapas',cls:'vinc',v:inp.matT&&inp.matT!==inp.matC?`${inp.matC} / ${inp.matT}`:inp.matC,f:`Plano · Material y esfuerzo permisible · S cuerpo = ${fS(inp.Sc)} · S tapas = ${fS(inp.St)} kg/cm²`,ir:IR.mat(e),irT:'editar en el plano'}:{n:'Material del cuerpo / de las tapas',cls:'vinc',pend:1,f:'Elige el material en el plano.',ir:IR.mat(e),irT:'editar en el plano'});
-  espActRes(e,d);actCroqPnd(e);actSecciones();
+  espActRes(e,d);actCroqPnd(e);levPlGrupos(d);actSecciones();
 }
 const ok1=v=>typeof v==='number'&&isFinite(v);
 // Estado de cada sección del equipo activo (pendientes / avisos)
@@ -5723,7 +5716,7 @@ function validar(){
     {const f=planoPend(e);if(f.length)W(`${n}: plano pendiente (falta ${f.join(' y ')}); su hoja 20 saldrá marcada PLANO PENDIENTE.`,Object.assign({sec:'croq',k:'diametroInteriorCm'},q));}
     // v6: ángulo escrito a mano en el plano (vista lateral / superior) que no coincide con donde está dibujada en la vista frontal
     if(window.FXPlano&&e.plano&&e.plano.angulos&&Object.keys(e.plano.angulos).length){try{const d=FXPlano.datos(e,{}),vl=d.inp.o==='V'?'superior':'lateral';
-      angAvisos(d).forEach(a=>W(`${n}: el ángulo de ${a.letra} (${String(LX().TIPO_UI[a.t]||a.serv).toLowerCase()}) en la vista ${vl} está escrito a mano (${a.man}°) y no coincide con la vista frontal (${a.auto==null?'ahí está en una tapa':'automático '+a.auto+'°'}).`,{paso:'plano',eq:e.id,sel:'#plGrupos',angAuto:a.t}));}catch(_){}}
+      angAvisos(d).forEach(a=>W(`${n}: el ángulo de ${a.letra} (${String(LX().TIPO_UI[a.t]||a.serv).toLowerCase()}) en la vista ${vl} está escrito a mano (${a.man}°) y no coincide con la vista frontal (${a.auto==null?'ahí está en una tapa':'automático '+a.auto+'°'}).`,Object.assign({sec:'croq',sel:`#levPlGrupos [data-pga="${a.t.replace(/["\\]/g,'\\$&')}"]`,angAuto:a.t},q)));}catch(_){}}
     orifSugeridos(e).forEach(s=>W(`${n}: las boquillas ${s.letras.join(', ')} están juntas en el croquis. ¿Van en un mismo orificio?`,Object.assign({sec:'croq',unir:s.ids,nokey:s.key,letras:s.letras},q)));
     {const m=String(e.codigoMemoriaCalculo||'').trim();if(m){if(mems[m])W(`${n}: código de memoria repetido (${m}); cada plano lleva el suyo.`,Object.assign({sec:'doc',k:'codigoMemoriaCalculo'},q));mems[m]=1;}}
     // memoria de cálculo incompleta: no impide generar, pero lo que falta queda en blanco en el plano
@@ -5753,14 +5746,12 @@ function actFaltas(){if(!D)return;ULT=validar();}
 // ---------- ir a un campo: paso → equipo → sección → campo (con destello) ----------
 function irA(x){
   if(!x)return;
-  if(x.eq&&x.eq!==eqActivo&&D.equipos.some(e=>e.id===x.eq)){eqActivo=x.eq;try{localStorage.setItem('fenixmex-eq',x.eq);}catch(_){}LEV_SEL=null;plSel=null;}
+  if(x.eq&&x.eq!==eqActivo&&D.equipos.some(e=>e.id===x.eq)){eqActivo=x.eq;try{localStorage.setItem('fenixmex-eq',x.eq);}catch(_){}LEV_SEL=null;}
   const paso=x.paso||(x.sec?'equipos':pasoAct);
   if(paso!==pasoAct)mostrarPaso(paso,{sinScroll:true});else if(paso==='equipos')eqPintar();else if(paso==='plano')plPintar();
   let t=null;
   if(paso==='equipos'){
     const s=x.sec&&$(`#eqForm .bloque[data-sec="${x.sec}"]`);if(s&&s.classList.contains('cerrado')){s.classList.remove('cerrado');$('.bloque-cab',s).setAttribute('aria-expanded','true');ESTADO_SEC[x.sec]=false;if(x.sec==='croq')requestAnimationFrame(levPintar);}
-    // v12 · «Editar en Equipos» desde el plano: esa boquilla queda seleccionada en el croquis (lista y dibujo)
-    if(x.bq&&LEV&&LEV.boquillas.some(b=>b.id===x.bq))levSel(x.bq,true);
     if(x.sel)t=$(x.sel);
     else if(x.esp)t=$(`#eqEsp [data-col="${x.esp}"] [data-base]`);
     else if(x.croq)t=$('#pndCroq');
@@ -5835,7 +5826,7 @@ function revRender(){
     $$('[data-unir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.unir],true)));
     $$('[data-nounir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.nounir],false)));
     $$('[data-angauto]',box).forEach(b=>b.addEventListener('click',()=>{const x=warn[+b.dataset.angauto],e=x&&D.equipos.find(q=>q.id===x.eq);if(!e)return;   // v6
-      angVolverAuto(e,x.angAuto);plSucio=true;refrescar();revRender();toast('Ángulo automático: sale de la vista frontal.');}));}
+      angVolverAuto(e,x.angAuto);plSucio=true;if(e.id===eqActivo&&pasoAct==='equipos')actEq();refrescar();revRender();toast('Ángulo automático: sale de la vista frontal.');}));}
 }
 function eqNom(id){const e=D.equipos.find(x=>x.id===id);return e?`Equipo ${D.equipos.indexOf(e)+1}${e.tag?' ('+e.tag+')':''}`:'';}
 // ---------- Personas › Dibujó: un nombre por plano (equipo), todos en el mismo bloque ----------
@@ -5864,8 +5855,9 @@ function camposIndice(){
     for(const s of secs)for(const it of s.items){if(typeof it[1]!=='string')continue;const k=it[0];out.push({t:it[1],d:`${q} › ${s.t}`,v:k==='codigoMemoriaCalculo'?e[k]:e[k],x:{paso:'equipos',eq:e.id,sec:s.id,k}});}
     for(const [k,t] of [['diametroInteriorCm','Ø interior'],['longitudMm','Longitud soldadura–soldadura'],['profundidadTapaMm','Profundidad de tapa'],['cejaRectaMm','Ceja recta (C.R.)']])out.push({t,d:`${q} › Croquis y boquillas`,v:k==='cejaRectaMm'?e.plano&&e.plano.cejaRectaMm:e[k],x:{paso:'equipos',eq:e.id,sec:'croq',k}});
     out.push({t:'Espesores (16 puntos por columna)',d:`${q} › Espesores`,v:(e.espEnv||[]).filter(Boolean).length+'/16',x:{paso:'equipos',eq:e.id,sec:'esp',esp:'espEnv'}});
-    for(const [sel,t] of [['#pl_mc','Material del cuerpo'],['#pl_mt','Material de las tapas'],['#pl_fs','Factor de seguridad'],['#pl_e','Eficiencia de soldadura E'],['#pl_fab','Fabricante'],['#pl_nb','National Board'],['#pl_cod','Código de fabricación'],['#pl_fec','Fecha del plano'],['#pl_con','Conexión por omisión']]){
+    for(const [sel,t] of [['#pl_mc','Material del cuerpo'],['#pl_mt','Material de las tapas'],['#pl_fs','Factor de seguridad'],['#pl_e','Eficiencia de soldadura E'],['#pl_fab','Fabricante'],['#pl_nb','National Board'],['#pl_cod','Código de fabricación'],['#pl_fec','Fecha del plano']]){
       const k=($(sel)&&($(sel).dataset.pl||$(sel).dataset.pe));const v=k?(e.plano&&e.plano[k]!=null?e.plano[k]:e[k]):'';out.push({t,d:`${q} › Plano`,v,x:{paso:'plano',eq:e.id,sel}});}
+    out.push({t:'Conexión por omisión (boquillas)',d:`${q} › Croquis y boquillas`,v:e.plano&&e.plano.tipoConexion,x:{paso:'equipos',eq:e.id,sec:'croq',sel:'#lv_con'}});
     out.push({t:'Dibujó',d:`${q} › Personas › Dibujó`,v:e.plano&&e.plano.dibujo,x:{paso:'personas',sel:`[data-dib="${e.id}"]`}});});
   return out;
 }
@@ -6450,8 +6442,40 @@ function levRenderBq(){
     <div class="lev-bq-acc"><button type="button" class="btn chico fantasma" data-ba="up" title="Subir (cambia la letra)" aria-label="Subir ${l}"${i?'':' disabled'}>↑</button><button type="button" class="btn chico fantasma" data-ba="down" title="Bajar (cambia la letra)" aria-label="Bajar ${l}"${i<LEV.boquillas.length-1?'':' disabled'}>↓</button><button type="button" class="btn chico fantasma peligro" data-ba="del" title="Quitar" aria-label="Quitar ${l}">✕</button></div>${orifHTML(b,l)}</li>`;}).join('');
   levEditor();
 }
+// v13 · datos del plano por tipo de boquilla (antes en Plano › Boquillas): conexión (plano.conexiones; vacío → plano.tipoConexion / COPLE) y
+// ángulo en la vista lateral / superior (plano.angulos; vacío → automático desde la vista frontal). Misma letra y agrupación que el plano.
+function levPlGrupos(d){
+  const tb=$('#levPlGrupos');if(!tb)return;
+  const G_=FXP().grupos(d),def=String(d.pl.tipoConexion||'').trim()||'COPLE',o=d.inp.o,avs=new Map(angAvisos(d,G_).map(a=>[a.t,a]));
+  {const vl=$('#levPl [data-lpvista]');if(vl)vl.textContent=o==='V'?'superior':'lateral';}
+  // lo que tiene el foco se conserva al repintar (mismo campo y cursor)
+  const f=document.activeElement,fk=f&&tb.contains(f)&&(f.dataset.pgc!=null?['pgc',f.dataset.pgc]:f.dataset.pga!=null?['pga',f.dataset.pga]:null),cur=fk?[f.selectionStart,f.selectionEnd]:null;
+  if(!G_.length){tb.innerHTML='<tbody><tr><td class="vacio">Sin boquillas: agrégalas arriba.</td></tr></tbody>';return;}
+  // v5: en un orificio con varias piezas el ángulo es del orificio: lo pone el tipo de su 1.ª pieza (los demás lo siguen)
+  const guia=new Map();for(const [,a] of LX().orificios(d.boq)){const reps=G_.filter(g=>a.includes(g.b));if(reps.length<2)continue;const g1=reps.find(g=>g.b===a[0])||reps[0];reps.forEach(g=>{if(g!==g1)guia.set(g.t,g1);});}
+  const con=g=>`<td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>`;
+  tb.innerHTML=`<thead><tr><th>Letra</th><th>Servicio</th><th>Conexión</th><th>Ángulo ${o==='V'?'superior':'lateral'}</th></tr></thead><tbody>${G_.map(g=>{
+    const dft=g.angAuto,gi=guia.get(g.t),av=avs.get(g.t),cab=`<tr data-t="${esc(g.t)}"><td><button type="button" class="lev-letra" data-lpsel title="Ubicar ${g.letra} en el croquis">${g.letra}</button></td><td>${esc(g.serv)}${g.n>1?` <small>×${g.n}</small>`:''}</td>${con(g)}`;
+    if(gi)return cab+`<td class="vinc" title="Va en el mismo orificio que ${esc(gi.serv)}: usa su ángulo">= orificio de ${gi.letra}</td></tr>`;
+    return cab+`<td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)} en la vista ${o==='V'?'superior':'lateral'} (0° a la derecha, sentido antihorario)" title="Vacío = automático (${dft==null?'centro de la tapa':dft+'°'}, según la vista frontal). 0° a la derecha, 90° arriba, 180° a la izquierda, 270° abajo"><span class="u">°</span></div>${av?`<div class="pl-ang-av" title="El ángulo escrito no coincide con donde está dibujada en la vista frontal">⚠ frontal: ${av.auto==null?'tapa':av.auto+'°'} <button type="button" class="btn chico fantasma" data-pgauto="${esc(g.t)}" title="Volver a automático">Auto</button></div>`:''}</td></tr>`;}).join('')}</tbody>`;
+  $$('[data-mayus]',tb).forEach(mayus);levPlSel();
+  if(fk){const i=$$(`[data-${fk[0]}]`,tb).find(x=>x.dataset[fk[0]]===fk[1]);if(i){i.focus({preventScroll:true});try{i.setSelectionRange(cur[0],cur[1]);}catch(_){}}}
+}
+// tipo de la boquilla seleccionada en el croquis = renglón resaltado
+function levPlSel(){const b=LEV_SEL&&LEV&&LEV.boquillas.find(x=>x.id===LEV_SEL),t=b?LX().normTipo(b.tipo):null;$$('#levPlGrupos tr[data-t]').forEach(tr=>tr.classList.toggle('sel',tr.dataset.t===t));}
+function initLevPl(){
+  const tb=$('#levPlGrupos');if(!tb)return;
+  const eqPl=()=>{const e=eqAct();if(!e)return null;if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);return e;};
+  tb.addEventListener('input',ev=>{const e=eqPl();if(!e)return;const c=ev.target.dataset.pgc,a=ev.target.dataset.pga;
+    if(c!=null){const x=ev.target.value.trim();if(x)e.plano.conexiones[c]=x.toUpperCase();else delete e.plano.conexiones[c];}
+    else if(a!=null){const x=ev.target.value.trim().replace(',','.');if(x&&!/^\d{0,3}(\.\d*)?$/.test(x))return;if(x)e.plano.angulos[a]=x;else delete e.plano.angulos[a];}
+    else return;expSucio=true;guardar();});
+  tb.addEventListener('change',ev=>{if(ev.target.matches('[data-pga]')){actEq();refrescar();}});   // aviso de la vista frontal al terminar de escribir
+  tb.addEventListener('click',ev=>{const au=ev.target.closest('[data-pgauto]');if(au){const e=eqPl();if(!e)return;angVolverAuto(e,au.dataset.pgauto);actEq();refrescar();toast('Ángulo automático: sale de la vista frontal.');return;}
+    const l=ev.target.closest('[data-lpsel]');if(!l||!LEV)return;const t=l.closest('tr').dataset.t,b=LEV.boquillas.find(x=>LX().normTipo(x.tipo)===t);if(b)levSel(b.id,true);});
+}
 function levSel(id,scroll){
-  LEV_SEL=id||null;$$('#levBqLista .lev-bq-fila').forEach(li=>li.classList.toggle('sel',li.dataset.id===LEV_SEL));levEditor();levPintar();
+  LEV_SEL=id||null;$$('#levBqLista .lev-bq-fila').forEach(li=>li.classList.toggle('sel',li.dataset.id===LEV_SEL));levPlSel();levEditor();levPintar();
   if(scroll&&LEV_SEL)levVerFila(LEV_SEL);
 }
 function levPuntoSVG(svg,ev){const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
@@ -6808,7 +6832,7 @@ async function importarLevantamientos(lista,destino){
     renumerar();   // v8: nombre y TAG por tipo según el lugar de cada equipo
     D.equipos.forEach(x=>{x._cerrado=!ok.some(r=>r.e===x);});
     montar();guardar();expSucio=false;
-    eqActivo=ok[ok.length-1].e.id;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;plSel=null;
+    eqActivo=ok[ok.length-1].e.id;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;
     mostrarPaso(destino==='plano'?'plano':'equipos');
   }
   const nums=ok.map(r=>`${D.equipos.indexOf(r.e)+1}${r.e.tag?' ('+r.e.tag+')':''}`);
@@ -6916,11 +6940,11 @@ async function importarHojaPDF(file){
   for(const x of df)conflicto({eq:x.rs?undefined:eq.id,eqNom:String(eq.tag||eq.nombre||''),campo:x.campo,usado:x.act,descartado:x.nuevo,origen,ir:irDe(x),aplicar:x.ap,aplicarEq:eq.id,imp});
   eq._cerrado=false;renumerar();
   montar();guardar();
-  eqActivo=eq.id;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;plSel=null;
+  eqActivo=eq.id;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;
   mostrarPaso('equipos');
   const n=D.equipos.indexOf(eq)+1;
   toastAcc(`Hoja de campo importada → equipo ${n}${eq.tag?' ('+eq.tag+')':''}: ${ll.length} dato${ll.length===1?'':'s'} llenado${ll.length===1?'':'s'}${df.length?`; ${df.length} diferencia${df.length>1?'s':''} en Revisión`:''}.`,'Deshacer',()=>{
-    D=JSON.parse(antes);eqActivo=eqAntes;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;plSel=null;montar();guardar();toast('Importación del PDF deshecha: el expediente quedó como estaba.');},15000);
+    D=JSON.parse(antes);eqActivo=eqAntes;try{localStorage.setItem('fenixmex-eq',eqActivo);}catch(_){}LEV_SEL=null;montar();guardar();toast('Importación del PDF deshecha: el expediente quedó como estaba.');},15000);
 }
 // Revisión: «Usar el del PDF» (una diferencia) o «Usar todo lo del PDF» (las de una importación)
 function confAplicar(lista){
@@ -6937,7 +6961,7 @@ function confAplicar(lista){
 
 // ---------- PLANO ----------
 const FXP=()=>window.FXPlano;
-let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true,plSel=null,plSelBq=null,expSucio=false,plDim={};
+let plActivo=null,plT=null,plFontsC=null,plMx=null,plSucio=true,expSucio=false,plDim={};
 function plFonts(){if(!plFontsC){const A=window.FX_ASSETS;plFontsC={R:b64(A.fonts.R),B:b64(A.fonts.B)};}return plFontsC;}
 function plMetricas(){if(!plMx)plMx=FXP().metricas(plFonts());return plMx;}
 function plCtx(){return {razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),firmante:String(G.firmanteIzquierdoNombre||'').trim(),cedula:String(G.firmanteIzquierdoCedula||'').trim()};}
@@ -6963,15 +6987,6 @@ function plLevDe(e,crear){
   const o=e.plano&&e.plano.orientacion==='V'?'V':'H';
   e.levantamiento={schema:LX().SCHEMA,version:LX().VERSION,origen:'plano',orientacion:o,dimensiones:{},metadata:{},boquillas:[],espesores:{}};return e.levantamiento;
 }
-// Estado de FXLev armado desde el equipo (ids b0, b1… = índice en e.levantamiento.boquillas)
-function plL(e,d){
-  const X=LX(),L=X.nuevo(),i=d.inp;L.orientacion=i.o;
-  L.dimensiones.diametroInteriorCm=plOk(i.Dcm)?String(i.Dcm):'';L.dimensiones.longitudMm=plOk(i.Lmm)?String(i.Lmm):'';L.dimensiones.profundidadTapaMm=plOk(i.Tapmm)?String(i.Tapmm):'';
-  const lv=plLevDe(e,false);
-  L.boquillas=((lv&&lv.boquillas)||[]).map((b,k)=>Object.assign({id:'b'+k,k,tipo:X.normTipo(b.tipo),diametroPulgadas:X.parsePulg(b.diametroPulgadas)>0?X.parsePulg(b.diametroPulgadas):null,cara:X.CARAS.includes(b.cara)?b.cara:'frente',pos:{u:+(b.pos&&b.pos.u)||0,v:+(b.pos&&b.pos.v)||0}},X.orifJSON(b))).filter(b=>b.tipo);
-  return L;
-}
-function plReletrar(lv){lv.boquillas.forEach((b,i)=>b.letra=LX().letra(i));}
 // v3: valor de un select; si el valor guardado no está en la lista (archivo anterior) se agrega como opción marcada «fuera de la lista»
 function plSelVal(s,v){
   v=String(v??'');$$('option[data-legado]',s).forEach(o=>{if(o.value!==v)o.remove();});
@@ -7032,23 +7047,7 @@ function plMemoria(d){
   const tg=$('#plMemTag');tg.textContent=d.faltan.length?`${d.faltan.length} pendiente${d.faltan.length>1?'s':''}`:'Completa';tg.dataset.s=d.faltan.length?'err':'ok';
 }
 
-// ----- boquillas: croquis del plano (SOLO VISTA, agrupado por tipo) + tabla de grupos -----
-// v12: una sola fuente = Equipos › Croquis y boquillas (posición, cara, Ø, cantidad, tipo y piezas por orificio). Aquí no se mueve nada:
-// el dibujo se arma cada vez desde el equipo, con su C.R., y tocar una boquilla solo resalta su tipo y ofrece «Editar en Equipos».
-function plCroquis(d){
-  const svg=$('#plCroquis');if(!svg)return;const e=d.e,L=plL(e,d),cr=plOk(d.inp.CR)&&d.inp.CR>0?d.inp.CR:0;
-  const lay=LX().croquis(L,{hit:true,agrupar:true,cad:true,cr});
-  {const b=lay.bb,P=10,x=Math.min(0,b.x0-P),y=Math.min(0,b.y0-P),w=Math.max(lay.W,b.x1+P)-x,h=Math.max(lay.H,b.y1+P)-y;   // v5: la caja crece si los globos salen del lienzo
-    svg.setAttribute('viewBox',`${x.toFixed(1)} ${y.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);}svg.dataset.o=L.orientacion;
-  const sel=plSel&&L.boquillas.find(b=>b.tipo===plSel);
-  svg.innerHTML=LX().svg(lay,sel?sel.id:null);
-  const ir=$('#plCroqIr');if(!ir)return;
-  if(!sel){ir.innerHTML=L.boquillas.length?'Solo vista: toca una boquilla para resaltar su tipo.':'';return;}
-  const q=plSelBq!=null&&L.boquillas.find(b=>b.k===plSelBq&&b.tipo===plSel)||sel,n=L.boquillas.filter(b=>b.tipo===plSel).length,g=LX().grupos(L.boquillas);
-  ir.innerHTML=`<span><b>${esc(g.letraDe[plSel]||'')}</b> · ${esc(LX().TIPO_UI[plSel]||plSel)}${n>1?` (${n})`:''}</span><button type="button" class="btn mini" data-pleq="${q.k}">Editar en Equipos ›</button>`;
-}
-// lleva a Equipos › Croquis y boquillas con la boquilla k (índice en e.levantamiento.boquillas) seleccionada
-function plEditarEnEquipos(k){const e=plEq();if(!e)return;const lv=plLevDe(e,false),b=lv&&lv.boquillas[k];irA({paso:'equipos',eq:e.id,sec:'croq',bq:b&&b.id,sel:'#levCroquis'});}
+// ----- boquillas: se capturan solo en Equipos › Croquis y boquillas; ahí van también la conexión y el ángulo de cada tipo (levPlGrupos) -----
 // v6 · ángulos escritos a mano en el plano que no coinciden con la vista frontal (más de ANG_TOL°): Revisión y la tabla lo avisan.
 // Los que siguen a otra pieza de su orificio no cuentan (usan el ángulo del orificio). auto = null: en la frontal está en una tapa.
 const ANG_TOL=10;
@@ -7060,21 +7059,6 @@ function angAvisos(d,G_){
 }
 // vuelve al ángulo automático (borra el escrito a mano en el plano)
 function angVolverAuto(e,t){if(!e||!e.plano||!e.plano.angulos)return;delete e.plano.angulos[t];expSucio=true;guardar();}
-function plGrupos(d){
-  const G_=FXP().grupos(d),tb=$('#plGrupos'),def=String(d.pl.tipoConexion||'').trim()||'COPLE',o=d.inp.o,avs=new Map(angAvisos(d,G_).map(a=>[a.t,a]));
-  if(!G_.length){tb.innerHTML='<tbody><tr><td class="vacio">Sin boquillas. Importa el levantamiento o agrégalas abajo.</td></tr></tbody>';return;}
-  // v5: en un orificio con varias piezas el ángulo es del orificio: lo pone el tipo de su 1.ª pieza (los demás lo siguen)
-  const guia=new Map();for(const [,a] of LX().orificios(d.boq)){const reps=G_.filter(g=>a.includes(g.b));if(reps.length<2)continue;const g1=reps.find(g=>g.b===a[0])||reps[0];reps.forEach(g=>{if(g!==g1)guia.set(g.t,g1);});}
-  tb.innerHTML=`<thead><tr><th>Letra</th><th>Servicio</th><th>Cant.</th><th>Ø mm</th><th>Tipo (conexión)</th><th>Ángulo en vista ${o==='V'?'superior':'lateral'}</th></tr></thead><tbody>${G_.map(g=>{
-    const dft=g.angAuto,gi=guia.get(g.t),av=avs.get(g.t);   // v6: el automático sale de donde está dibujada en la vista frontal
-    if(gi)return `<tr data-t="${esc(g.t)}"${g.t===plSel?' class="sel"':''}><td><button type="button" class="lev-letra" data-pgs>${g.letra}</button></td><td>${esc(g.serv)}</td><td class="n">${g.n}</td><td class="n vinc">${g.porD.map(([mm])=>mm).join(' · ')}</td>
-      <td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>
-      <td class="vinc" title="Va en el mismo orificio que ${esc(gi.serv)}: usa su ángulo">= orificio de ${gi.letra}</td></tr>`;
-    return `<tr data-t="${esc(g.t)}"${g.t===plSel?' class="sel"':''}><td><button type="button" class="lev-letra" data-pgs>${g.letra}</button></td><td>${esc(g.serv)}</td><td class="n">${g.n}</td><td class="n vinc">${g.porD.map(([mm])=>mm).join(' · ')}</td>
-      <td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>
-      <td><div class="caja"><input data-pga="${esc(g.t)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.t]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.serv)} (0° a la derecha, sentido antihorario)" title="Vacío = automático (${dft==null?'centro de la tapa':dft+'°'}, según la vista frontal). 0° a la derecha, 90° arriba, 180° a la izquierda, 270° abajo"><span class="u">°</span></div>${av?`<div class="pl-ang-av" title="El ángulo escrito no coincide con donde está dibujada en la vista frontal">⚠ frontal: ${av.auto==null?'tapa':av.auto+'°'} <button type="button" class="btn chico fantasma" data-pgauto="${esc(g.t)}">Auto</button></div>`:''}</td></tr>`;}).join('')}</tbody>`;
-  $$('[data-mayus]',tb).forEach(mayus);
-}
 // ----- croquis de ubicación (vista previa interactiva) -----
 function plUbicDim(e,cb){
   const key='e:'+e.id+':ubicPlano',bytes=IMG[key];if(!bytes)return null;
@@ -7316,7 +7300,7 @@ function plPendientes(d){
 }
 function plActualizar(conHoja){
   const d=plDatos();if(!d)return;
-  plAyudas(d);plCalc(d);plCrRef(d);plPendientes(d);plMemoria(d);plCampos();plCroquis(d);plGrupos(d);plUbic(d);
+  plAyudas(d);plCalc(d);plCrRef(d);plPendientes(d);plMemoria(d);plCampos();plUbic(d);
   {const g=planoPend(d.e),lv=d.e.levantamiento;plEstado(g.length?'Plano pendiente: falta '+g.join(' y '):d.faltan.length?`${d.faltan.length} dato${d.faltan.length>1?'s':''} pendiente${d.faltan.length>1?'s':''}`:'Memoria completa',g.length||d.faltan.length?'warn':'ok');}
   clearTimeout(plT);if(conHoja)plHoja(d);else plT=setTimeout(()=>plHoja(plDatos()),220);
 }
@@ -7339,20 +7323,6 @@ function initPlano(){
   $('#pl_fab').addEventListener('blur',()=>{const e=plEq();if(e&&!String(e.plano.fabricante||'').trim())$('#pl_fab').value=String(e.marca||'').trim();});
   // vista previa: hoja del plano o memoria completa (como se imprime)
   $$('[data-prev]',v).forEach(b=>b.addEventListener('click',()=>{const m=b.dataset.prev==='mem';$$('[data-prev]',v).forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#plHoja').classList.toggle('oculto',m);$('#plMem').classList.toggle('oculto',!m);}));
-  // tabla de grupos: conexión y ángulo por tipo; letra = resaltar
-  const tb=$('#plGrupos');
-  tb.addEventListener('input',ev=>{const e=plEq();if(!e)return;const c=ev.target.dataset.pgc,a=ev.target.dataset.pga;
-    if(c!=null){const x=ev.target.value.trim();if(x)e.plano.conexiones[c]=x.toUpperCase();else delete e.plano.conexiones[c];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}
-    if(a!=null){let x=ev.target.value.trim().replace(',','.');if(x&&!/^\d{0,3}(\.\d*)?$/.test(x))return;if(x)e.plano.angulos[a]=x;else delete e.plano.angulos[a];guardar();clearTimeout(plT);plT=setTimeout(()=>plHoja(plDatos()),220);}});
-  tb.addEventListener('click',ev=>{const au=ev.target.closest('[data-pgauto]');if(au){const e=plEq();if(!e)return;angVolverAuto(e,au.dataset.pgauto);plActualizar(true);toast('Ángulo automático: sale de la vista frontal.');return;}
-    const b=ev.target.closest('[data-pgs]');if(!b)return;const t=b.closest('tr').dataset.t;plSel=plSel===t?null:t;plSelBq=null;const d=plDatos();plCroquis(d);plGrupos(d);});
-  // croquis del plano: SOLO VISTA (v12). Un toque (clic) resalta el tipo; nada se arrastra ni se mueve aquí: se edita en Equipos › Croquis y boquillas.
-  const svg=$('#plCroquis');
-  svg.addEventListener('click',ev=>{const t=ev.target.closest('[data-bq]'),e=plEq();if(!e)return;
-    if(!t){if(plSel){plSel=null;plSelBq=null;const d=plDatos();plCroquis(d);plGrupos(d);}return;}
-    const d=plDatos(),q=plL(e,d).boquillas.find(x=>x.id===t.dataset.bq);if(!q)return;
-    if(plSel===q.tipo&&plSelBq===q.k){plSel=null;plSelBq=null;}else{plSel=q.tipo;plSelBq=q.k;}plCroquis(d);plGrupos(d);});
-  $('#plCroqIr').addEventListener('click',ev=>{const b=ev.target.closest('[data-pleq]');if(b)plEditarEnEquipos(+b.dataset.pleq);});
   // croquis de ubicación: tocar = punta de la flecha (imagen) o posición del equipo (esquema)
   const us=$('#plUbic');
   const ubicar=ev=>{const e=plEq();if(!e||!plUbicArea)return;const p=levPuntoSVG(us,ev),A=plUbicArea,fx=Math.max(0,Math.min(1,(p.x-A.x)/A.w)),fy=Math.max(0,Math.min(1,(p.y-A.y)/A.h));
