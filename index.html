@@ -1157,12 +1157,12 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <div class="persona" id="per-rep"><div class="persona-cab"><span class="av">RL</span><div><h3>Representante legal</h3><p>Firma la constancia DC-3 (hoja 96) y los dictámenes categoría II.</p></div></div>
           <div class="grid"><div class="campo ancho" data-campo="representanteLegalNombre"><label for="d_rep">Nombre completo <span class="req">*</span></label><div class="caja"><input id="d_rep" data-d="representanteLegalNombre" data-mayus autocomplete="off"></div></div></div>
           <div class="img firma" data-img="d:representanteLegalFirma" data-label="Firma del representante legal" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
-        <div class="persona" id="per-t1"><div class="persona-cab"><span class="av">T1</span><div><h3>Testigo 1 · revisó y aprobó</h3><p>Revisa y aprueba listas y registros (hojas 23, 44, 62–68) y es el trabajador de la constancia DC-3 (hoja 96).</p></div></div>
-          <div class="grid"><div class="campo ancho" data-campo="testigo1Nombre"><label for="d_t1">Nombre completo <span class="req">*</span></label><div class="caja"><input id="d_t1" data-d="testigo1Nombre" data-mayus autocomplete="off"></div></div>
-            <div class="campo ancho" data-campo="testigo1Curp"><label for="d_t1c">CURP <span class="req">*</span><span class="contador-car" id="curpCnt">0/18</span></label><div class="caja"><input id="d_t1c" data-d="testigo1Curp" data-mayus maxlength="18" autocomplete="off" spellcheck="false"></div><div class="ayuda">18 caracteres · hoja 96.</div></div></div>
+        <div class="persona" id="per-t1"><div class="persona-cab"><span class="av">T1</span><div><h3>Testigo 1 · revisó y aprobó</h3><p>Revisa y aprueba listas y registros (hojas 23, 44, 62–68) y firma la constancia DC-3 (hoja 96) como representante de los trabajadores.</p></div></div>
+          <div class="grid"><div class="campo ancho" data-campo="testigo1Nombre"><label for="d_t1">Nombre completo <span class="req">*</span></label><div class="caja"><input id="d_t1" data-d="testigo1Nombre" data-mayus autocomplete="off"></div></div></div>
           <div class="img firma" data-img="d:testigo1Firma" data-label="Firma del testigo 1" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
-        <div class="persona" id="per-t2"><div class="persona-cab"><span class="av">T2</span><div><h3>Testigo 2 · elaboró</h3><p>Elaboró los programas y bitácoras (hojas 14–18, 23, 44–48, 102 y 106).</p></div></div>
-          <div class="grid"><div class="campo ancho" data-campo="testigo2Nombre"><label for="d_t2">Nombre completo <span class="req">*</span></label><div class="caja"><input id="d_t2" data-d="testigo2Nombre" data-mayus autocomplete="off"></div></div></div>
+        <div class="persona" id="per-t2"><div class="persona-cab"><span class="av">T2</span><div><h3>Testigo 2 · elaboró</h3><p>Elaboró los programas y bitácoras (hojas 14–18, 23, 44–48, 102 y 106) y es el trabajador de la constancia DC-3 (hoja 96).</p></div></div>
+          <div class="grid"><div class="campo ancho" data-campo="testigo2Nombre"><label for="d_t2">Nombre completo <span class="req">*</span></label><div class="caja"><input id="d_t2" data-d="testigo2Nombre" data-mayus autocomplete="off"></div></div>
+            <div class="campo ancho" data-campo="testigo2Curp"><label for="d_t2c">CURP <span class="req">*</span><span class="contador-car" id="curpCnt">0/18</span></label><div class="caja"><input id="d_t2c" data-d="testigo2Curp" data-mayus maxlength="18" autocomplete="off" spellcheck="false"></div><div class="ayuda">18 caracteres · hoja 96</div></div></div>
           <div class="img firma" data-img="d:testigo2Firma" data-label="Firma del testigo 2" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
       </div>
       <h3 class="cab-t" style="margin:22px 0 10px">De FenixMex <span class="tag nube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/></svg>En la nube · compartido con el equipo</span></h3>
@@ -1558,7 +1558,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return {
       rs: razonSocial(st), rsp: razonSocial(st), rfc: String(st.rfcEmpresa || '').replace(/\s+/g, '').slice(0, 12),
       dom: st.domicilio || '', rep: st.representanteLegalNombre || '',
-      t1: st.testigo1Nombre || '', t1curp: st.testigo1Curp || '', t2: st.testigo2Nombre || '',
+      t1: st.testigo1Nombre || '', t2: st.testigo2Nombre || '', t2curp: st.testigo2Curp || '',   // v12: la CURP es del testigo 2 (trabajador de la DC-3)
       fi: st.firmanteIzquierdoNombre || '', fiCed: st.firmanteIzquierdoCedula || '', fiT: titleCase(st.firmanteIzquierdoNombre || ''),
       pnd1n: st.pnd1Nombre || '', pnd2n: st.pnd2Nombre || '',
       g: dates(maxF)
@@ -2095,7 +2095,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       const chars = String(str || '').toUpperCase().replace(/\s+/g, '').split('').slice(0, cells.length);
       chars.forEach((ch, i) => { const t = safeText(ch); const w = f.widthOfTextAtSize(t, s.size); page.drawText(t, { x: cells[i][0] - w / 2, y: cells[i][1], size: s.size, font: f }); });
     };
-    put(ctx.t1curp, s.curp); put(String(ctx.rfc || '').slice(0, 12), s.rfc.slice(0, 12)); // RFC: máximo 12 caracteres
+    put(ctx.t2curp, s.curp); put(String(ctx.rfc || '').slice(0, 12), s.rfc.slice(0, 12)); // RFC: máximo 12 caracteres
     // v4: periodo de ejecución, "De" y "a" con los mismos 8 dígitos AAAAMMDD
     const per = s.per; if (!per) return;
     const { rgb } = L(), fp = await kit.font(per.f), p = periodo96(ctx.g);
@@ -2333,6 +2333,32 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         `/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n${bloques.join('\n')}\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend`)));
     }
   }
+  // v12 · hojas 96 y 98: el encabezado de la empresa trae la palabra pegada (96: «LAEMPRESA»; 98: «D» + «ELAEMPRESA», fuente Type0).
+  // Se reescribe con los códigos de la misma fuente de la plantilla (el espacio, el que ya usa la hoja) y todo el renglón se recorre a la
+  // izquierda la mitad de lo que crece, para que siga centrado en su banda. [hoja, texto del operador, texto correcto]
+  const EMPRESA_FIX = [[96, /^LAEMPRESA$/, 'LA EMPRESA'], [98, /^ELAEMPRESA$/, 'E LA EMPRESA ']];
+  function encabezadoEmpresa(doc, page, rx, nuevo) {
+    let T, cod = null, dx = 0;
+    const lit = (f, cs) => f.two ? '<' + cs.map(c => c.toString(16).padStart(4, '0')).join('') + '>' : csLit(String.fromCharCode(...cs));
+    return csEditar(doc, page, (r, R) => {
+      if (T === undefined) {
+        T = R.find(q => rx.test(q.txt.trim())) || null;
+        if (T) {   // texto → códigos: primero los del propio operador, luego los de la ToUnicode de la fuente
+          const inv = new Map(), F = T.fuente, a = T.o.a;
+          const bytes = T.o.op === 'TJ' ? (a[0] || []).filter(x => x && x.s != null).map(x => x.s).join('') : (a[a.length - 1] || {}).s || '';
+          for (const c of csCodigos(F, bytes)) { const u = F.map ? F.map.get(c) : String.fromCharCode(c); if (u && !inv.has(u)) inv.set(u, c); }
+          if (F.map) for (const [c, u] of F.map) if (!inv.has(u) && F.wid(c) > 0) inv.set(u, c);
+          cod = [...nuevo].map(ch => F.map ? inv.get(ch) : ch.charCodeAt(0));
+          if (cod.some(c => c == null)) T = null;
+          else dx = cod.reduce((w, c) => w + (F.wid(c) * T.fs + T.Tc + (!F.two && c === 32 ? T.Tw : 0)) * T.Th, 0) / 2 - T.adv / 2;
+        }
+      }
+      if (!T || r.font !== T.font || Math.abs(r.y - T.y) > 0.5 || r.x < T.x - 80 || r.x > T.x + 1 || !/^T[jJ]$/.test(r.o.op)) return null;
+      const k = (dx * 1000 / (r.fs * r.Th)).toFixed(3);
+      const ops = r === T ? lit(r.fuente, cod) : r.o.op === 'TJ' ? r.src.replace(/^\[/, '').replace(/\]\s*TJ$/, '') : r.src.replace(/Tj$/, '');
+      return `[${k} ${ops}]TJ`;
+    });
+  }
   const tapas73 = new WeakMap();   // doc → posiciones de las etiquetas TAPA … de la hoja 73 (se escriben por equipo según su orientación)
 
   function templateFixes(doc, orig, map) {
@@ -2363,8 +2389,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       return /^Cambio de válvula$/.test(r.txt.trim()) && a && /^NINGUNA$/i.test(a.txt.trim()) ? '<0031002C0031002A003800310024>Tj' : null; });   // NINGUNA (Times de la plantilla)
     // Hoja 14: erratas de la plantilla (misma fuente, recentrado en su celda)
     if (orig[13]) csEditar(doc, orig[13], r => { const s = r.txt.replace('vualvula', 'válvula').replace('manometro', 'manómetro'); return s !== r.txt ? csCentrado(r, s) : null; });
-    // Hoja 96: «DATOS DE LAEMPRESA» → «DATOS DE LA EMPRESA»
-    if (orig[95]) csEditar(doc, orig[95], r => r.txt === 'LAEMPRESA' ? `[${csLit('LA EMPRESA')}]TJ` : null);
+    // Hojas 96 y 98: «DATOS DE LAEMPRESA» / «DATOS DELAEMPRESA» → «DATOS DE LA EMPRESA»
+    for (const [p, rx, t] of EMPRESA_FIX) if (orig[p - 1]) encabezadoEmpresa(doc, orig[p - 1], rx, t);
     // Hoja 73: TAPA SUPERIOR / TAPA INFERIOR de la plantilla se quitan; cada equipo las escribe según su orientación (H: izquierda / derecha)
     if (orig[72]) { const pos = []; csEditar(doc, orig[72], r => { const m = /^TAPA (SUPERIOR|INFERIOR)$/.exec(r.txt.trim()); if (!m) return null; pos[m[1] === 'SUPERIOR' ? 0 : 1] = r; return csNada(r); });
       if (pos[0] && pos[1]) tapas73.set(doc, pos.map(r => ({ x: r.x, y: r.y, font: r.font, fs: r.fs }))); }
@@ -2496,6 +2522,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     for (let n = 0; n < seq.length; n++) {
       const it = seq[n], page = pages[n], tp = it.tp;
       const ctx = Object.assign({}, base, { e: it.e ? equipoCtx(it.e, it.i) : {}, d: it.e ? dates(it.e.fechaPnd) : base.g, i: it.i || '' });
+      // v12 · hoja 96 (DC-3): arriba (DATOS DEL TRABAJADOR) va el testigo 2 con su CURP; abajo a la derecha (Representante de los
+      // trabajadores), el testigo 1 con su firma. El mapa trae {t1} arriba y {t2} + firma t2 abajo: se cruzan aquí, solo en esta hoja.
+      const rol = tp === 96 ? r => (r === 't1' ? 't2' : r === 't2' ? 't1' : r) : r => r;
+      if (tp === 96) Object.assign(ctx, { t1: base.t2, t2: base.t1 });
       if (tp === PLANO_TP) { await hojaPlano(doc, page, kit, it, ctx, A, planos); if (onProgress && n % 8 === 0) { onProgress(n / seq.length); await new Promise(r => setTimeout(r, 0)); } continue; }
       const fields = byPage[tp] || [];
       if (tp === 74 && it.e) { const k = it.e.id || it.i; if (!jit74.has(k)) jit74.set(k, esp74(it.e)); Object.assign(ctx.e, jit74.get(k)); }
@@ -2525,7 +2555,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         let bytes, key;
         if (sl.role === 'placa') { bytes = it.e && it.e.fotoPlaca; key = 'placa:' + (it.e && it.e.id); }
         else if (/^muestra[1-4]$/.test(sl.role)) { const n = +sl.role.slice(7); bytes = it.e && it.e.muestras && it.e.muestras[n - 1]; key = sl.role + ':' + (it.e && it.e.id); }
-        else { bytes = roleBytes[sl.role]; key = sl.role; }
+        else { key = rol(sl.role); bytes = roleBytes[key]; }
         const im = await img(key, bytes);
         if (im) drawFit(page, im, sl, sl.shift ? dy : 0, { white: sl.role === 'placa' || sl.role === 'fachada' || sl.role.startsWith('muestra') });
       }
@@ -4159,6 +4189,9 @@ const ROL={tq:{w:1.4},tg:{w:.6},sd:{w:.8,c:.25},dm:{w:.5,c:.35},dx:{w:.4,c:.55,d
   bqt:{w:.35},bqh:{w:.35,dash:[1.5,1]},bqe:{w:.3,dash:[4,1.1,.8,1.1]}};
 // v5 · nivel de detalle de las boquillas según el tamaño con que se imprimen: cuello ≥ DET_MIN_PT pt → detallado; más chico → simplificado
 const DET_MIN_PT=7;
+// v12 · vista lateral del plano (H): piezas de la misma cara a ≤ ANG_ALINEADO° = alineadas a lo largo del tanque (un solo dibujo, todas sus letras);
+// LAT_CHICOS = tipos que se dibujan con el tamaño fijo de la válvula de seguridad (sin acentos, como sinAc)
+const ANG_ALINEADO=3,LAT_CHICOS=new Set(['TAPON','ENTRADA DE AIRE','SALIDA DE AIRE']);
 
 // Contexto de dibujo (misma API para la hoja y para la vista previa del croquis de ubicación)
 function lienzo(Mx){
@@ -4308,7 +4341,9 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
   // dibujan lado a lado); las de las tapas, en planta (se ven sobre su eje; la tapa del fondo, en línea oculta). Un orificio con varias
   // piezas: UN cuello + te / cruz (de lado) o su planta; cada pieza con su globo. Plano: detallado si el cuello mide ≥ DET_MIN_PT; PND: simple.
   const qs=Math.max(4.2,R*.085),items=[];
-  const tam=g=>{let w=R*.2;if(g.dpulg>0&&i.Dmm>0)w=g.dpulg*25.4/i.Dmm*2*R;w=Math.max(R*.12,Math.min(R*.3,w));return {w,h:Math.max(R*.07,Math.min(R*.15,w*.5))};};
+  const tam0=g=>{let w=R*.2;if(g.dpulg>0&&i.Dmm>0)w=g.dpulg*25.4/i.Dmm*2*R;w=Math.max(R*.12,Math.min(R*.3,w));return {w,h:Math.max(R*.07,Math.min(R*.15,w*.5))};};
+  // v12 · vista lateral del plano (H): tapones y entradas / salidas de aire con un tamaño fijo, el de la válvula de seguridad (cuello mínimo)
+  const lat=H_&&!pnd,tam=g=>lat&&LAT_CHICOS.has(sinAc(g.t))?{w:R*.12,h:R*.07}:tam0(g);
   const detDe=w=>!pnd&&opt.det!==false&&w>=DET_MIN_PT,cajaB=b=>{if(b&&isFinite(b.x0))caja(b.x0-.8,b.y0-.8,b.x1+.8,b.y1+.8);};
   const proy=g=>{const u=Math.max(0,Math.min(1,+g.pos.u||.5)),v=Math.max(0,Math.min(1,+g.pos.v||.5));
     return H_?{x:cx,y:cy-(v-.5)*2*R*.7,dash:g.cara==='lado'&&u<.5}:{x:cx+(u-.5)*2*R*.7,y:cy,dash:g.cara==='abajo'};};
@@ -4325,8 +4360,29 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
       ps.forEach((x,j)=>items.push({letras:[x.pz.letra],tips:[{x:(x.c.x0+x.c.x1)/2,y:x.c.y0}],vert:1,des:top-4-j*14}));}});
   // del cuerpo: boquillas sueltas y orificios; las que caen a menos de 12° se acomodan lado a lado (un orificio ocupa su ancho completo)
   const cl=[],uds=G.filter(g=>g.ang!=null&&!cub.has(g)).map(g=>({g,a:g.ang})).concat(ensD.filter(E=>E.g1.ang!=null).map(E=>({E,g:E.g1,a:E.g1.ang})));
-  uds.sort((a,b)=>a.a-b.a).forEach(u=>{const k=cl.find(q=>Math.abs(((u.a-q.a)%360+540)%360-180)<12);if(k)k.m.push(u);else cl.push({a:u.a,m:[u]});});
-  cl.forEach(k=>{
+  const angDif=(a,b)=>Math.abs(((a-b)%360+540)%360-180);
+  // orificio: cada pieza con su propia guía; las que salen de lado, con un codo corto
+  // la que sale hacia el lado contrario a su columna sube (o baja) primero por fuera del orificio para no cruzarlo
+  // (mas: letras de las piezas alineadas detrás del orificio; van con la pieza que sale hacia afuera)
+  const orifItems=(E,gl,nx,ny,mas)=>E.ps.forEach((pz,j)=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*nx+q.dy*ny)<.7,ex=lado?q.x+q.dx*5:q.x,ey=lado?q.y+q.dy*5:q.y;
+    const izq0=ex<cx-R*.3,contra=lado&&Math.abs(q.dx)>.5&&(izq0?q.dx>0:q.dx<0),arriba=ey<cy;
+    items.push({letras:j===0&&mas?[pz.letra,...mas]:[pz.letra],tips:[{x:ex,y:ey}],pre:lado?[q.x,q.y]:null,vert:contra?1:0,des:contra?(arriba?gl.bb.y0-4:gl.bb.y1+4):undefined});});
+  if(lat){
+    // v12 · vista lateral del plano (H): cada pieza en su ángulo exacto, sin recorrerla ni apilarla para que no se encime. Las de la misma cara
+    // a ≤ ANG_ALINEADO° están una detrás de otra a lo largo del tanque: se dibuja solo la del frente (la más cercana al extremo desde donde se
+    // mira: u mayor, la tapa de u < .5 es la del fondo) y todas sus letras apuntan a ese dibujo. Más de ANG_ALINEADO°: cada una en su ángulo.
+    uds.sort((a,b)=>a.a-b.a).forEach(u=>{const k=cl.find(q=>q.cara===u.g.cara&&angDif(u.a,q.a)<=ANG_ALINEADO);if(k)k.m.push(u);else cl.push({a:u.a,cara:u.g.cara,m:[u]});});
+    cl.forEach(k=>{
+      const fr=k.m.reduce((a,u)=>(+u.g.pos.u||0)>(+a.g.pos.u||0)?u:a),t=tam(fr.g),o={det:detDe(t.w),piezas:fr.E?fr.E.ps:null};
+      const otros=k.m.filter(u=>u!==fr).sort((a,b)=>G.indexOf(a.g)-G.indexOf(b.g)).flatMap(u=>u.E?u.E.ps.map(pz=>pz.letra):[u.g.letra]);
+      const p=Pt(fr.a,R),nx=Math.cos(rad(fr.a)),ny=-Math.sin(rad(fr.a));
+      if(!lev){Rc(p.x-qs/2,p.y-qs/2,qs,qs,{lw:.9,fill:1});caja(p.x-qs/2-1,p.y-qs/2-1,p.x+qs/2+1,p.y+qs/2+1);
+        items.push({letras:(fr.E?fr.E.ps.map(pz=>pz.letra):[fr.g.letra]).concat(otros),tips:[{x:p.x+nx*qs/2,y:p.y+ny*qs/2}]});return;}
+      const gl=lev.glifo(fr.g.t,p.x,p.y,nx,ny,t.w,t.h,null,o);gl.it.forEach(pinta);cajaB(gl.bb);
+      if(fr.E)orifItems(fr.E,gl,nx,ny,otros);else items.push({letras:[fr.g.letra,...otros],tips:[{x:p.x+nx*gl.ext,y:p.y+ny*gl.ext}]});});
+  }
+  else uds.sort((a,b)=>a.a-b.a).forEach(u=>{const k=cl.find(q=>angDif(u.a,q.a)<12);if(k)k.m.push(u);else cl.push({a:u.a,m:[u]});});
+  if(!lat)cl.forEach(k=>{
     const gs=k.m.map(u=>{const t=tam(u.g),o={det:detDe(t.w),piezas:u.E?u.E.ps:null};return Object.assign(u,{t,o,hw:lev?lev.glifo(u.g.t,0,0,0,-1,t.w,t.h,null,o).hw:qs/2});});
     const gap=3,tot=gs.reduce((a,x)=>a+2*x.hw,0)+gap*(gs.length-1);let s=-tot/2;
     const sueltas=[],tips=[];
@@ -4334,11 +4390,7 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
       if(!lev){Rc(p.x-qs/2,p.y-qs/2,qs,qs,{lw:.9,fill:1});caja(p.x-qs/2-1,p.y-qs/2-1,p.x+qs/2+1,p.y+qs/2+1);sueltas.push(x.g.letra);tips.push({x:p.x+nx*qs/2,y:p.y+ny*qs/2});return;}
       const gl=lev.glifo(x.g.t,p.x,p.y,nx,ny,x.t.w,x.t.h,null,x.o);gl.it.forEach(pinta);cajaB(gl.bb);
       if(!x.E){sueltas.push(x.g.letra);tips.push({x:p.x+nx*gl.ext,y:p.y+ny*gl.ext});return;}
-      // orificio: cada pieza con su propia guía; las que salen de lado, con un codo corto
-      // la que sale hacia el lado contrario a su columna sube (o baja) primero por fuera del orificio para no cruzarlo
-      x.E.ps.forEach(pz=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*nx+q.dy*ny)<.7,ex=lado?q.x+q.dx*5:q.x,ey=lado?q.y+q.dy*5:q.y;
-        const izq0=ex<cx-R*.3,contra=lado&&Math.abs(q.dx)>.5&&(izq0?q.dx>0:q.dx<0),arriba=ey<cy;
-        items.push({letras:[pz.letra],tips:[{x:ex,y:ey}],pre:lado?[q.x,q.y]:null,vert:contra?1:0,des:contra?(arriba?gl.bb.y0-4:gl.bb.y1+4):undefined});});});
+      orifItems(x.E,gl,nx,ny);});
     if(sueltas.length)items.push({letras:sueltas,tips});});
   const cen=[];
   G.filter(g=>g.ang==null&&!cub.has(g)).forEach(g=>{const p=proy(g),t=tam(g);
@@ -4798,7 +4850,7 @@ const uid=()=>Math.random().toString(36).slice(2,10);
 function nuevoEquipo(){return Object.assign({id:uid()},JSON.parse(JSON.stringify(DEF_EQ)),{tipoEquipo:(window.FXLev&&FXLev.TIPO_EQ_DEF)||'COMPRESOR',espEnv:Array(16).fill(''),espSup:Array(16).fill(''),espInf:Array(16).fill('')});}
 // v4: un solo nombre legal; razonSocialUsuario se guarda igual (espejo) para borradores y versiones previas.
 const rsNombre=()=>String((D&&D.razonSocialPropietario)||'').trim();
-function nuevoDraft(){return {modelo:MODELO,razonSocialPropietario:'',razonSocialUsuario:'',rfcEmpresa:'',domicilio:'',representanteLegalNombre:'',testigo1Nombre:'',testigo1Curp:'',testigo2Nombre:'',tel94ProteccionCivil:'',tel94Policia:'',tel94Bomberos:'',tel94CruzRoja:'',tel94Emergencias:'911',conflictos:[],equipos:[nuevoEquipo()]};}
+function nuevoDraft(){return {modelo:MODELO,razonSocialPropietario:'',razonSocialUsuario:'',rfcEmpresa:'',domicilio:'',representanteLegalNombre:'',testigo1Nombre:'',testigo2Nombre:'',testigo2Curp:'',tel94ProteccionCivil:'',tel94Policia:'',tel94Bomberos:'',tel94CruzRoja:'',tel94Emergencias:'911',conflictos:[],equipos:[nuevoEquipo()]};}
 // v13: sin números por omisión (los de CDMX y el 066 ya no se usan); solo la Línea Única es fija (911)
 const TEL94=[['tel94ProteccionCivil','Protección Civil'],['tel94Policia','Policía'],['tel94Bomberos','Bomberos'],['tel94CruzRoja','Cruz Roja'],['tel94Emergencias','Línea Única de Emergencias','911']];
 const MUESTRAS=[1,2,3,4];
@@ -5521,14 +5573,14 @@ function initEditor(){
 function mayus(el){el.addEventListener('blur',()=>{const v=el.value.toUpperCase();if(v!==el.value){el.value=v;el.dispatchEvent(new Event('input'));}});}
 function actEncabezado(){
   const rs=rsNombre(),b=$('#topRs');$('#topRsTxt').textContent=rs||'Falta el nombre';b.classList.toggle('vacio',!rs);b.title=rs?rs+' · cambiar nombre':'Ir al nombre de la empresa';
-  $('#rfcCnt').textContent=String(D.rfcEmpresa||'').length+'/12';$('#curpCnt').textContent=String(D.testigo1Curp||'').length+'/18';
+  $('#rfcCnt').textContent=String(D.rfcEmpresa||'').length+'/12';$('#curpCnt').textContent=String(D.testigo2Curp||'').length+'/18';
 }
 function initDatos(){
   $$('[data-g]').forEach(el=>{el.value=G[el.dataset.g]||'';if(el._b)return;el._b=1;el.addEventListener('input',()=>{G[el.dataset.g]=el.value;guardar();});if(el.hasAttribute('data-mayus'))mayus(el);});
   $$('[data-d]').forEach(el=>{el.value=D[el.dataset.d]||'';if(el._b)return;el._b=1;if(el.hasAttribute('data-mayus'))mayus(el);
     el.addEventListener('input',()=>{const k=el.dataset.d;
       if(k==='rfcEmpresa'){const v=el.value.toUpperCase().replace(/[^A-ZÑ&0-9]/g,'').slice(0,12);if(v!==el.value)el.value=v;}
-      if(k==='testigo1Curp'){const v=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,18);if(v!==el.value)el.value=v;}
+      if(k==='testigo2Curp'){const v=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,18);if(v!==el.value)el.value=v;}
       D[k]=el.value;if(k==='razonSocialPropietario')D.razonSocialUsuario=el.value;   // espejo para versiones previas (el PDF lee propietario)
       actEncabezado();guardar();});});
   actEncabezado();
@@ -5923,11 +5975,11 @@ function validar(){
   const E=(m,x)=>err.push(Object.assign({m},x||{})), W=(m,x)=>warn.push(Object.assign({m},x||{}));
   [['razonSocialPropietario','Nombre legal de la empresa (razón social)','visita','#d_rsp'],['rfcEmpresa','RFC de la empresa','visita','#d_rfc'],
    ['representanteLegalNombre','Nombre del representante legal','personas','#d_rep'],['testigo1Nombre','Nombre del testigo 1','personas','#d_t1'],
-   ['testigo1Curp','CURP del testigo 1','personas','#d_t1c'],['testigo2Nombre','Nombre del testigo 2','personas','#d_t2']]
+   ['testigo2Nombre','Nombre del testigo 2','personas','#d_t2'],['testigo2Curp','CURP del testigo 2','personas','#d_t2c']]
    .forEach(([k,l,p,sel])=>{if(!String(D[k]||'').trim())E(`Falta: ${l}.`,{paso:p,sel,k});});
   if(hayII&&!String(D.domicilio||'').trim())E('Falta el domicilio (obligatorio con equipos categoría II).',{paso:'visita',sel:'#d_dom',k:'domicilio'});
   if(!G.firmanteIzquierdoNombre)E('Falta el nombre del responsable técnico (firmante izquierdo).',{paso:'personas',sel:'#g_fin',k:'firmanteIzquierdoNombre'});
-  if(D.testigo1Curp&&!/^[A-Z0-9]{18}$/.test(D.testigo1Curp))W('La CURP del testigo 1 no tiene 18 caracteres.',{paso:'personas',sel:'#d_t1c'});
+  if(D.testigo2Curp&&!/^[A-Z0-9]{18}$/.test(D.testigo2Curp))W('La CURP del testigo 2 no tiene 18 caracteres.',{paso:'personas',sel:'#d_t2c'});
   if(D.rfcEmpresa&&!/^[A-ZÑ&0-9]{12}$/.test(D.rfcEmpresa))W('El RFC de la empresa debe tener 12 caracteres.',{paso:'visita',sel:'#d_rfc'});
   [['testigo2Firma','firma del testigo 2','d:'],['testigo1Firma','firma del testigo 1','d:'],['firmanteIzquierdoFirma','firma del responsable técnico','g:'],
    ['firmaPnd1','firma PND · elaboró','g:'],['firmaPnd2','firma PND · revisó','g:'],['representanteLegalFirma','firma del representante legal','d:']]
@@ -6366,7 +6418,7 @@ function initDocs(){
 }
 function ejemplo(){
   if(!confirm('¿Reemplazar los datos actuales con el ejemplo de SERVICIO LOMAS ESTRELLA?'))return;
-  D={razonSocialPropietario:'SERVICIO LOMAS ESTRELLA, S.A. DE C.V',razonSocialUsuario:'SERVICIO LOMAS ESTRELLA, S.A. DE C.V',rfcEmpresa:'SLE020225076',domicilio:'AV. TLAHUAC NO. 4344, LOMAS ESTRELLA, Iztapalapa, 09890, Ciudad de México',representanteLegalNombre:'HERNANDEZ CASTILLO GEORGINA',testigo1Nombre:'POSADAS LOPEZ MANUEL EUSEBIO',testigo1Curp:'POLM700205HDFSPN00',testigo2Nombre:'ROBERTO GARCIA GARCIA',
+  D={razonSocialPropietario:'SERVICIO LOMAS ESTRELLA, S.A. DE C.V',razonSocialUsuario:'SERVICIO LOMAS ESTRELLA, S.A. DE C.V',rfcEmpresa:'SLE020225076',domicilio:'AV. TLAHUAC NO. 4344, LOMAS ESTRELLA, Iztapalapa, 09890, Ciudad de México',representanteLegalNombre:'HERNANDEZ CASTILLO GEORGINA',testigo1Nombre:'POSADAS LOPEZ MANUEL EUSEBIO',testigo2Nombre:'ROBERTO GARCIA GARCIA',testigo2Curp:'GAGR750312HDFRRB07',
    tel94ProteccionCivil:'',tel94Policia:'',tel94Bomberos:'',tel94CruzRoja:'',tel94Emergencias:'911',
    equipos:[Object.assign(nuevoEquipo(),{nombre:'COMPRESOR DE AIRE NO. 1',numeroSerie:'1628',tag:'COM-01',fluido:'AIRE',capacidadVolumetrica:'0.500',presionDiseno:'12.00',presionCalibracion:'10.50',presionArranque:'7.00',presionOperacion:'9.00',presionTrabajoMaxPermitida:'18.65',presionPruebaHidrostatica:'13.20',tempDiseno:'55',tempOperacion:'28',tipoDispositivoRelevo:'VALVULA DE SEGURIDAD',tipoValvula:'ARGOLLA',diametroValvulaMm:'6',numDispositivosRelevo:'1',ubicacion:'CUARTO ELECTRICO',marca:'ALANSA',anioFabricacion:'2002',fechaPnd:'2026-07-17',codigoMemoriaCalculo:'RSP-020-034-2026',espEnv:Array(16).fill('4.40'),espSup:Array(16).fill('4.30'),espInf:Array(16).fill('4.30'),
      // v13: geometría completa (Ø 60 cm · L 1500 mm · tapa 150 mm · C.R. 34 mm → 0.500 m³), así el ejemplo calcula su capacidad y genera sin pendientes
@@ -6967,8 +7019,8 @@ function levVisita(e){const lv=e.levantamiento&&typeof e.levantamiento==='object
 const IMG_EQ=['fotoPlaca','ubicPlano',...MUESTRAS.map(n=>'muestra'+n)];
 // v5 · datos de la VISITA (estación y cliente) que también viajan en el archivo: RFC, personas del cliente, teléfonos de emergencia (hoja 94),
 // foto del tríptico (hoja 91) y firmas del cliente. Las personas y firmas de FenixMex (nube, compartidas) NO van: siguen en la nube.
-const VISITA_D=[['rfcEmpresa','RFC de la empresa','#d_rfc'],['representanteLegalNombre','Representante legal','#d_rep'],['testigo1Nombre','Testigo 1','#d_t1'],['testigo1Curp','CURP del testigo 1','#d_t1c'],
-  ['testigo2Nombre','Testigo 2','#d_t2'],...TEL94.filter(([k])=>k!=='tel94Emergencias').map(([k,l])=>[k,'Emergencias · '+l,'#t-tel94'])];
+const VISITA_D=[['rfcEmpresa','RFC de la empresa','#d_rfc'],['representanteLegalNombre','Representante legal','#d_rep'],['testigo1Nombre','Testigo 1','#d_t1'],
+  ['testigo2Nombre','Testigo 2','#d_t2'],['testigo2Curp','CURP del testigo 2','#d_t2c'],...TEL94.filter(([k])=>k!=='tel94Emergencias').map(([k,l])=>[k,'Emergencias · '+l,'#t-tel94'])];
 const VISITA_IMG=[['fotoFachada','foto del tríptico'],['representanteLegalFirma','firma del representante legal'],['testigo1Firma','firma del testigo 1'],['testigo2Firma','firma del testigo 2']];
 const VISITA_IMG_K=VISITA_IMG.flatMap(([k])=>[k,k+ORIG]);   // con el original de cada firma (para volver a limpiarla)
 function isoAhora(){const d=new Date(),o=-d.getTimezoneOffset(),a=Math.abs(o);return `${d.getFullYear()}-${p2h(d.getMonth()+1)}-${p2h(d.getDate())}T${p2h(d.getHours())}:${p2h(d.getMinutes())}:${p2h(d.getSeconds())}${o>=0?'+':'-'}${p2h(Math.floor(a/60))}:${p2h(a%60)}`;}
