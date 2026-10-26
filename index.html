@@ -2096,6 +2096,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       chars.forEach((ch, i) => { const t = safeText(ch); const w = f.widthOfTextAtSize(t, s.size); page.drawText(t, { x: cells[i][0] - w / 2, y: cells[i][1], size: s.size, font: f }); });
     };
     put(ctx.t2curp, s.curp); put(String(ctx.rfc || '').slice(0, 12), s.rfc.slice(0, 12)); // RFC: máximo 12 caracteres
+    // v13: llamadas «4/» y «5/» al final de su título (templateFixes las quitó de abajo, donde va el nombre)
+    { const P = L(); for (const q of llamadas96.get(page.doc) || []) page.pushOperators(P.pushGraphicsState(), P.setFillingGrayscaleColor(0), P.beginText(), P.setFontAndSize(q.font, q.fs),
+        P.setCharacterSpacing(q.Tc), P.setCharacterSqueeze(q.Th * 100), P.setTextMatrix(1, 0, 0, 1, q.x, q.y), P.showText(P.PDFHexString.of(q.hex)), P.endText(), P.popGraphicsState()); }
     // v4: periodo de ejecución, "De" y "a" con los mismos 8 dígitos AAAAMMDD
     const per = s.per; if (!per) return;
     const { rgb } = L(), fp = await kit.font(per.f), p = periodo96(ctx.g);
@@ -2360,6 +2363,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     });
   }
   const tapas73 = new WeakMap();   // doc → posiciones de las etiquetas TAPA … de la hoja 73 (se escriben por equipo según su orientación)
+  const llamadas96 = new WeakMap();   // doc → llamadas «4/» y «5/» de la hoja 96, ya en su lugar al final de su título (las escribe specialP96)
 
   function templateFixes(doc, orig, map) {
     const t = map.spec.tplfix || {};
@@ -2391,6 +2395,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (orig[13]) csEditar(doc, orig[13], r => { const s = r.txt.replace('vualvula', 'válvula').replace('manometro', 'manómetro'); return s !== r.txt ? csCentrado(r, s) : null; });
     // Hojas 96 y 98: «DATOS DE LAEMPRESA» / «DATOS DELAEMPRESA» → «DATOS DE LA EMPRESA»
     for (const [p, rx, t] of EMPRESA_FIX) if (orig[p - 1]) encabezadoEmpresa(doc, orig[p - 1], rx, t);
+    // v13 · hoja 96 (DC-3): las llamadas «4/» (Patrón o representante legal) y «5/» (Representante de los trabajadores) de la plantilla caen
+    // un renglón abajo de su título, al inicio del nombre, y salen pegadas a él. Se quitan del flujo y specialP96 las escribe al final de su
+    // título, en el mismo renglón, como superíndice con la misma fuente, tamaño, escala y espaciado (tras el espacio final del título + 1.2 pt).
+    // Las llamadas 4/ y 5/ de las INSTRUCCIONES (notas al pie) no se tocan.
+    if (orig[95]) { const m = []; csEditar(doc, orig[95], (r, R) => { if (!/^[45]\/$/.test(r.txt.trim())) return null; const t = R[R.indexOf(r) - 1];
+        if (!t || !/(^legal|de los trabajadores)$/i.test(t.txt.trim()) || !(t.y - r.y > 4 && t.y - r.y < 12)) return null;
+        const a = r.o.a, bytes = r.o.op === 'TJ' ? (a[0] || []).filter(x => x && x.s != null).map(x => x.s).join('') : (a[a.length - 1] || {}).s || '';
+        m.push({ x: t.x + t.adv + 1.2, y: t.y + 3, font: r.font, fs: r.fs, Tc: r.Tc, Th: r.Th, hex: csCodigos(r.fuente, bytes).map(c => c.toString(16).padStart(r.fuente.two ? 4 : 2, '0')).join('') });
+        return csNada(r); });
+      if (m.length) llamadas96.set(doc, m); }
     // Hoja 73: TAPA SUPERIOR / TAPA INFERIOR de la plantilla se quitan; cada equipo las escribe según su orientación (H: izquierda / derecha)
     if (orig[72]) { const pos = []; csEditar(doc, orig[72], r => { const m = /^TAPA (SUPERIOR|INFERIOR)$/.exec(r.txt.trim()); if (!m) return null; pos[m[1] === 'SUPERIOR' ? 0 : 1] = r; return csNada(r); });
       if (pos[0] && pos[1]) tapas73.set(doc, pos.map(r => ({ x: r.x, y: r.y, font: r.font, fs: r.fs }))); }
@@ -4305,6 +4319,8 @@ function frontal(c,d,L,rx,ry,rw,rh,opt){
   for(const q of lay.items)if(q.r!=='hit')deLev(c,q,tx,ty,s,d.inp);
   return {lay,s,tx,ty,w:vw*s,h:vh*s,X:x=>tx+x*s,Y:y=>ty+y*s};
 }
+// v13 · orden de las letras en la vista frontal: sus globos de izquierda a derecha (empate: de arriba abajo) → Map letra → lugar
+function ordenFrontal(F){const m=new Map();if(F&&F.lay)F.lay.items.filter(q=>q.k==='t'&&q.r==='bgt').sort((a,b)=>(a.x-b.x)||(a.y-b.y)).forEach(q=>{if(!m.has(q.s))m.set(q.s,m.size);});return m;}
 // Vista lateral (H, mirando desde el extremo) / superior (V, desde arriba) con centro (cx,cy) y radio R.
 // Ángulos: 0° a la derecha, sentido antihorario (90° arriba, 180° izquierda, 270° abajo).
 // H: patas cerradas (lado exterior curvo, interior recto) que salen del círculo hacia ~225° y ~315° y asientan sobre piso punteado;
@@ -4361,25 +4377,48 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
   // del cuerpo: boquillas sueltas y orificios; las que caen a menos de 12° se acomodan lado a lado (un orificio ocupa su ancho completo)
   const cl=[],uds=G.filter(g=>g.ang!=null&&!cub.has(g)).map(g=>({g,a:g.ang})).concat(ensD.filter(E=>E.g1.ang!=null).map(E=>({E,g:E.g1,a:E.g1.ang})));
   const angDif=(a,b)=>Math.abs(((a-b)%360+540)%360-180);
+  // v13 · letras de un grupo alineado en el orden de la vista frontal (opt.orden: letra → lugar de su globo, de izquierda a derecha; sin él, el
+  // de G). Los globos de esas filas (fr) se leen de izquierda a derecha en ese orden también en la columna izquierda.
+  const ordF=opt.orden instanceof Map?opt.orden:new Map(),rk=l=>ordF.has(l)?ordF.get(l):1e4+G.findIndex(g=>g.letra===l),porF=(a,b)=>rk(a)-rk(b);
+  const letrasDe=u=>u.E?u.E.ps.map(pz=>pz.letra):[u.g.letra];
   // orificio: cada pieza con su propia guía; las que salen de lado, con un codo corto
   // la que sale hacia el lado contrario a su columna sube (o baja) primero por fuera del orificio para no cruzarlo
   // (mas: letras de las piezas alineadas detrás del orificio; van con la pieza que sale hacia afuera)
   const orifItems=(E,gl,nx,ny,mas)=>E.ps.forEach((pz,j)=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*nx+q.dy*ny)<.7,ex=lado?q.x+q.dx*5:q.x,ey=lado?q.y+q.dy*5:q.y;
     const izq0=ex<cx-R*.3,contra=lado&&Math.abs(q.dx)>.5&&(izq0?q.dx>0:q.dx<0),arriba=ey<cy;
-    items.push({letras:j===0&&mas?[pz.letra,...mas]:[pz.letra],tips:[{x:ex,y:ey}],pre:lado?[q.x,q.y]:null,vert:contra?1:0,des:contra?(arriba?gl.bb.y0-4:gl.bb.y1+4):undefined});});
+    items.push({letras:j===0&&mas?[pz.letra,...mas].sort(porF):[pz.letra],fr:j===0&&mas?1:0,tips:[{x:ex,y:ey}],pre:lado?[q.x,q.y]:null,vert:contra?1:0,des:contra?(arriba?gl.bb.y0-4:gl.bb.y1+4):undefined});});
   if(lat){
     // v12 · vista lateral del plano (H): cada pieza en su ángulo exacto, sin recorrerla ni apilarla para que no se encime. Las de la misma cara
     // a ≤ ANG_ALINEADO° están una detrás de otra a lo largo del tanque: se dibuja solo la del frente (la más cercana al extremo desde donde se
     // mira: u mayor, la tapa de u < .5 es la del fondo) y todas sus letras apuntan a ese dibujo. Más de ANG_ALINEADO°: cada una en su ángulo.
     uds.sort((a,b)=>a.a-b.a).forEach(u=>{const k=cl.find(q=>q.cara===u.g.cara&&angDif(u.a,q.a)<=ANG_ALINEADO);if(k)k.m.push(u);else cl.push({a:u.a,cara:u.g.cara,m:[u]});});
+    // v13 · cara «arriba»: las de atrás también se dibujan, en línea oculta (punteada), recorridas de lado (media anchura de cada una + 2 pt)
+    // para que se lean; la del frente queda sólida en su ángulo exacto y encima. De izquierda a derecha van en el orden de la vista frontal
+    // (las que siguen a la del frente, hacia la columna de globos) y cada pieza lleva su globo y su guía: sube a un carril sobre el grupo
+    // (la primera, el más alto) y baja a su globo cerca de la columna, sin cruzarse. Un orificio se recorre y se puntea completo.
+    const arribaOcultas=(k,fr)=>{
+      const ms=k.m.map(u=>{const t=tam(u.g),o={det:detDe(t.w),piezas:u.E?u.E.ps:null};return {u,t,o,hw:lev.glifo(u.g.t,0,0,0,-1,t.w,t.h,null,o).hw,r:Math.min(...letrasDe(u).map(rk))};}).sort((a,b)=>a.r-b.r);
+      const f=ms.findIndex(x=>x.u===fr),p=Pt(fr.a,R),nx=Math.cos(rad(fr.a)),ny=-Math.sin(rad(fr.a)),tx=-ny,ty=nx,izq=p.x<cx-R*.3,sg=(izq?-1:1)*(tx<0?-1:1);
+      ms[f].s=0;for(let j=f+1;j<ms.length;j++)ms[j].s=ms[j-1].s+sg*(ms[j-1].hw+ms[j].hw+2);for(let j=f-1;j>=0;j--)ms[j].s=ms[j+1].s-sg*(ms[j+1].hw+ms[j].hw+2);
+      const rec=[];let top=Infinity;
+      ms.filter(x=>x.u!==fr).concat(ms[f]).forEach(x=>{   // asienta en el contorno la esquina interior del cuello (la del frente: s = 0, como siempre)
+        const u=x.u,s=Math.max(-R*.9,Math.min(R*.9,x.s)),si=Math.max(0,Math.abs(s)-x.t.w/2),cs=Math.sqrt(R*R-si*si),bx=cx+nx*cs+tx*s,by=cy+ny*cs+ty*s;
+        const ux=Math.cos(rad(u.a)),uy=-Math.sin(rad(u.a)),gl=lev.glifo(u.g.t,bx,by,ux,uy,x.t.w,x.t.h,null,Object.assign({oculto:u!==fr},x.o));
+        gl.it.forEach(pinta);cajaB(gl.bb);top=Math.min(top,gl.bb.y0);
+        if(!u.E){rec.push({l:u.g.letra,x:bx+ux*gl.ext,y:by+uy*gl.ext});return;}
+        u.E.ps.forEach(pz=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*ux+q.dy*uy)<.7;
+          rec.push({l:pz.letra,x:lado?q.x+q.dx*5:q.x,y:lado?q.y+q.dy*5:q.y,pre:lado?[q.x,q.y]:null});});});
+      const gr={top,izq,x0:izq?Math.max(...rec.map(q=>q.x)):Math.min(...rec.map(q=>q.x))};   // el carril se fija al acomodar los globos
+      rec.sort((a,b)=>rk(a.l)-rk(b.l)).forEach((q,j)=>items.push({letras:[q.l],tips:[{x:q.x,y:q.y}],pre:q.pre,izqF:izq,gr,cj:j,nc:rec.length}));};
     cl.forEach(k=>{
       const fr=k.m.reduce((a,u)=>(+u.g.pos.u||0)>(+a.g.pos.u||0)?u:a),t=tam(fr.g),o={det:detDe(t.w),piezas:fr.E?fr.E.ps:null};
-      const otros=k.m.filter(u=>u!==fr).sort((a,b)=>G.indexOf(a.g)-G.indexOf(b.g)).flatMap(u=>u.E?u.E.ps.map(pz=>pz.letra):[u.g.letra]);
+      if(lev&&k.cara==='arriba'&&k.m.length>1)return arribaOcultas(k,fr);
+      const otros=k.m.filter(u=>u!==fr).flatMap(letrasDe);
       const p=Pt(fr.a,R),nx=Math.cos(rad(fr.a)),ny=-Math.sin(rad(fr.a));
       if(!lev){Rc(p.x-qs/2,p.y-qs/2,qs,qs,{lw:.9,fill:1});caja(p.x-qs/2-1,p.y-qs/2-1,p.x+qs/2+1,p.y+qs/2+1);
-        items.push({letras:(fr.E?fr.E.ps.map(pz=>pz.letra):[fr.g.letra]).concat(otros),tips:[{x:p.x+nx*qs/2,y:p.y+ny*qs/2}]});return;}
+        items.push({letras:letrasDe(fr).concat(otros).sort(porF),fr:1,tips:[{x:p.x+nx*qs/2,y:p.y+ny*qs/2}]});return;}
       const gl=lev.glifo(fr.g.t,p.x,p.y,nx,ny,t.w,t.h,null,o);gl.it.forEach(pinta);cajaB(gl.bb);
-      if(fr.E)orifItems(fr.E,gl,nx,ny,otros);else items.push({letras:[fr.g.letra,...otros],tips:[{x:p.x+nx*gl.ext,y:p.y+ny*gl.ext}]});});
+      if(fr.E)orifItems(fr.E,gl,nx,ny,otros);else items.push({letras:[fr.g.letra,...otros].sort(porF),fr:1,tips:[{x:p.x+nx*gl.ext,y:p.y+ny*gl.ext}]});});
   }
   else uds.sort((a,b)=>a.a-b.a).forEach(u=>{const k=cl.find(q=>angDif(u.a,q.a)<12);if(k)k.m.push(u);else cl.push({a:u.a,m:[u]});});
   if(!lat)cl.forEach(k=>{
@@ -4403,8 +4442,11 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
   const RB=6.4,globo=(gx,gy,l)=>{add({k:'c',cx:gx,cy:gy,rad:RB,w:.7,fill:1});T(l,gx,gy+2.6,{z:l.length>1?6:7.4,b:1,anc:'middle'});};
   if(!pnd&&items.length){
     const bajo=H_?yG+gh+RB+3:null;
-    items.forEach(t=>{const mx=t.tips.reduce((a,q)=>a+q.x,0)/t.tips.length;t.izq=!t.cen&&mx<cx-R*.3;
+    items.forEach(t=>{const mx=t.tips.reduce((a,q)=>a+q.x,0)/t.tips.length;t.izq=t.izqF!=null?t.izqF:!t.cen&&mx<cx-R*.3;
       t.tip=t.tips.reduce((a,q)=>t.izq?(q.x<a.x?q:a):(q.x>a.x?q:a));
+      // v13 · grupo de arriba: carriles sobre todo lo dibujado arriba del centro entre el grupo y su columna (también piezas de otro ángulo)
+      if(t.gr){const g=t.gr;if(g.cr==null){g.cr=g.top;for(const o of obst)if(o[3]<cy&&(g.izq?o[0]<g.x0+1:o[2]>g.x0-1))g.cr=Math.min(g.cr,o[1]);}
+        t.carril=t.des=g.cr-3-(t.nc-1-t.cj)*2.5;}
       t.des=t.des!=null?t.des:t.tip.y;if(H_&&!t.cen&&!t.vert&&t.tip.y>cy+R*.55)t.des=Math.max(t.des,bajo);   // las de abajo: globo bajo el piso (la guía no cruza las patas)
       // v5: las de las tapas (en planta) buscan una altura libre para su tramo horizontal hasta la columna (no cruzan otras boquillas)
       if(t.cen){const xa=t.tip.x+1.5,xb=t.izq?B.x0:B.x1+RB,libre=y=>!toca([Math.min(xa,xb),y-1.4,Math.max(xa,xb),y+1.4]);
@@ -4413,12 +4455,15 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
       const xc=(izq?Math.min(B.x0,cx-R):Math.max(B.x1,cx+R))+sg*(10+RB),sep=2*RB+2;
       arr.sort((a,b)=>a.des-b.des);let pv=-Infinity;arr.forEach(t=>{t.by=Math.max(t.des,pv+sep);pv=t.by;});
       arr.forEach(t=>{const p=t.tip,by=t.by,xe=xc-sg*RB,pts=t.pre?[t.pre,[p.x,p.y]]:[[p.x,p.y]];
-        if(Math.abs(by-p.y)<.6)pts.push([xe,by]);
+        if(t.carril!=null){   // v13 · grupo de arriba: carril sobre el grupo y bajada cerca de la columna (la del carril más alto, la más cercana)
+          if(Math.abs(by-t.carril)<.6)pts.push([p.x,by],[xe,by]);
+          else{const xk=xe-sg*(1.5+t.cj*Math.min(2.5,8/t.nc));pts.push([p.x,t.carril],[xk,t.carril],[xk,by],[xe,by]);}}
+        else if(Math.abs(by-p.y)<.6)pts.push([xe,by]);
         else if(t.vert)pts.push([p.x,by],[xe,by]);
         else if(!t.cen&&(p.y<cy?by<p.y:by>p.y))pts.push([p.x,by],[xe,by]);
         else{const xm=xc-sg*(RB+6);pts.push([xm,p.y],[xm,by],[xe,by]);}
         for(let j=1;j<pts.length;j++){Lh(pts[j-1][0],pts[j-1][1],pts[j][0],pts[j][1],.45,.15);caja(pts[j-1][0]-.8,pts[j-1][1]-.8,pts[j][0]+.8,pts[j][1]+.8);}
-        t.letras.forEach((l,j)=>{const gx=xc+sg*j*2*RB;globo(gx,by,l);caja(gx-RB,by-RB,gx+RB,by+RB);});});
+        (t.fr&&izq?[...t.letras].reverse():t.letras).forEach((l,j)=>{const gx=xc+sg*j*2*RB;globo(gx,by,l);caja(gx-RB,by-RB,gx+RB,by+RB);});});
     }
   }
   if(pnd)return B;
@@ -4560,8 +4605,8 @@ function hoja(d,opt){
   const pegaCroquis=(rx,ry,rw,rh)=>frontal(c,d,L,rx,ry,rw,rh,{cotas,cr:ok(i.CR)&&i.CR>0?i.CR:0});   // v6: con la C.R. y su cota en cada tapa
   let memX,memY,memW,memH,cols;
   if(o==='H'){
-    pegaCroquis(X0,Y0,580,272);vista(X0,Y0,580,292,'VISTA FRONTAL');
-    vistaCirc(c,d,G,748,150,72);vista(616,Y0,282,292,'VISTA LATERAL');
+    const F=pegaCroquis(X0,Y0,580,272);vista(X0,Y0,580,292,'VISTA FRONTAL');
+    vistaCirc(c,d,G,748,150,72,{orden:ordenFrontal(F)});vista(616,Y0,282,292,'VISTA LATERAL');   // v13: letras alineadas en el orden de la frontal
     Lh(X0,328,898,328,.4,.6);Lh(902,Y0,902,Y1,.3,.75);
     memX=X0;memY=334;memW=898-X0;memH=Y1-memY;cols=3;
   }else{
