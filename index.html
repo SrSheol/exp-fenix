@@ -658,16 +658,26 @@ details.s-man[open]>summary{margin-bottom:8px}
 .pl-tabla .lev-letra{width:28px;height:28px}
 .pl-tabla tr.sel td{background:var(--laton-suave)}
 .pl-tabla tr.sel .lev-letra{border-color:var(--laton);color:var(--laton)}
-.pl-ang-av{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11.5px;color:var(--warn);white-space:nowrap}
-.pl-ang-av .btn{padding:1px 7px;font-size:11.5px;min-height:0}
-/* v13 · Equipos › Croquis y boquillas: datos del plano por tipo (conexión y ángulo) */
-.lev-pl{margin-top:16px;padding-top:12px;border-top:1px solid var(--acero)}
-.lev-pl>h4{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:13px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-2)}
-.lev-pl>.nota{margin:0 0 10px;color:var(--tinta-3);font-size:12.5px}
-.lev-pl .pl-tabla-wrap{margin-top:10px}
-.lev-pl-tabla{min-width:0}
-.lev-pl-tabla td:nth-child(3){width:38%}.lev-pl-tabla td:nth-child(4){width:92px}
-.lev-pl-tabla td small{color:var(--tinta-3);font-variant-numeric:tabular-nums}
+/* v14 · Equipos › Croquis y boquillas: conexión de cada pieza y vista lateral / superior (la del plano) debajo de la frontal, ligadas */
+.lev-bq-fila{grid-template-areas:"l t t a" "l d c a" "l k k a" "l o o o"}
+.lev-bq-fila .lv-k{grid-area:k}
+.lev-dibujo{grid-template-rows:auto 1fr}
+.lev-dibujo>.lev-bq{grid-column:2;grid-row:1 / span 2}
+.lev-lat{align-self:start}
+.lev-lat-cab{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:9px 12px 0;font-size:12px;color:var(--tinta-3)}
+.lev-lat-cab b{font-size:12px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-2)}
+.croquis.lat{max-height:min(56vh,440px)}
+.croquis.lat text{font-family:Arial,Helvetica,sans-serif}
+#levLatSvg{-webkit-touch-callout:none}
+#levLatSvg.arrastre{cursor:grabbing}
+.croquis .lat-ang{pointer-events:none}
+.croquis .lat-ang rect{fill:var(--placa);stroke:var(--laton);stroke-width:1}
+.croquis .lat-ang text{fill:var(--laton);font-weight:800}
+@media (max-width:1100px){
+  .lev-dibujo{grid-template-rows:none}.lev-dibujo>.lev-bq{grid-column:auto;grid-row:auto}
+  .lev-dibujo.editando .lev-lat{position:relative;top:auto;z-index:auto;box-shadow:none}
+  .lev-dibujo.editando .lev-lat .croquis{max-height:min(46vh,400px)}
+}
 .pl-ubic{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start;margin-top:12px}
 .pl-ubic-ctl{display:grid;gap:12px}
 .pl-ubic-prev{border:1px solid var(--acero);border-radius:var(--r-lg);overflow:hidden;background:#fff}
@@ -1119,7 +1129,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         </div>
         <h4 style="margin:16px 0 8px;font-size:11.5px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)">Datos vinculados y fijos</h4>
         <div class="vincs" data-vincs="espec"></div>
-        <p class="nota" style="margin:14px 0 0">Boquillas, conexión y ángulo de cada tipo: <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levPl"}'>Equipos › Croquis y boquillas</button></p>
+        <p class="nota" style="margin:14px 0 0">Boquillas y la conexión de cada una: <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levBqLista"}'>Equipos › Croquis y boquillas</button></p>
       </div>
 
       <div class="tarjeta" id="pc-ubic">
@@ -1262,17 +1272,25 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <span class="nota-geo">Sin profundidad de tapa se dibuja semielíptica 2:1, solo referencia</span>
       </div>
     </div>
+    <div class="lev-lienzo lev-lat" id="levLat">
+      <div class="lev-lat-cab"><b>Vista <span data-latvista>lateral</span></b><span>la misma del plano · se mueve junto con la vista frontal</span></div>
+      <svg id="levLatSvg" class="croquis lat" viewBox="0 0 300 280" role="img" tabindex="0" aria-label="Vista lateral del tanque. Arrastra una boquilla de frente o de atrás alrededor del círculo; con una seleccionada, las flechas la giran 1° y Esc la suelta."></svg>
+      <div class="lev-ed" id="levLatEd">
+        <div class="lev-ed-info" id="levLatInfo" role="status" aria-live="polite">Toca una boquilla o su letra para girarla.</div>
+        <div class="lev-ed-chips" id="levLatChips" role="toolbar" aria-label="Elegir boquilla"></div>
+        <div class="lev-ed-ctrl">
+          <div class="lev-ed-flechas" role="group" aria-label="Girar la boquilla seleccionada 1° (mantén presionado para repetir)">
+            <button type="button" class="lev-ed-btn" data-lgir="1" aria-label="Girar 1° en sentido antihorario" title="1° en sentido antihorario"><svg viewBox="0 0 24 24"><path d="M4 4v5h5"/><path d="M4.9 9A8 8 0 1 1 4 13"/></svg></button>
+            <button type="button" class="lev-ed-btn" data-lgir="-1" aria-label="Girar 1° en sentido horario" title="1° en sentido horario"><svg viewBox="0 0 24 24"><path d="M20 4v5h-5"/><path d="M19.1 9A8 8 0 1 0 20 13"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="lev-bq">
       <h3>Boquillas <span class="tag" id="levBqCuenta">0</span></h3>
-      <p class="nota">Letras A, B, C… en el orden de la lista; se puede repetir el tipo. Toca una fila o su letra para ubicarla en el croquis. En el plano se agrupan por tipo. Varias piezas en un mismo orificio (manómetro + válvula + entrada…): «+ pieza aquí» o elige su orificio en la fila; mover una pieza mueve el orificio completo.</p>
+      <p class="nota">Letras A, B, C… en el orden de la lista; se puede repetir el tipo. Toca una fila o su letra para ubicarla en el croquis. En el plano se agrupan por tipo; cada pieza lleva su conexión (columna TIPO del plano). Varias piezas en un mismo orificio (manómetro + válvula + entrada…): «+ pieza aquí» o elige su orificio en la fila; mover una pieza mueve el orificio completo.</p>
       <ol class="lev-bq-lista" id="levBqLista"></ol>
       <button type="button" class="btn chico laton" id="levBqAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar boquilla</button>
-      <div class="lev-pl" id="levPl">
-        <h4>Datos del plano <span class="tag">una letra por tipo</span></h4>
-        <p class="nota">Tabla de boquillas y vista <span data-lpvista>lateral</span> del plano. Conexión vacía = la de por omisión. Ángulo vacío = automático desde la vista frontal (0° a la derecha, sentido antihorario).</p>
-        <div class="campo" data-campo="tipoConexion"><label for="lv_con">Conexión por omisión</label><div class="caja"><input id="lv_con" data-epl="tipoConexion" data-mayus placeholder="COPLE" autocomplete="off"></div><div class="ayuda">Columna TIPO cuando el tipo no trae otra.</div></div>
-        <div class="pl-tabla-wrap"><table class="pl-tabla lev-pl-tabla" id="levPlGrupos"></table></div>
-      </div>
     </div>
   </div>
 </template>
@@ -2862,7 +2880,7 @@ function normalizar(j){
   L.dimensiones[DIM_CR]=dm[DIM_CR]==null||dm[DIM_CR]===''||!(num(dm[DIM_CR])>=0)?'':String(num(dm[DIM_CR]));
   const md=j.metadata||{};for(const k of META_KEYS)L.metadata[k]=md[k]==null?'':String(md[k]);
   L.boquillas=(j.boquillas||[]).map(b=>{const d=parsePulg(b.diametroPulgadas);
-    return Object.assign({id:uid(),tipo:normTipo(b.tipo),diametroPulgadas:d>0?d:null,cara:b.cara,pos:{u:clamp(+b.pos.u,0,1),v:clamp(+b.pos.v,0,1)}},orifJSON(b));});
+    return Object.assign({id:uid(),tipo:normTipo(b.tipo),diametroPulgadas:d>0?d:null,cara:b.cara,pos:{u:clamp(+b.pos.u,0,1),v:clamp(+b.pos.v,0,1)}},orifJSON(b),conJSON(b));});
   for(const k of ESP_KEYS)L.espesores[k]=arr16(j.espesores[k]);
   return L;
 }
@@ -2873,7 +2891,7 @@ function reparar(s){
   for(const k of [...DIM_KEYS,DIM_CR])L.dimensiones[k]=String((s.dimensiones&&s.dimensiones[k])??'');
   for(const k of META_KEYS)L.metadata[k]=String((s.metadata&&s.metadata[k])??'');
   L.boquillas=Array.isArray(s.boquillas)?s.boquillas.filter(b=>b&&normTipo(b.tipo)&&CARAS.includes(b.cara)).map(b=>Object.assign({id:b.id||uid(),tipo:normTipo(b.tipo),
-    diametroPulgadas:parsePulg(b.diametroPulgadas)>0?parsePulg(b.diametroPulgadas):null,cara:b.cara,pos:{u:clamp(+(b.pos&&b.pos.u)||0,0,1),v:clamp(+(b.pos&&b.pos.v)||0,0,1)}},orifJSON(b))):[];
+    diametroPulgadas:parsePulg(b.diametroPulgadas)>0?parsePulg(b.diametroPulgadas):null,cara:b.cara,pos:{u:clamp(+(b.pos&&b.pos.u)||0,0,1),v:clamp(+(b.pos&&b.pos.v)||0,0,1)}},orifJSON(b),conJSON(b))):[];
   for(const k of ESP_KEYS){const a=s.espesores&&Array.isArray(s.espesores[k])?s.espesores[k]:[];L.espesores[k]=Array.from({length:N_ESP},(_,i)=>String(a[i]??''));
     const au=s.espAuto&&Array.isArray(s.espAuto[k])?s.espAuto[k]:[];L.espAuto[k]=Array.from({length:N_ESP},(_,i)=>!!au[i]&&!!L.espesores[k][i]);}
   return L;
@@ -2893,7 +2911,7 @@ function agregar(L,tipo){
   const usados=new Set(L.boquillas.map(b=>b.tipo));
   tipo=normTipo(tipo)||TIPOS.find(t=>!usados.has(t))||TIPOS[0];
   const cara=CARA_TIPO[tipo]||'frente';
-  const b={id:uid(),tipo,diametroPulgadas:null,cara,pos:posInicial(L,cara)};
+  const b={id:uid(),tipo,diametroPulgadas:null,cara,pos:posInicial(L,cara),conexion:'COPLE'};
   b.pos=ajustar(L,b);L.boquillas.push(b);return b;
 }
 // ---------- espesores: Rellenar / variar ----------
@@ -2983,7 +3001,11 @@ function sitio(g,out,b){
   return {x,y,t:'circ'};
 }
 // pos ajustada (lo que se guarda/exporta)
-function ajustar(L,b){const g=geo(L),s=sitio(g,contorno(g),b),uv=aUV(g,s.x,s.y);return {u:+uv.u.toFixed(4),v:+uv.v.toFixed(4)};}
+// v14: una pos de hasta 6 decimales que sitio() no mueve (frente / atrás dentro del cuerpo) se conserva tal cual: la altura que sale de un
+// ángulo de la vista lateral / superior (FXPlano.posLateral) no se redondea a otro ángulo. Lo demás, a 4 decimales como siempre.
+function ajustar(L,b){const g=geo(L),s=sitio(g,contorno(g),b),uv=aUV(g,s.x,s.y),p=b.pos||{},r6=x=>+(+x).toFixed(6);
+  if(Math.abs(uv.u-(+p.u))<1e-9&&Math.abs(uv.v-(+p.v))<1e-9&&r6(p.u)===+p.u&&r6(p.v)===+p.v)return {u:+p.u,v:+p.v};
+  return {u:+uv.u.toFixed(4),v:+uv.v.toFixed(4)};}
 function ajustarTodas(L){L.boquillas.forEach(b=>b.pos=ajustar(L,b));}
 
 // ---------- croquis: lista de primitivas ----------
@@ -3186,6 +3208,8 @@ function ordenOrificio(L,b,nuevo){const k=orifDe(b);if(!k)return;const a=L.boqui
   a.splice(a.indexOf(b),1);a.splice(Math.max(0,Math.min(a.length,nuevo-1)),0,b);a.forEach((m,j)=>m.ordenOrif=j+1);}
 // datos de orificio tal como se guardan / exportan (texto + número; nunca un objeto)
 function orifJSON(b){const k=orifDe(b);return k?{orificio:k,ordenOrif:ordOr(b)<999?ordOr(b):1}:{};}
+// v14 · conexión de cada pieza (columna TIPO de la tabla de boquillas del plano). Pieza nueva o sin dato: COPLE.
+function conJSON(b){return {conexion:b&&b.conexion!=null?String(b.conexion).trim().toUpperCase():'COPLE'};}
 function croquis(L,opt){
   opt=opt||{};
   // opt.cad: estilo AutoCAD (plano / PND): soportes y piso, boquillas por tipo; opt.pnd: además sin guías, globos, letras ni cotas.
@@ -3419,13 +3443,14 @@ function aJSON(L,ahora){
   return {schema:SCHEMA,version:VERSION,exportedAt:isoLocal(ahora||new Date()),orientacion:L.orientacion==='V'?'V':'H',
     dimensiones:Object.assign(Object.fromEntries(DIM_KEYS.map(k=>[k,nOrNull(L.dimensiones[k])])),{[DIM_CR]:(()=>{const t=String(L.dimensiones[DIM_CR]??'').trim(),n=num(t);return t&&n>=0?n:null;})()}),
     metadata:md,
-    boquillas:L.boquillas.map((b,i)=>Object.assign({letra:letra(i),tipo:b.tipo,diametroPulgadas:parsePulg(b.diametroPulgadas)>0?+parsePulg(b.diametroPulgadas).toFixed(4):null,cara:b.cara,pos:ajustar(L,b)},orifJSON(b))),
+    boquillas:L.boquillas.map((b,i)=>Object.assign({letra:letra(i),tipo:b.tipo,diametroPulgadas:parsePulg(b.diametroPulgadas)>0?+parsePulg(b.diametroPulgadas).toFixed(4):null,cara:b.cara,pos:ajustar(L,b)},orifJSON(b),conJSON(b))),
     espesores:Object.fromEntries(ESP_KEYS.map(k=>[k,arr16(L.espesores[k])])),
     croquis:{plantilla:L.orientacion==='V'?'V':'H',
       note:'pos.u 0→1 = izquierda→derecha y pos.v 0→1 = abajo→arriba, relativas al contorno exterior del tanque (cuerpo + tapas) en la plantilla indicada. '+
            'Tapita (arriba/abajo/lado) se ajusta al contorno; frente/atrás quedan dentro del cuerpo. Sin profundidad de tapa, la tapa se dibuja semielíptica 2:1 solo como referencia. '+
            'Unidades: Ø interior en cm; longitud soldadura–soldadura (solo cuerpo), profundidad de tapa y ceja recta (C.R., tramo recto de cada tapa) en mm; boquillas en pulgadas; presiones en kg/cm²; capacidad en m³; espesores en mm (puntos 1–16). '+
-           'orificio (texto) + ordenOrif (1 = hacia afuera): piezas montadas en el mismo orificio; comparten cara y posición.'}};
+           'orificio (texto) + ordenOrif (1 = hacia afuera): piezas montadas en el mismo orificio; comparten cara y posición. '+
+           'conexion: conexión de cada pieza (columna TIPO del plano; COPLE por omisión).'}};
 }
 
 // ---------- hoja PDF (carta, vertical) · lleno o formato en blanco (opt.blank) ----------
@@ -3999,13 +4024,12 @@ const COD_FAB='ASME BPVC SEC. VIII. DIV. 1';
 // nbBorrado = '1' cuando el usuario vació «National Board» a propósito (no se vuelve a poner SIN DATO).
 // v5: sCuerpoMan / sTapasMan = S escrito a mano (opcional; manda sobre la tabla). Se redondea a 2 decimales como todo S.
 const DEF={orientacion:'',cejaRectaMm:'',sCuerpo:'',sTapas:'',sCuerpoMan:'',sTapasMan:'',eficiencia:'0.85',factorSeguridad:'3.5',
-  nationalBoard:NB_DEF,nbBorrado:'',fabricante:'',codigoFabricacion:COD_FAB,tipoConexion:'COPLE',dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
+  nationalBoard:NB_DEF,nbBorrado:'',fabricante:'',codigoFabricacion:COD_FAB,dibujo:DIBUJO_DEF,dibujoBorrado:'',dvLegado:'',fecha:'',
   // v2 · croquis de ubicación: '' (sin croquis) | 'img' (plano del lugar + flecha) | 'esq' (cuarto + puerta + equipo). Posiciones 0–1.
   ubicModo:'',ubicX:'0.5',ubicY:'0.5',ubicAng:'135',ubicTam:'1',ubicPuerta:'abajo',ubicPuertaPos:'0.5',ubicEqX:'0.5',ubicEqY:'0.45',ubicRotulo:'',
   // v4 · convención de ángulos de las boquillas: '2' = 0° a la derecha, sentido antihorario (90° arriba). Sin marca = archivo anterior (0° arriba, horario).
+  // v14: ya no se guardan ángulos en el plano; la marca queda como señal de plano ya reparado.
   angConv:'2'};
-// v2 · por tipo de boquilla (llave = tipo del catálogo): conexión de la tabla (vacío → tipoConexion / COPLE) y ángulo en la vista lateral/superior
-const DEF_OBJ=['conexiones','angulos'];
 const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
 const NOTAS=[
  'a) EL DIBUJO Y LA MEMORIA DE CALCULO SE ELABORAN PARA OBTENER LA AUTORIZACIÓN DE FUNCIONAMIENTO  CONFORME A LO ESTABLECIDO EN LA NOM-020-STPS-2011.',
@@ -4024,12 +4048,11 @@ const ok=(...a)=>a.every(x=>typeof x==='number'&&isFinite(x));
 const fx=(n,d)=>ok(n)?n.toFixed(d):'—';
 const sinAc=s=>txt(s).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 function esAire(f){return /(^|[^A-Z])AIRE?($|[^A-Z])/.test(sinAc(f));}
+// v14: la conexión es de cada pieza (levantamiento.boquillas[].conexion) y el ángulo lateral sale siempre de la vista frontal: plano.conexiones,
+// plano.tipoConexion y plano.angulos se descartan aquí (la interfaz los pasa a las piezas al abrir, antes de reparar).
 function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(const k in DEF)if(p[k]!=null)o[k]=String(p[k]);
-  for(const k of DEF_OBJ){o[k]={};const src=p&&p[k];if(src&&typeof src==='object'&&!Array.isArray(src))for(const t in src){const v=txt(src[t]);if(v)o[k][t]=v;}}
   // v3 · migraciones (archivos anteriores): S único → S cuerpo y S tapas
   if(p&&typeof p==='object'&&p.esfuerzoPermisible!=null){const s=txt(p.esfuerzoPermisible);if(p.sCuerpo==null)o.sCuerpo=s;if(p.sTapas==null)o.sTapas=s;}
-  // v4 · ángulos guardados con la convención anterior (0° arriba, horario) → 0° a la derecha, antihorario: nuevo = 90 − anterior (una sola vez)
-  if(p&&typeof p==='object'&&txt(p.angConv)!=='2')for(const t in o.angulos){const n=num(o.angulos[t]);if(isFinite(n))o.angulos[t]=String(+(((90-n)%360+360)%360).toFixed(2));}
   o.angConv='2';
   // E: a la opción de la lista (85 → 0.85, 0.8 → 0.80); vacío → 0.85; un valor fuera de la lista se conserva (se marca en pantalla)
   {const n=eficiencia(o.eficiencia),s=n>0?n.toFixed(2):'';o.eficiencia=!txt(o.eficiencia)?DEF.eficiencia:E_OPC.includes(s)?s:txt(o.eficiencia);}
@@ -4038,7 +4061,7 @@ function reparar(p){const o=Object.assign({},DEF);if(p&&typeof p==='object')for(
   if(!txt(o.nationalBoard)&&o.nbBorrado!=='1')o.nationalBoard=NB_DEF;
   return o;}
 // S cuerpo / S tapas no cuentan: salen de la tabla de materiales (material × factor de seguridad)
-function esDefault(p){if(!p)return true;for(const k in DEF)if(k!=='sCuerpo'&&k!=='sTapas'&&txt(p[k])!==txt(DEF[k]))return false;for(const k of DEF_OBJ)if(p[k]&&Object.keys(p[k]).length)return false;return true;}
+function esDefault(p){if(!p)return true;for(const k in DEF)if(k!=='sCuerpo'&&k!=='sTapas'&&txt(p[k])!==txt(DEF[k]))return false;return true;}
 // E: fracción; si viene en % (85) se divide entre 100
 function eficiencia(v){const n=num(v);return !(n>0)?NaN:n>1?n/100:n;}
 function minNum(arrs){const v=[].concat(...arrs.map(a=>Array.isArray(a)?a:[])).map(num).filter(x=>x>0);return v.length?Math.min(...v):NaN;}
@@ -4139,11 +4162,11 @@ function especificaciones(d){
     ['MATERIALES',[v(i.matC),v(i.matT)]],['ESFUERZO PERMISIBLE (kg/cm²)',{par:[fmtS(i.Sc),fmtS(i.St)]}]];
 }
 // v4 (2026-10-22): una letra por PIEZA, la misma de la hoja de campo y de las hojas 71/75 (A, B, C… en el orden de las boquillas del
-// levantamiento); un renglón por pieza (CANTIDAD 1) y cada una dibujada en su propio punto. La conexión sigue siendo por tipo (plano.conexiones).
-// El ángulo escrito a mano es por pieza (k): la 1.ª de cada tipo conserva la llave del tipo (archivos anteriores), las siguientes «TIPO #n».
+// levantamiento); un renglón por pieza (CANTIDAD 1) y cada una dibujada en su propio punto. v14: la conexión es de cada pieza (b.conexion) y
+// el ángulo de la vista lateral / superior sale siempre de la vista frontal. k = llave de la pieza: la 1.ª de cada tipo, el tipo; las siguientes «TIPO #n».
 function tipoDe(b){const X=root.FXLev;return X?X.normTipo(b&&b.tipo):txt(b&&b.tipo).toUpperCase();}
 function servicio(t){const X=root.FXLev,u=X&&X.TIPO_UI&&X.TIPO_UI[t];return u?u.toUpperCase():sinAc(t)==='TAPON'?'TAPÓN':txt(t);}   // con acentos (VÁLVULA, MANÓMETRO…)
-function conexion(d,t){return txt(d.pl.conexiones&&d.pl.conexiones[t])||txt(d.pl.tipoConexion)||'COPLE';}
+function conexion(b){return txt(b&&b.conexion)||'COPLE';}
 // boquillas que se dibujan (las mismas, en el mismo orden, que levDe): de aquí sale la letra de cada pieza
 function bqValidas(d){const X=root.FXLev;return (d.boq||[]).filter(b=>tipoDe(b)&&(!X||X.CARAS.includes(b&&b.cara)));}
 function grupos(d){
@@ -4151,10 +4174,9 @@ function grupos(d){
   return bqValidas(d).map((b,i)=>{const t=tipoDe(b),n=cuenta[t]=(cuenta[t]||0)+1,k=n>1?`${t} #${n}`:t;
     // v4: la válvula de seguridad lleva SOLO la medida de «tipo de válvula y su medida» del equipo (no el Ø capturado en la boquilla)
     const p=pos(b.diametroPulgadas),mm=sinAc(t)==='VALVULA DE SEGURIDAD'?(d.inp.dvTxt||txt(d.e.diametroValvulaMm)||'—'):ok(p)?(p*25.4).toFixed(2):'—';
-    const ang=num(d.pl.angulos&&d.pl.angulos[k]),auto=angAuto(d,b);
-    // v6: angAuto = ángulo que corresponde a donde está dibujada en la vista frontal; un ángulo escrito en el plano (angManual) manda
-    return {t,k,b,letra:letra(i),n:1,serv:servicio(t),con:conexion(d,t),porD:[[mm,1]],cara:b.cara,pos:b.pos||{u:.5,v:.5},dpulg:pos(b.diametroPulgadas),
-      ang:isFinite(ang)?((ang%360)+360)%360:auto,angAuto:auto,angManual:isFinite(ang)};});
+    // v6: ang = ángulo que corresponde a donde está dibujada en la vista frontal (angAuto); v14: es el único (ya no hay ángulo escrito a mano)
+    return {t,k,b,letra:letra(i),n:1,serv:servicio(t),con:conexion(b),porD:[[mm,1]],cara:b.cara,pos:b.pos||{u:.5,v:.5},dpulg:pos(b.diametroPulgadas),
+      ang:angAuto(d,b)};});
 }
 // v6 · ángulo automático de una boquilla: frente / atrás desde su altura TAL COMO SE DIBUJA en la vista frontal del plano (FXLev.alturaFrontal,
 // con las dimensiones y la C.R. del plano); arriba / abajo / lado como siempre (angDefault).
@@ -4178,6 +4200,13 @@ function angDefault(o,b,h){const c=b&&b.cara,u=+(b&&b.pos&&b.pos.u),v=+(b&&b.pos
     const a=Math.asin(h)*180/Math.PI,t=o==='V'?(c==='atras'?90-a:270+a):(c==='atras'?a:180-a);return +((((t%360)+360)%360)).toFixed(1)%360;}
   if(o==='V')return c==='lado'?(u<0.5?180:0):null;
   return c==='arriba'?90:c==='abajo'?270:null;}
+// v14 · inversa de angDefault para frente / atrás: ángulo de la vista lateral (H) / superior (V) → altura en la vista frontal (pos.v en H,
+// pos.u en V; la otra coordenada no cambia). Cada cara se queda en su mitad, por su centro: H atrás −90°…90° (0°), frente 90°…270° (180°) ·
+// V atrás 0°…180° (90°), frente 180°…360° (270°); fuera de ella va al extremo más cercano. H: v = (1 + sen θ)/2 · V: u = (1 + cos θ)/2.
+// Devuelve la pos nueva (6 decimales) o null si en esa vista la pieza no se mueve (arriba, abajo, lado, tapas).
+function posLateral(o,b,ang){const c=b&&b.cara;if((c!=='frente'&&c!=='atras')||!isFinite(+ang))return null;
+  const m=o==='V'?(c==='atras'?90:270):(c==='atras'?0:180),a=Math.max(-90,Math.min(90,((+ang-m)%360+540)%360-180)),t=(m+a)*Math.PI/180;
+  const f=+((1+(o==='V'?Math.cos(t):Math.sin(t)))/2).toFixed(6),p=b.pos||{u:.5,v:.5};return o==='V'?{u:f,v:+p.v}:{u:+p.u,v:f};}
 function letra(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
 
 // ---------- medidas de texto (Liberation Sans de FX_ASSETS vía fontkit; respaldo aproximado) ----------
@@ -4319,6 +4348,19 @@ function frontal(c,d,L,rx,ry,rw,rh,opt){
   for(const q of lay.items)if(q.r!=='hit')deLev(c,q,tx,ty,s,d.inp);
   return {lay,s,tx,ty,w:vw*s,h:vh*s,X:x=>tx+x*s,Y:y=>ty+y*s};
 }
+// cotas de la vista frontal de la hoja (R INT. y ESP. MIN.)
+function cotasDe(i){return {R:ok(i.Rmm)?`R INT. ${i.Rmm.toFixed(2)} mm`:'R INT. — mm',espCuerpo:`ESP. MIN. ${fx(i.tEnv,2)} mm`,espTapa:`ESP. MIN. ${fx(i.tTap,2)} mm`};}
+// v14 · vista lateral (H) / superior (V) sola, para Equipos › Croquis y boquillas: la MISMA vistaCirc de la hoja del plano (mismo centro y radio;
+// en H, las letras en el orden de la vista frontal de la hoja), así lo que se ve en pantalla es lo que imprime el plano. Caja recortada a lo
+// dibujado. Devuelve {W, H, x0, y0, items, cx, cy, R, G, o}; la pantalla ubica cada pieza con G (ángulo) sobre el círculo (cx, cy, R).
+function latLayout(d,opt){
+  opt=opt||{};const Mx=opt.M||metricas(opt.fonts),c=lienzo(Mx),i=d.inp,G=grupos(d),H_=i.o!=='V',[cx,cy,R]=H_?[748,150,72]:[166,122,58];
+  const orden=H_?ordenFrontal(frontal(lienzo(Mx),d,levDe(d),30,30,580,272,{cotas:cotasDe(i),cr:ok(i.CR)&&i.CR>0?i.CR:0})):null;
+  const B=vistaCirc(c,d,G,cx,cy,R,orden?{orden}:{}),q=Object.assign({},B),bb=(x,y)=>{if(x<q.x0)q.x0=x;if(x>q.x1)q.x1=x;if(y<q.y0)q.y0=y;if(y>q.y1)q.y1=y;};
+  for(const o of c.it){if(o.k==='l'){bb(o.x1,o.y1);bb(o.x2,o.y2);}else if(o.k==='c'){bb(o.cx-o.rad,o.cy-o.rad);bb(o.cx+o.rad,o.cy+o.rad);}
+    else if(o.k==='t'){const w=Mx.w(o.s,o.z,o.b),x=o.anc==='middle'?o.x-w/2:o.anc==='end'?o.x-w:o.x;bb(x,o.y-o.z);bb(x+w,o.y+o.z*.3);}}
+  const P=8;return {W:q.x1-q.x0+2*P,H:q.y1-q.y0+2*P,x0:q.x0-P,y0:q.y0-P,items:c.it,cx,cy,R,G,o:i.o};
+}
 // v13 · orden de las letras en la vista frontal: sus globos de izquierda a derecha (empate: de arriba abajo) → Map letra → lugar
 function ordenFrontal(F){const m=new Map();if(F&&F.lay)F.lay.items.filter(q=>q.k==='t'&&q.r==='bgt').sort((a,b)=>(a.x-b.x)||(a.y-b.y)).forEach(q=>{if(!m.has(q.s))m.set(q.s,m.size);});return m;}
 // Vista lateral (H, mirando desde el extremo) / superior (V, desde arriba) con centro (cx,cy) y radio R.
@@ -4339,6 +4381,21 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
     const st=ROL[q.r]||{w:.6};
     if(q.k==='c'){add({k:'c',cx:+q.cx,cy:+q.cy,rad:+q.rad,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill,fillC:st.fc});return;}
     add({k:'p',d:q.d,tx:0,ty:0,s:1,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill,fillC:st.fc});};
+  // v14 · línea oculta fina (piezas de atrás en la cara «arriba», dibujadas encima de la del frente): misma geometría y texto, trazo
+  // max(.25, ancho del rol × .55), gris .5, la raya de la pieza o [1.5, 1], sin ningún relleno
+  const pintaOculta=q=>{if(q.k==='t'){add({k:'t',s:q.s,x:+q.x,y:+q.y+q.size*.35,z:+q.size,b:q.r==='bqx'?0:1,anc:q.anc||'middle',c:.5});return;}
+    const st=ROL[q.r]||{w:.6},o={w:Math.max(.25,st.w*.55),c:.5,dash:q.dash||st.dash||[1.5,1]};
+    if(q.k==='c'){add(Object.assign({k:'c',cx:+q.cx,cy:+q.cy,rad:+q.rad},o));return;}
+    add(Object.assign({k:'p',d:q.d,tx:0,ty:0,s:1},o));};
+  // v14 · punto al pie de la guía de cada pieza (grupos de arriba y orificios de la vista lateral), sobre su propia pieza. En un mismo grupo
+  // quedan a ≥ PSEP pt: si cae junto a otro ya puesto, se recorre al punto libre más cercano del contorno de su pieza (la pieza no se mueve).
+  // vert: puntos del contorno de una pieza (bq; null = todo el glifo) = extremos de sus trazos y puntos de sus círculos.
+  const PSEP=2.5,vert=(it,bq)=>{const v=[];it.forEach(q=>{if(bq!=null&&q.bq!==bq)return;
+      if(q.k==='c'){for(let a=0;a<360;a+=30)v.push({x:+q.cx+Math.cos(rad(a))*q.rad,y:+q.cy-Math.sin(rad(a))*q.rad});return;}
+      if(q.k!=='p')return;(String(q.d).match(/[MLC][^MLCZ]*/g)||[]).forEach(sg=>{const n=(sg.match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+        for(let j=sg[0]==='C'?n.length-2:0;j+1<n.length;j+=2)v.push({x:n[j],y:n[j+1]});});});return v;};
+  const separa=pp=>{const ya=[],lejos=z=>ya.every(o=>Math.hypot(o.x-z.x,o.y-z.y)>=PSEP);
+    pp.forEach(q=>{if(!lejos(q.p)){const p=q.p,c=q.v.filter(lejos).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];if(c)q.p={x:c.x,y:c.y};}ya.push(q.p);});};
   bb(cx-R,cy-R);bb(cx+R,cy+R);
   let yG=null,gh=0;
   if(H_){   // patas + piso punteado
@@ -4384,32 +4441,35 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
   // orificio: cada pieza con su propia guía; las que salen de lado, con un codo corto
   // la que sale hacia el lado contrario a su columna sube (o baja) primero por fuera del orificio para no cruzarlo
   // (mas: letras de las piezas alineadas detrás del orificio; van con la pieza que sale hacia afuera)
-  const orifItems=(E,gl,nx,ny,mas)=>E.ps.forEach((pz,j)=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*nx+q.dy*ny)<.7,ex=lado?q.x+q.dx*5:q.x,ey=lado?q.y+q.dy*5:q.y;
+  // v14: en la vista lateral del plano cada pieza lleva su punto (separa)
+  const orifItems=(E,gl,nx,ny,mas)=>{const pp=[];E.ps.forEach((pz,j)=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*nx+q.dy*ny)<.7,ex=lado?q.x+q.dx*5:q.x,ey=lado?q.y+q.dy*5:q.y;
     const izq0=ex<cx-R*.3,contra=lado&&Math.abs(q.dx)>.5&&(izq0?q.dx>0:q.dx<0),arriba=ey<cy;
-    items.push({letras:j===0&&mas?[pz.letra,...mas].sort(porF):[pz.letra],fr:j===0&&mas?1:0,tips:[{x:ex,y:ey}],pre:lado?[q.x,q.y]:null,vert:contra?1:0,des:contra?(arriba?gl.bb.y0-4:gl.bb.y1+4):undefined});});
+    const t={letras:j===0&&mas?[pz.letra,...mas].sort(porF):[pz.letra],fr:j===0&&mas?1:0,tips:[{x:ex,y:ey}],pre:lado?[q.x,q.y]:null,vert:contra?1:0,des:contra?(arriba?gl.bb.y0-4:gl.bb.y1+4):undefined};
+    items.push(t);if(lat)pp.push({t,p:{x:q.x,y:q.y},v:vert(gl.it,pz.bq)});});
+    separa(pp);pp.forEach(z=>{z.t.pto=z.p;if(z.t.pre)z.t.pre=[z.p.x,z.p.y];else z.t.tips=[{x:z.p.x,y:z.p.y}];});};
   if(lat){
     // v12 · vista lateral del plano (H): cada pieza en su ángulo exacto, sin recorrerla ni apilarla para que no se encime. Las de la misma cara
     // a ≤ ANG_ALINEADO° están una detrás de otra a lo largo del tanque: se dibuja solo la del frente (la más cercana al extremo desde donde se
     // mira: u mayor, la tapa de u < .5 es la del fondo) y todas sus letras apuntan a ese dibujo. Más de ANG_ALINEADO°: cada una en su ángulo.
     uds.sort((a,b)=>a.a-b.a).forEach(u=>{const k=cl.find(q=>q.cara===u.g.cara&&angDif(u.a,q.a)<=ANG_ALINEADO);if(k)k.m.push(u);else cl.push({a:u.a,cara:u.g.cara,m:[u]});});
-    // v13 · cara «arriba»: las de atrás también se dibujan, en línea oculta (punteada), recorridas de lado (media anchura de cada una + 2 pt)
-    // para que se lean; la del frente queda sólida en su ángulo exacto y encima. De izquierda a derecha van en el orden de la vista frontal
-    // (las que siguen a la del frente, hacia la columna de globos) y cada pieza lleva su globo y su guía: sube a un carril sobre el grupo
-    // (la primera, el más alto) y baja a su globo cerca de la columna, sin cruzarse. Un orificio se recorre y se puntea completo.
+    // v14 · cara «arriba»: las de atrás también se dibujan, en el MISMO punto y ángulo que la del frente (no se recorren: piezas en la misma
+    // posición quedan en la misma posición). Primero la del frente, sólida como siempre, y encima las ocultas con línea oculta fina
+    // (pintaOculta); un orificio de varias piezas sigue siendo UN ensamble, todo punteado. Cada pieza lleva su globo y su guía, con su punto
+    // sobre su propia pieza (separa); la guía sube a un carril sobre el grupo (la primera en el orden de la vista frontal, el más alto) y baja a
+    // su globo cerca de la columna, sin cruzarse. Si su subida cae en la misma línea que la de otra (la de la entrada por dentro de la válvula
+    // que tiene encima), se recorre ~1.5 pt hacia la columna (xd).
     const arribaOcultas=(k,fr)=>{
-      const ms=k.m.map(u=>{const t=tam(u.g),o={det:detDe(t.w),piezas:u.E?u.E.ps:null};return {u,t,o,hw:lev.glifo(u.g.t,0,0,0,-1,t.w,t.h,null,o).hw,r:Math.min(...letrasDe(u).map(rk))};}).sort((a,b)=>a.r-b.r);
-      const f=ms.findIndex(x=>x.u===fr),p=Pt(fr.a,R),nx=Math.cos(rad(fr.a)),ny=-Math.sin(rad(fr.a)),tx=-ny,ty=nx,izq=p.x<cx-R*.3,sg=(izq?-1:1)*(tx<0?-1:1);
-      ms[f].s=0;for(let j=f+1;j<ms.length;j++)ms[j].s=ms[j-1].s+sg*(ms[j-1].hw+ms[j].hw+2);for(let j=f-1;j>=0;j--)ms[j].s=ms[j+1].s-sg*(ms[j+1].hw+ms[j].hw+2);
+      const p=Pt(fr.a,R),ux=Math.cos(rad(fr.a)),uy=-Math.sin(rad(fr.a)),izq=p.x<cx-R*.3,sgc=izq?-1:1;
       const rec=[];let top=Infinity;
-      ms.filter(x=>x.u!==fr).concat(ms[f]).forEach(x=>{   // asienta en el contorno la esquina interior del cuello (la del frente: s = 0, como siempre)
-        const u=x.u,s=Math.max(-R*.9,Math.min(R*.9,x.s)),si=Math.max(0,Math.abs(s)-x.t.w/2),cs=Math.sqrt(R*R-si*si),bx=cx+nx*cs+tx*s,by=cy+ny*cs+ty*s;
-        const ux=Math.cos(rad(u.a)),uy=-Math.sin(rad(u.a)),gl=lev.glifo(u.g.t,bx,by,ux,uy,x.t.w,x.t.h,null,Object.assign({oculto:u!==fr},x.o));
-        gl.it.forEach(pinta);cajaB(gl.bb);top=Math.min(top,gl.bb.y0);
-        if(!u.E){rec.push({l:u.g.letra,x:bx+ux*gl.ext,y:by+uy*gl.ext});return;}
+      [fr].concat(k.m.filter(u=>u!==fr)).forEach(u=>{const t=tam(u.g),gl=lev.glifo(u.g.t,p.x,p.y,ux,uy,t.w,t.h,null,{det:detDe(t.w),piezas:u.E?u.E.ps:null});
+        gl.it.forEach(u===fr?pinta:pintaOculta);cajaB(gl.bb);top=Math.min(top,gl.bb.y0);
+        if(!u.E){const q={x:p.x+ux*gl.ext,y:p.y+uy*gl.ext};rec.push({l:u.g.letra,x:q.x,y:q.y,p:q,v:vert(gl.it,null)});return;}
         u.E.ps.forEach(pz=>{const q=gl.tips.find(z=>z.bq===pz.bq);if(!q)return;const lado=Math.abs(q.dx*ux+q.dy*uy)<.7;
-          rec.push({l:pz.letra,x:lado?q.x+q.dx*5:q.x,y:lado?q.y+q.dy*5:q.y,pre:lado?[q.x,q.y]:null});});});
+          rec.push({l:pz.letra,x:lado?q.x+q.dx*5:q.x,y:lado?q.y+q.dy*5:q.y,pre:lado?[q.x,q.y]:null,p:{x:q.x,y:q.y},v:vert(gl.it,pz.bq)});});});
+      separa(rec);rec.forEach(q=>{if(q.pre)q.pre=[q.p.x,q.p.y];else{q.x=q.p.x;q.y=q.p.y;}});
       const gr={top,izq,x0:izq?Math.max(...rec.map(q=>q.x)):Math.min(...rec.map(q=>q.x))};   // el carril se fija al acomodar los globos
-      rec.sort((a,b)=>rk(a.l)-rk(b.l)).forEach((q,j)=>items.push({letras:[q.l],tips:[{x:q.x,y:q.y}],pre:q.pre,izqF:izq,gr,cj:j,nc:rec.length}));};
+      rec.sort((a,b)=>rk(a.l)-rk(b.l)).forEach((q,j,a)=>{let x=q.x;for(let n=0;n<a.length;n++){const o=a.slice(0,j).find(z=>Math.abs(z.xd-x)<1.2);if(!o)break;x=o.xd+sgc*1.5;}q.xd=x;
+        items.push({letras:[q.l],tips:[{x:q.x,y:q.y}],pre:q.pre,izqF:izq,gr,cj:j,nc:a.length,pto:q.p,xd:x});});};
     cl.forEach(k=>{
       const fr=k.m.reduce((a,u)=>(+u.g.pos.u||0)>(+a.g.pos.u||0)?u:a),t=tam(fr.g),o={det:detDe(t.w),piezas:fr.E?fr.E.ps:null};
       if(lev&&k.cara==='arriba'&&k.m.length>1)return arribaOcultas(k,fr);
@@ -4456,13 +4516,15 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
       arr.sort((a,b)=>a.des-b.des);let pv=-Infinity;arr.forEach(t=>{t.by=Math.max(t.des,pv+sep);pv=t.by;});
       arr.forEach(t=>{const p=t.tip,by=t.by,xe=xc-sg*RB,pts=t.pre?[t.pre,[p.x,p.y]]:[[p.x,p.y]];
         if(t.carril!=null){   // v13 · grupo de arriba: carril sobre el grupo y bajada cerca de la columna (la del carril más alto, la más cercana)
-          if(Math.abs(by-t.carril)<.6)pts.push([p.x,by],[xe,by]);
-          else{const xk=xe-sg*(1.5+t.cj*Math.min(2.5,8/t.nc));pts.push([p.x,t.carril],[xk,t.carril],[xk,by],[xe,by]);}}
+          const xd=t.xd!=null?t.xd:p.x;if(Math.abs(xd-p.x)>.01)pts.push([xd,p.y]);   // v14: subida recorrida (xd)
+          if(Math.abs(by-t.carril)<.6)pts.push([xd,by],[xe,by]);
+          else{const xk=xe-sg*(1.5+t.cj*Math.min(2.5,8/t.nc));pts.push([xd,t.carril],[xk,t.carril],[xk,by],[xe,by]);}}
         else if(Math.abs(by-p.y)<.6)pts.push([xe,by]);
         else if(t.vert)pts.push([p.x,by],[xe,by]);
         else if(!t.cen&&(p.y<cy?by<p.y:by>p.y))pts.push([p.x,by],[xe,by]);
         else{const xm=xc-sg*(RB+6);pts.push([xm,p.y],[xm,by],[xe,by]);}
         for(let j=1;j<pts.length;j++){Lh(pts[j-1][0],pts[j-1][1],pts[j][0],pts[j][1],.45,.15);caja(pts[j-1][0]-.8,pts[j-1][1]-.8,pts[j][0]+.8,pts[j][1]+.8);}
+        if(t.pto){add({k:'c',cx:t.pto.x,cy:t.pto.y,rad:.9,w:.2,c:.25,fillC:[.25,.25,.25]});caja(t.pto.x-1.2,t.pto.y-1.2,t.pto.x+1.2,t.pto.y+1.2);}   // v14
         (t.fr&&izq?[...t.letras].reverse():t.letras).forEach((l,j)=>{const gx=xc+sg*j*2*RB;globo(gx,by,l);caja(gx-RB,by-RB,gx+RB,by+RB);});});
     }
   }
@@ -4471,6 +4533,12 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
   for(let a=0;a<360;a+=45){const s=a+'°',w=Mx.w(s,6)+2,h=7.2,ca=Math.cos(rad(a)),sx=Math.abs(ca)>.2?[Math.sign(ca)]:[1,-1];let en=null;
     busca:for(const r of [R+9,R+15,R+22,R+30,R+40])for(const dx of [0,7,14,21,28])for(const sgn of (dx?sx:[1])){const p=Pt(a,r),X=p.x+sgn*dx;
       if(!toca([X-w/2,p.y-h/2,X+w/2,p.y+h/2])){en={X,Y:p.y};break busca;}}
+    // v14 · «90°» siempre (también con piezas ocultas en 90°): si su lugar de siempre está ocupado, el lugar libre más cercano a un lado de la
+    // parte de arriba; sin ninguno, el de siempre
+    if(!en&&a===90){const p0=Pt(90,R+9);let bd=Infinity;
+      for(let r=R+9;r<=R+66;r+=3)for(let dx=0;dx<=R*1.6;dx+=2)for(const sgn of (dx?[1,-1]:[1])){const p=Pt(90,r),X=p.x+sgn*dx,dd=Math.hypot(X-p0.x,p.y-p0.y);
+        if(dd<bd&&!toca([X-w/2,p.y-h/2,X+w/2,p.y+h/2])){bd=dd;en={X,Y:p.y};}}
+      if(!en)en={X:p0.x,Y:p0.y};caja(en.X-w/2,en.Y-h/2,en.X+w/2,en.Y+h/2);}
     if(en)T(s,en.X,en.Y+2.2,{z:6,anc:'middle',c:.2});}
   // cota Ø INT. bajo la vista
   const yd=Math.max(H_?yG+gh+12:cy+R+30,B.y1+8);
@@ -4601,7 +4669,7 @@ function hoja(d,opt){
   // ---- croquis: vista frontal (FXLev, estilo CAD, cada pieza con su letra + cotas) y vista lateral / superior
   const G=grupos(d),L=levDe(d);
   const vista=(x,y,w,h,titulo)=>{T(titulo,x+w/2,y+h-2,{z:8,b:1,anc:'middle',u:1});};
-  const cotas={R:ok(i.Rmm)?`R INT. ${i.Rmm.toFixed(2)} mm`:'R INT. — mm',espCuerpo:`ESP. MIN. ${fx(i.tEnv,2)} mm`,espTapa:`ESP. MIN. ${fx(i.tTap,2)} mm`};
+  const cotas=cotasDe(i);
   const pegaCroquis=(rx,ry,rw,rh)=>frontal(c,d,L,rx,ry,rw,rh,{cotas,cr:ok(i.CR)&&i.CR>0?i.CR:0});   // v6: con la C.R. y su cota en cada tapa
   let memX,memY,memW,memH,cols;
   if(o==='H'){
@@ -4804,9 +4872,9 @@ function enHoja(pg,d,opt){
   return lay;
 }
 
-root.FXPlano={VERSION,DEF,DEF_OBJ,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,F_AREA_TAPAS,SH,VALVULAS_RELEVO,VALVULAS,VALV_TIPOS,valvulaDe,valvTipo,valvMedidas,valvLegado,mmClave,
+root.FXPlano={VERSION,DEF,AIRE,COD_FAB,NOTAS,PI_P,K_FORMA,T_ABS,N_TAPAS,F_AREA_TAPAS,SH,VALVULAS_RELEVO,VALVULAS,VALV_TIPOS,valvulaDe,valvTipo,valvMedidas,valvLegado,mmClave,
   E_OPC,FS_OPC,MATERIALES,MAT_DEF,materialDe,sTabla,rS,fmtS,matTapa,NB_DEF,RADIOGRAFIADO,CORROSION_MM,DIBUJO_DEF,
-  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,fechaCajetin,metricas,hoja,ubicLayout,svg,pdf,
+  reparar,esDefault,esAire,eficiencia,datos,calc,conclusion,especificaciones,capacidad,hidrostatica,boquillas,grupos,angDefault,posLateral,fechaCajetin,metricas,hoja,ubicLayout,latLayout,svg,pdf,
   PND_CAJA,UT_TAPA,UT_CUERPO,pndFalta,pndLayout,pndEnHoja,planoFalta,enHoja};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -5442,7 +5510,7 @@ async function edAbrir(key,label,opt){
   ED={key,label,nueva:!!opt.nueva,png:detectCt(bytes)==='image/png',src:r.cv,work:r.cv,crop:{x:0,y:0,w:W,h:H},cambio:false,recorte:false,
     v:{k:1,px:0,py:0},ptr:new Map(),gest:null,e,modo:'img',fl:null,raf:0,
     alListo:typeof opt.alListo==='function'?opt.alListo:null,bytes0:bytes,aspecto:opt.aspecto>0?+opt.aspecto:0,hoja:String(opt.hoja||'72')};   // v11: alListo(bytes) en lugar de guardar · aspecto = casilla del PDF
-  if(e){if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);const u=FXP().datos(e,{}).ubic;ED.fl={x:u.x*W,y:u.y*H,ang:u.ang,tam:u.tam};ED.fl0=Object.assign({},ED.fl);}
+  if(e){if(!e.plano||e.plano.angConv!=='2')e.plano=FXP().reparar(e.plano);const u=FXP().datos(e,{}).ubic;ED.fl={x:u.x*W,y:u.y*H,ang:u.ang,tam:u.tam};ED.fl0=Object.assign({},ED.fl);}
   $('#mImgT').textContent=(opt.firma?'Firma · recorta justo la firma · ':opt.nueva?'Imagen cargada · ':'Editar · ')+(label||'imagen');
   $('#mImgSub').textContent=opt.firma?'Recorta lo más pegado a la firma y gírala si hace falta; al aplicar sigue «Limpiar firma» (fondo transparente).':ED.aspecto?`Gira, voltea o recorta. «Ajustar a la casilla» deja la proporción de la hoja ${ED.hoja} (no se deforma).`:opt.nueva?'Revisa la orientación y el recorte. «Cancelar» la deja tal como se cargó.':'Lo que ves aquí es lo que se guarda y se imprime.';
   $('#edModos').hidden=!e;$('[data-ed="recorte"]').setAttribute('aria-pressed',String(!!opt.firma));if(opt.firma)ED.recorte=true;
@@ -5785,7 +5853,7 @@ function renderEqForm(){
   const dec=i=>{let x=i.value;if(i.hasAttribute('data-num')&&x.includes(',')){x=x.replace(',','.');i.value=x;}return x;};
   // v6 · C.R. del croquis (levantamiento): se guarda en e.plano.cejaRectaMm, la misma que leen los cálculos, «Ajustar C.R.» y el plano
   const onPl=ev=>{const i=ev.target.closest('[data-epl]');if(!i||!box.contains(i))return false;const e=eqAct();if(!e)return true;
-    if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);const k=i.dataset.epl,v=i.hasAttribute('data-mayus')?dec(i).toUpperCase():dec(i);if(String(e.plano[k]??'')===v)return true;
+    if(!e.plano||e.plano.angConv!=='2')e.plano=FXP().reparar(e.plano);const k=i.dataset.epl,v=i.hasAttribute('data-mayus')?dec(i).toUpperCase():dec(i);if(String(e.plano[k]??'')===v)return true;
     e.plano[k]=v;if(LEV&&k in LEV.dimensiones){LEV.dimensiones[k]=v;levAyudaDims();}expSucio=true;guardar();actEq();return true;};
   const on=ev=>{if(onPl(ev))return;const i=ev.target.closest('[data-e]');if(!i||!box.contains(i))return;const e=eqAct();if(!e)return;const k=i.dataset.e,v=dec(i);if(e[k]===v&&ev.type==='change'&&!['nombre','tag'].includes(k))return;e[k]=v;
     if(k==='fechaFabricacion')e.anioFabricacion=LX().anioDe(v);
@@ -5805,7 +5873,7 @@ function renderEqForm(){
   $('#eqPlegar').addEventListener('click',()=>{const todos=$$('.bloque',box),abrir=todos.every(s=>s.classList.contains('cerrado'));
     todos.forEach(s=>{s.classList.toggle('cerrado',!abrir);$('.bloque-cab',s).setAttribute('aria-expanded',String(abrir));ESTADO_SEC[s.dataset.sec]=!abrir;});
     $('#eqPlegar').textContent=abrir?'Contraer todo':'Expandir todo';try{localStorage.setItem('fenixmex-secs',JSON.stringify(ESTADO_SEC));}catch(_){}if(abrir)requestAnimationFrame(levPintar);});
-  initEsp();initLevEditor();initLevPl();
+  initEsp();initLevEditor();initLat();
 }
 // Equipo activo → formulario (valores, fotos, croquis y espesores)
 function eqCargar(){
@@ -5866,7 +5934,7 @@ function actEq(){
     {n:'Capacidad volumétrica',pend:1,f:'= V(D, L, C.R.) · falta '+[!plOk(inp.Dcm)&&'Ø',!plOk(inp.Lmm)&&'L',!plOk(inp.CR)&&'C.R.'].filter(Boolean).join(', ')+(plOk(vr)?` · placa ${vr.toFixed(3)} m³`:''),ir:plOk(inp.Dcm)&&plOk(inp.Lmm)?IR.cr(e):null,irT:'capturar C.R.'});}
   // construcción: material (se elige en el plano, junto a su S)
   ponRes($('[data-res="mat"]',box),String(e.materialCuerpo||'').trim()?{n:'Material del cuerpo / de las tapas',cls:'vinc',v:inp.matT&&inp.matT!==inp.matC?`${inp.matC} / ${inp.matT}`:inp.matC,f:`Plano · Material y esfuerzo permisible · S cuerpo = ${fS(inp.Sc)} · S tapas = ${fS(inp.St)} kg/cm²`,ir:IR.mat(e),irT:'editar en el plano'}:{n:'Material del cuerpo / de las tapas',cls:'vinc',pend:1,f:'Elige el material en el plano.',ir:IR.mat(e),irT:'editar en el plano'});
-  espActRes(e,d);actCroqPnd(e);levPlGrupos(d);actSecciones();
+  espActRes(e,d);actCroqPnd(e);actSecciones();
 }
 const ok1=v=>typeof v==='number'&&isFinite(v);
 // Estado de cada sección del equipo activo (pendientes / avisos)
@@ -5889,7 +5957,7 @@ function actP23(el,e){
 // Tabla de materiales: v5 · las tapas siguen al material del cuerpo mientras no se elija otro (materialTapaPropio = '1');
 // S cuerpo / S tapas = tabla (material × factor de seguridad, máximo 2 decimales), vacío si no hay valor. Fuera de la tabla: se conserva el S anterior.
 function matSync(e){
-  if(!window.FXPlano)return;if(!e.plano||!e.plano.conexiones)e.plano=FXPlano.reparar(e.plano);
+  if(!window.FXPlano)return;if(!e.plano||e.plano.angConv!=='2')e.plano=FXPlano.reparar(e.plano);
   if(String(e.materialTapaPropio??'')!=='1')e.materialTapa=e.materialCuerpo;
   const fs=e.plano.factorSeguridad,c=FXPlano.sTabla(e.materialCuerpo,fs),t=FXPlano.sTabla(e.materialTapa,fs),f=v=>isFinite(v)?FXPlano.fmtS(v):'';
   if(c.mat)e.plano.sCuerpo=f(c.s);if(t.mat)e.plano.sTapas=f(t.s);
@@ -6054,9 +6122,6 @@ function validar(){
     {const f=pndCroqFalta(e);if(f.length)W(`${n}: croquis de las hojas 71 y 75 pendiente (falta ${f.join(' y ')}); la caja quedará vacía.`,Object.assign({sec:'fotos',croq:1},q));}
     // v8: hoja 20 = plano generado de este equipo; sin geometría sale marcada PLANO PENDIENTE (nunca el plano de muestra)
     {const f=planoPend(e);if(f.length)W(`${n}: plano pendiente (falta ${f.join(' y ')}); su hoja 20 saldrá marcada PLANO PENDIENTE.`,Object.assign({sec:'croq',k:'diametroInteriorCm'},q));}
-    // v6: ángulo escrito a mano en el plano (vista lateral / superior) que no coincide con donde está dibujada en la vista frontal
-    if(window.FXPlano&&e.plano&&e.plano.angulos&&Object.keys(e.plano.angulos).length){try{const d=FXPlano.datos(e,{}),vl=d.inp.o==='V'?'superior':'lateral';
-      angAvisos(d).forEach(a=>W(`${n}: el ángulo de ${a.letra} (${String(LX().TIPO_UI[a.t]||a.serv).toLowerCase()}) en la vista ${vl} está escrito a mano (${a.man}°) y no coincide con la vista frontal (${a.auto==null?'ahí está en una tapa':'automático '+a.auto+'°'}).`,Object.assign({sec:'croq',sel:`#levPlGrupos [data-pga="${a.k.replace(/["\\]/g,'\\$&')}"]`,angAuto:a.k},q)));}catch(_){}}
     orifSugeridos(e).forEach(s=>W(`${n}: las boquillas ${s.letras.join(', ')} están juntas en el croquis. ¿Van en un mismo orificio?`,Object.assign({sec:'croq',unir:s.ids,nokey:s.key,letras:s.letras},q)));
     {const m=String(e.codigoMemoriaCalculo||'').trim();if(m){if(mems[m])W(`${n}: código de memoria repetido (${m}); cada plano lleva el suyo.`,Object.assign({sec:'doc',k:'codigoMemoriaCalculo'},q));mems[m]=1;}}
     // memoria de cálculo incompleta: no impide generar, pero lo que falta queda en blanco en el plano
@@ -6158,21 +6223,19 @@ function revRender(){
       return `<tr><td><b>${i+1}. ${esc(e.tag||'sin TAG')}</b></td><td>${esc(vt?vt.ui:x.valvTipo)} Ø ${esc(x.valvDiam||'—')} mm</td><td>${esc(x.v66Modelo||'—')}</td><td>${x.v66Area?esc(x.v66Area)+' cm²':'—'}</td><td>${x.v66Asiento?esc(x.v66Asiento)+' mm':'—'}</td><td>${esc(v66Fuente(x))}</td></tr>`;}).join('')}</tbody>`:'';}}
   // pendientes y avisos agrupados por paso y equipo
   {const box=$('#revPend'),grupo=(arr,cls)=>{const por={};arr.forEach((x,k)=>{const g=(PASO_NOM[x.paso]||'Otros')+(x.eq?' · '+eqNom(x.eq):'');(por[g]=por[g]||[]).push(k);});
-      return Object.entries(por).map(([g,ks])=>`<div class="grupo-rev"><h4>${esc(g)}</h4><ul>${ks.map(k=>`<li><button type="button" data-${cls}="${k}">${esc(arr[k].m)}<span class="ir">${esc(arr[k].sec?SEC_EQ_NOM[arr[k].sec]||'':PASO_NOM[arr[k].paso]||'')} →</span></button>${arr[k].unir?`<span class="rev-unir"><button type="button" class="btn mini" data-unir="${k}">Unir en un orificio</button><button type="button" class="btn mini fantasma" data-nounir="${k}">No, van separadas</button></span>`:''}${arr[k].angAuto?`<span class="rev-unir"><button type="button" class="btn mini" data-angauto="${k}">Volver a automático</button></span>`:''}</li>`).join('')}</ul></div>`).join('');};
+      return Object.entries(por).map(([g,ks])=>`<div class="grupo-rev"><h4>${esc(g)}</h4><ul>${ks.map(k=>`<li><button type="button" data-${cls}="${k}">${esc(arr[k].m)}<span class="ir">${esc(arr[k].sec?SEC_EQ_NOM[arr[k].sec]||'':PASO_NOM[arr[k].paso]||'')} →</span></button>${arr[k].unir?`<span class="rev-unir"><button type="button" class="btn mini" data-unir="${k}">Unir en un orificio</button><button type="button" class="btn mini fantasma" data-nounir="${k}">No, van separadas</button></span>`:''}</li>`).join('')}</ul></div>`).join('');};
     box.innerHTML=(err.length?`<div class="aviso err"><strong>Falta${err.length>1?'n':''} ${err.length} dato${err.length>1?'s':''} para generar</strong>${grupo(err,'err')}</div>`:'<div class="aviso ok">Sin pendientes: todo listo para generar.</div>')+
       (warn.length?`<div class="aviso warn"><strong>Avisos (${warn.length}) · no impiden generar</strong>${grupo(warn,'warn')}</div>`:'');
     $$('[data-err]',box).forEach(b=>b.addEventListener('click',()=>{mostrarFaltas=true;irA(err[+b.dataset.err]);}));
     $$('[data-warn]',box).forEach(b=>b.addEventListener('click',()=>irA(warn[+b.dataset.warn])));
     $$('[data-unir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.unir],true)));
-    $$('[data-nounir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.nounir],false)));
-    $$('[data-angauto]',box).forEach(b=>b.addEventListener('click',()=>{const x=warn[+b.dataset.angauto],e=x&&D.equipos.find(q=>q.id===x.eq);if(!e)return;   // v6
-      angVolverAuto(e,x.angAuto);plSucio=true;if(e.id===eqActivo&&pasoAct==='equipos')actEq();refrescar();revRender();toast('Ángulo automático: sale de la vista frontal.');}));}
+    $$('[data-nounir]',box).forEach(b=>b.addEventListener('click',()=>orifSugAccion(warn[+b.dataset.nounir],false)));}
 }
 function eqNom(id){const e=D.equipos.find(x=>x.id===id);return e?`Equipo ${D.equipos.indexOf(e)+1}${e.tag?' ('+e.tag+')':''}`:'';}
 // ---------- Personas › Dibujó: un nombre por plano (equipo), todos en el mismo bloque ----------
 function dibRender(){
   const box=$('#dibLista');if(!box||!D)return;const foco=document.activeElement;if(foco&&box.contains(foco))return;
-  box.innerHTML=D.equipos.map((e,i)=>{if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);
+  box.innerHTML=D.equipos.map((e,i)=>{if(!e.plano||e.plano.angConv!=='2')e.plano=FXP().reparar(e.plano);
     return `<div class="dib-fila"><span class="eqn">${i+1}. ${esc(e.tag||'sin TAG')}<small>${esc(e.nombre||'')}</small></span><div class="caja"><input data-dib="${esc(e.id)}" data-mayus value="${esc(e.plano.dibujo||'')}" placeholder="ING. …" autocomplete="off" aria-label="Dibujó el plano de ${esc(e.tag||e.nombre||'equipo '+(i+1))}"></div></div>`;}).join('');
   $$('[data-mayus]',box).forEach(mayus);
 }
@@ -6197,7 +6260,6 @@ function camposIndice(){
     out.push({t:'Espesores (16 puntos por columna)',d:`${q} › Espesores`,v:(e.espEnv||[]).filter(Boolean).length+'/16',x:{paso:'equipos',eq:e.id,sec:'esp',esp:'espEnv'}});
     for(const [sel,t] of [['#pl_mc','Material del cuerpo'],['#pl_mt','Material de las tapas'],['#pl_fs','Factor de seguridad'],['#pl_e','Eficiencia de soldadura E'],['#pl_fab','Fabricante'],['#pl_nb','National Board'],['#pl_cod','Código de fabricación'],['#pl_fec','Fecha del plano']]){
       const k=($(sel)&&($(sel).dataset.pl||$(sel).dataset.pe));const v=k?(e.plano&&e.plano[k]!=null?e.plano[k]:e[k]):'';out.push({t,d:`${q} › Plano`,v,x:{paso:'plano',eq:e.id,sel}});}
-    out.push({t:'Conexión por omisión (boquillas)',d:`${q} › Croquis y boquillas`,v:e.plano&&e.plano.tipoConexion,x:{paso:'equipos',eq:e.id,sec:'croq',sel:'#lv_con'}});
     out.push({t:'Dibujó',d:`${q} › Personas › Dibujó`,v:e.plano&&e.plano.dibujo,x:{paso:'personas',sel:`[data-dib="${e.id}"]`}});});
   return out;
 }
@@ -6497,7 +6559,8 @@ function migrar(origen){
     ESP_KEYS_E.forEach(k=>{if(!Array.isArray(e[k]))e[k]=Array(16).fill('');});
     if(!e.id)e.id=uid();
     migrarPlanoBq(e);   // v12: boquillas = solo las de Equipos (antes de reparar, que descarta lo que el plano ya no guarda)
-    if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano: S, E (0.85), C.R., cajetín, conexiones, ángulos, ubicación…
+    migrarBqPlano(e);   // v14: conexión por pieza; ángulo escrito a mano → altura en la vista frontal (también antes de reparar)
+    if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // plano: S, E (0.85), C.R., cajetín, ubicación…
     if(window.FXPlano){
       // tabla de materiales: S de la tabla (material × FS). v5: las tapas tienen su propio material; sin elección propia (archivos anteriores) = el del cuerpo.
       // Un material fuera de la tabla se conserva con su S anterior (se marca en rojo).
@@ -6576,7 +6639,7 @@ const normRs=s=>String(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,
 // v12 · el croquis del plano es solo vista: las boquillas (tipo, Ø, cara, posición, orificio) viven SOLO en e.levantamiento.boquillas
 // (Equipos › Croquis y boquillas). Un borrador que traiga boquillas o desplazamientos propios del plano se migra: las de Equipos mandan
 // y nunca se pierden; solo si Equipos no tiene ninguna, las del plano pasan a Equipos. Los desplazamientos de dibujo del plano se descartan.
-// Lo que sí es del plano (ángulo manual por tipo en plano.angulos, conexiones) se conserva.
+// v14: las conexiones y los ángulos escritos a mano del plano pasan a las piezas (migrarBqPlano).
 const PL_BQ_VIEJO=['boquillas','posiciones','posBoquillas','bqPos','desplazamientos','offsets','bqOffsets','arrastre'];
 let plBqMigrado=false;   // al arrancar: si se migró algo, el borrador se guarda una vez
 function migrarPlanoBq(e){
@@ -6587,6 +6650,25 @@ function migrarPlanoBq(e){
     const X=LX(),L=X.reparar({boquillas:viejas});
     if(L.boquillas.length){const n=plLevDe(e,true);n.boquillas=L.boquillas.map((b,i)=>Object.assign({id:uid(),letra:X.letra(i),tipo:b.tipo,diametroPulgadas:b.diametroPulgadas,cara:b.cara,pos:{u:b.pos.u,v:b.pos.v}},X.orifJSON(b)));}}
   for(const k of PL_BQ_VIEJO)delete p[k];
+}
+// v14 · antes: plano.conexiones (por tipo), plano.tipoConexion (por omisión) y plano.angulos (ángulo de la vista lateral / superior escrito a
+// mano, por pieza: «TIPO» / «TIPO #n»). Ahora cada pieza lleva su conexión (la de su tipo; si no, la de por omisión; si no, COPLE) y el
+// ángulo sale siempre de la vista frontal: un ángulo de frente / atrás se vuelve su altura en la frontal (FXPlano.posLateral, la inversa,
+// dentro de la mitad de su cara); en un orificio manda su 1.ª pieza y las demás la siguen. Los de arriba, abajo y tapas se descartan.
+function migrarBqPlano(e){
+  const p=e.plano;if(!p||typeof p!=='object'||Array.isArray(p))return;
+  const X=LX(),s=v=>String(v??'').trim(),lv=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:null;
+  const bs=lv&&Array.isArray(lv.boquillas)?lv.boquillas.filter(b=>b&&typeof b==='object'):[];
+  const cx=p.conexiones&&typeof p.conexiones==='object'&&!Array.isArray(p.conexiones)?p.conexiones:{},def=s(p.tipoConexion);
+  bs.forEach(b=>{if(b.conexion==null)b.conexion=(s(cx[X.normTipo(b.tipo)])||def||'COPLE').toUpperCase();});
+  const an=p.angulos&&typeof p.angulos==='object'&&!Array.isArray(p.angulos)?p.angulos:null;
+  if(an&&Object.keys(an).length&&window.FXPlano){const conv=s(p.angConv)==='2',o=orientDe(e),cuenta={},ors=X.orificios(bs);
+    bs.filter(b=>X.normTipo(b.tipo)&&X.CARAS.includes(b.cara)).forEach(b=>{const t=X.normTipo(b.tipo),n=cuenta[t]=(cuenta[t]||0)+1,a=nNum(an[n>1?`${t} #${n}`:t]);
+      const k=X.orifDe(b),or=k&&ors.get(k);if(isNaN(a)||(or&&or[0]!==b))return;
+      const np=FXPlano.posLateral(o,{cara:b.cara,pos:{u:+(b.pos&&b.pos.u)||0,v:+(b.pos&&b.pos.v)||0}},conv?a:90-a);if(!np)return;   // sin marca: 0° arriba, horario
+      b.pos=np;if(or)or.forEach(m=>{if(m!==b){m.cara=b.cara;m.pos={u:np.u,v:np.v};}});});}
+  if('conexiones' in p||'tipoConexion' in p||'angulos' in p)plBqMigrado=true;
+  delete p.conexiones;delete p.tipoConexion;delete p.angulos;
 }
 function montar(origen){migrar(origen);initDatos();vistaCargar();if(VISTA&&VISTA.eq&&D.equipos.some(e=>e.id===VISTA.eq))eqActivo=VISTA.eq;if(!D.equipos.some(e=>e.id===eqActivo))eqActivo=D.equipos[0]&&D.equipos[0].id;initImgs(document);refrescar();if(pasoAct==='equipos')eqPintar();else if(pasoAct==='plano')plPintar();else if(pasoAct==='personas')dibRender();else if(pasoAct==='revision')revRender();}
 
@@ -6604,7 +6686,7 @@ const p2h=n=>String(n).padStart(2,'0');
 // e.levantamiento guarda solo lo exclusivo del croquis: boquillas (tipo, Ø, cara, posición) y la orientación (espejo de e.plano.orientacion).
 // Metadatos, dimensiones y espesores se leen del equipo; así la hoja de campo (PDF/JSON) siempre dice lo mismo que el expediente.
 function orientDe(e){const p=e&&e.plano&&e.plano.orientacion,l=e&&e.levantamiento&&e.levantamiento.orientacion;return p==='H'||p==='V'?p:l==='V'?'V':'H';}
-function ponOrient(e,o){o=o==='V'?'V':'H';if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);e.plano.orientacion=o;if(e.levantamiento&&typeof e.levantamiento==='object')e.levantamiento.orientacion=o;}
+function ponOrient(e,o){o=o==='V'?'V':'H';if(!e.plano||e.plano.angConv!=='2')e.plano=FXP().reparar(e.plano);e.plano.orientacion=o;if(e.levantamiento&&typeof e.levantamiento==='object')e.levantamiento.orientacion=o;}
 function levDe(e){
   const X=LX(),L=X.nuevo(),s=v=>String(v??'').trim(),lv=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:null;
   L.orientacion=orientDe(e);
@@ -6690,6 +6772,7 @@ function levPintar(){
   if(hz&&s)html=`<circle class="zona" cx="${hz.cx}" cy="${hz.cy}" r="${(LEV_RSEL/s).toFixed(1)}"/>`+html;
   svg.innerHTML=html;levMarca=html;
   const zt=$('#levEdZoomTxt');if(zt)zt.textContent=(Math.round(v.k*10)/10).toLocaleString('es-MX')+'×';
+  latPintar();   // v14: la vista lateral sigue a la frontal
 }
 // ----- croquis: zoom, toque, lupa y deshacer -----
 function levEncuadre(){const v=levVista;v.k=levCl(v.k||1,1,LEV_KMAX);if(v.k<1.01){v.k=1;v.x=0;v.y=0;return;}
@@ -6755,13 +6838,15 @@ function levEdBotones(){
     p.title=levGrueso?'Paso grueso: cada toque mueve más. Toca para paso fino.':'Paso fino: cada toque mueve poco. Toca para paso grueso.';}
   const zt=$('#levEdZoomTxt');if(zt)zt.textContent=(Math.round(levVista.k*10)/10).toLocaleString('es-MX')+'×';
 }
+// chips A, B, C… de la frontal y de la lateral (v14: misma selección en las dos)
+function levChipsHTML(){const X=LX();return LEV.boquillas.map((x,j)=>{const l=X.letra(j),t=`${l} · ${X.TIPO_UI[x.tipo]||x.tipo} · ${X.CARA_UI[x.cara]||x.cara}`;
+  return `<button type="button" class="lev-ed-chip${x.id===LEV_SEL?' sel':''}" data-eid="${x.id}" aria-pressed="${x.id===LEV_SEL}" title="${esc(t)}" aria-label="${esc(t)}">${l}</button>`;}).join('');}
 // Barra de edición: chips A, B, C… (elegir sin recorrer la lista), datos de la seleccionada y modo «editando»
 function levEditor(){
   const ed=$('#levEd');if(!ed||!LEV)return;const X=LX(),L=LEV.boquillas;
   if(LEV_SEL&&!L.some(x=>x.id===LEV_SEL))LEV_SEL=null;
   const i=L.findIndex(x=>x.id===LEV_SEL),b=L[i],chips=$('#levEdChips');
-  chips.innerHTML=L.map((x,j)=>{const l=X.letra(j),t=`${l} · ${X.TIPO_UI[x.tipo]||x.tipo} · ${X.CARA_UI[x.cara]||x.cara}`;
-    return `<button type="button" class="lev-ed-chip${x.id===LEV_SEL?' sel':''}" data-eid="${x.id}" aria-pressed="${x.id===LEV_SEL}" title="${esc(t)}" aria-label="${esc(t)}">${l}</button>`;}).join('');
+  chips.innerHTML=levChipsHTML();
   $('#levEdInfo').innerHTML=b?`<b>${X.letra(i)}</b><span>${esc(X.TIPO_UI[b.tipo]||b.tipo)} · ${esc(X.CARA_UI[b.cara]||b.cara)}</span><i class="lev-ed-pista"> · arrastra cerca de ella o usa las flechas</i>`
     :(L.length?'Toca una boquilla o su letra para moverla.':'Agrega boquillas abajo para ubicarlas en el croquis.');
   ed.classList.toggle('activo',!!b);
@@ -6805,45 +6890,105 @@ function levRenderBq(){
     <div class="caja lv-t"><select data-bf="tipo" aria-label="Tipo de la boquilla ${l}">${X.TIPOS.map(t=>`<option value="${t}"${t===b.tipo?' selected':''}>${X.TIPO_UI[t]}</option>`).join('')}</select></div>
     <div class="caja lv-d"><input data-bf="d" inputmode="decimal" value="${esc(X.fmtPulg(b.diametroPulgadas))}" placeholder="Ø" autocomplete="off" aria-label="Diámetro de ${l} en pulgadas"><span class="u">pulg</span></div>
     <div class="caja lv-c"><select data-bf="cara" aria-label="Cara de ${l}">${X.CARAS.map(c=>`<option value="${c}"${c===b.cara?' selected':''}>${X.CARA_UI[c]}</option>`).join('')}</select></div>
+    <div class="caja lv-k"><input data-bf="con" data-mayus value="${esc(b.conexion==null?'COPLE':b.conexion)}" placeholder="COPLE" autocomplete="off" aria-label="Conexión de ${l}" title="Columna TIPO de la tabla de boquillas del plano"><span class="u">conexión</span></div>
     <div class="lev-bq-acc"><button type="button" class="btn chico fantasma" data-ba="up" title="Subir (cambia la letra)" aria-label="Subir ${l}"${i?'':' disabled'}>↑</button><button type="button" class="btn chico fantasma" data-ba="down" title="Bajar (cambia la letra)" aria-label="Bajar ${l}"${i<LEV.boquillas.length-1?'':' disabled'}>↓</button><button type="button" class="btn chico fantasma peligro" data-ba="del" title="Quitar" aria-label="Quitar ${l}">✕</button></div>${orifHTML(b,l)}</li>`;}).join('');
-  levEditor();
+  $$('[data-mayus]',ol).forEach(mayus);levEditor();
 }
-// v13 · datos del plano de cada boquilla (antes en Plano › Boquillas): conexión por tipo (plano.conexiones; vacío → plano.tipoConexion / COPLE)
-// y ángulo de cada pieza en la vista lateral / superior (plano.angulos[g.k]; vacío → automático desde la vista frontal). Misma letra que el plano.
-function levPlGrupos(d){
-  const tb=$('#levPlGrupos');if(!tb)return;
-  const G_=FXP().grupos(d),def=String(d.pl.tipoConexion||'').trim()||'COPLE',o=d.inp.o,avs=new Map(angAvisos(d,G_).map(a=>[a.k,a]));
-  {const vl=$('#levPl [data-lpvista]');if(vl)vl.textContent=o==='V'?'superior':'lateral';}
-  // lo que tiene el foco se conserva al repintar (mismo campo y cursor)
-  const f=document.activeElement,fk=f&&tb.contains(f)&&(f.dataset.pgc!=null?['pgc',f.dataset.pgc]:f.dataset.pga!=null?['pga',f.dataset.pga]:null),cur=fk?[f.selectionStart,f.selectionEnd]:null;
-  if(!G_.length){tb.innerHTML='<tbody><tr><td class="vacio">Sin boquillas: agrégalas arriba.</td></tr></tbody>';return;}
-  // v5: en un orificio con varias piezas el ángulo es del orificio: lo pone su 1.ª pieza (las demás la siguen)
-  const guia=new Map();for(const [,a] of LX().orificios(d.boq)){const reps=G_.filter(g=>a.includes(g.b));if(reps.length<2)continue;const g1=reps.find(g=>g.b===a[0])||reps[0];reps.forEach(g=>{if(g!==g1)guia.set(g.k,g1);});}
-  // la conexión es del tipo: se escribe en la 1.ª pieza de cada tipo; las demás del mismo tipo la siguen
-  const pri=new Map();G_.forEach(g=>{if(!pri.has(g.t))pri.set(g.t,g);});
-  const con=g=>pri.get(g.t)!==g?`<td class="vinc" title="La conexión es la misma para todas las piezas de este tipo">= ${esc(pri.get(g.t).letra)}</td>`:`<td><div class="caja"><input data-pgc="${esc(g.t)}" data-mayus value="${esc((d.pl.conexiones||{})[g.t]||'')}" placeholder="${esc(def)}" autocomplete="off" aria-label="Conexión de ${esc(g.serv)}"></div></td>`;
-  tb.innerHTML=`<thead><tr><th>Letra</th><th>Servicio</th><th>Conexión</th><th>Ángulo ${o==='V'?'superior':'lateral'}</th></tr></thead><tbody>${G_.map(g=>{
-    const dft=g.angAuto,gi=guia.get(g.k),av=avs.get(g.k),cab=`<tr data-id="${esc(g.b.id||'')}" data-t="${esc(g.t)}"><td><button type="button" class="lev-letra" data-lpsel title="Ubicar ${g.letra} en el croquis">${g.letra}</button></td><td>${esc(g.serv)}</td>${con(g)}`;
-    if(gi)return cab+`<td class="vinc" title="Va en el mismo orificio que ${esc(gi.serv)}: usa su ángulo">= orificio de ${gi.letra}</td></tr>`;
-    return cab+`<td><div class="caja"><input data-pga="${esc(g.k)}" inputmode="decimal" value="${esc((d.pl.angulos||{})[g.k]||'')}" placeholder="${dft==null?'tapa':dft+'°'}" autocomplete="off" aria-label="Ángulo de ${esc(g.letra)} (${esc(g.serv)}) en la vista ${o==='V'?'superior':'lateral'} (0° a la derecha, sentido antihorario)" title="Vacío = automático (${dft==null?'centro de la tapa':dft+'°'}, según la vista frontal). 0° a la derecha, 90° arriba, 180° a la izquierda, 270° abajo"><span class="u">°</span></div>${av?`<div class="pl-ang-av" title="El ángulo escrito no coincide con donde está dibujada en la vista frontal">⚠ frontal: ${av.auto==null?'tapa':av.auto+'°'} <button type="button" class="btn chico fantasma" data-pgauto="${esc(g.k)}" title="Volver a automático">Auto</button></div>`:''}</td></tr>`;}).join('')}</tbody>`;
-  $$('[data-mayus]',tb).forEach(mayus);levPlSel();
-  if(fk){const i=$$(`[data-${fk[0]}]`,tb).find(x=>x.dataset[fk[0]]===fk[1]);if(i){i.focus({preventScroll:true});try{i.setSelectionRange(cur[0],cur[1]);}catch(_){}}}
+// ----- v14 · vista lateral (H) / superior (V) del croquis: la del plano (FXPlano.latLayout), ligada a la vista frontal -----
+// Una sola fuente: la pos de cada pieza. Su ángulo sale de la frontal (grupos → angDefault con FXLev.alturaFrontal) y al girarla aquí se
+// escribe su altura en la frontal (FXPlano.posLateral). Solo frente / atrás se mueven, cada una en su mitad; arriba, abajo y las de las
+// tapas quedan fijas (la cara se cambia en la lista). Misma selección que la frontal (levSel); un orificio se mueve completo (sincOrificio).
+let latLay=null,latGest=null,latRep=null,latVer=null,latOff=0;   // latVer: pieza que muestra su ángulo (mientras se mueve)
+const latMovible=g=>!!g&&g.ang!=null&&(g.cara==='frente'||g.cara==='atras');
+// el equipo con las boquillas tal como están en el editor (durante un arrastre todavía no se guardan)
+function latDatos(){const e=eqAct();if(!e||!LEV||!window.FXPlano)return null;
+  return FXP().datos(Object.assign({},e,{levantamiento:Object.assign({},e.levantamiento||{},{orientacion:LEV.orientacion,boquillas:LEV.boquillas})}),{});}
+// primitivas del plano → SVG con los colores del tema (gris 0 = tinta, 1 = fondo; el blanco de los rellenos = placa, como la frontal)
+function latSVG(items){
+  const n=v=>Math.round(v*100)/100,col=c=>{const g=c==null?0:Array.isArray(c)?(c[0]+c[1]+c[2])/3:+c;return g<=0?'var(--tinta)':`color-mix(in srgb,var(--tinta) ${Math.round((1-g)*100)}%,var(--hundido))`;};
+  const ds=(o,k)=>o.dash?` stroke-dasharray="${o.dash.map(v=>n(v/k)).join(' ')}"`:'',rel=o=>o.fillC?col(o.fillC):o.fill?'var(--placa)':'none';
+  return items.map(o=>{
+    if(o.k==='l')return `<line x1="${n(o.x1)}" y1="${n(o.y1)}" x2="${n(o.x2)}" y2="${n(o.y2)}" style="stroke:${col(o.c)}" stroke-width="${o.w}"${ds(o,1)}/>`;
+    if(o.k==='c')return `<circle cx="${n(o.cx)}" cy="${n(o.cy)}" r="${n(o.rad)}" style="fill:${rel(o)};stroke:${col(o.c)}" stroke-width="${o.w}"${ds(o,1)}/>`;
+    if(o.k==='p')return `<path d="${o.d}" transform="translate(${n(o.tx)} ${n(o.ty)}) scale(${o.s})" style="fill:${rel(o)};stroke:${col(o.c)}" stroke-width="${o.w/o.s}"${ds(o,o.s)} stroke-linejoin="round"/>`;
+    if(o.k==='t')return `<text x="${n(o.x)}" y="${n(o.y)}" font-size="${n(o.z)}" text-anchor="${o.anc==='middle'?'middle':o.anc==='end'?'end':'start'}"${o.b?' font-weight="700"':''} style="fill:${col(o.c)}">${esc(o.s)}</text>`;
+    return '';}).join('');
 }
-// boquilla seleccionada en el croquis = su renglón resaltado
-function levPlSel(){$$('#levPlGrupos tr[data-id]').forEach(tr=>tr.classList.toggle('sel',!!LEV_SEL&&tr.dataset.id===LEV_SEL));}
-function initLevPl(){
-  const tb=$('#levPlGrupos');if(!tb)return;
-  const eqPl=()=>{const e=eqAct();if(!e)return null;if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);return e;};
-  tb.addEventListener('input',ev=>{const e=eqPl();if(!e)return;const c=ev.target.dataset.pgc,a=ev.target.dataset.pga;
-    if(c!=null){const x=ev.target.value.trim();if(x)e.plano.conexiones[c]=x.toUpperCase();else delete e.plano.conexiones[c];}
-    else if(a!=null){const x=ev.target.value.trim().replace(',','.');if(x&&!/^\d{0,3}(\.\d*)?$/.test(x))return;if(x)e.plano.angulos[a]=x;else delete e.plano.angulos[a];}
-    else return;expSucio=true;guardar();});
-  tb.addEventListener('change',ev=>{if(ev.target.matches('[data-pga]')){actEq();refrescar();}});   // aviso de la vista frontal al terminar de escribir
-  tb.addEventListener('click',ev=>{const au=ev.target.closest('[data-pgauto]');if(au){const e=eqPl();if(!e)return;angVolverAuto(e,au.dataset.pgauto);actEq();refrescar();toast('Ángulo automático: sale de la vista frontal.');return;}
-    const l=ev.target.closest('[data-lpsel]');if(!l||!LEV)return;const id=l.closest('tr').dataset.id,b=LEV.boquillas.find(x=>x.id===id);if(b)levSel(b.id,true);});
+const latPt=(a,r)=>({x:latLay.cx+Math.cos(a*Math.PI/180)*r,y:latLay.cy-Math.sin(a*Math.PI/180)*r});
+function latPintar(){
+  const svg=$('#levLatSvg');if(!svg||!LEV)return;const d=latDatos();if(!d)return;
+  try{latLay=FXP().latLayout(d,{M:plMetricas()});}catch(e){console.error(e);return;}
+  const lay=latLay,V=lay.o==='V',vl=V?'superior':'lateral',f=v=>v.toFixed(1);
+  svg.setAttribute('viewBox',`${f(lay.x0)} ${f(lay.y0)} ${f(lay.W)} ${f(lay.H)}`);svg.dataset.o=lay.o;
+  $$('#levLat [data-latvista]').forEach(s=>s.textContent=vl);svg.setAttribute('aria-label',`Vista ${vl} del tanque. Arrastra una boquilla de frente o de atrás alrededor del círculo; con una seleccionada, las flechas la giran 1° y Esc la suelta.`);
+  const g=lay.G.find(x=>x.b.id===LEV_SEL);let h=latSVG(lay.items);
+  if(g&&g.ang!=null){const p=latPt(g.ang,lay.R*1.12);h=`<circle class="zona" cx="${f(p.x)}" cy="${f(p.y)}" r="${f(lay.R*.2)}"/>`+h;
+    if(latVer===g.b.id){const q=latPt(g.ang,lay.R*1.55),s=`${Math.round(g.ang)%360}°`,w=s.length*5.4+6;   // ángulo solo mientras se mueve
+      h+=`<g class="lat-ang"><rect x="${f(q.x-w/2)}" y="${f(q.y-6.5)}" width="${f(w)}" height="13" rx="6.5"/><text x="${f(q.x)}" y="${f(q.y+3.4)}" font-size="9.5" text-anchor="middle">${s}</text></g>`;}}
+  svg.innerHTML=h;
+  // barra: letras (las mismas de la frontal), qué hace la seleccionada y flechas de 1°
+  const X=LX(),L=LEV.boquillas,i=L.findIndex(x=>x.id===LEV_SEL),b=L[i],mov=latMovible(g);
+  $('#levLatChips').innerHTML=levChipsHTML();
+  $('#levLatInfo').innerHTML=b?`<b>${X.letra(i)}</b><span>${esc(X.TIPO_UI[b.tipo]||b.tipo)} · ${esc(X.CARA_UI[b.cara]||b.cara)}</span><i class="lev-ed-pista"> · ${mov?'arrastra alrededor del círculo o gira 1° con las flechas':g&&g.ang!=null?`fija en la vista ${vl}: la cara se cambia en la lista`:`está en la tapa: en la vista ${vl} no se mueve`}</i>`
+    :(L.length?`Toca una boquilla o su letra para girarla en la vista ${vl}.`:'Agrega boquillas abajo para verlas aquí.');
+  $('#levLatEd').classList.toggle('activo',mov);
+}
+// gira la pieza al ángulo a (se queda en su mitad): su altura en la frontal; false si no cambió
+function latGira(b,a){const X=LX(),np=FXP().posLateral(LEV.orientacion,b,a);if(!np)return false;
+  const p=X.ajustar(LEV,Object.assign({},b,{pos:np}));latVer=b.id;if(p.u===b.pos.u&&p.v===b.pos.v)return false;b.pos=p;X.sincOrificio(LEV,b);return true;}
+// pieza (o su letra) bajo el dedo: piezas a ≥ 22 px de radio sobre su ángulo (la seleccionada gana si hay otras encimadas, como en la
+// frontal); letras = globos del dibujo
+function latToca(svg,cx,cy){
+  if(!latLay)return null;const m=svg.getScreenCTM();if(!m||!(m.a>0))return null;const s=m.a,q=levPuntoSVG(svg,{clientX:cx,clientY:cy}),lay=latLay;let best=null,bd=Infinity;
+  lay.G.forEach(g=>{if(g.ang==null)return;const sel=g.b.id===LEV_SEL,p=latPt(g.ang,lay.R*1.12),d=Math.hypot(q.x-p.x,q.y-p.y),lim=Math.max(lay.R*.2,LEV_RTOQ/s)*(sel?1.25:1),sc=d*(sel?.6:1);
+    if(d<=lim&&sc<bd){bd=sc;best={id:g.b.id,mov:latMovible(g)};}});
+  lay.items.forEach((o,k)=>{if(o.k!=='c'||o.rad!==6.4||!o.fill)return;const t=lay.items[k+1],g=t&&t.k==='t'&&lay.G.find(x=>x.letra===t.s);if(!g)return;
+    const d=Math.hypot(q.x-o.cx,q.y-o.cy);if(d<=Math.max(o.rad,LEV_RTOQ/s)&&d<bd){bd=d;best={id:g.b.id,mov:false,bg:true};}});
+  return best;
+}
+function initLat(){
+  const svg=$('#levLatSvg'),ed=$('#levLatEd');if(!svg||!ed)return;
+  const arrastra=G=>{const b=LEV.boquillas.find(x=>x.id===G.id);if(!b||!latLay)return;const p=levPuntoSVG(svg,{clientX:G.ex,clientY:G.ey});
+    if(latGira(b,Math.atan2(latLay.cy-p.y,p.x-latLay.cx)*180/Math.PI))levPintar();else latPintar();};
+  svg.addEventListener('pointerdown',ev=>{
+    if(ev.pointerType==='mouse'&&ev.button!==0)return;const t=latToca(svg,ev.clientX,ev.clientY);if(!t)return;
+    ev.preventDefault();if(ev.pointerType==='mouse')svg.focus({preventScroll:true});
+    if(t.id!==LEV_SEL)levSel(t.id,true);if(!t.mov)return;
+    const b=LEV.boquillas.find(x=>x.id===t.id);if(!b)return;try{svg.setPointerCapture(ev.pointerId);}catch(_){}
+    latGest={id:b.id,pid:ev.pointerId,cx:ev.clientX,cy:ev.clientY,ini:{u:b.pos.u,v:b.pos.v},mov:false};svg.classList.add('arrastre');});
+  svg.addEventListener('pointermove',ev=>{const G=latGest;if(!G||ev.pointerId!==G.pid)return;
+    if(!G.mov&&Math.hypot(ev.clientX-G.cx,ev.clientY-G.cy)<(ev.pointerType==='mouse'?2:3))return;
+    ev.preventDefault();if(!G.mov){G.mov=true;levPush(G.id,G.ini);}
+    G.ex=ev.clientX;G.ey=ev.clientY;if(!G.raf)G.raf=requestAnimationFrame(()=>{G.raf=0;if(latGest===G)arrastra(G);});});
+  const fin=ev=>{const G=latGest;if(!G||ev.pointerId!==G.pid)return;
+    if(G.raf){cancelAnimationFrame(G.raf);G.raf=0;if(ev.type==='pointerup')arrastra(G);}
+    latGest=null;svg.classList.remove('arrastre');if(G.mov)levGuardar();latVer=null;latPintar();};
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>svg.addEventListener(t,fin));
+  svg.addEventListener('touchstart',ev=>{const t=ev.changedTouches[0];if(t&&latToca(svg,t.clientX,t.clientY))ev.preventDefault();},{passive:false});
+  svg.addEventListener('touchmove',ev=>{if(latGest)ev.preventDefault();},{passive:false});
+  // girar 1°: flechas de la barra (mantener = repetir) y teclado (← → giran; ↑ ↓ suben y bajan en su mitad)
+  const gira=dir=>{const b=LEV.boquillas.find(x=>x.id===LEV_SEL),g=latLay&&latLay.G.find(x=>x.b.id===LEV_SEL);if(!b||!latMovible(g))return false;
+    const p0={u:b.pos.u,v:b.pos.v};clearTimeout(latOff);if(!latGira(b,g.ang+dir)){latPintar();return false;}
+    if(!latRep||!latRep.mov)levPush(b.id,p0);if(latRep)latRep.mov=true;levPintar();levGuardar();return true;};
+  const suelta=()=>{clearTimeout(latOff);latOff=setTimeout(()=>{latVer=null;latPintar();},900);};   // el ángulo se ve un momento al soltar y se quita
+  svg.addEventListener('keydown',ev=>{
+    if(ev.key==='Escape'&&LEV_SEL){ev.preventDefault();levSel(null);return;}
+    const g=latLay&&latLay.G.find(x=>x.b.id===LEV_SEL),c=g&&g.ang!=null?Math.cos(g.ang*Math.PI/180):1,up=latLay&&latLay.o==='V'?(g&&Math.sin(g.ang*Math.PI/180)<0?-1:1):(c<0?-1:1);
+    const dir={ArrowLeft:1,ArrowRight:-1,ArrowUp:up,ArrowDown:-up}[ev.key];if(!dir||!latMovible(g))return;
+    ev.preventDefault();gira(dir*(ev.shiftKey?10:1));suelta();});
+  const repFin=()=>{if(!latRep)return;clearTimeout(latRep.t);latRep.btn.classList.remove('pulsado');latRep=null;suelta();};
+  ed.addEventListener('pointerdown',ev=>{const bt=ev.target.closest('[data-lgir]');if(!bt||bt.disabled||(ev.pointerType==='mouse'&&ev.button!==0))return;
+    ev.preventDefault();repFin();try{bt.setPointerCapture(ev.pointerId);}catch(_){}
+    latRep={btn:bt,pid:ev.pointerId,mov:false,n:0};bt.classList.add('pulsado');gira(+bt.dataset.lgir);
+    const tic=()=>{if(!latRep||latRep.btn!==bt)return;latRep.n++;gira(+bt.dataset.lgir);latRep.t=setTimeout(tic,latRep.n>12?35:75);};
+    latRep.t=setTimeout(tic,400);});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>ed.addEventListener(t,ev=>{if(latRep&&ev.pointerId===latRep.pid)repFin();}));
+  ed.addEventListener('contextmenu',ev=>{if(ev.target.closest('.lev-ed-btn,.lev-ed-chip'))ev.preventDefault();});
+  ed.addEventListener('click',ev=>{const n=ev.target.closest('[data-lgir]');if(n){if(ev.detail===0){gira(+n.dataset.lgir);suelta();}return;}   // teclado (Enter / espacio)
+    const c=ev.target.closest('[data-eid]');if(c)levSel(c.dataset.eid===LEV_SEL?null:c.dataset.eid,true);});
 }
 function levSel(id,scroll){
-  LEV_SEL=id||null;$$('#levBqLista .lev-bq-fila').forEach(li=>li.classList.toggle('sel',li.dataset.id===LEV_SEL));levPlSel();levEditor();levPintar();
+  LEV_SEL=id||null;$$('#levBqLista .lev-bq-fila').forEach(li=>li.classList.toggle('sel',li.dataset.id===LEV_SEL));levEditor();levPintar();
   if(scroll&&LEV_SEL)levVerFila(LEV_SEL);
 }
 function levPuntoSVG(svg,ev){const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
@@ -6883,7 +7028,9 @@ function initLevEditor(){
       levRenderBq();}
     if(f==='ord'){X.ordenOrificio(LEV,b,+ev.target.value);levRenderBq();}
     levSel(b.id);levGuardar();});
-  ol.addEventListener('input',ev=>{if(ev.target.dataset.bf!=='d')return;const b=bq(ev.target);if(!b)return;const s=ev.target.value.trim(),n=LX().parsePulg(s);
+  ol.addEventListener('input',ev=>{
+    if(ev.target.dataset.bf==='con'){const b=bq(ev.target);if(b){b.conexion=ev.target.value.trim().toUpperCase();levGuardar();}return;}   // v14: conexión de la pieza
+    if(ev.target.dataset.bf!=='d')return;const b=bq(ev.target);if(!b)return;const s=ev.target.value.trim(),n=LX().parsePulg(s);
     if(!s)b.diametroPulgadas=null;else if(n>0)b.diametroPulgadas=n;else return;levPintar();levGuardar();});
   ol.addEventListener('focusout',ev=>{if(ev.target.dataset.bf!=='d')return;const b=bq(ev.target);if(b)ev.target.value=LX().fmtPulg(b.diametroPulgadas);});
   ol.addEventListener('focusin',ev=>{const b=bq(ev.target);if(b&&LEV_SEL!==b.id)levSel(b.id);
@@ -7042,7 +7189,7 @@ function levAlExpediente(L,j,reusar){
   const jx=X.aJSON(L);
   // v10: placa, presiones, dimensiones y espesores ya quedaron en el equipo; el levantamiento guarda solo croquis y boquillas
   e.levantamiento={schema:jx.schema,version:jx.version,modelo:MODELO,exportedAt:String((j&&j.exportedAt)||''),importadoEn:jx.exportedAt,orientacion:jx.orientacion,boquillas:jx.boquillas.map(b=>Object.assign({id:uid()},b))};
-  if(!e.plano||!e.plano.conexiones)e.plano=window.FXPlano?FXPlano.reparar(e.plano):{};e.plano.orientacion=jx.orientacion;
+  if(!e.plano||e.plano.angConv!=='2')e.plano=window.FXPlano?FXPlano.reparar(e.plano):{};e.plano.orientacion=jx.orientacion;
   // v6: C.R. del levantamiento → plano solo si está vacía; si ya tiene otra, se conserva y la del archivo queda en Revisión
   {const c=String(L.dimensiones[X.DIM_CR]??'').trim(),a=String(e.plano.cejaRectaMm??'').trim();
     if(c&&!a)e.plano.cejaRectaMm=c;else if(c&&a&&nNum(c)!==nNum(a))conflicto({eq:e.id,eqNom:String(e.tag||e.nombre||''),campo:'Ceja recta C.R. (mm)',usado:a,descartado:c,origen:'levantamiento importado (.json)',ir:{paso:'equipos',eq:e.id,sec:'croq',k:'cejaRectaMm'}});}
@@ -7054,7 +7201,7 @@ function levAlExpediente(L,j,reusar){
 }
 // ---------- VISITA (v9): todos los levantamientos de la visita en UN archivo, en su orden ----------
 // Cada equipo lleva sus datos (placa, presiones, espesores…), su levantamiento tal cual está guardado (metadatos, croquis,
-// boquillas y posiciones), lo del plano (C.R., material, ángulos, conexiones, flecha…) y sus fotos (base64).
+// boquillas y posiciones), lo del plano (C.R., material, flecha…) y sus fotos (base64).
 const VISITA_SCHEMA='fenix-visita',VISITA_VER=1;
 const EQ_FUERA=new Set(['id','_cerrado','levantamiento','plano','espAuto','__proto__','constructor','prototype']);   // v10: espAuto viaja dentro del levantamiento (como antes)
 // v10: levantamiento de la visita = el guardado (croquis y boquillas) + metadatos, dimensiones, espesores y marcas de «Rellenar» armados desde el equipo,
@@ -7143,7 +7290,7 @@ function visitaAlExpediente(q){
   for(const k of Object.keys(q.equipo))if(!EQ_FUERA.has(k))e[k]=plain(q.equipo[k]);
   e.id=id;e._cerrado=false;
   if(q.levantamiento)e.levantamiento=plain(q.levantamiento);else delete e.levantamiento;
-  e.plano=window.FXPlano?FXPlano.reparar(q.plano||{}):plain(q.plano||{});
+  e.plano=plain(q.plano||{});migrarBqPlano(e);if(window.FXPlano)e.plano=FXPlano.reparar(e.plano);   // v14: conexiones y ángulos a las piezas
   migrarV10(e,'archivo de visita');   // v10: las copias del levantamiento que no coinciden quedan en Revisión
   return {e,reuso,imgs:q.imgs||{}};
 }
@@ -7228,6 +7375,10 @@ const PDF_EQ=[['planta','ubicacion','Ubicación','t','ident'],['tanque','nombre'
   ['presionArranque','presionArranque','Presión de arranque','n','pres'],['presionParo','presionOperacion','Presión de operación (paro)','n','pres'],['capacidad','capacidadPlaca','Capacidad de placa (referencia)','c','ident']];
 const ESP_LBL={espSup:'tapa sup. / izq.',espEnv:'envolvente',espInf:'tapa inf. / der.'};
 // boquillas tal como se guardan en el equipo (formato del .json, sin recalcular posiciones)
+// v14 · al reemplazar las boquillas con las de una hoja de campo, cada pieza conserva la conexión que ya tenía (misma letra y tipo; si no, la
+// de otra pieza de su tipo); sin ninguna, COPLE.
+function conPrev(viejas,b,i){const X=LX(),t=X.normTipo(b&&b.tipo),v=Array.isArray(viejas)?viejas:[],m=v[i]&&X.normTipo(v[i].tipo)===t?v[i]:v.find(q=>q&&X.normTipo(q.tipo)===t);
+  return m&&m.conexion!=null?String(m.conexion):'COPLE';}
 function pdfBoquillas(L){const X=LX();return L.boquillas.map((b,i)=>Object.assign({letra:X.letra(i),tipo:b.tipo,diametroPulgadas:X.parsePulg(b.diametroPulgadas)>0?+X.parsePulg(b.diametroPulgadas).toFixed(4):null,cara:b.cara,pos:{u:+b.pos.u,v:+b.pos.v}},X.orifJSON(b)));}
 function bqTxt(a){const X=LX();if(!a.length)return '(sin boquillas)';
   return a.map((b,i)=>{const d=X.fmtPulg(X.parsePulg(b.diametroPulgadas));return `${X.letra(i)} ${String(X.TIPO_UI[X.normTipo(b.tipo)]||b.tipo).toLowerCase()}${d?' '+d+'"':''} ${String(X.CARA_UI[b.cara]||b.cara).toLowerCase()} (${(+b.pos.u).toFixed(3)}, ${(+b.pos.v).toFixed(3)})${X.orifDe(b)?' · orificio '+X.orifDe(b).slice(-4)+'/'+(b.ordenOrif||1):''}`;}).join(' · ');}
@@ -7272,13 +7423,13 @@ function pdfPlan(e,L,j,todo){
 function pdfAplicar(e,ap){
   const X=LX();
   if(ap.t==='eq'){e[ap.k]=ap.v;if(ap.k==='fechaFabricacion'){const y=X.anioDe(ap.v);if(y)e.anioFabricacion=y;}if(ap.k==='nombre'){const t=X.tipoDe(e);if(t)e.tipoEquipo=t.id;}}
-  else if(ap.t==='pl'){if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);e.plano[ap.k]=ap.v;}
+  else if(ap.t==='pl'){if(!e.plano||e.plano.angConv!=='2')e.plano=FXP().reparar(e.plano);e.plano[ap.k]=ap.v;}
   else if(ap.t==='or')ponOrient(e,ap.v);
   else if(ap.t==='rs'){D.razonSocialPropietario=ap.v;D.razonSocialUsuario=ap.v;}
   else if(ap.t==='esp'){if(!Array.isArray(e[ap.k])||e[ap.k].length<16)e[ap.k]=Array.from({length:16},(_,i)=>String((e[ap.k]||[])[i]??''));const au=espAuto(e);
     for(const [i,v] of Object.entries(ap.p||{})){e[ap.k][+i]=v;au[ap.k][+i]=!!(ap.auto&&ap.auto[i]);}}
   else if(ap.t==='bq'){const prev=e.levantamiento&&typeof e.levantamiento==='object'?e.levantamiento:{origen:'campo'};
-    e.levantamiento=Object.assign(prev,{schema:X.SCHEMA,version:X.VERSION,modelo:MODELO,importadoEn:isoAhora(),orientacion:ap.o||orientDe(e),boquillas:ap.v.map(b=>Object.assign({id:uid()},plain(b)))});
+    e.levantamiento=Object.assign(prev,{schema:X.SCHEMA,version:X.VERSION,modelo:MODELO,importadoEn:isoAhora(),orientacion:ap.o||orientDe(e),boquillas:ap.v.map((b,i)=>Object.assign({id:uid()},plain(b),{conexion:conPrev(prev.boquillas,b,i)}))});
     if(prev.origen==='plano')e.levantamiento.origen='campo';ponOrient(e,ap.o||orientDe(e));}
   e.presionPruebaHidrostatica=hidro(e);
 }
@@ -7416,19 +7567,7 @@ function plMemoria(d){
   const tg=$('#plMemTag');tg.textContent=d.faltan.length?`${d.faltan.length} pendiente${d.faltan.length>1?'s':''}`:'Completa';tg.dataset.s=d.faltan.length?'err':'ok';
 }
 
-// ----- boquillas: se capturan solo en Equipos › Croquis y boquillas; ahí van también la conexión de cada tipo y el ángulo de cada pieza (levPlGrupos) -----
-// v6 · ángulos escritos a mano en el plano que no coinciden con la vista frontal (más de ANG_TOL°): Revisión y la tabla lo avisan.
-// Los que siguen a otra pieza de su orificio no cuentan (usan el ángulo del orificio). auto = null: en la frontal está en una tapa.
-// v13: por pieza (k = llave de su ángulo en plano.angulos).
-const ANG_TOL=10;
-const angDif=(a,b)=>Math.abs((((a-b)%360)+540)%360-180);
-function angAvisos(d,G_){
-  G_=G_||FXP().grupos(d);const sig=new Set();
-  for(const [,a] of LX().orificios(d.boq)){const reps=G_.filter(g=>a.includes(g.b));if(reps.length<2)continue;const g1=reps.find(g=>g.b===a[0])||reps[0];reps.forEach(g=>{if(g!==g1)sig.add(g.k);});}
-  return G_.filter(g=>g.angManual&&!sig.has(g.k)&&(g.angAuto==null||angDif(g.ang,g.angAuto)>ANG_TOL)).map(g=>({t:g.t,k:g.k,letra:g.letra,serv:g.serv,man:+g.ang.toFixed(1),auto:g.angAuto}));
-}
-// vuelve al ángulo automático (borra el escrito a mano en el plano)
-function angVolverAuto(e,t){if(!e||!e.plano||!e.plano.angulos)return;delete e.plano.angulos[t];expSucio=true;guardar();}
+// ----- boquillas: se capturan solo en Equipos › Croquis y boquillas, con la conexión de cada pieza; su ángulo lateral sale de la vista frontal -----
 // ----- croquis de ubicación (vista previa interactiva) -----
 function plUbicDim(e,cb){
   const key='e:'+e.id+':ubicPlano',bytes=IMG[key];if(!bytes)return null;
@@ -7484,7 +7623,7 @@ function plExportarSVG(){
 }
 
 // ---------- PLANO v10: el equipo activo; cada resultado junto a lo que lo produce ----------
-function plEq(){const e=eqAct();if(!e)return null;if(!e.plano||!e.plano.conexiones)e.plano=FXP().reparar(e.plano);return e;}
+function plEq(){const e=eqAct();if(!e)return null;if(!e.plano||e.plano.angConv!=='2')e.plano=FXP().reparar(e.plano);return e;}
 // PRES. TRAB. MAX. PERM. = min(Pm) y CAPACIDAD = volumen calculado → campos del equipo que lee el PDF (solo datos; la pantalla se pinta aparte)
 function vincularTodo(){if(!D||!window.FXPlano)return;D.equipos.forEach(e=>{const r=vincDe(e);vincularPm(e,r);vincularCap(e,r);});}
 // valores de las entradas del plano (sin pisar la que tiene el foco)
