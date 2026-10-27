@@ -4339,15 +4339,14 @@ function deLev(c,q,tx,ty,s,i){
   else c.add({k:'p',d:q.d,tx,ty,s,w:st.w,c:st.c,dash:q.dash||st.dash,fill:st.fill,fillC:st.fc});
 }
 // Vista frontal (FXLev.croquis, estilo CAD: soportes, piso y boquillas por tipo) centrada en la caja (rx,ry,rw,rh).
-// opt: cotas (textos de R INT. / ESP. MIN.), pnd (sin cotas, guías ni globos), smax (escala máxima), medir (solo devuelve el tamaño).
-// v5: hojas PND (opt.pnd) siempre simplificado; el plano, detallado mientras el cuello impreso mida ≥ DET_MIN_PT (se mide en una primera pasada).
+// opt: cotas (textos de R INT. / ESP. MIN.), pnd (sin cotas, guías ni globos), smax (escala máxima).
+// v5: detallado mientras el cuello impreso mida ≥ DET_MIN_PT (se mide en una primera pasada); plano y hojas PND igual.
 function frontal(c,d,L,rx,ry,rw,rh,opt){
   opt=opt||{};const lev=root.FXLev;if(!L||!lev)return null;
   const arma=det=>{const lay=lev.croquis(L,{hit:false,agrupar:true,cad:true,pnd:!!opt.pnd,cotas:opt.cotas,cr:opt.pnd?0:opt.cr,det}),bx=lay.bb,PAD=6;
     const vx=bx.x0-PAD,vy=bx.y0-PAD,vw=bx.x1+PAD-vx,vh=bx.y1+PAD-vy;return {lay,vx,vy,vw,vh,s:Math.min(rw/vw,rh/vh,opt.smax||0.95)};};
-  let A=arma(opt.pnd?false:true);
-  if(!opt.pnd){const s0=A.s;A=arma(w=>w*s0>=DET_MIN_PT);}
-  const {lay,vx,vy,vw,vh,s}=A;if(opt.medir)return {s,w:vw*s,h:vh*s};
+  let A=arma(true);const s0=A.s;A=arma(w=>w*s0>=DET_MIN_PT);
+  const {lay,vx,vy,vw,vh,s}=A;
   const tx=rx+(rw-vw*s)/2-vx*s,ty=ry+(rh-vh*s)/2-vy*s;
   for(const q of lay.items)if(q.r!=='hit')deLev(c,q,tx,ty,s,d.inp);
   return {lay,s,tx,ty,w:vw*s,h:vh*s,X:x=>tx+x*s,Y:y=>ty+y*s};
@@ -4374,7 +4373,8 @@ function ordenFrontal(F){const m=new Map();if(F&&F.lay)F.lay.items.filter(q=>q.k
 // V: dos círculos concéntricos punteados; las boquillas como cuadrito (en el borde por ángulo; las de tapa en su proyección, abajo punteado).
 // Globos en columna (derecha; las del lado izquierdo en columna a la izquierda) con guías ortogonales; las del mismo orificio, lado a lado.
 // Las etiquetas de ángulo nunca pisan patas, piso, boquillas, guías ni globos: se recorren y, si no hay lugar, se omiten.
-// opt.pnd: sin ángulos, globos, letras ni cota (hojas PND). Devuelve la caja usada {x0,y0,x1,y1}.
+// opt.pnd: el mismo dibujo, sin ángulos, globos, letras ni cota (hojas PND). opt.det: función (ancho del cuello → ¿detallado?); sin ella,
+// detallado si mide ≥ DET_MIN_PT. Devuelve la caja usada {x0,y0,x1,y1}.
 function vistaCirc(c,d,G,cx,cy,R,opt){
   opt=opt||{};const {T,Lh,Rc,add,Mx}=c,i=d.inp,H_=i.o!=='V',pnd=!!opt.pnd,lev=root.FXLev;
   const B={x0:Infinity,y0:Infinity,x1:-Infinity,y1:-Infinity},bb=(x,y)=>{if(x<B.x0)B.x0=x;if(x>B.x1)B.x1=x;if(y<B.y0)B.y0=y;if(y>B.y1)B.y1=y;};
@@ -4416,12 +4416,12 @@ function vistaCirc(c,d,G,cx,cy,R,opt){
   for(let a=0;a<360;a+=45){const p=Pt(a,a%90?R:R*1.08);Lh(cx,cy,p.x,p.y,.35,.35,a%90?[3,2]:[6,2,1.5,2]);}
   // boquillas · v5 (dibujo del DWG): las del cuerpo, de lado sobre su ángulo (las que caen a menos de 12° y no están unidas en un orificio se
   // dibujan lado a lado); las de las tapas, en planta (se ven sobre su eje; la tapa del fondo, en línea oculta). Un orificio con varias
-  // piezas: UN cuello + te / cruz (de lado) o su planta; cada pieza con su globo. Plano: detallado si el cuello mide ≥ DET_MIN_PT; PND: simple.
+  // piezas: UN cuello + te / cruz (de lado) o su planta; cada pieza con su globo. Detallado si el cuello impreso mide ≥ DET_MIN_PT.
   const qs=Math.max(4.2,R*.085),items=[];
   const tam0=g=>{let w=R*.2;if(g.dpulg>0&&i.Dmm>0)w=g.dpulg*25.4/i.Dmm*2*R;w=Math.max(R*.12,Math.min(R*.3,w));return {w,h:Math.max(R*.07,Math.min(R*.15,w*.5))};};
   // v12 · vista lateral del plano (H): tapones y entradas / salidas de aire con un tamaño fijo, el de la válvula de seguridad (cuello mínimo)
-  const lat=H_&&!pnd,tam=g=>lat&&LAT_CHICOS.has(sinAc(g.t))?{w:R*.12,h:R*.07}:tam0(g);
-  const detDe=w=>!pnd&&opt.det!==false&&w>=DET_MIN_PT,cajaB=b=>{if(b&&isFinite(b.x0))caja(b.x0-.8,b.y0-.8,b.x1+.8,b.y1+.8);};
+  const lat=H_,tam=g=>lat&&LAT_CHICOS.has(sinAc(g.t))?{w:R*.12,h:R*.07}:tam0(g);
+  const detDe=w=>typeof opt.det==='function'?!!opt.det(w):w>=DET_MIN_PT,cajaB=b=>{if(b&&isFinite(b.x0))caja(b.x0-.8,b.y0-.8,b.x1+.8,b.y1+.8);};
   const proy=g=>{const u=Math.max(0,Math.min(1,+g.pos.u||.5)),v=Math.max(0,Math.min(1,+g.pos.v||.5));
     return H_?{x:cx,y:cy-(v-.5)*2*R*.7,dash:g.cara==='lado'&&u<.5}:{x:cx+(u-.5)*2*R*.7,y:cy,dash:g.cara==='abajo'};};
   // orificios que llevan la primera boquilla de algún tipo (como en la vista frontal): se dibujan completos, en el ángulo de su 1.ª pieza
@@ -4570,8 +4570,8 @@ function pndLayout(d,tp,opt){
   const punto=(x,y,r)=>add({k:'c',cx:x,cy:y,rad:r,w:.3,c:PND_ROJO,fillC:PND_ROJO});
   // vista frontal centrada (dibujo + título) en la banda (x,y,w,h)
   const frente=(x,y,w,h,marca)=>{
-    const m=frontal(c,d,L,0,0,w,h-TH,{pnd:true,smax:1.6,medir:true});if(!m)return;
-    const top=y+(h-m.h-TH)/2,f=frontal(c,d,L,x,top,w,m.h,{pnd:true,smax:1.6});titulo('VISTA FRONTAL',x+w/2,top+m.h+TH-6);
+    const f=frontal(c,d,L,x,y,w,h-TH,{pnd:true,smax:1.6});if(!f)return;
+    const top=y+(h-f.h-TH)/2;titulo('VISTA FRONTAL',x+w/2,top+f.h+TH-6);
     const {x0,y0,tw,th,hd}=f.lay.g,X=f.X,Y=f.Y;
     if(marca==='MT'){   // soldaduras circunferenciales cuerpo–tapa: líneas rojas gruesas
       if(o!=='V')[x0+hd,x0+tw-hd].forEach(xx=>add({k:'l',x1:X(xx),y1:Y(y0),x2:X(xx),y2:Y(y0+th),w:3.2,c:PND_ROJO}));
@@ -4581,10 +4581,12 @@ function pndLayout(d,tp,opt){
       if(o!=='V'){const a=x0+hd,b=x0+tw-hd,xu=u=>X(a+(b-a)*u);U.lados.forEach(u=>{punto(xu(u),Y(y0+th*U.v[0]),r);punto(xu(u),Y(y0+th*U.v[2]),r);});U.centro.forEach(u=>punto(xu(u),Y(y0+th*U.v[1]),r));}
       else{const a=y0+hd,b=y0+th-hd,yu=u=>Y(a+(b-a)*u);U.lados.forEach(u=>{punto(X(x0+tw*U.v[0]),yu(u),r);punto(X(x0+tw*U.v[2]),yu(u),r);});U.centro.forEach(u=>punto(X(x0+tw*U.v[1]),yu(u),r));}
     }};
-  // vista de tapa (lateral H / superior V) ajustada a la caja (x,y,w,h), con sus puntos UT
+  // vista de tapa (lateral H / superior V) ajustada a la caja (x,y,w,h), con sus puntos UT. Detalle según el tamaño impreso, como el
+  // plano: se mide a R0, se vuelve a medir con el detalle de esa escala k0 y se dibuja a R0·k con las mismas piezas detalladas.
   const tapa=(x,y,w,h,tit)=>{
-    const R0=50,B0=vistaCirc(lienzo(Mx),d,G,0,0,R0,{pnd:true}),bw=B0.x1-B0.x0,bh=B0.y1-B0.y0,k=Math.min((w-8)/bw,(h-TH-4)/bh);
-    const R=R0*k,cx=x+w/2-(B0.x0+B0.x1)/2*k,cy=y+(h-TH-bh*k)/2-B0.y0*k;vistaCirc(c,d,G,cx,cy,R,{pnd:true});
+    const R0=50,mide=det=>vistaCirc(lienzo(Mx),d,G,0,0,R0,{pnd:true,det}),esc=B=>Math.min((w-8)/(B.x1-B.x0),(h-TH-4)/(B.y1-B.y0));
+    const k0=esc(mide()),B0=mide(t=>t*k0>=DET_MIN_PT),bh=B0.y1-B0.y0,k=esc(B0);
+    const R=R0*k,cx=x+w/2-(B0.x0+B0.x1)/2*k,cy=y+(h-TH-bh*k)/2-B0.y0*k;vistaCirc(c,d,G,cx,cy,R,{pnd:true,det:t=>t/k*k0>=DET_MIN_PT});
     titulo(tit,x+w/2,cy+B0.y1*k+TH-6);
     const r=Math.max(1.8,Math.min(2.6,R*.035));UT_TAPA.forEach(([u,v])=>punto(cx+u*R,cy+v*R,r));};
   if(tp===71)frente(PAD,PAD,W-2*PAD,H-2*PAD,'MT');
