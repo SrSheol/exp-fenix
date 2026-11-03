@@ -1070,6 +1070,40 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{.top,nav.pasos,.eqbar{display:none}}
+/* ---------- v16 · documentos de la visita (carpeta DATOS del ZIP) y escáner ---------- */
+.dv-res{margin:2px 0 0;font-size:12.5px;color:var(--tinta-3)}
+.dv-lista{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.dv-fila{position:relative;border:1px dashed var(--acero-2);border-radius:var(--r-lg);background:var(--hundido);padding:10px 12px}
+.dv-fila.lleno{border-style:solid;border-color:var(--acero);background:var(--placa)}
+.dv-cab{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.dv-nom{font-weight:650;font-size:14px;flex:1 1 220px;min-width:0}
+.dv-est{font-size:12.5px;color:var(--tinta-3);white-space:nowrap}
+.dv-fila.lleno .dv-est{color:var(--ok);font-weight:650}
+.dv-cab .acciones,.dv-mas{display:flex;flex-wrap:wrap;gap:6px}
+.dv-mas{margin-top:8px}
+.dv-fila input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.dv-hojas{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.dv-hoja{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 6px;border:1px solid var(--acero);border-radius:var(--r);background:var(--placa-2)}
+.dv-th{width:46px;height:60px;flex:none;border-radius:6px;border:1px solid var(--acero);background:#fff center/contain no-repeat;display:grid;place-items:center;cursor:pointer}
+.dv-th.pdf{font-size:11px;font-weight:800;color:#b3261e;letter-spacing:.04em}
+.dv-th:focus-visible{outline:2px solid var(--laton);outline-offset:2px}
+.dv-hinfo{flex:1;min-width:0;font-size:12.5px;color:var(--tinta-3);overflow-wrap:anywhere}
+.dv-hinfo b{display:block;font-size:13px;color:var(--tinta);font-weight:650}
+.dv-hacc{display:flex;gap:4px;flex:none}
+.dv-hacc .btn.mini{min-width:32px;justify-content:center}
+.dv-nota{margin:8px 0 0}
+.campo .ayuda.dv-aviso{color:var(--warn);font-weight:600}
+.dv-ver-caja{max-width:820px}
+.dv-ver{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;max-height:62vh;overflow:auto;overflow-x:hidden;padding:2px}
+.dv-ver figure{margin:0;display:grid;gap:4px;justify-items:center}
+.dv-ver img{max-width:100%;max-height:52vh;border:1px solid var(--acero);border-radius:6px;background:#fff}
+.dv-ver figcaption{font-size:12px;color:var(--tinta-3)}
+.dv-ver-pdf{width:100%;aspect-ratio:8.5/11;max-height:52vh;display:grid;place-content:center;text-align:center;gap:6px;border:1px solid var(--acero);border-radius:6px;background:#fff;color:#b3261e;font-weight:800;font-size:22px}
+.dv-ver-pdf small{font-size:12px;font-weight:500;color:#555;overflow-wrap:anywhere;padding:0 8px}
+#mScan .ied-stage{background:#2b2b2b}
+#mScan svg{touch-action:none;cursor:crosshair}
+.ied-stage canvas.sc-lupa{inset:auto;width:140px;height:140px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 14px rgba(0,0,0,.55);pointer-events:none}
+#mScan [hidden],#mScan .sc-lupa[hidden]{display:none!important}
 </style>
 
 <!-- Firebase compat SDK (sync cloud; IndexedDB queda como caché offline) -->
@@ -1162,6 +1196,16 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
           <div class="campo" data-campo="tel94CruzRoja"><label for="d_t94d">Cruz Roja</label><div class="caja"><input id="d_t94d" data-d="tel94CruzRoja" inputmode="tel" placeholder="Teléfono local"></div></div>
           <div class="res fijo"><span class="rn">Línea Única de Emergencias</span><span class="rv">911</span><span class="rf">Fijo en todo el país.</span></div>
         </div>
+      </div>
+      <div class="tarjeta" id="t-docs">
+        <h3>Documentos <span class="tag">Carpeta DATOS del ZIP</span></h3>
+        <p class="nota">Escanea con la cámara o sube PDF, JPG o PNG. Cada documento se arma en un solo PDF (hojas carta) que va en la carpeta DATOS del ZIP final, en el borrador y en la visita (.json). No se imprime en el expediente; se guarda solo en este navegador.</p>
+        <div class="grid">
+          <div class="campo" data-campo="empresaTelefono"><label for="d_etel">Teléfono de la empresa</label><div class="caja"><input id="d_etel" data-d="empresaTelefono" inputmode="tel" autocomplete="off" placeholder="55 1234 5678"></div><div class="ayuda" id="d_etelAy"></div></div>
+          <div class="campo medio" data-campo="empresaCorreo"><label for="d_ecor">Correo de la empresa</label><div class="caja"><input id="d_ecor" data-d="empresaCorreo" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="contacto@empresa.com.mx"></div><div class="ayuda" id="d_ecorAy"></div></div>
+        </div>
+        <p class="dv-res" id="dvResumen" role="status" aria-live="polite"></p>
+        <ul class="dv-lista" id="dvLista" aria-label="Documentos de la visita"></ul>
       </div>
       <div class="paso-pie"><span></span><button type="button" class="btn prim" data-ir-paso="equipos">Continuar con equipos →</button></div>
     </section>
@@ -1361,7 +1405,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
 
     <!-- 6 · GENERAR -->
     <section class="paso" id="p-generar" data-paso="generar">
-      <div class="paso-cab"><div><h2><span class="num">6</span>Generar</h2><p>Expediente carta y, por cada equipo categoría II, su previo y su dictamen A4. Los PDF no se suben a la nube.</p></div></div>
+      <div class="paso-cab"><div><h2><span class="num">6</span>Generar</h2><p>Expediente carta y, por cada equipo categoría II, su previo y su dictamen A4. El ZIP agrega la carpeta DATOS con los documentos de la visita. Los PDF no se suben a la nube.</p></div></div>
       <div class="tarjeta">
         <div class="plan" id="plan"></div>
         <div id="validacion"></div>
@@ -1541,6 +1585,28 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
     </div>
     <div class="ied-pie"><span id="edInfo" role="status" aria-live="polite"></span>
       <div class="acciones"><button type="button" class="btn" data-ed="cancelar">Cancelar</button><button type="button" class="btn prim" data-ed="aplicar">Aplicar</button></div></div>
+  </div>
+</div>
+<!-- v16 · escáner de documentos: esquinas, perspectiva y realce, todo sin conexión -->
+<div class="modal oculto ied" id="mScan" role="dialog" aria-modal="true" aria-labelledby="mScanT">
+  <div class="ied-caja">
+    <div class="ied-cab">
+      <div><h3 id="mScanT">Escanear documento</h3><p id="mScanSub">Arrastra las 4 esquinas a los bordes de la hoja y toca «Aplicar».</p></div>
+      <div class="seg" role="group" aria-label="Tipo de imagen" id="scModos" hidden><button type="button" data-scm="color" aria-pressed="false">Color</button><button type="button" data-scm="gris" aria-pressed="true">Escala de grises</button><button type="button" data-scm="bn" aria-pressed="false">Blanco y negro</button></div>
+    </div>
+    <div class="ied-stage" id="scStage"><canvas id="scCv" aria-label="Documento"></canvas><svg id="scSvg" aria-label="Esquinas del documento: arrástralas a los bordes de la hoja"></svg><canvas id="scLupa" class="sc-lupa" aria-hidden="true" hidden></canvas></div>
+    <div class="ied-pie"><span id="scInfo" role="status" aria-live="polite"></span>
+      <div class="acciones" id="scAccEsq"><button type="button" class="btn" data-sc="cancelar">Cancelar</button><button type="button" class="btn fantasma" data-sc="auto">Detectar bordes</button><button type="button" class="btn fantasma" data-sc="todo">Toda la imagen</button><button type="button" class="btn" data-sc="tal">Usar tal cual</button><button type="button" class="btn prim" data-sc="aplicar">Aplicar</button></div>
+      <div class="acciones" id="scAccRes" hidden><button type="button" class="btn" data-sc="cancelar">Cancelar</button><button type="button" class="btn" data-sc="repetir">Repetir</button><button type="button" class="btn fantasma" data-sc="esquinas">Ajustar esquinas</button><button type="button" class="btn fantasma" data-sc="girar">Girar 90°</button><button type="button" class="btn prim" data-sc="usar">Usar esta hoja</button></div>
+    </div>
+  </div>
+</div>
+<div class="modal oculto" id="mDocVer" role="dialog" aria-modal="true" aria-labelledby="mDocVerT">
+  <div class="modal-caja dv-ver-caja">
+    <h3 id="mDocVerT">Documento</h3>
+    <p class="modal-nota" id="mDocVerSub"></p>
+    <div class="dv-ver" id="dvVer"></div>
+    <div class="pad-acc"><button type="button" class="btn fantasma" id="dvVerPdf">Abrir el PDF</button><div class="acciones"><button type="button" class="btn" id="dvVerDesc">Descargar PDF</button><button type="button" class="btn prim" data-cerrar>Cerrar</button></div></div>
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -6719,13 +6785,17 @@ const FOTO_LADO=1600,FOTO_Q=0.8,MUESTRA_AR=219.1/199.1;
 const esMuestraKey=k=>/:muestra[1-4]$/.test(String(k||''));
 // v5 · el tríptico (hoja 91) usa el mismo flujo que las muestras: cámara, ≤ 1600 px, JPEG 0.8 y «Ajustar a la casilla» de 197.14 × 164.53 pt
 const FOTO_CASILLA={'d:fotoFachada':{ar:197.14/164.53,hoja:'91'}};
-const esFotoKey=k=>esMuestraKey(k)||!!FOTO_CASILLA[String(k||'')];
-const fotoAspecto=k=>esMuestraKey(k)?MUESTRA_AR:(FOTO_CASILLA[String(k||'')]||{}).ar||null;
-const fotoHoja=k=>esMuestraKey(k)?'72':(FOTO_CASILLA[String(k||'')]||{}).hoja||'';
+// v16 · la foto de la placa (hoja 9, casilla 445.1 × 252.2 pt) también: cámara o archivo; conserva 2400 px para que la placa se lea
+const esPlacaKey=k=>/^e:[^:]+:fotoPlaca$/.test(String(k||'')),PLACA_CASILLA={ar:445.1/252.2,hoja:'9'};
+const fotoCasilla=k=>esPlacaKey(k)?PLACA_CASILLA:FOTO_CASILLA[String(k||'')];
+const fotoLado=k=>esPlacaKey(k)?IMG_LADO:FOTO_LADO;
+const esFotoKey=k=>esMuestraKey(k)||!!fotoCasilla(k);
+const fotoAspecto=k=>esMuestraKey(k)?MUESTRA_AR:(fotoCasilla(k)||{}).ar||null;
+const fotoHoja=k=>esMuestraKey(k)?'72':(fotoCasilla(k)||{}).hoja||'';
 const ORIG='~orig';   // v11: original de cada firma (ya recortado), para volver a limpiarla; se guarda aquí y en el borrador, nunca en la nube
 function imgDims(u8){if(!u8||u8.length<24)return null;if(u8[0]===0x89&&u8[1]===0x50){const v=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);return {w:v.getUint32(16),h:v.getUint32(20)};}if(u8[0]===0xFF&&u8[1]===0xD8)return jpegDims(u8);return null;}
 const kbTxt=n=>n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
-function imgLimite(key){key=String(key||'');if(esFotoKey(key))return {lado:FOTO_LADO,q:FOTO_Q,jpeg:true};const glob=key.startsWith('g:');return {lado:glob?IMG_LADO_G:IMG_LADO,q:IMG_Q,glob};}
+function imgLimite(key){key=String(key||'');if(esFotoKey(key))return {lado:fotoLado(key),q:FOTO_Q,jpeg:true};const glob=key.startsWith('g:');return {lado:glob?IMG_LADO_G:IMG_LADO,q:IMG_Q,glob};}
 function renderImg(box){
   const key=box.dataset.img, bytes=IMG[key], esFirma=box.classList.contains('firma'), esFoto=esFotoKey(key), orig=esFirma?IMG[key+ORIG]:null;
   if(box._u){URL.revokeObjectURL(box._u);box._u=null;}
@@ -6778,13 +6848,13 @@ async function leerCruda(file){
   return new Uint8Array(await file.arrayBuffer());
 }
 // Cualquier imagen que el navegador abra (JPG, PNG, HEIC en iPhone…) → orientación EXIF horneada, ≤ 1600 px, JPEG 0.8 sobre blanco
-async function fotoComprimir(bytes){
-  const {cv}=await imgCanvas(bytes,FOTO_LADO),c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;
+async function fotoComprimir(bytes,key){
+  const {cv}=await imgCanvas(bytes,fotoLado(key)),c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;
   const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(cv,0,0);
   return cvBytes(c,false,FOTO_Q);
 }
 async function fotoGuardar(key,label,raw){
-  let out;try{out=await fotoComprimir(raw);}catch(e){console.warn('foto',e);toast('No se pudo leer la foto. Prueba con otra (JPG o PNG).');return;}
+  let out;try{out=await fotoComprimir(raw,key);}catch(e){console.warn('foto',e);toast('No se pudo leer la foto. Prueba con otra (JPG o PNG).');return;}
   await ponerImg(key,out);toast(`Foto lista · ${kbTxt(out.length)}. Ajústala a la casilla si hace falta.`);
   edAbrir(key,label,{nueva:true,aspecto:fotoAspecto(key),hoja:fotoHoja(key)});
 }
@@ -6796,21 +6866,21 @@ function fotoTomar(box){
   camAbrir(box);
 }
 let CAM=null;
-async function camAbrir(box){
-  const m=$('#mCam'),key=box.dataset.img,label=box.dataset.label,tk={};CAM={key,label,box,tk,st:null};
+async function camAbrir(box,cb){   // v16: cb(raw) = la foto va al escáner de documentos
+  const m=$('#mCam'),key=box.dataset.img,label=box.dataset.label,tk={};CAM={key,label,box,tk,st:null,cb};
   $('#mCamT').textContent='Tomar foto · '+(label||'');$('#camMsg').textContent='Abriendo la cámara…';$('#camCapturar').disabled=true;
   m.classList.remove('oculto');
   try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1440}},audio:false});
     if(!CAM||CAM.tk!==tk){st.getTracks().forEach(t=>t.stop());return;}
     CAM.st=st;const v=$('#camVideo');v.srcObject=st;try{await v.play();}catch(_){}
-    $('#camMsg').textContent=esMuestraKey(key)?'Encuadra la muestra dentro de la guía y toca «Capturar».':'Encuadra la foto dentro de la guía y toca «Capturar».';$('#camCapturar').disabled=false;}
+    $('#camMsg').textContent=cb?'Encuadra toda la hoja, con sus cuatro esquinas, y toca «Capturar».':esPlacaKey(key)?'Encuadra la placa completa y toca «Capturar».':esMuestraKey(key)?'Encuadra la muestra dentro de la guía y toca «Capturar».':'Encuadra la foto dentro de la guía y toca «Capturar».';$('#camCapturar').disabled=false;}
   catch(err){console.warn('cámara',err);if(!CAM||CAM.tk!==tk)return;camCerrar();toast('No hay cámara disponible (o no se dio permiso): elige un archivo.');const ci=$('[data-cam-in]',box);if(ci)ci.click();}
 }
 function camCerrar(){$('#mCam').classList.add('oculto');if(CAM&&CAM.st)CAM.st.getTracks().forEach(t=>t.stop());const v=$('#camVideo');if(v)v.srcObject=null;CAM=null;}
 async function camCapturar(){
   if(!CAM)return;const v=$('#camVideo'),w=v.videoWidth,h=v.videoHeight;if(!w||!h){toast('La cámara aún no da imagen.');return;}
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(v,0,0,w,h);
-  const raw=await cvBytes(c,false,0.92),{key,label}=CAM;camCerrar();await fotoGuardar(key,label,raw);
+  const raw=await cvBytes(c,false,0.92),{key,label,cb}=CAM;camCerrar();if(cb){cb(raw);return;}await fotoGuardar(key,label,raw);
 }
 function initCam(){
   const m=$('#mCam');if(!m)return;
@@ -7339,7 +7409,7 @@ function itemHTML(it){
   const [k]=it;
   if(k[0]==='='){const r=k.slice(1);return r==='cat'?`<div class="medidor medio" data-res="cat"><div class="gw">${gaugeSVG(false)}</div><div class="cat-txt"></div></div>`:`<div class="res${r==='arel'||r==='mat'||r==='valvcat'?' medio':''}" data-res="${r}"></div>`;}
   if(k==='#tipo')return `<div class="campo" data-campo="tipoEquipo"><label for="e_tipoEq">Tipo de equipo</label><div class="caja"><select id="e_tipoEq">${LX().TIPOS_EQUIPO.map(t=>`<option value="${esc(t.id)}">${esc(t.nombre)}</option>`).join('')}<option value="" disabled>Nombre propio (sin tipo)</option></select></div><div class="ayuda">Nombre y TAG se numeran solos dentro de cada tipo.</div></div>`;
-  if(k==='#foto')return `<div class="ancho" data-campo="fotoPlaca"><div class="img" data-img-eq="fotoPlaca" data-label="Foto de la placa" data-hint="Opcional. Sin foto se imprime SIN FOTO (hoja 9)."></div></div>`;
+  if(k==='#foto')return `<div class="ancho" data-campo="fotoPlaca"><div class="img" data-img-eq="fotoPlaca" data-label="Foto de la placa" data-hint="Toma la foto o súbela · JPG, PNG o HEIC. Opcional: sin foto se imprime SIN FOTO (hoja 9)."></div></div>`;
   if(k==='#ptmp')return `<div class="campo" data-campo="presionTrabajoMaxPermitida" data-ptmp><div class="res vinc" data-res="ptmp"></div><div data-ptmp-in><label for="e_presionTrabajoMaxPermitida">Presión de trabajo máx. permitida <span class="req">*</span></label><div class="caja"><input id="e_presionTrabajoMaxPermitida" data-e="presionTrabajoMaxPermitida" inputmode="decimal" data-num placeholder="18.65" autocomplete="off"><span class="u">${KG}</span></div><div class="ayuda" data-kpa="presionTrabajoMaxPermitida"></div></div></div>`;
   if(k==='#vista')return `<div class="vista ancho" aria-live="polite"><div class="l" data-v="10"><span>Hoja 10</span><code></code></div><div class="l" data-v="66"><span>Hoja 66</span><code></code></div></div>`;
   return campoHTML(...it);
@@ -7713,8 +7783,8 @@ function revRender(){
     const imps=[...new Set(cs.filter(c=>c.aplicar&&c.imp).map(c=>c.imp))];
     box.innerHTML=cs.length?`<div class="aviso warn"><strong>${cs.length} dato${cs.length>1?'s':''} con dos versiones distintas al cargar archivos</strong><p>Se conservó el valor que ya tenía el expediente (marcado en verde). El otro queda aquí como respaldo: revísalo y toca «Entendido»${imps.length?' o, si viene de una hoja de campo (PDF), «Usar el del PDF»':''}.</p><div class="conf-grid">
       ${cs.map((c,k)=>{const e=D.equipos.find(x=>x.id===c.eq),n=e?`Equipo ${D.equipos.indexOf(e)+1} · ${esc(e.tag||e.nombre||'')}`:c.eqNom?esc(c.eqNom):'Expediente';
-        return `<div class="conf"><b>${n} · ${esc(c.campo)}</b><span>${c.ir?irHTML(c.ir,'ir al campo').replace('class="ir"','class="btn mini"'):''}${c.aplicar?` <button type="button" class="btn mini laton" data-confap="${k}">Usar el del PDF</button>`:''}${c.rutas?` <button type="button" class="btn mini laton" data-confrt="${k}">Usar el del archivo</button>`:''} <button type="button" class="btn mini" data-conf="${k}">Entendido</button></span>
-          <div class="q"><span>Se usa</span><span class="usado">${esc(c.usado||'(vacío)')}</span><span>${c.aplicar?'Del PDF':c.rutas?'Del archivo':'Descartado'}</span><span class="desc">${esc(c.descartado)}</span><span>Origen</span><span>${esc(c.origen||'')}${c.fecha?' · '+esc(c.fecha.slice(0,10)):''}</span></div></div>`;}).join('')}</div>
+        return `<div class="conf"><b>${n} · ${esc(c.campo)}</b><span>${c.ir?irHTML(c.ir,'ir al campo').replace('class="ir"','class="btn mini"'):''}${c.aplicar?` <button type="button" class="btn mini laton" data-confap="${k}">Usar el del PDF</button>`:''}${c.rutas?` <button type="button" class="btn mini laton" data-confrt="${k}">Usar el del archivo</button>`:''}${c.docv?` <button type="button" class="btn mini laton" data-confdv="${k}">Usar el del archivo</button>`:''} <button type="button" class="btn mini" data-conf="${k}">Entendido</button></span>
+          <div class="q"><span>Se usa</span><span class="usado">${esc(c.usado||'(vacío)')}</span><span>${c.aplicar?'Del PDF':c.rutas||c.docv?'Del archivo':'Descartado'}</span><span class="desc">${esc(c.descartado)}</span><span>Origen</span><span>${esc(c.origen||'')}${c.fecha?' · '+esc(c.fecha.slice(0,10)):''}</span></div></div>`;}).join('')}</div>
       ${imps.map(im=>{const g=cs.filter(c=>c.imp===im&&c.aplicar),e=D.equipos.find(x=>x.id===g[0].aplicarEq);
         return `<div class="conf-imp"><span>${esc(g[0].origen||ORIG_PDF)} → <b>${e?`equipo ${D.equipos.indexOf(e)+1} · ${esc(e.tag||e.nombre||'')}`:'equipo'}</b>: ${g.length} diferencia${g.length>1?'s':''}</span><button type="button" class="btn chico laton" data-confimp="${esc(im)}">Usar todo lo del PDF</button></div>`;}).join('')}
       <div class="acciones" style="margin-top:10px"><button type="button" class="btn chico" data-conf="todos">Entendido, todos</button></div></div>`:'';
@@ -7723,6 +7793,7 @@ function revRender(){
     $$('[data-confrt]',box).forEach(b=>b.addEventListener('click',async()=>{const c=conflictosVivos()[+b.dataset.confrt];if(!c||!c.rutas||!RX())return;   // v15
       if(!confirm('¿Reemplazar el plano de rutas de evacuación del expediente con el del archivo?'))return;
       D.rutasEvac=RX().reparar(c.rutas);if(c.rutasImg){const u=b64Seguro(c.rutasImg);if(u)await rtPonerSub(u);delete c.rutasImg;}c.visto=true;c.aplicado=new Date().toISOString();delete c.rutas;guardar();rtPintar();revRender();toast('Se usó el plano de rutas de evacuación del archivo.');}));
+    $$('[data-confdv]',box).forEach(b=>b.addEventListener('click',async()=>{const c=conflictosVivos()[+b.dataset.confdv];if(!c||!c.docv)return;await docsUsarDelArchivo(c);revRender();}));   // v16
     $$('[data-confimp]',box).forEach(b=>b.addEventListener('click',()=>{const g=conflictosVivos().filter(c=>c.imp===b.dataset.confimp&&c.aplicar);
       if(g.length&&confirm(`Usar lo del PDF en ${g.length} dato${g.length>1?'s':''}:\n• ${g.map(c=>c.campo).join('\n• ')}\n\n¿Continuar?`))confAplicar(g);}));}
   // estado por equipo
@@ -7903,13 +7974,15 @@ async function generar(zip){
     SALIDA.forEach(f=>f.url=URL.createObjectURL(new Blob([f.bytes],{type:'application/pdf'})));
     bi.style.width='100%';txt.textContent=`Listo: ${SALIDA.length} archivo${SALIDA.length>1?'s':''}.`;
     listar();
+    let dvZ='';
     if(zip){
       const z=new JSZip();SALIDA.forEach(f=>z.file(f.nombre,f.bytes));
+      try{txt.textContent='Agregando la carpeta DATOS…';dvZ=await docsZip(z);}catch(e){console.error('DATOS',e);toast('No se pudo armar la carpeta DATOS: '+(e&&e.message||e),8000);}   // v16
       const blob=await z.generateAsync({type:'blob',compression:'STORE'});
       descargar(blob,nom.zip);
     }
     const tot=SALIDA.reduce((a,f)=>a+f.bytes.length,0);
-    $('#sellado').innerHTML=`<div class="sellado" role="status"><div class="estampa">EXPEDIENTE<br>NOM-020<br>GENERADO</div><p><b>${esc(nom.exp.replace(/\.pdf$/,''))}</b>${r.pages} hojas${plPend.length?` (${plPend.length} con PLANO PENDIENTE: ${esc(plPend.map(p=>p.tag||p.nombre||('equipo '+p.i)).join(', '))})`:''}${cat2.length?` y ${cat2.length*2} PDF categoría II`:''} · ${(tot/1048576).toFixed(1)} MB${zip?` · descargado como ${esc(nom.zip)}`:''}</p></div>`;
+    $('#sellado').innerHTML=`<div class="sellado" role="status"><div class="estampa">EXPEDIENTE<br>NOM-020<br>GENERADO</div><p><b>${esc(nom.exp.replace(/\.pdf$/,''))}</b>${r.pages} hojas${plPend.length?` (${plPend.length} con PLANO PENDIENTE: ${esc(plPend.map(p=>p.tag||p.nombre||('equipo '+p.i)).join(', '))})`:''}${cat2.length?` y ${cat2.length*2} PDF categoría II`:''} · ${(tot/1048576).toFixed(1)} MB${zip?` · descargado como ${esc(nom.zip)}${dvZ?` con la carpeta DATOS (${esc(dvZ)})`:''}`:''}</p></div>`;
     if(plPend.length)toast(`Ojo: ${plPend.length} equipo${plPend.length>1?'s':''} sin plano; su hoja 20 dice PLANO PENDIENTE (${plPend.map(p=>p.tag||p.nombre).join(', ')}).`,8000);
   }catch(e){console.error(e);txt.textContent='';toast('Error al generar: '+(e&&e.message||e));}
   finally{bz.disabled=bg.disabled=false;setTimeout(()=>caja.classList.add('oculto'),1500);}
@@ -8011,7 +8084,8 @@ async function generarExcel(nuevo){
 function u8ToB64(u){let s='';const c=0x8000;for(let i=0;i<u.length;i+=c)s+=String.fromCharCode.apply(null,u.subarray(i,i+c));return btoa(s);}
 async function exportar(){
   const imgs={};for(const k in IMG)if(!k.startsWith('g:'))imgs[k]=u8ToB64(IMG[k]);
-  descargar(new Blob([JSON.stringify({version:1,draft:D,imgs})],{type:'application/json'}),`borrador_${Fx().sanitizeName(rsNombre())}.json`);
+  const txt=JSON.stringify({version:1,draft:D,imgs});jsonAviso(txt,'el borrador');   // v16: los documentos viajan como imágenes del expediente
+  descargar(new Blob([txt],{type:'application/json'}),`borrador_${Fx().sanitizeName(rsNombre())}.json`);
 }
 async function importar(file){
   let j=null;
@@ -8052,6 +8126,7 @@ function ejemplo(){
 // v4 → v10: una sola fuente por dato (migrarV10).
 function migrar(origen){
   if(!Array.isArray(D.conflictos))D.conflictos=[];
+  docsReparar();   // v16: documentos de la visita, teléfono y correo (los borradores anteriores no los traen)
   for(const [k] of TEL94)if(D[k]==null)D[k]='';
   D.tel94Emergencias='911';
   {const p=String(D.razonSocialPropietario||'').trim(),u=String(D.razonSocialUsuario||'').trim();
@@ -8185,7 +8260,7 @@ function migrarBqPlano(e){
   if('conexiones' in p||'tipoConexion' in p||'angulos' in p)plBqMigrado=true;
   delete p.conexiones;delete p.tipoConexion;delete p.angulos;
 }
-function montar(origen){migrar(origen);initDatos();vistaCargar();if(VISTA&&VISTA.eq&&D.equipos.some(e=>e.id===VISTA.eq))eqActivo=VISTA.eq;if(!D.equipos.some(e=>e.id===eqActivo))eqActivo=D.equipos[0]&&D.equipos[0].id;initImgs(document);refrescar();if(pasoAct==='equipos')eqPintar();else if(pasoAct==='plano')plPintar();else if(pasoAct==='personas')dibRender();else if(pasoAct==='revision')revRender();rtPintar();}
+function montar(origen){migrar(origen);initDatos();vistaCargar();if(VISTA&&VISTA.eq&&D.equipos.some(e=>e.id===VISTA.eq))eqActivo=VISTA.eq;if(!D.equipos.some(e=>e.id===eqActivo))eqActivo=D.equipos[0]&&D.equipos[0].id;initImgs(document);refrescar();if(pasoAct==='equipos')eqPintar();else if(pasoAct==='plano')plPintar();else if(pasoAct==='personas')dibRender();else if(pasoAct==='revision')revRender();rtPintar();docsRender();}
 
 // ---------- LEVANTAMIENTO: croquis y boquillas del equipo activo ----------
 const LX=()=>window.FXLev;
@@ -8727,7 +8802,8 @@ const IMG_EQ=['fotoPlaca','ubicPlano',...MUESTRAS.map(n=>'muestra'+n)];
 // v5 · datos de la VISITA (estación y cliente) que también viajan en el archivo: RFC, personas del cliente, teléfonos de emergencia (hoja 94),
 // foto del tríptico (hoja 91) y firmas del cliente. Las personas y firmas de FenixMex (nube, compartidas) NO van: siguen en la nube.
 const VISITA_D=[['rfcEmpresa','RFC de la empresa','#d_rfc'],['representanteLegalNombre','Representante legal','#d_rep'],['testigo1Nombre','Testigo 1','#d_t1'],
-  ['testigo2Nombre','Testigo 2','#d_t2'],['testigo2Curp','CURP del testigo 2','#d_t2c'],...TEL94.filter(([k])=>k!=='tel94Emergencias').map(([k,l])=>[k,'Emergencias · '+l,'#t-tel94'])];
+  ['testigo2Nombre','Testigo 2','#d_t2'],['testigo2Curp','CURP del testigo 2','#d_t2c'],...TEL94.filter(([k])=>k!=='tel94Emergencias').map(([k,l])=>[k,'Emergencias · '+l,'#t-tel94']),
+  ['empresaTelefono','Teléfono de la empresa','#d_etel'],['empresaCorreo','Correo de la empresa','#d_ecor']];   // v16
 const VISITA_IMG=[['fotoFachada','foto del tríptico'],['representanteLegalFirma','firma del representante legal'],['testigo1Firma','firma del testigo 1'],['testigo2Firma','firma del testigo 2']];
 const VISITA_IMG_K=VISITA_IMG.flatMap(([k])=>[k,k+ORIG]);   // con el original de cada firma (para volver a limpiarla)
 function isoAhora(){const d=new Date(),o=-d.getTimezoneOffset(),a=Math.abs(o);return `${d.getFullYear()}-${p2h(d.getMonth()+1)}-${p2h(d.getDate())}T${p2h(d.getHours())}:${p2h(d.getMinutes())}:${p2h(d.getSeconds())}${o>=0?'+':'-'}${p2h(Math.floor(a/60))}:${p2h(a%60)}`;}
@@ -8742,9 +8818,9 @@ function levExportarVisita(){
       levantamiento:levVisita(e),plano:e.plano&&typeof e.plano==='object'?plain(e.plano):null,imgs};});
   const datos={};for(const [k] of VISITA_D)datos[k]=String(D[k]??'').trim();datos.tel94Emergencias='911';
   const vimgs={};for(const k of VISITA_IMG_K){const b=IMG['d:'+k];if(b&&b.length)vimgs[k]=u8ToB64(b);}
-  const ahora=isoAhora(),j={schema:VISITA_SCHEMA,version:VISITA_VER,exportedAt:ahora,razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),datos,imgs:vimgs,rutasEvac:rtExportar(),nEquipos:n,equipos};
+  const ahora=isoAhora(),j={schema:VISITA_SCHEMA,version:VISITA_VER,exportedAt:ahora,razonSocial:rsNombre(),domicilio:String(D.domicilio||'').trim(),datos,imgs:vimgs,rutasEvac:rtExportar(),documentos:docsExportar(),nEquipos:n,equipos};
   const nom=`VISITA ${Fx().fileName(rsNombre())||'SIN NOMBRE'} ${ahora.slice(0,10)} (${n} equipo${n===1?'':'s'}).json`;
-  descargar(new Blob([JSON.stringify(j,null,1)],{type:'application/json'}),nom);
+  const txt=JSON.stringify(j,null,1);descargar(new Blob([txt],{type:'application/json'}),nom);jsonAviso(txt,'la visita');
   toast(`Visita exportada: ${n} equipo${n===1?'':'s'} en un archivo (${nom}).`,6000);
 }
 const valPlano=v=>v==null||['string','number','boolean'].includes(typeof v);
@@ -8768,6 +8844,7 @@ function visitaValidar(j){
   if(j.imgs!=null){if(typeof j.imgs!=='object'||Array.isArray(j.imgs))err.push('imágenes de la visita no válidas');
     else for(const [k,s] of Object.entries(j.imgs)){if(!VISITA_IMG_K.includes(k)){err.push(`imagen de la visita «${k}» desconocida`);continue;}
       const u=b64Seguro(s);if(!u||!/^image\/(png|jpeg)$/.test(detectCt(u)))err.push(`la imagen ${k} de la visita está dañada`);}}
+  if(j.documentos!=null)err.push(...docsValidar(j.documentos));   // v16 (opcional: los archivos anteriores no lo traen)
   j.equipos.forEach((q,i)=>{const n=`equipo ${i+1}`;
     if(!q||typeof q!=='object'||!q.equipo||typeof q.equipo!=='object'||Array.isArray(q.equipo)){err.push(`${n}: faltan sus datos`);return;}
     for(const [k,v] of Object.entries(q.equipo))if(!(valPlano(v)||(Array.isArray(v)&&v.every(valPlano)))){err.push(`${n}: el campo «${k}» no es válido`);break;}
@@ -8793,7 +8870,7 @@ function visitaPlanDatos(j){
 }
 async function visitaAplicarDatos(j,pl,origen){
   for(const x of pl.llenar)D[x.k]=x.k==='rfcEmpresa'?x.v.toUpperCase().replace(/\s+/g,'').slice(0,12):x.v;
-  for(const x of pl.conservar)conflicto({campo:x.l,usado:x.c,descartado:x.v,origen,ir:{paso:x.k.startsWith('tel94')||x.k==='rfcEmpresa'?'visita':'personas',sel:x.sel}});
+  for(const x of pl.conservar)conflicto({campo:x.l,usado:x.c,descartado:x.v,origen,ir:{paso:x.k.startsWith('tel94')||x.k.startsWith('empresa')||x.k==='rfcEmpresa'?'visita':'personas',sel:x.sel}});
   for(const x of pl.imgN)for(const k of [x.k,x.k+ORIG]){const s=j.imgs[k];if(!s)continue;let u=b64Seguro(s);if(!u)continue;try{u=await imgNormalizar(u,'d:'+k,false);}catch(_){}IMG['d:'+k]=u;await DB.set('img:d:'+k,u);imgDirty.add('d:'+k);}
 }
 // Un equipo de la visita → equipo del expediente, con TODOS sus datos (las fotos se guardan aparte, ya normalizadas)
@@ -8842,7 +8919,8 @@ async function importarLevantamientos(lista,destino){
           `  Tríptico (hoja 91): ${(g.j.imgs||{}).fotoFachada?(IMG['d:fotoFachada']?'trae foto, pero ya hay una: se conserva la actual':'foto incluida'):'sin foto en el archivo'}\n`+
           (pl.llenar.length?`  Se llenan (vacíos aquí): ${pl.llenar.map(x=>x.l.replace(/^Emergencias · /,'')).join(', ')}\n`:'')+
           (pl.imgN.length?`  Imágenes nuevas: ${pl.imgN.map(x=>x.l).join(', ')}\n`:'')+
-          (pl.conservar.length?`  Ya tienen otro valor y se conservan (el del archivo queda en Revisión): ${pl.conservar.map(x=>x.l.replace(/^Emergencias · /,'')).join(', ')}\n`:'');});}
+          (pl.conservar.length?`  Ya tienen otro valor y se conservan (el del archivo queda en Revisión): ${pl.conservar.map(x=>x.l.replace(/^Emergencias · /,'')).join(', ')}\n`:'')+
+          (()=>{const dp=docsPlan(g.j.documentos);return (dp.llenar.length?`  Documentos que se agregan: ${dp.llenar.join(', ')}\n`:'')+(dp.conservar.length?`  Documentos que ya tienen hojas y se conservan (el del archivo queda en Revisión): ${dp.conservar.join(', ')}\n`:'');})();});}
     const msg=`${n} equipo${n===1?'':'s'}: ${items.map(it=>it.tag||it.nombre||'sin TAG').join(', ')} → se agregará${n===1?'':'n'} como ${rango}${grupos.length>1?` (${grupos.length} archivos, en este orden)`:''}:\n\n${lineas.join('\n')}\n${vis}\n`+
       (reusa?'Se usa el equipo en blanco del expediente nuevo.':`Los ${base} equipo${base===1?'':'s'} que ya están no se borran ni se cambian.`)+
       (mal.length?`\n\nNo se importa (archivo con error):\n• ${mal.join('\n• ')}`:'')+'\n\n¿Importar?';
@@ -8853,6 +8931,7 @@ async function importarLevantamientos(lista,destino){
       if(!rsNombre()&&String(g.j.razonSocial||'').trim()){D.razonSocialPropietario=D.razonSocialUsuario=String(g.j.razonSocial).trim();g.rs='puesta';}
       if(!String(D.domicilio||'').trim()&&String(g.j.domicilio||'').trim())D.domicilio=String(g.j.domicilio).trim();
       {const pl=visitaPlanDatos(g.j);await visitaAplicarDatos(g.j,pl,'archivo de visita (.json)');g.vis=pl;}
+      g.dv=await docsImportar(g.j.documentos,'archivo de visita (.json)');   // v16: documentos (solo los vacíos)
       const eqsV=[];
       for(const it of g.items){const r=visitaAlExpediente(it.q);r.visita=true;ok.push(r);eqsV.push(r.e);
         for(const [s,b] of Object.entries(r.imgs)){const k='e:'+r.e.id+':'+s;let u=b64Seguro(b);try{u=await imgNormalizar(u,k,false);}catch(_){}IMG[k]=u;await DB.set('img:'+k,u);}}
@@ -8872,6 +8951,8 @@ async function importarLevantamientos(lista,destino){
   if(ok.some(r=>r.rs==='puesta'))msg+=' Razón social tomada del archivo.';
   {const vs=grupos.filter(g=>g.vis),ll=vs.reduce((a,g)=>a+g.vis.llenar.length+g.vis.imgN.length,0),cs=vs.reduce((a,g)=>a+g.vis.conservar.length+g.vis.imgC.length,0);
     if(ll)msg+=` Datos de la visita: ${ll} restaurado${ll>1?'s':''} (emergencias, tríptico, personas del cliente).`;if(cs)msg+=` ${cs} dato${cs>1?'s':''} de la visita ya tenía${cs>1?'n':''} otro valor: se conservó (ver Revisión).`;}
+  {const dl=grupos.reduce((a,g)=>a+(g.dv?g.dv.llenos:0),0),dc=grupos.reduce((a,g)=>a+(g.dv?g.dv.conserv:0),0);
+    if(dl)msg+=` Documentos restaurados: ${dl}.`;if(dc)msg+=` ${dc} documento${dc>1?'s':''} ya tenía${dc>1?'n':''} hojas: se conservó (ver Revisión).`;}
   {const rt=grupos.map(g=>g.rt).filter(Boolean);if(rt.includes('lleno'))msg+=' Plano de rutas de evacuación restaurado.';if(rt.includes('conflicto'))msg+=' Ya había plano de rutas de evacuación: el del archivo quedó en Revisión.';}
   const dist=ok.filter(r=>r.rs==='distinta');dist.forEach(r=>conflicto({eq:r.e.id,eqNom:r.e.tag||r.e.nombre,campo:'Razón social (cliente del levantamiento)',usado:rsNombre(),descartado:r.cli,origen:'levantamiento importado (.json)',ir:{paso:'visita',sel:'#d_rsp'}}));if(dist.length){guardar();}if(dist.length)msg+=` Se conservó la razón social actual (el levantamiento dice ${dist[0].cli}).`;
   if(ok.some(r=>!r.visita))msg+=' Revisa fluido, temperaturas, válvula, programa de calibración y en el plano S y C.R.';
@@ -9490,6 +9571,442 @@ function initPlano(){
 }
 
 
+// ---------- v16 · DOCUMENTOS de la visita (carpeta DATOS del ZIP final) ----------
+// Lista fija. Cada documento = sus hojas en orden: foto escaneada o imagen (JPEG ≤ 2000 px, 0.8) o una página de un PDF subido (tal cual).
+// Los archivos se guardan como las demás imágenes del expediente (IndexedDB local, nunca la nube): IMG['d:doc:<doc>:<archivo>'].
+// D.documentos[doc].hojas = [{id, t:'img'|'pdf', f:archivo, p:página (pdf; -1 = PDF protegido completo), n:páginas del PDF, nom}]
+// No se imprime en el expediente: solo va a la carpeta DATOS del ZIP, al borrador y a la visita (.json).
+const DOCV=[['cre','Permiso CRE/CNE'],['domicilio','Comprobante de domicilio (emitido por una entidad gubernamental)'],['poder','Poder notarial'],
+  ['csf','Constancia de situación fiscal (CSF)'],['ineRep','INE Representante Legal'],['ineResp','INE Responsable de visita'],['ineMant','INE Mantenimiento'],
+  ['ineT1','INE Testigo 1'],['ineT2','INE Testigo 2'],['plano','Plano de la instalación'],['rutas','Plano de rutas de evacuación']];
+const DOCV_N=Object.fromEntries(DOCV);
+const DOC_LADO=2000,DOC_Q=0.8,DOC_SRC=3000,DOC_JSON_AVISO=25*1048576;
+const docKey=(d,f)=>'d:doc:'+d+':'+f;
+const esPdf=u=>!!u&&u.length>4&&u[0]===0x25&&u[1]===0x50&&u[2]===0x44&&u[3]===0x46;   // %PDF
+function docsD(){if(!D.documentos||typeof D.documentos!=='object'||Array.isArray(D.documentos))D.documentos={};return D.documentos;}
+function docHojaSana(h){if(!h||typeof h!=='object'||typeof h.f!=='string'||!/^[\w-]{1,40}$/.test(h.f)||(h.t!=='img'&&h.t!=='pdf'))return null;
+  const o={id:String(h.id||uid()),t:h.t,f:h.f};
+  if(h.t==='pdf'){o.n=Math.max(1,Math.floor(+h.n)||1);o.p=h.cif?-1:Math.max(0,Math.min(o.n-1,Math.floor(+h.p)||0));if(h.cif)o.cif=true;}
+  if(h.nom)o.nom=String(h.nom).slice(0,140);return o;}
+function docsReparar(){
+  const o=docsD();
+  for(const k of Object.keys(o)){const x=o[k];if(!DOCV_N[k]||!x||!Array.isArray(x.hojas)){delete o[k];continue;}x.hojas=x.hojas.map(docHojaSana).filter(Boolean);if(!x.hojas.length)delete o[k];}
+  for(const k of ['empresaTelefono','empresaCorreo'])if(D[k]==null)D[k]='';
+}
+// hojas con su archivo presente (una hoja sin archivo no se muestra ni se entrega)
+const docHojas=d=>((docsD()[d]||{}).hojas||[]).filter(h=>IMG[docKey(d,h.f)]);
+const docNHojas=d=>docHojas(d).reduce((a,h)=>a+(h.p<0?h.n:1),0);
+const docBloqueado=d=>docHojas(d).some(h=>h.cif);
+function docPeso(d){const v=new Set();return docHojas(d).reduce((a,h)=>{if(v.has(h.f))return a;v.add(h.f);return a+IMG[docKey(d,h.f)].length;},0);}
+// claves de IMG que hay que leer al abrir la app (las del expediente y las pendientes en Revisión)
+function docsKeys(){const s=new Set();
+  for(const [d,x] of Object.entries(docsD()))for(const h of (x&&x.hojas)||[])if(h&&h.f)s.add(docKey(d,h.f));
+  for(const c of (D&&Array.isArray(D.conflictos)?D.conflictos:[]))if(c&&c.docv&&!c.visto&&DOCV_N[c.docv.id])for(const h of c.docv.hojas||[])if(h&&h.f)s.add(docKey(c.docv.id,h.f));
+  return [...s];}
+async function docGuardarArchivo(d,bytes){const f=uid()+uid().slice(0,4),k=docKey(d,f);IMG[k]=bytes;await DB.set('img:'+k,bytes);return f;}
+async function docBorrarSiLibre(d,f){if(((docsD()[d]||{}).hojas||[]).some(h=>h.f===f))return;const k=docKey(d,f);delete IMG[k];await DB.del('img:'+k);docUrlLibre(k);}
+function docPush(d,hs){const o=docsD();if(!o[d])o[d]={hojas:[]};o[d].hojas.push(...hs);guardar();docsRender();}
+const docArchivoNombre=nom=>String(nom).replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim().replace(/[. ]+$/,'')||'Documento';
+// miniaturas: un object URL por archivo (se libera al quitarlo)
+const DV_URL=new Map();
+function docUrl(d,h){const k=docKey(d,h.f),b=IMG[k],c=DV_URL.get(k);if(c&&c.b===b)return c.u;if(c)URL.revokeObjectURL(c.u);
+  const u=URL.createObjectURL(new Blob([b],{type:detectCt(b)}));DV_URL.set(k,{b,u});return u;}
+function docUrlLibre(k){const c=DV_URL.get(k);if(c){URL.revokeObjectURL(c.u);DV_URL.delete(k);}}
+
+// ---------- tarjeta «Documentos» (paso Visita) ----------
+const DV_ACEPTA='.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png';
+function docsFilaHTML(d,nom){
+  const hs=docHojas(d),n=docNHojas(d),bl=hs.some(h=>h.cif);
+  const sub=(txt,pr)=>`<label class="btn chico${pr?' prim':''}">${ICO.subir}${txt}<input type="file" accept="${DV_ACEPTA}" multiple data-dv-in></label>`;
+  let h=`<li class="dv-fila${n?' lleno':''}" data-dv="${d}" data-label="${esc(nom)}"><div class="dv-cab"><span class="dv-nom">${esc(nom)}</span>`+
+    `<span class="dv-est">${n?`${n} hoja${n===1?'':'s'} · ${kbTxt(docPeso(d))}`:'Sin documento'}</span><div class="acciones">`;
+  h+=n?`<button type="button" class="btn chico" data-dva="ver">Ver</button><button type="button" class="btn chico fantasma peligro" data-dva="quitar">Quitar</button>`
+      :`<button type="button" class="btn chico" data-dva="scan">${ICO.camara}Escanear documento</button>${sub('Subir documento')}`;
+  h+='</div></div>';
+  if(n){let num=1;
+    h+='<ol class="dv-hojas">'+hs.map((x,i)=>{const de=x.p<0?x.n:1,et=de>1?`Hojas ${num}–${num+de-1}`:`Hoja ${num}`;num+=de;
+      const b=IMG[docKey(d,x.f)],dm=x.t==='img'?imgDims(b):null;
+      const info=x.t==='img'?`Imagen${dm?' · '+dm.w+' × '+dm.h+' px':''} · ${kbTxt(b.length)}`
+        :x.cif?`PDF protegido${x.nom?' «'+esc(x.nom)+'»':''} · ${x.n} página${x.n===1?'':'s'} · se entrega tal cual`:`PDF${x.nom?' «'+esc(x.nom)+'»':''} · pág. ${x.p+1} de ${x.n}`;
+      const th=x.t==='img'?`<span class="dv-th" data-dva="ver" role="button" tabindex="0" aria-label="Ver ${et}" style="background-image:url('${docUrl(d,x)}')"></span>`
+        :`<span class="dv-th pdf" data-dva="ver" role="button" tabindex="0" aria-label="Ver ${et}">PDF</span>`;
+      return `<li class="dv-hoja" data-h="${esc(x.id)}">${th}<span class="dv-hinfo"><b>${et}</b>${info}</span><span class="dv-hacc">`+
+        `<button type="button" class="btn mini" data-dva="arriba"${i?'':' disabled'} title="Mover antes" aria-label="Mover ${et} antes">↑</button>`+
+        `<button type="button" class="btn mini" data-dva="abajo"${i<hs.length-1?'':' disabled'} title="Mover después" aria-label="Mover ${et} después">↓</button>`+
+        `<button type="button" class="btn mini fantasma peligro" data-dva="borrar" title="Quitar esta hoja" aria-label="Quitar ${et}">✕</button></span></li>`;}).join('')+'</ol>';
+    h+=bl?'<p class="nota dv-nota">PDF protegido (cifrado): se entrega tal cual y no se puede combinar con otras hojas.</p>'
+      :`<div class="dv-mas"><button type="button" class="btn chico" data-dva="scan">${ICO.camara}Agregar otra hoja (escanear)</button>${sub('Agregar archivo')}</div>`;}
+  return h+'<input type="file" accept="image/*" capture="environment" data-cam-in aria-hidden="true" tabindex="-1"></li>';
+}
+function docsRender(){
+  const ul=$('#dvLista');if(!ul||!D)return;
+  ul.innerHTML=DOCV.map(([d,nom])=>docsFilaHTML(d,nom)).join('');
+  const vivos=new Set(docsKeys());for(const k of [...DV_URL.keys()])if(!vivos.has(k))docUrlLibre(k);
+  const n=DOCV.filter(([d])=>docHojas(d).length).length,r=$('#dvResumen');
+  if(r)r.textContent=n?`Con hojas: ${n} de ${DOCV.length} documentos · van en la carpeta DATOS del ZIP`:'Ningún documento todavía';
+  docsContactoAviso();
+}
+// teléfono y correo: solo un aviso, nunca bloquea
+function docsContactoAviso(){
+  const t=$('#d_etel'),c=$('#d_ecor'),ta=$('#d_etelAy'),ca=$('#d_ecorAy');if(!t||!c)return;
+  const tv=t.value.trim(),cv=c.value.trim(),dig=tv.replace(/\D/g,''),sinExt=tv.replace(/\s*(ext\.?|extensión|x)\s*\d+\s*$/i,'');
+  const tOk=!tv||(/^[+\d\s().\-\/]+$/.test(sinExt)&&sinExt.replace(/\D/g,'').length>=10&&sinExt.replace(/\D/g,'').length<=13);
+  const cOk=!cv||cv.split(/\s*[,;]\s*/).filter(Boolean).every(x=>/^[^\s@]+@[^\s@]+\.[^\s@.]{2,}$/.test(x));
+  ta.textContent=tOk?'10 dígitos; puede llevar +52 y extensión.':`Revisa el teléfono: se esperan 10 dígitos (p. ej. 55 1234 5678)${dig.length?'; tiene '+dig.length:''}.`;
+  ca.textContent=cOk?'Varios: sepáralos con coma.':'Revisa el correo: debe tener la forma nombre@dominio.com.';
+  ta.classList.toggle('dv-aviso',!tOk);ca.classList.toggle('dv-aviso',!cOk);
+}
+const dvFila=d=>$(`#dvLista [data-dv="${CSS.escape(d)}"]`);
+const esTactil=()=>matchMedia('(pointer:coarse)').matches||/iPhone|iPad|Android/i.test(navigator.userAgent);
+// «Escanear documento»: cámara del celular directo (capture="environment"); escritorio con webcam: vista previa; si no, archivo
+function docTomar(d){
+  const row=dvFila(d),ci=row&&$('[data-cam-in]',row);if(!row)return;
+  if(docBloqueado(d)){toast('Este documento es un PDF protegido: no se le pueden agregar hojas.');return;}
+  if(esTactil()||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)||!window.isSecureContext){if(ci)ci.click();return;}
+  camAbrir(row,raw=>docEscaneada(d,raw));
+}
+async function docEscaneada(d,raw){
+  const r=await scanAbrir({raw,titulo:DOCV_N[d],repetir:()=>docTomar(d)});
+  if(r&&r.bytes)await docAgregarImg(d,r.bytes);
+}
+async function docAgregarImg(d,bytes){
+  if(docBloqueado(d)){toast('Este documento es un PDF protegido: no se le pueden agregar hojas.');return false;}
+  const f=await docGuardarArchivo(d,bytes);docPush(d,[{id:uid(),t:'img',f}]);
+  toast(`Hoja agregada a «${DOCV_N[d]}» · ${kbTxt(bytes.length)} · ${docNHojas(d)} hoja${docNHojas(d)===1?'':'s'}.`);return true;
+}
+async function docAgregarPdf(d,bytes,nom){
+  const P=window.PDFLib;if(!P){toast('No se puede leer PDF en este navegador.');return false;}
+  let src;try{src=await P.PDFDocument.load(bytes,{ignoreEncryption:true,updateMetadata:false});}catch(e){console.warn('pdf',e);toast(`No se pudo leer «${nom}» (¿PDF dañado?). Prueba escanearlo.`,7000);return false;}
+  const n=src.getPageCount();if(!n){toast(`«${nom}» no tiene páginas.`);return false;}
+  const cif=!!src.isEncrypted;
+  if(docBloqueado(d)){toast('Este documento es un PDF protegido: no se le pueden agregar hojas.');return false;}
+  if(cif&&docHojas(d).length){toast(`«${nom}» está protegido (cifrado): no se puede combinar con otras hojas. Úsalo solo (quita las demás hojas) o escanéalo.`,9000);return false;}
+  const f=await docGuardarArchivo(d,bytes);
+  docPush(d,cif?[{id:uid(),t:'pdf',f,p:-1,n,cif:true,nom}]:Array.from({length:n},(_,i)=>({id:uid(),t:'pdf',f,p:i,n,nom})));
+  toast(`«${nom}» agregado a «${DOCV_N[d]}»: ${n} página${n===1?'':'s'}${cif?' (protegido: se entrega tal cual)':''}.`,5000);return true;
+}
+// «Subir documento» / «Agregar archivo»: PDF tal cual; JPG y PNG pasan por la pantalla de esquinas (o «Usar tal cual»). En orden.
+async function docSubir(d,files){
+  for(const file of files){
+    if(file.size>MAX_IMG_ARCH){toast(`«${file.name}» pesa más de 30 MB. Usa uno más pequeño.`);continue;}
+    const u=new Uint8Array(await file.arrayBuffer());
+    if(esPdf(u)){await docAgregarPdf(d,u,file.name);continue;}
+    const ct=detectCt(u);if(ct!=='image/jpeg'&&ct!=='image/png'){toast(`«${file.name}»: formato no válido. Usa PDF, JPG o PNG.`,6000);continue;}
+    if(docBloqueado(d)){toast('Este documento es un PDF protegido: no se le pueden agregar hojas.');return;}
+    const r=await scanAbrir({raw:u,subida:true,titulo:DOCV_N[d]});
+    if(r&&r.bytes)await docAgregarImg(d,r.bytes);
+  }
+}
+async function docQuitarHoja(d,hid){
+  const x=docsD()[d];if(!x)return;const i=x.hojas.findIndex(h=>h.id===hid);if(i<0)return;
+  const [h]=x.hojas.splice(i,1),k=docKey(d,h.f),b=IMG[k];if(!x.hojas.length)delete docsD()[d];
+  await docBorrarSiLibre(d,h.f);guardar();docsRender();
+  toastAcc(`Hoja quitada de «${DOCV_N[d]}».`,'Deshacer',async()=>{
+    if(!IMG[k]&&b){IMG[k]=b;await DB.set('img:'+k,b);}
+    const o=docsD();if(!o[d])o[d]={hojas:[]};o[d].hojas.splice(Math.min(i,o[d].hojas.length),0,h);guardar();docsRender();toast('Hoja restaurada.');},6000);
+}
+async function docQuitar(d){
+  const n=docNHojas(d);if(!n)return;
+  if(!confirm(`¿Quitar «${DOCV_N[d]}» y sus ${n} hoja${n===1?'':'s'}? No se puede deshacer.`))return;
+  const fs=[...new Set(((docsD()[d]||{}).hojas||[]).map(h=>h.f))];delete docsD()[d];
+  for(const f of fs)await docBorrarSiLibre(d,f);
+  guardar();docsRender();toast(`«${DOCV_N[d]}» quitado.`);
+}
+function docMover(d,hid,dir){const x=docsD()[d];if(!x)return;const hs=x.hojas,i=hs.findIndex(h=>h.id===hid),j=i+dir;if(i<0||j<0||j>=hs.length)return;
+  [hs[i],hs[j]]=[hs[j],hs[i]];guardar();docsRender();const b=$(`#dvLista [data-dv="${CSS.escape(d)}"] [data-h="${CSS.escape(hid)}"] [data-dva="${dir<0?'arriba':'abajo'}"]`);if(b&&!b.disabled)b.focus();}
+// un PDF por documento: carta, imagen ajustada con márgenes pequeños; las páginas de PDF se copian tal cual.
+// Un solo PDF completo y en su orden (o uno protegido) se entrega idéntico al original.
+async function docPdf(d){
+  const hs=docHojas(d);if(!hs.length)return null;
+  const f0=hs[0].f,b0=IMG[docKey(d,f0)];
+  if(hs[0].cif)return b0;
+  if(hs.every((h,i)=>h.t==='pdf'&&h.f===f0&&h.p===i)&&hs.length===hs[0].n)return b0;
+  const P=window.PDFLib,out=await P.PDFDocument.create(),cache=new Map(),M=18;
+  for(const h of hs){const b=IMG[docKey(d,h.f)];
+    if(h.t==='img'){const im=b[0]===0x89?await out.embedPng(b):await out.embedJpg(b),land=im.width>im.height,PW=land?792:612,PH=land?612:792;
+      const k=Math.min((PW-2*M)/im.width,(PH-2*M)/im.height),w=im.width*k,hh=im.height*k;
+      out.addPage([PW,PH]).drawImage(im,{x:(PW-w)/2,y:(PH-hh)/2,width:w,height:hh});}
+    else{let s=cache.get(h.f);if(!s){s=await P.PDFDocument.load(b,{ignoreEncryption:true,updateMetadata:false});cache.set(h.f,s);}
+      const [pg]=await out.copyPages(s,[Math.min(h.p,s.getPageCount()-1)]);out.addPage(pg);}}
+  out.setTitle(DOCV_N[d]);out.setProducer('FenixMex');out.setCreator('FenixMex Expedientes NOM-020');
+  return out.save({useObjectStreams:true});
+}
+// ZIP final: carpeta DATOS junto al expediente (solo los documentos con hojas; el contacto solo si hay teléfono o correo)
+async function docsZip(z){
+  const lista=DOCV.filter(([d])=>docHojas(d).length),tel=String(D.empresaTelefono||'').trim(),cor=String(D.empresaCorreo||'').trim();
+  if(!lista.length&&!tel&&!cor)return '';
+  const fo=z.folder('DATOS');let n=0;
+  for(const [d,nom] of lista){const b=await docPdf(d);if(b&&b.length){fo.file(docArchivoNombre(nom)+'.pdf',b);n++;}}
+  if(tel||cor)fo.file('Contacto de la empresa.txt',`Teléfono de la empresa: ${tel||'(no capturado)'}\r\nCorreo de la empresa: ${cor||'(no capturado)'}\r\n`);
+  return [n?`${n} documento${n===1?'':'s'}`:'',tel||cor?'contacto':''].filter(Boolean).join(' y ');
+}
+// «Ver»: las hojas en grande y el PDF tal como se entrega
+let DV_VER=null;
+async function docVer(d){
+  const hs=docHojas(d);if(!hs.length)return;const m=$('#mDocVer'),n=docNHojas(d),nomA=docArchivoNombre(DOCV_N[d])+'.pdf';
+  docVerCerrar();DV_VER={d,url:null,bytes:null,nomA};
+  $('#mDocVerT').textContent=DOCV_N[d];$('#mDocVerSub').textContent=`${n} hoja${n===1?'':'s'} · en el ZIP: DATOS/${nomA} · armando el PDF…`;
+  let num=1;
+  $('#dvVer').innerHTML=hs.map(h=>{const de=h.p<0?h.n:1,et=de>1?`Hojas ${num}–${num+de-1}`:`Hoja ${num}`;num+=de;
+    return h.t==='img'?`<figure><img src="${docUrl(d,h)}" alt="${et}"><figcaption>${et}</figcaption></figure>`
+      :`<figure><div class="dv-ver-pdf">PDF<small>${esc(h.nom||'')}<br>${h.p<0?h.n+' páginas (protegido)':'pág. '+(h.p+1)+' de '+h.n}</small></div><figcaption>${et}</figcaption></figure>`;}).join('');
+  $('#dvVerPdf').disabled=$('#dvVerDesc').disabled=true;m.classList.remove('oculto');
+  const yo=DV_VER;
+  try{const b=await docPdf(d);if(DV_VER!==yo)return;yo.bytes=b;yo.url=URL.createObjectURL(new Blob([b],{type:'application/pdf'}));
+    $('#mDocVerSub').textContent=`${n} hoja${n===1?'':'s'} · en el ZIP: DATOS/${nomA} · ${kbTxt(b.length)}`;$('#dvVerPdf').disabled=$('#dvVerDesc').disabled=false;}
+  catch(e){console.error('documento',e);if(DV_VER===yo)$('#mDocVerSub').textContent='No se pudo armar el PDF: '+(e&&e.message||e);}
+}
+function docVerCerrar(){$('#mDocVer').classList.add('oculto');if(DV_VER&&DV_VER.url)URL.revokeObjectURL(DV_VER.url);DV_VER=null;}
+// visita (.json): documentos con sus archivos (base64). Sin documentos no se agrega nada (el archivo queda como antes).
+function docsExportar(){
+  const docs=[],archivos={};
+  for(const [d,nom] of DOCV){const hs=docHojas(d);if(!hs.length)continue;
+    docs.push({id:d,nombre:nom,hojas:hs.map(h=>{const k=d+':'+h.f;if(!archivos[k])archivos[k]=u8ToB64(IMG[docKey(d,h.f)]);
+      return Object.assign({t:h.t,f:h.f},h.t==='pdf'?{p:h.p,n:h.n}:{},h.cif?{cif:true}:{},h.nom?{nom:h.nom}:{});})});}
+  return docs.length?{version:1,docs,archivos}:undefined;
+}
+// lo que trae el archivo: o está sano o la visita no se importa (como el resto). Documentos de versiones futuras se ignoran.
+function docsValidar(x){
+  if(!x||typeof x!=='object'||Array.isArray(x)||!Array.isArray(x.docs))return ['documentos de la visita no válidos'];
+  const ar=x.archivos&&typeof x.archivos==='object'&&!Array.isArray(x.archivos)?x.archivos:{},vis=new Map();
+  for(const q of x.docs){if(!q||typeof q!=='object'||!DOCV_N[q.id])continue;const nom=DOCV_N[q.id];
+    if(!Array.isArray(q.hojas))return [`documento ${nom}: hojas no válidas`];
+    for(const h of q.hojas){if(!docHojaSana(h))return [`documento ${nom}: una hoja no es válida`];const k=q.id+':'+h.f;
+      if(!vis.has(k)){const u=b64Seguro(ar[k]);vis.set(k,u&&(h.t==='pdf'?esPdf(u):/^image\/(png|jpeg)$/.test(detectCt(u))));}
+      if(!vis.get(k))return [`documento ${nom}: una hoja falta o está dañada`];}}
+  return [];
+}
+function docsPlan(x){const pl={llenar:[],conservar:[]};if(!x||!Array.isArray(x.docs))return pl;
+  for(const q of x.docs){if(!q||!DOCV_N[q.id]||!Array.isArray(q.hojas)||!q.hojas.length)continue;(docHojas(q.id).length?pl.conservar:pl.llenar).push(DOCV_N[q.id]);}
+  return pl;}
+// se llena solo lo vacío; si ya tiene hojas, se conserva y el del archivo queda en Revisión («Usar el del archivo»)
+async function docsImportar(x,origen){
+  const r={llenos:0,conserv:0};if(!x||!Array.isArray(x.docs))return r;const ar=x.archivos||{};
+  for(const q of x.docs){if(!q||!DOCV_N[q.id]||!Array.isArray(q.hojas)||!q.hojas.length)continue;
+    const map=new Map(),hojas=[];
+    for(const h0 of q.hojas){const h=docHojaSana(h0);if(!h)continue;
+      if(!map.has(h.f)){const u=b64Seguro(ar[q.id+':'+h.f]);if(!u)continue;map.set(h.f,await docGuardarArchivo(q.id,u));}
+      hojas.push(Object.assign(h,{id:uid(),f:map.get(h.f)}));}
+    if(!hojas.length)continue;
+    if(!docHojas(q.id).length){docsD()[q.id]={hojas};r.llenos++;}
+    else{const nf=hojas.reduce((a,h)=>a+(h.p<0?h.n:1),0),na=docNHojas(q.id);
+      conflicto({campo:'Documento · '+DOCV_N[q.id],usado:`el del expediente (${na} hoja${na===1?'':'s'})`,descartado:`el del archivo (${nf} hoja${nf===1?'':'s'})`,origen,ir:{paso:'visita',sel:'#t-docs'},docv:{id:q.id,hojas}});r.conserv++;}}
+  docsRender();return r;
+}
+async function docsUsarDelArchivo(c){
+  if(!c||!c.docv||!DOCV_N[c.docv.id])return;const d=c.docv.id;
+  if(!confirm(`¿Reemplazar «${DOCV_N[d]}» del expediente con el del archivo?`))return;
+  const viejos=[...new Set(((docsD()[d]||{}).hojas||[]).map(h=>h.f))];
+  docsD()[d]={hojas:c.docv.hojas.map(docHojaSana).filter(Boolean)};for(const f of viejos)await docBorrarSiLibre(d,f);
+  c.visto=true;c.aplicado=new Date().toISOString();delete c.docv;guardar();docsRender();toast(`Se usó «${DOCV_N[d]}» del archivo.`);
+}
+// aviso (no bloquea) si el .json crece mucho
+function jsonAviso(txt,que){const mb=txt.length/1048576;if(txt.length>DOC_JSON_AVISO)setTimeout(()=>toast(`Ojo: ${que} pesa ${mb.toFixed(0)} MB (documentos y fotos). Puede tardar en compartirse o en abrirse en el celular.`,8000),400);}
+
+// ---------- escáner: esquinas → perspectiva (homografía) → realce. Todo aquí mismo, sin bibliotecas ni red. ----------
+const SC_MODOS={color:'Color',gris:'Escala de grises',bn:'Blanco y negro'};
+let SC=null,SC_MODO='gris';
+function scanAbrir(o){
+  return new Promise(async res=>{
+    let src;
+    try{const {cv}=await imgCanvas(o.raw,DOC_SRC);src=document.createElement('canvas');src.width=cv.width;src.height=cv.height;
+      const g=src.getContext('2d',{willReadFrequently:true});g.fillStyle='#fff';g.fillRect(0,0,src.width,src.height);g.drawImage(cv,0,0);}
+    catch(e){console.warn('escáner',e);toast('No se pudo leer la imagen. Prueba con otra (JPG o PNG).');res(null);return;}
+    let det=null;try{det=scDetectar(src);}catch(e){console.warn('bordes',e);}
+    SC={o,res,src,q:det||scEsqBase(src,0.04),det:!!det,fase:'esq',modo:SC_MODO,rot:0,warp:null,out:null,ptr:null,lay:null};
+    const m=$('#mScan');$('#mScanT').textContent=(o.subida?'Ajustar documento · ':'Escanear documento · ')+(o.titulo||'');
+    $('[data-sc="tal"]',m).hidden=!o.subida;$('[data-sc="esquinas"]',m).hidden=!!o.subida;
+    m.classList.remove('oculto');scFase('esq');setTimeout(()=>{if(SC)scPintar();},60);
+  });
+}
+function scFase(f){
+  if(!SC)return;SC.fase=f;$('#scAccEsq').hidden=f!=='esq';$('#scAccRes').hidden=f!=='res';$('#scModos').hidden=f!=='res';$('#scSvg').style.display=f==='esq'?'':'none';
+  $('#mScanSub').textContent=f==='esq'?'Arrastra las 4 esquinas a los bordes de la hoja y toca «Aplicar».':'Así queda la hoja. Elige Color, Escala de grises o Blanco y negro.';
+  $$('#scModos [data-scm]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scm===SC.modo)));
+  scInfo();scPintar();
+}
+function scInfo(){const i=$('#scInfo');if(!SC)return;
+  if(SC.fase==='esq')i.textContent=SC.det?'Bordes detectados: ajústalos si hace falta.':'Arrastra cada esquina al borde de la hoja.';
+  else{const c=SC.out;i.textContent=c?`${c.width} × ${c.height} px · ${SC_MODOS[SC.modo]} · en el PDF: hoja carta`:'';}}
+function scCerrar(r){$('#mScan').classList.add('oculto');$('#scLupa').hidden=true;const s=SC;SC=null;if(s)s.res(r||null);}
+function scEsqBase(c,f){const w=c.width,h=c.height,x=w*f,y=h*f;return [[x,y],[w-x,y],[w-x,h-y],[x,h-y]];}
+function scLay(){const r=$('#scStage').getBoundingClientRect(),c=SC.fase==='res'&&SC.out?SC.out:SC.src,pad=SC.fase==='esq'?24:8;
+  const k=Math.max(0.01,Math.min((r.width-2*pad)/c.width,(r.height-2*pad)/c.height));return {W:r.width,H:r.height,k,ox:(r.width-c.width*k)/2,oy:(r.height-c.height*k)/2,c};}
+function scPintar(){
+  if(!SC)return;const cv=$('#scCv'),L=scLay(),dpr=Math.max(1,window.devicePixelRatio||1);SC.lay=L;
+  cv.width=Math.max(1,Math.round(L.W*dpr));cv.height=Math.max(1,Math.round(L.H*dpr));const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,L.W,L.H);
+  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(L.c,L.ox,L.oy,L.c.width*L.k,L.c.height*L.k);
+  const svg=$('#scSvg');if(SC.fase!=='esq'){svg.innerHTML='';return;}
+  svg.setAttribute('viewBox',`0 0 ${L.W} ${L.H}`);const P=SC.q.map(([x,y])=>[+(L.ox+x*L.k).toFixed(1),+(L.oy+y*L.k).toFixed(1)]);
+  svg.innerHTML=`<path d="M0 0H${L.W}V${L.H}H0Z M${P.map(p=>p.join(' ')).join(' L')}Z" fill="rgba(0,0,0,.42)" fill-rule="evenodd"/>`+
+    `<polygon points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#2f9bff" stroke-width="2.5"/>`+
+    P.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="15" fill="rgba(47,155,255,.22)" stroke="#fff" stroke-width="3"/><circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#2f9bff"/>`).join('');
+}
+function scPtrXY(ev){const r=$('#scStage').getBoundingClientRect();return [ev.clientX-r.left,ev.clientY-r.top];}
+function scLupa(){
+  const p=SC&&SC.ptr,lu=$('#scLupa');if(!p){lu.hidden=true;return;}
+  const L=SC.lay,[x,y]=SC.q[p.i],S=140,dpr=Math.max(1,window.devicePixelRatio||1),z=Math.max(L.k*3,0.6),sw=S/z,x0=x-sw/2,y0=y-sw/2;
+  lu.width=lu.height=Math.round(S*dpr);const g=lu.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#333';g.fillRect(0,0,S,S);
+  g.imageSmoothingEnabled=true;g.drawImage(SC.src,x0,y0,sw,sw,0,0,S,S);
+  g.strokeStyle='#2f9bff';g.lineWidth=2;g.beginPath();SC.q.forEach(([qx,qy],i)=>{const a=(qx-x0)*z,b=(qy-y0)*z;i?g.lineTo(a,b):g.moveTo(a,b);});g.closePath();g.stroke();
+  g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.moveTo(S/2,S/2-14);g.lineTo(S/2,S/2+14);g.moveTo(S/2-14,S/2);g.lineTo(S/2+14,S/2);g.stroke();
+  const hx=L.ox+x*L.k,hy=L.oy+y*L.k;let top=hy-S-36;if(top<4)top=Math.min(L.H-S-4,hy+36);
+  lu.style.left=levCl(hx-S/2,4,Math.max(4,L.W-S-4))+'px';lu.style.top=Math.max(4,top)+'px';lu.hidden=false;
+}
+// esquinas en orden: sup. izq., sup. der., inf. der., inf. izq. (aunque se hayan cruzado al arrastrar)
+function scOrdenar(q){const cx=q.reduce((a,p)=>a+p[0],0)/4,cy=q.reduce((a,p)=>a+p[1],0)/4;
+  const s=q.slice().sort((a,b)=>Math.atan2(a[1]-cy,a[0]-cx)-Math.atan2(b[1]-cy,b[0]-cx));let i0=0;s.forEach((p,i)=>{if(p[0]+p[1]<s[i0][0]+s[i0][1])i0=i;});
+  return s.slice(i0).concat(s.slice(0,i0));}
+// homografía h (8 coef.): (u,v) del rectángulo destino → (x,y) de la foto
+function scHomografia(dst,src){
+  const A=[],b=[];
+  for(let i=0;i<4;i++){const [u,v]=dst[i],[x,y]=src[i];A.push([u,v,1,0,0,0,-u*x,-v*x]);b.push(x);A.push([0,0,0,u,v,1,-u*y,-v*y]);b.push(y);}
+  for(let c=0;c<8;c++){let p=c;for(let r=c+1;r<8;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;
+    [A[c],A[p]]=[A[p],A[c]];[b[c],b[p]]=[b[p],b[c]];const dg=A[c][c];if(Math.abs(dg)<1e-10)return null;
+    for(let r=0;r<8;r++){if(r===c)continue;const f=A[r][c]/dg;if(!f)continue;for(let k=c;k<8;k++)A[r][k]-=f*A[c][k];b[r]-=f*b[c];}}
+  return b.map((v,i)=>v/A[i][i]);
+}
+function scEnderezar(src,q0){
+  const q=scOrdenar(q0),dd=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  let W=Math.max(dd(q[0],q[1]),dd(q[3],q[2])),H=Math.max(dd(q[0],q[3]),dd(q[1],q[2]));if(W<8||H<8)return null;
+  const k=Math.min(1,DOC_LADO/Math.max(W,H));W=Math.round(W*k);H=Math.round(H*k);
+  const h=scHomografia([[0,0],[W,0],[W,H],[0,H]],q);if(!h)return null;
+  const iw=src.width,ih=src.height,sd=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,iw,ih).data;
+  const out=document.createElement('canvas');out.width=W;out.height=H;const g=out.getContext('2d'),im=g.createImageData(W,H),o=im.data;
+  for(let v=0;v<H;v++){const vy=v+.5;
+    for(let u=0;u<W;u++){const ux=u+.5,z=h[6]*ux+h[7]*vy+1;let x=(h[0]*ux+h[1]*vy+h[2])/z-.5,y=(h[3]*ux+h[4]*vy+h[5])/z-.5;
+      if(x<0)x=0;else if(x>iw-1)x=iw-1;if(y<0)y=0;else if(y>ih-1)y=ih-1;
+      const x0=x|0,y0=y|0,x1=x0<iw-1?x0+1:x0,y1=y0<ih-1?y0+1:y0,fx=x-x0,fy=y-y0,i00=(y0*iw+x0)*4,i10=(y0*iw+x1)*4,i01=(y1*iw+x0)*4,i11=(y1*iw+x1)*4,j=(v*W+u)*4;
+      for(let c=0;c<3;c++){const a=sd[i00+c]+(sd[i10+c]-sd[i00+c])*fx,b2=sd[i01+c]+(sd[i11+c]-sd[i01+c])*fx;o[j+c]=a+(b2-a)*fy;}
+      o[j+3]=255;}}
+  g.putImageData(im,0,0);return out;
+}
+function scBlur(L,w,h){const t=new Float32Array(w*h),o=new Float32Array(w*h);
+  for(let y=0;y<h;y++){const r=y*w;for(let x=0;x<w;x++){const a=x?x-1:0,b=x<w-1?x+1:x;t[r+x]=(L[r+a]+L[r+x]+L[r+b])/3;}}
+  for(let y=0;y<h;y++){const a=(y?y-1:0)*w,b=(y<h-1?y+1:y)*w,r=y*w;for(let x=0;x<w;x++)o[r+x]=(t[a+x]+t[r+x]+t[b+x])/3;}
+  return o;}
+// bordes de la hoja (primera propuesta): la zona clara más grande (Otsu) y sus 4 puntos extremos. null = no hay una hoja clara sobre fondo más oscuro.
+function scDetectar(src){
+  const k=Math.min(1,320/Math.max(src.width,src.height)),w=Math.max(24,Math.round(src.width*k)),h=Math.max(24,Math.round(src.height*k)),N=w*h;
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d',{willReadFrequently:true});g.imageSmoothingQuality='high';g.drawImage(src,0,0,w,h);
+  const d=g.getImageData(0,0,w,h).data;let L=new Float32Array(N);for(let i=0;i<N;i++)L[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+  L=scBlur(scBlur(L,w,h),w,h);
+  const hs=new Float64Array(256);for(let i=0;i<N;i++)hs[Math.min(255,L[i]|0)]++;
+  let sum=0;for(let i=0;i<256;i++)sum+=i*hs[i];let sB=0,wB=0,best=-1,t=128;
+  for(let i=0;i<256;i++){wB+=hs[i];if(!wB)continue;const wF=N-wB;if(!wF)break;sB+=i*hs[i];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>best){best=v;t=i;}}
+  const vis=new Uint8Array(N),q=new Int32Array(N);let mejor=null;
+  for(let s=0;s<N;s++){if(vis[s]||L[s]<=t)continue;let a=0,b=0,n=0;q[b++]=s;vis[s]=1;const e=[-1e9,-1e9,-1e9,-1e9],ep=[s,s,s,s];
+    while(a<b){const p=q[a++];n++;const x=p%w,y=(p-x)/w,sc0=-(x+y),sc1=x-y,sc2=x+y,sc3=y-x;
+      if(sc0>e[0]){e[0]=sc0;ep[0]=p;}if(sc1>e[1]){e[1]=sc1;ep[1]=p;}if(sc2>e[2]){e[2]=sc2;ep[2]=p;}if(sc3>e[3]){e[3]=sc3;ep[3]=p;}
+      if(x>0&&!vis[p-1]&&L[p-1]>t){vis[p-1]=1;q[b++]=p-1;}if(x<w-1&&!vis[p+1]&&L[p+1]>t){vis[p+1]=1;q[b++]=p+1;}
+      if(y>0&&!vis[p-w]&&L[p-w]>t){vis[p-w]=1;q[b++]=p-w;}if(y<h-1&&!vis[p+w]&&L[p+w]>t){vis[p+w]=1;q[b++]=p+w;}}
+    if(!mejor||n>mejor.n)mejor={n,ep};}
+  if(!mejor||mejor.n<0.08*N)return null;
+  const P=mejor.ep.map(p=>[p%w+.5,Math.floor(p/w)+.5]);
+  let area=0;for(let i=0;i<4;i++){const [x1,y1]=P[i],[x2,y2]=P[(i+1)%4];area+=x1*y2-x2*y1;}area=Math.abs(area)/2;
+  if(area<0.08*N||area>0.97*N)return null;                 // muy chica o es todo el fondo
+  const r=mejor.n/area;if(r<0.8||r>1.25)return null;      // la zona clara no es un cuadrilátero
+  return P.map(([x,y])=>[Math.max(0,Math.min(src.width,x/k)),Math.max(0,Math.min(src.height,y/k))]);
+}
+// realce de documento: el «papel» se estima en una rejilla gruesa (los píxeles más claros de cada celda, dilatado y suavizado)
+// y se divide → quita sombras y el tono de la luz; luego niveles. Color / Escala de grises / Blanco y negro.
+function scMejorar(cv,modo){
+  const W=cv.width,H=cv.height,N=W*H,d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,W,H).data;
+  const s=Math.max(8,Math.round(Math.max(W,H)/40)),gw=Math.ceil(W/s),gh=Math.ceil(H/s),G=gw*gh;
+  const lum=new Uint8Array(N),hist=new Uint32Array(G*32),cnt=new Uint32Array(G),cel=new Int32Array(N);
+  for(let y=0;y<H;y++){const cy=((y/s)|0)*gw;for(let x=0;x<W;x++){const i=y*W+x,j=i*4,l=(77*d[j]+150*d[j+1]+29*d[j+2])>>8,c=cy+((x/s)|0);lum[i]=l;cel[i]=c;hist[c*32+(l>>3)]++;cnt[c]++;}}
+  const thr=new Uint8Array(G);for(let c=0;c<G;c++){let acc=0,b=31;const lim=cnt[c]*0.2;for(;b>0;b--){acc+=hist[c*32+b];if(acc>=lim)break;}thr[c]=b<<3;}
+  const sr=new Float64Array(G),sg=new Float64Array(G),sb=new Float64Array(G),sn=new Uint32Array(G);
+  for(let i=0;i<N;i++){const c=cel[i];if(lum[i]<thr[c])continue;const j=i*4;sr[c]+=d[j];sg[c]+=d[j+1];sb[c]+=d[j+2];sn[c]++;}
+  let R=new Float32Array(G),Gg=new Float32Array(G),B=new Float32Array(G);
+  for(let c=0;c<G;c++){const n=sn[c]||1;R[c]=sr[c]/n;Gg[c]=sg[c]/n;B[c]=sb[c]/n;}
+  {const R2=new Float32Array(G),G2=new Float32Array(G),B2=new Float32Array(G);   // dilatar: la celda vecina más clara (quita texto y sellos grandes)
+    for(let y=0;y<gh;y++)for(let x=0;x<gw;x++){let m=-1,mi=y*gw+x;for(let yy=Math.max(0,y-1);yy<=Math.min(gh-1,y+1);yy++)for(let xx=Math.max(0,x-1);xx<=Math.min(gw-1,x+1);xx++){const k=yy*gw+xx,l=R[k]*.3+Gg[k]*.59+B[k]*.11;if(l>m){m=l;mi=k;}}
+      const c=y*gw+x;R2[c]=R[mi];G2[c]=Gg[mi];B2[c]=B[mi];}
+    R=scBlur(R2,gw,gh);Gg=scBlur(G2,gw,gh);B=scBlur(B2,gw,gh);}
+  for(let c=0;c<G;c++){R[c]=Math.max(48,R[c]);Gg[c]=Math.max(48,Gg[c]);B[c]=Math.max(48,B[c]);}
+  // fondo por píxel (bilineal entre centros de celda) → valor normalizado (papel ≈ 1)
+  const vL=new Float32Array(N),cx0=new Int32Array(W),cx1=new Int32Array(W),ctx=new Float32Array(W);
+  for(let x=0;x<W;x++){let f=(x+.5)/s-.5;if(f<0)f=0;if(f>gw-1)f=gw-1;cx0[x]=f|0;cx1[x]=Math.min(gw-1,cx0[x]+1);ctx[x]=f-cx0[x];}
+  const bgR=new Float32Array(gw),bgG=new Float32Array(gw),bgB=new Float32Array(gw),col=modo==='color',vC=col?new Float32Array(N*3):null;
+  for(let y=0;y<H;y++){let f=(y+.5)/s-.5;if(f<0)f=0;if(f>gh-1)f=gh-1;const y0=f|0,y1=Math.min(gh-1,y0+1),ty=f-y0;
+    for(let x=0;x<gw;x++){const a=y0*gw+x,b=y1*gw+x;bgR[x]=R[a]+(R[b]-R[a])*ty;bgG[x]=Gg[a]+(Gg[b]-Gg[a])*ty;bgB[x]=B[a]+(B[b]-B[a])*ty;}
+    for(let x=0;x<W;x++){const a=cx0[x],b=cx1[x],t=ctx[x],br=bgR[a]+(bgR[b]-bgR[a])*t,bg=bgG[a]+(bgG[b]-bgG[a])*t,bb=bgB[a]+(bgB[b]-bgB[a])*t,i=y*W+x,j=i*4;
+      vL[i]=(77*d[j]+150*d[j+1]+29*d[j+2])/(77*br+150*bg+29*bb);
+      if(col){vC[i*3]=d[j]/br;vC[i*3+1]=d[j+1]/bg;vC[i*3+2]=d[j+2]/bb;}}}
+  // niveles: blanco desde 0.9 del papel; negro en el percentil 0.5 %
+  const hb=new Uint32Array(512);for(let i=0;i<N;i++)hb[Math.min(511,(vL[i]*256)|0)]++;
+  let lo=0,acc=0;for(let b=0;b<512;b++){acc+=hb[b];if(acc>=N*0.005){lo=b/256;break;}}
+  const hi=0.9;lo=Math.min(lo,hi-0.25);
+  const LUT=new Uint8ClampedArray(1024);
+  for(let i=0;i<1024;i++){const v=i/512;let t=(v-lo)/(hi-lo);t=t<0?0:t>1?1:t;
+    LUT[i]=modo==='bn'?(t<0.5?0:t>0.66?255:Math.round((t-0.5)/0.16*255)):Math.round(255*Math.pow(t,modo==='color'?1.2:1.35));}
+  const out=document.createElement('canvas');out.width=W;out.height=H;const g=out.getContext('2d'),im=g.createImageData(W,H),o=im.data;
+  const idx=v=>{const k=(v*512)|0;return k<0?0:k>1023?1023:k;};
+  for(let i=0;i<N;i++){const j=i*4;
+    if(col){o[j]=LUT[idx(vC[i*3])];o[j+1]=LUT[idx(vC[i*3+1])];o[j+2]=LUT[idx(vC[i*3+2])];}
+    else{const v=LUT[idx(vL[i])];o[j]=o[j+1]=o[j+2]=v;}
+    o[j+3]=255;}
+  g.putImageData(im,0,0);return out;
+}
+function scRotar(cv,r){r=((r%4)+4)%4;if(!r)return cv;const o=document.createElement('canvas');o.width=r%2?cv.height:cv.width;o.height=r%2?cv.width:cv.height;
+  const g=o.getContext('2d');g.translate(o.width/2,o.height/2);g.rotate(r*Math.PI/2);g.drawImage(cv,-cv.width/2,-cv.height/2);return o;}
+function scEscalar(cv,lado){const k=Math.min(1,lado/Math.max(cv.width,cv.height));if(k>=1)return cv;const o=document.createElement('canvas');o.width=Math.max(1,Math.round(cv.width*k));o.height=Math.max(1,Math.round(cv.height*k));
+  const g=o.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(cv,0,0,o.width,o.height);return o;}
+const scEspera=()=>new Promise(r=>setTimeout(r,40));   // deja pintar «Enderezando…» (sin rAF: no se detiene con la pestaña en segundo plano)
+async function scRealzar(){if(!SC||!SC.warp)return;$('#scInfo').textContent='Mejorando…';await scEspera();if(!SC)return;SC.out=scRotar(scMejorar(SC.warp,SC.modo),SC.rot);}
+// una acción a la vez (no se usa una hoja a medio procesar)
+async function scAccion(a){
+  if(!SC)return;
+  if(a==='cancelar'){scCerrar(null);return;}
+  if(SC.ocupado)return;const s=SC;s.ocupado=true;try{await scAccion2(a);}finally{s.ocupado=false;}
+}
+async function scAccion2(a){
+  if(a.startsWith('modo:')){const md=a.slice(5);if(SC.modo===md)return;SC.modo=SC_MODO=md;$$('#scModos [data-scm]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.scm===md)));await scRealzar();if(SC){scPintar();scInfo();}return;}
+  if(a==='auto'){let q=null;try{q=scDetectar(SC.src);}catch(_){}if(q){SC.q=q;SC.det=true;scPintar();scInfo();}else toast('No se detectaron los bordes: arrastra las esquinas (o «Toda la imagen»).');return;}
+  if(a==='todo'){SC.q=scEsqBase(SC.src,0);SC.det=false;scPintar();scInfo();return;}
+  if(a==='tal'){const b=await cvBytes(scEscalar(SC.src,DOC_LADO),false,DOC_Q);scCerrar({bytes:b});return;}
+  if(a==='aplicar'){$('#scInfo').textContent='Enderezando…';await scEspera();if(!SC)return;
+    let w=null;try{w=scEnderezar(SC.src,SC.q);}catch(e){console.error('escáner',e);}
+    if(!w){toast('Las esquinas están demasiado juntas: sepáralas hasta los bordes de la hoja.');scInfo();return;}
+    SC.warp=w;SC.rot=0;await scRealzar();scFase('res');return;}
+  if(a==='esquinas'||(a==='repetir'&&SC.o.subida)){SC.out=null;SC.warp=null;scFase('esq');return;}
+  if(a==='repetir'){const fn=SC.o.repetir;scCerrar(null);if(fn)fn();return;}
+  if(a==='girar'){SC.rot=(SC.rot+1)%4;SC.out=scRotar(SC.out,1);scPintar();scInfo();return;}
+  if(a==='usar'){if(!SC.out)return;const b=await cvBytes(SC.out,false,DOC_Q);scCerrar({bytes:b});}
+}
+function initDocsVisita(){
+  const ul=$('#dvLista');if(!ul)return;
+  const de=el=>{const li=el.closest('[data-dv]');return li&&li.dataset.dv;};
+  ul.addEventListener('click',ev=>{const b=ev.target.closest('[data-dva]');if(!b||b.disabled)return;const d=de(b);if(!d)return;const h=b.closest('[data-h]'),a=b.dataset.dva;
+    if(a==='scan')docTomar(d);else if(a==='ver')docVer(d);else if(a==='quitar')docQuitar(d);
+    else if(h&&a==='arriba')docMover(d,h.dataset.h,-1);else if(h&&a==='abajo')docMover(d,h.dataset.h,1);else if(h&&a==='borrar')docQuitarHoja(d,h.dataset.h);});
+  ul.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&ev.target.matches('.dv-th')){ev.preventDefault();ev.target.click();}});
+  ul.addEventListener('change',async ev=>{const t=ev.target,d=de(t);if(!d)return;const fs=Array.from(t.files||[]);t.value='';if(!fs.length)return;
+    if(t.matches('[data-cam-in]')){const f=fs[0];if(f.size>MAX_IMG_ARCH){toast('La foto pesa más de 30 MB.');return;}await docEscaneada(d,new Uint8Array(await f.arrayBuffer()));}
+    else if(t.matches('[data-dv-in]'))await docSubir(d,fs);});
+  for(const id of ['#d_etel','#d_ecor']){const i=$(id);if(i){i.addEventListener('input',docsContactoAviso);i.addEventListener('blur',()=>{const v=i.value.trim();if(v!==i.value){i.value=v;i.dispatchEvent(new Event('input'));}});}}
+  // escáner
+  const m=$('#mScan'),svg=$('#scSvg');
+  m.addEventListener('click',ev=>{const b=ev.target.closest('[data-sc]');if(b&&!b.disabled)scAccion(b.dataset.sc);const s=ev.target.closest('[data-scm]');
+    if(s)scAccion('modo:'+s.dataset.scm);});
+  svg.addEventListener('pointerdown',ev=>{if(!SC||SC.fase!=='esq'||!SC.lay)return;const [px,py]=scPtrXY(ev),L=SC.lay;let bi=-1,bd=1e9;
+    SC.q.forEach(([x,y],i)=>{const dd=Math.hypot(L.ox+x*L.k-px,L.oy+y*L.k-py);if(dd<bd){bd=dd;bi=i;}});
+    if(bd>72)return;ev.preventDefault();try{svg.setPointerCapture(ev.pointerId);}catch(_){}const [x,y]=SC.q[bi];SC.ptr={id:ev.pointerId,i:bi,dx:L.ox+x*L.k-px,dy:L.oy+y*L.k-py};scLupa();});
+  svg.addEventListener('pointermove',ev=>{const p=SC&&SC.ptr;if(!p||p.id!==ev.pointerId)return;ev.preventDefault();const [px,py]=scPtrXY(ev),L=SC.lay,c=SC.src;
+    SC.q[p.i]=[levCl((px+p.dx-L.ox)/L.k,0,c.width),levCl((py+p.dy-L.oy)/L.k,0,c.height)];scPintar();scLupa();});
+  const fin=ev=>{if(SC&&SC.ptr&&SC.ptr.id===ev.pointerId){SC.ptr=null;$('#scLupa').hidden=true;if(SC.det){SC.det=false;scInfo();}}};
+  svg.addEventListener('pointerup',fin);svg.addEventListener('pointercancel',fin);
+  addEventListener('resize',()=>{if(SC)scPintar();});
+  document.addEventListener('keydown',ev=>{if(ev.key!=='Escape')return;if(!m.classList.contains('oculto'))scCerrar(null);else if(!$('#mDocVer').classList.contains('oculto'))docVerCerrar();});
+  // «Ver»
+  const mv=$('#mDocVer');
+  $$('[data-cerrar]',mv).forEach(b=>b.addEventListener('click',docVerCerrar));mv.addEventListener('click',ev=>{if(ev.target===mv)docVerCerrar();});
+  $('#dvVerPdf').addEventListener('click',()=>{if(DV_VER&&DV_VER.url)window.open(DV_VER.url,'_blank');});
+  $('#dvVerDesc').addEventListener('click',()=>{if(DV_VER&&DV_VER.bytes)descargar(new Blob([DV_VER.bytes],{type:'application/pdf'}),DV_VER.nomA);});
+  docsRender();
+}
+
 // ---------- arranque ----------
 (async()=>{
   initPasos();
@@ -9515,7 +10032,7 @@ function initPlano(){
   const antes=D.modelo!==MODELO;
   migrar('borrador guardado en este navegador');
   const FIRMAS_K=['g:firmaPnd1','g:firmaPnd2','g:firmanteIzquierdoFirma','d:representanteLegalFirma','d:testigo1Firma','d:testigo2Firma'];
-  const keys=['g:logoFenix',...FIRMAS_K,...FIRMAS_K.map(k=>k+'~orig'),'d:fotoFachada','d:rutasFondo',...D.equipos.flatMap(e=>['e:'+e.id+':fotoPlaca','e:'+e.id+':ubicPlano',...MUESTRAS.map(n=>'e:'+e.id+':muestra'+n)])];
+  const keys=['g:logoFenix',...FIRMAS_K,...FIRMAS_K.map(k=>k+'~orig'),'d:fotoFachada','d:rutasFondo',...docsKeys(),...D.equipos.flatMap(e=>['e:'+e.id+':fotoPlaca','e:'+e.id+':ubicPlano',...MUESTRAS.map(n=>'e:'+e.id+':muestra'+n)])];
   for(const k of keys){if(IMG[k])continue;const v=await DB.get('img:'+k);if(v)IMG[k]=v instanceof Uint8Array?v:new Uint8Array(v);}
   try{const n=await imgMigrarOrientacion();if(n)console.info('v9: imágenes con orientación EXIF corregidas:',n);}catch(e){console.warn('orientación',e);}   // v9
   try{initPlano();}catch(e){console.warn('plano',e);}
@@ -9534,7 +10051,7 @@ function initPlano(){
   $('#btnNuevo').addEventListener('click',nuevo);
   $('#btnEjemplo').addEventListener('click',ejemplo);
   logoBase().then(()=>{plImgC=null;});   // v13: logo por omisión con acentos, listo para las vistas del plano
-  initDocs();initPad();initEditor();initLimpia();initCam();
+  initDocs();initPad();initEditor();initLimpia();initCam();initDocsVisita();
   $('#fImportLev').addEventListener('change',ev=>{const fs=Array.from(ev.target.files||[]);ev.target.value='';importarLevantamientos(fs,'lev');});
   $('#fImportPdf').addEventListener('change',ev=>{const f=ev.target.files&&ev.target.files[0];ev.target.value='';if(f)importarHojaPDF(f);});
   $('#toast').addEventListener('click',ev=>{const t=$('#toast');if(ev.target.closest('button')&&t._acc){const fn=t._acc;t._acc=null;t.classList.remove('ver','acc');fn();}});
