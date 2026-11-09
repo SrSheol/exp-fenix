@@ -1,0 +1,158 @@
+rules_version = '2';
+
+// FenixMex · registro de expedientes y verificación pública de QR (proyecto Firebase DEDICADO de Fenix).
+//  · verificaciones/{sha256(folio + "." + clave)}: lo único público. Solo «get» con el id exacto (hay que tener el QR);
+//    no se puede listar ni buscar. Solo trae lo que muestra verificar.html.
+//  · expedientes/{folio} (+ revisiones): registro privado. Solo cuentas autorizadas (lista en config/acceso).
+//  · config/acceso: { emails: ['juan@…', 'apoyomecv@gmail.com', …] } en minúsculas. Se edita SOLO desde la consola.
+// Todo lo que no está aquí queda negado (comportamiento por omisión de Firestore).
+// Si algún día se usara el proyecto quiniela-3c8fa, NO reemplaces sus reglas: agrega estos «match» a las existentes.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function acceso() {
+      return /databases/$(database)/documents/config/acceso;
+    }
+    function autorizado() {
+      return request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email_verified == true
+        && exists(acceso())
+        && request.auth.token.email.lower() in get(acceso()).data.emails;
+    }
+    function yo() {
+      return request.auth.token.email.lower();
+    }
+    function persona(p) {
+      return p is map && p.keys().hasOnly(['email', 'nombre']) && p.email == yo()
+        && p.nombre is string && p.nombre.size() <= 120;
+    }
+    function texto(v, max) {
+      return v is string && v.size() <= max;
+    }
+    function hashDe(folio, clave) {
+      return hashing.sha256(folio + '.' + clave).toHexString().lower();
+    }
+    function quien(p) {   // una persona cualquiera (no necesariamente la que escribe ahora)
+      return p is map && p.keys().hasOnly(['email', 'nombre']) && p.email is string && p.email.size() <= 200
+        && p.nombre is string && p.nombre.size() <= 120;
+    }
+
+    // ---------- lista de acceso ----------
+    match /config/acceso {
+      allow get: if autorizado();          // la app lo lee para saber si la cuenta está autorizada
+      allow list, write: if false;         // solo desde la consola de Firebase
+    }
+
+    // ---------- registro privado ----------
+    match /expedientes/{folio} {
+      function datosValidos(d) {
+        return d.keys().hasOnly(['folio', 'clave', 'claveHash', 'razonSocial', 'fechaEmisionDictamen', 'huella', 'revision',
+                                 'estado', 'emitidoPor', 'numEquipos', 'hojas', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt',
+                                 'driveZipId', 'driveZipNombre', 'driveZipBytes', 'driveBorradorId', 'driveActualizado',
+                                 'dictamenExterno', 'fechaDictamenPor', 'fechaDictamenEn', 'pendingCleanup'])
+          && d.keys().hasAll(['folio', 'clave', 'claveHash', 'razonSocial', 'fechaEmisionDictamen', 'huella', 'revision',
+                              'estado', 'emitidoPor', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt'])
+          && d.folio == folio
+          && folio.matches('^FX-[0-9]{4}-[0-9A-HJKMNP-TV-Z]{6}$')
+          && d.clave is string && d.clave.matches('^[0-9A-Za-z]{12,32}$')
+          && d.claveHash == hashDe(d.folio, d.clave)
+          && texto(d.razonSocial, 300)
+          && d.fechaEmisionDictamen is string && d.fechaEmisionDictamen.matches('^([0-9]{4}-[0-9]{2}-[0-9]{2})?$')
+          && d.huella is string && d.huella.matches('^[0-9a-f]{64}$')
+          && d.revision is int && d.revision >= 1
+          && d.estado in ['vigente', 'cancelado']
+          && d.emitidoPor == 'FenixMex'
+          && (!('numEquipos' in d) || (d.numEquipos is int && d.numEquipos >= 0 && d.numEquipos <= 500))
+          && (!('hojas' in d) || (d.hojas is int && d.hojas >= 0 && d.hojas <= 100000))
+          && persona(d.updatedBy) && d.updatedAt == request.time
+          && (!('driveZipId' in d) || texto(d.driveZipId, 200))
+          && (!('driveZipNombre' in d) || texto(d.driveZipNombre, 300))
+          && (!('driveZipBytes' in d) || d.driveZipBytes is int)
+          && (!('driveBorradorId' in d) || texto(d.driveBorradorId, 200))
+          && (!('driveActualizado' in d) || d.driveActualizado is timestamp)
+          // v18: Cat III (dictamen de expertos externos; fecha '' = en trámite), quién capturó la fecha y archivos de Drive por limpiar
+          && (!('dictamenExterno' in d) || d.dictamenExterno is bool)
+          && (!('fechaDictamenPor' in d) || quien(d.fechaDictamenPor))
+          && (!('fechaDictamenEn' in d) || d.fechaDictamenEn is timestamp)
+          && (!('pendingCleanup' in d) || (d.pendingCleanup is list && d.pendingCleanup.size() <= 20));
+      }
+      // v18 · la fecha del dictamen Cat III se captura (o se corrige) después, SIN reexportar: solo cambian la fecha, quién y cuándo
+      // la capturó y updatedAt / updatedBy. Misma revisión y misma huella (no las toca). Sin fechas futuras ni anteriores a la
+      // creación del expediente (con un día de holgura por la zona horaria; la app valida el día exacto).
+      function diaDe(f) {
+        return timestamp.date(int(f[0:4]), int(f[5:7]), int(f[8:10]));
+      }
+      function cambioFecha(n, o) {
+        return n.diff(o).affectedKeys().hasOnly(['fechaEmisionDictamen', 'fechaDictamenPor', 'fechaDictamenEn', 'updatedAt', 'updatedBy'])
+          && o.get('dictamenExterno', false) == true
+          && n.fechaEmisionDictamen.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && diaDe(n.fechaEmisionDictamen) <= request.time
+          && diaDe(n.fechaEmisionDictamen) + duration.value(2, 'd') > o.createdAt
+          && persona(n.fechaDictamenPor) && n.fechaDictamenEn == request.time;
+      }
+      // v18 · la revisión sube (de uno en uno) solo si la huella cambió; con la misma revisión, la huella y la fecha del dictamen no cambian
+      // (Drive, cancelar / reactivar, notas de limpieza). Cambiar solo la fecha va por cambioFecha().
+      function revisionOk(n, o) {
+        return (n.revision == o.revision + 1 && n.huella != o.huella)
+          || (n.revision == o.revision && n.huella == o.huella
+              && n.fechaEmisionDictamen == o.fechaEmisionDictamen
+              && n.get('dictamenExterno', false) == o.get('dictamenExterno', false)
+              && n.get('fechaDictamenPor', null) == o.get('fechaDictamenPor', null)
+              && n.get('fechaDictamenEn', null) == o.get('fechaDictamenEn', null));
+      }
+
+      allow get, list: if autorizado();
+      allow create: if autorizado() && datosValidos(request.resource.data)
+        && request.resource.data.revision == 1
+        && persona(request.resource.data.createdBy) && request.resource.data.createdAt == request.time;
+      allow update: if autorizado() && datosValidos(request.resource.data)
+        // identidad y autoría originales inmutables (el QR impreso nunca cambia)
+        && request.resource.data.clave == resource.data.clave
+        && request.resource.data.claveHash == resource.data.claveHash
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        // la revisión sube de uno en uno solo con huella nueva; o se queda igual (Drive, cancelar / reactivar); o solo cambia la fecha Cat III
+        && (revisionOk(request.resource.data, resource.data) || cambioFecha(request.resource.data, resource.data));
+      allow delete: if autorizado();
+
+      // bitácora privada de revisiones (opcional; nunca es pública)
+      match /revisiones/{rev} {
+        allow get, list: if autorizado();
+        allow create: if autorizado()
+          && request.resource.data.keys().hasOnly(['revision', 'huella', 'hojas', 'numEquipos', 'por', 'fecha'])
+          && request.resource.data.revision is int && rev == string(request.resource.data.revision)
+          && request.resource.data.huella is string && request.resource.data.huella.matches('^[0-9a-f]{64}$')
+          && persona(request.resource.data.por) && request.resource.data.fecha == request.time;
+        allow update: if false;
+        allow delete: if autorizado();
+      }
+    }
+
+    // ---------- verificación pública (lo que lee el QR) ----------
+    match /verificaciones/{id} {
+      function exp() {
+        return getAfter(/databases/$(database)/documents/expedientes/$(request.resource.data.folio)).data;
+      }
+      function publicoValido(d) {
+        return d.keys().hasOnly(['folio', 'razonSocial', 'fechaEmisionDictamen', 'huella', 'revision', 'estado', 'emitidoPor', 'actualizado'])
+          && d.keys().hasAll(['folio', 'razonSocial', 'fechaEmisionDictamen', 'huella', 'revision', 'estado', 'emitidoPor', 'actualizado'])
+          && d.folio is string && d.folio.matches('^FX-[0-9]{4}-[0-9A-HJKMNP-TV-Z]{6}$')
+          && texto(d.razonSocial, 300) && d.fechaEmisionDictamen is string
+          && d.huella is string && d.huella.matches('^[0-9a-f]{64}$')
+          && d.revision is int && d.revision >= 1
+          && d.estado in ['vigente', 'cancelado'] && d.emitidoPor == 'FenixMex'
+          && d.actualizado == request.time
+          // debe coincidir con el registro privado tal como queda al final de la misma escritura
+          && exp().claveHash == id
+          && exp().revision == d.revision && exp().huella == d.huella && exp().estado == d.estado
+          && exp().razonSocial == d.razonSocial && exp().fechaEmisionDictamen == d.fechaEmisionDictamen;
+      }
+
+      allow get: if true;                  // cualquiera con el QR (id exacto = sha256(folio.clave))
+      allow list: if false;                // sin listar ni enumerar
+      allow create, update: if autorizado() && publicoValido(request.resource.data);
+      allow delete: if autorizado();
+    }
+  }
+}

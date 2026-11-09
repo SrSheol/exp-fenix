@@ -1,0 +1,22 @@
+{
+  "name": "fenix-pruebas-nube",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas del QR, la huella, el registro (reglas) y Drive simulado. Ver LEEME.md.",
+  "scripts": {
+    "emuladores": "firebase emulators:start --only firestore,auth --project demo-fenix",
+    "reglas": "node rules.test.mjs",
+    "a": "node test_a.mjs",
+    "b": "node test_b.mjs",
+    "c": "node test_c.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.2.0",
+    "firebase-tools": "^15.35.0",
+    "jsqr": "^1.4.0",
+    "jszip": "^3.10.2",
+    "playwright": "^1.65.0",
+    "pngjs": "^7.0.0"
+  }
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A0103">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin">
+<title>Verificar expediente · FenixMex</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%234A0205'/><path d='M7 12.5l3.2 3.2L17 9' stroke='%23E2BF92' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+/* FenixMex · verificación pública del QR. Concepto: un sello notarial (el veredicto) estampado en el borde de una hoja blanca
+   sobre el campo vino de la marca. Todo es local: sin fuentes, scripts ni imágenes externas (el fénix va incrustado). */
+:root{
+  --vino:#4A0205;--vino-hondo:#2A0103;--vino-medio:#6B0D12;--oro:#A7683C;--oro-claro:#E2BF92;--oro-velo:#F6EBDD;
+  --hoja:#FFFDFB;--tinta:#1F1715;--tinta-2:#675B57;--tinta-3:#968A85;--filete:#ECE2DC;
+  --ok:#1D6B45;--can:#9A5A0C;--mal:#A3201F;--off:#56606B;--st:var(--tinta-3);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua","URW Palladio L",P052,"Noto Serif",Georgia,serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Roboto Mono","Noto Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--vino-hondo)}
+body{margin:0;min-height:100vh;color:var(--tinta);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;
+  background:radial-gradient(90% 46rem at 50% -8rem,var(--vino-medio) 0%,var(--vino) 42%,var(--vino-hondo) 100%) no-repeat,var(--vino-hondo)}
+.oculto{display:none!important}
+:focus-visible{outline:3px solid var(--oro-claro);outline-offset:3px;border-radius:8px}
+
+/* encabezado: fénix + marca, centrado como en un membrete */
+.cab{display:flex;justify-content:center;align-items:center;gap:13px;padding:calc(22px + env(safe-area-inset-top,0px)) 20px 0}
+.marca{width:46px;height:46px;flex:none;border-radius:12px;overflow:hidden;border:1px solid rgba(226,191,146,.6);box-shadow:0 6px 16px -8px rgba(0,0,0,.7)}
+.marca img{display:block;width:100%;height:100%;object-fit:cover}
+.cab b{display:block;font:italic 600 24px/1.05 var(--serif);color:#fff;letter-spacing:.01em}
+.cab small{display:block;margin-top:3px;font-size:13px;color:var(--oro-claro);letter-spacing:.02em}
+
+main{max-width:600px;margin:0 auto;padding:0 12px calc(26px + env(safe-area-inset-bottom,0px))}
+
+/* la hoja */
+.hoja{position:relative;margin-top:82px;background:var(--hoja);border-radius:20px;padding:76px 22px 8px;
+  box-shadow:0 0 0 1px rgba(167,104,60,.22),0 34px 60px -34px rgba(0,0,0,.75)}
+
+/* el sello: color según el estado (--st); anillo con texto, disco con el ícono */
+[data-e="valido"]{--st:var(--ok)}[data-e="cancelado"]{--st:var(--can)}[data-e="invalido"]{--st:var(--mal)}
+[data-e="offline"],[data-e="error"]{--st:var(--off)}
+.sello{position:absolute;left:50%;top:-62px;width:124px;height:124px;margin-left:-62px}
+.sello svg{display:block;width:100%;height:100%;overflow:visible}
+.sello .fondo{fill:var(--hoja);stroke:var(--st);stroke-width:1.4}
+.sello .guia{fill:none;stroke:var(--st);stroke-width:.7;opacity:.5}
+.sello .aro{fill:var(--st);font:700 7.9px var(--sans);letter-spacing:.5px;transform-origin:60px 60px}
+.sello .disco{fill:var(--st);transition:fill .25s}
+.sello .ico{fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sello .emb{opacity:0}
+[data-e="cargando"] .sello .disco{fill:var(--vino)}
+[data-e="cargando"] .sello .emb{opacity:1}
+[data-e="cargando"] .sello .aro{animation:giro 9s linear infinite;fill:var(--oro)}
+[data-e="cargando"] .sello .fondo{stroke:var(--oro)}
+[data-e="cargando"] .sello .guia{stroke:var(--oro)}
+@keyframes giro{to{transform:rotate(360deg)}}
+.sello.estampa svg{animation:estampa .42s cubic-bezier(.2,.9,.25,1.25) both}
+@keyframes estampa{0%{transform:scale(1.18);opacity:.25}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){[data-e="cargando"] .sello .aro{animation:none}.sello.estampa svg{animation:none}}
+
+/* veredicto */
+.veredicto{text-align:center;padding:0 4px 20px}
+.veredicto h1{margin:0;font:600 clamp(26px,7.6vw,36px)/1.1 var(--serif);color:var(--st);letter-spacing:-.005em;text-wrap:balance}
+.veredicto h1 .nw{white-space:nowrap}
+[data-e="cargando"] .veredicto h1{color:var(--tinta)}
+.veredicto p{margin:9px auto 0;max-width:40ch;text-wrap:balance;font-size:15.5px;color:var(--tinta-2)}
+
+/* datos: etiqueta / valor, apilados en el teléfono y en dos columnas en escritorio */
+.datos{margin:0;border-top:1px solid var(--filete)}
+.fila{padding:14px 2px 15px;border-bottom:1px solid var(--filete)}
+.fila:last-child{border-bottom:0}
+dt{font-size:13px;font-weight:600;color:var(--tinta-2)}
+dd{margin:4px 0 0;font-size:17px;font-weight:600;overflow-wrap:anywhere}
+dd.folio{font-size:23px;font-weight:700;color:var(--vino);letter-spacing:.045em;font-variant-numeric:tabular-nums lining-nums}
+dd.rs{font:600 20px/1.28 var(--serif)}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;padding:5px 13px 5px 11px;border-radius:999px;background:var(--oro-velo);color:#7A4718;border:1px solid #E7C9A2}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--oro)}
+.emisor{display:inline-flex;align-items:center;gap:9px}
+.emisor img{width:24px;height:24px;border-radius:6px;display:block}
+.huella{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.huella code{font:600 16px/1.4 var(--mono);color:var(--tinta-2);letter-spacing:.02em}
+.huella .h8{color:var(--vino);background:var(--oro-velo);border:1px solid #EBD3B4;border-radius:7px;padding:1px 7px;margin-right:6px}
+.huella .pista{flex-basis:100%;font-size:13.5px;font-weight:500;color:var(--tinta-2);margin-top:-2px}
+.huella details{flex-basis:100%}
+.huella summary{display:inline-flex;align-items:center;gap:6px;min-height:36px;cursor:pointer;list-style:none;font-size:14.5px;font-weight:600;color:var(--vino-medio)}
+.huella summary::-webkit-details-marker{display:none}
+.huella summary::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s}
+.huella details[open] summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.huella .completa{display:block;margin-top:4px;padding:11px 13px;border-radius:12px;background:#F8F2EE;border:1px solid var(--filete);font:500 13.5px/1.6 var(--mono);color:var(--tinta);word-break:break-all}
+.btn{appearance:none;font:inherit;font-weight:650;cursor:pointer;border-radius:11px;min-height:44px;padding:10px 18px;border:1px solid var(--filete);background:var(--hoja);color:var(--tinta)}
+.btn:active{transform:translateY(1px)}
+.btn.copiar{min-height:36px;padding:6px 12px;font-size:13.5px;color:var(--vino-medio);border-color:#E3D3C9}
+.btn.prim{background:var(--vino);border-color:var(--vino);color:#fff}
+
+/* estados sin datos: consejos y reintentar */
+.consejos{margin:0 auto;padding:16px 4px 4px 22px;max-width:40ch;border-top:1px solid var(--filete);color:var(--tinta-2);font-size:15px}
+.consejos li{margin:0 0 8px}
+.acc{text-align:center;padding:14px 0 10px}
+.alerta{display:flex;gap:10px;align-items:flex-start;margin:14px 0 6px;padding:12px 14px;border-radius:12px;background:#FBEAEA;border:1px solid #EFC4C4;color:var(--mal);font-size:14.5px}
+.alerta svg{flex:none;width:20px;height:20px;margin-top:1px}
+
+.pie{text-align:center;margin-top:22px;font-size:13px;line-height:1.6;color:rgba(255,255,255,.62)}
+.pie b{display:block;font-weight:600;color:var(--oro-claro)}
+.pie span{display:block}
+
+@media (min-width:640px){
+  main{max-width:680px}
+  .cab{padding-top:38px}
+  .hoja{margin-top:96px;padding:84px 44px 14px;border-radius:22px}
+  .sello{width:136px;height:136px;top:-68px;margin-left:-68px}
+  .fila{display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:baseline;padding:16px 2px}
+  dd{margin:0}
+  .veredicto{padding-bottom:26px}
+}
+</style>
+<script src="nube-config.js"></script>
+</head>
+<body>
+<header class="cab">
+  <span class="marca"><img id="logo" src="data:image/jpeg;base64,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" alt="Fénix de FenixMex" width="46" height="46"></span>
+  <div><b>FenixMex</b><small>Verificación de expediente</small></div>
+</header>
+<main>
+  <article class="hoja" id="t" data-e="cargando" aria-live="polite" aria-busy="true">
+    <div class="sello" id="sello" aria-hidden="true">
+      <svg viewBox="0 0 120 120">
+        <defs><path id="aroCam" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0"/><clipPath id="discoClip"><circle cx="60" cy="60" r="33"/></clipPath></defs>
+        <circle class="fondo" cx="60" cy="60" r="58.5"/>
+        <circle class="guia" cx="60" cy="60" r="38"/>
+        <text class="aro"><textPath href="#aroCam" textLength="293" lengthAdjust="spacing">FENIXMEX · REGISTRO DE EXPEDIENTES · NOM-020 ·</textPath></text>
+        <circle class="disco" cx="60" cy="60" r="34"/>
+        <image class="emb" id="selloEmb" x="27" y="27" width="66" height="66" clip-path="url(#discoClip)" preserveAspectRatio="xMidYMid slice"/>
+        <g class="ico" id="selloIco" transform="translate(42 42) scale(1.5)"></g>
+      </svg>
+    </div>
+    <div class="veredicto"><h1 id="tit">Verificando…</h1><p id="sub">Consultando el registro de FenixMex.</p></div>
+    <dl class="datos oculto" id="datos">
+      <div class="fila"><dt>Folio</dt><dd class="folio" id="vFolio"></dd></div>
+      <div class="fila"><dt>Razón social</dt><dd class="rs" id="vRs"></dd></div>
+      <div class="fila"><dt>Fecha de emisión del dictamen</dt><dd id="vFecha"></dd></div>
+      <div class="fila"><dt>Emitido por</dt><dd><span class="emisor"><img id="logoMini" alt="" width="24" height="24">FenixMex</span></dd></div>
+      <div class="fila"><dt>Huella de datos</dt><dd class="huella">
+        <code id="vHc"><span class="h8" id="vH8"></span><span id="vHr"></span></code>
+        <button type="button" class="btn copiar" id="copiar">Copiar</button>
+        <span class="pista">Los primeros 8 caracteres están impresos en la portada, junto al folio.</span>
+        <details id="hDet"><summary>Ver huella completa</summary><code class="completa" id="vH"></code></details></dd></div>
+    </dl>
+    <ul class="consejos oculto" id="consejos"></ul>
+    <div class="acc oculto" id="acc"><button type="button" class="btn prim" id="reint">Intentar de nuevo</button></div>
+    <p class="alerta oculto" id="dom" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.6v.2"/></svg><span id="domTxt"></span></p>
+  </article>
+  <p class="pie"><b>Consultoría, capacitación y dictaminación</b>fenixmex.com.mx<span id="hora"></span></p>
+</main>
+<script>
+(function(){
+  'use strict';
+  var C = window.FX_NUBE || {}, F = C.firebase || null, HOST = 'srsheol.github.io';
+  var $ = function(id){ return document.getElementById(id); };
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  // íconos del sello (24 × 24, trazo blanco)
+  var ICO = {
+    valido: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    cancelado: '<circle cx="12" cy="12" r="8"/><path d="M6.5 17.5l11-11"/>',
+    invalido: '<path d="M7 7l10 10M17 7L7 17"/>',
+    offline: '<path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><path d="M12 19h.01"/><path d="M3 3l18 18"/>'
+  };
+  // servicio no disponible / error del registro: nube con aviso (distinto de «sin conexión»)
+  ICO.error = '<path d="M7 18.5h10.2a4.2 4.2 0 0 0 .7-8.35A6.2 6.2 0 0 0 6 9.3a4.6 4.6 0 0 0 1 9.2z"/><path d="M12 9.6v3.6"/><path d="M12 15.9h.01"/>';
+  // el fénix incrustado (uno solo) se reutiliza en el sello mientras verifica y en «Emitido por»
+  (function(){ var src = $('logo').getAttribute('src'); $('logoMini').setAttribute('src', src); $('selloEmb').setAttribute('href', src); })();
+
+  // ---- SHA-256: crypto.subtle o, si no existe (navegadores viejos / sin https), una implementación pequeña ----
+  function sha256js(str){
+    var u = unescape(encodeURIComponent(str)), K = [], H = [], i, j;
+    var isP = function(n){ for (var f = 2; f * f <= n; f++) if (n % f === 0) return false; return true; };
+    var frac = function(x){ return ((x - Math.floor(x)) * 4294967296) | 0; };
+    for (i = 2, j = 0; j < 64; i++) if (isP(i)) { if (j < 8) H[j] = frac(Math.pow(i, 1 / 2)); K[j++] = frac(Math.pow(i, 1 / 3)); }
+    var b = []; for (i = 0; i < u.length; i++) b.push(u.charCodeAt(i));
+    var l = b.length * 8; b.push(0x80); while (b.length % 64 !== 56) b.push(0);
+    for (i = 7; i >= 0; i--) b.push(i > 3 ? 0 : (l >>> (i * 8)) & 255);
+    var w = [], r = function(x, n){ return (x >>> n) | (x << (32 - n)); };
+    for (i = 0; i < b.length; i += 64) {
+      for (j = 0; j < 16; j++) w[j] = (b[i + 4 * j] << 24) | (b[i + 4 * j + 1] << 16) | (b[i + 4 * j + 2] << 8) | b[i + 4 * j + 3];
+      for (j = 16; j < 64; j++) { var s0 = r(w[j - 15], 7) ^ r(w[j - 15], 18) ^ (w[j - 15] >>> 3), s1 = r(w[j - 2], 17) ^ r(w[j - 2], 19) ^ (w[j - 2] >>> 10); w[j] = (w[j - 16] + s0 + w[j - 7] + s1) | 0; }
+      var a = H.slice(0);
+      for (j = 0; j < 64; j++) {
+        var t1 = (a[7] + (r(a[4], 6) ^ r(a[4], 11) ^ r(a[4], 25)) + ((a[4] & a[5]) ^ (~a[4] & a[6])) + K[j] + w[j]) | 0;
+        var t2 = ((r(a[0], 2) ^ r(a[0], 13) ^ r(a[0], 22)) + ((a[0] & a[1]) ^ (a[0] & a[2]) ^ (a[1] & a[2]))) | 0;
+        a = [(t1 + t2) | 0, a[0], a[1], a[2], (a[3] + t1) | 0, a[4], a[5], a[6]];
+      }
+      for (j = 0; j < 8; j++) H[j] = (H[j] + a[j]) | 0;
+    }
+    return H.map(function(x){ return ('00000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
+  }
+  function sha256(str){
+    try {
+      if (window.crypto && crypto.subtle && window.TextEncoder)
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function(buf){
+          return Array.prototype.map.call(new Uint8Array(buf), function(x){ return ('0' + x.toString(16)).slice(-2); }).join('');
+        }, function(){ return sha256js(str); });
+    } catch (e) {}
+    return Promise.resolve(sha256js(str));
+  }
+
+
+  function fechaLarga(f){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f || ''); return m ? (+m[3]) + ' de ' + MESES[+m[2] - 1] + ' de ' + m[1] : (f || '—'); }
+  // fecha vacía = dictamen de categoría III aún en trámite con los expertos externos (no es un error)
+  function pintarFecha(f){
+    var el = $('vFecha'); el.textContent = '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(f || '')) { el.textContent = fechaLarga(f); return; }
+    var c = document.createElement('span'); c.className = 'chip'; c.textContent = 'En trámite'; el.appendChild(c);
+  }
+  // título sin palabras sueltas: se parte en «No válido /» + «no encontrado», «Sin conexión,» + «intente de nuevo»;
+  // si no hay «/» ni coma y son 3+ palabras, las dos últimas van juntas. El texto (textContent) no cambia.
+  function titulo(t){
+    var h = $('tit'), g = [], m; h.textContent = '';
+    if ((m = /^(.+? \/) (.+)$/.exec(t)) || (m = /^(.+?,) (.+)$/.exec(t))) g = [m[1], m[2]];
+    else { var w = t.split(' '); g = w.length >= 3 ? [w.slice(0, -2).join(' '), w.slice(-2).join(' ')] : [t]; }
+    g.forEach(function(x, i){ if (i) h.appendChild(document.createTextNode(' ')); var s = document.createElement('span'); s.className = 'nw'; s.textContent = x; h.appendChild(s); });
+  }
+  function estado(e, tit, sub, consejos){
+    var t = $('t'); t.setAttribute('data-e', e); t.setAttribute('aria-busy', 'false');
+    $('selloIco').innerHTML = ICO[e] || '';
+    var s = $('sello'); s.classList.remove('estampa'); void s.offsetWidth; s.classList.add('estampa');
+    titulo(tit); $('sub').textContent = sub;
+    var c = $('consejos'); c.innerHTML = ''; (consejos || []).forEach(function(x){ var li = document.createElement('li'); li.textContent = x; c.appendChild(li); });
+    c.classList.toggle('oculto', !(consejos && consejos.length));
+    $('acc').classList.toggle('oculto', !(e === 'offline' || e === 'error'));
+    $('datos').classList.toggle('oculto', !(e === 'valido' || e === 'cancelado'));
+    document.title = tit + ' · FenixMex';
+    var d = new Date(); $('hora').textContent = 'Consulta: ' + d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+  function cargando(){ var t = $('t'); t.setAttribute('data-e', 'cargando'); t.setAttribute('aria-busy', 'true'); $('selloIco').innerHTML = ''; $('sello').classList.remove('estampa'); $('tit').textContent = 'Verificando…'; $('sub').textContent = 'Consultando el registro de FenixMex.'; $('acc').classList.add('oculto'); $('datos').classList.add('oculto'); $('consejos').classList.add('oculto'); }
+  function val(f){ if (!f) return ''; if ('stringValue' in f) return f.stringValue; if ('integerValue' in f) return +f.integerValue; if ('doubleValue' in f) return f.doubleValue; if ('timestampValue' in f) return f.timestampValue; return ''; }
+
+  // dominio: el QR siempre apunta a srsheol.github.io; en otra dirección (posible copia falsa) aparece una advertencia
+  (function(){
+    var h = location.hostname, ok = h === HOST || h === 'localhost' || h === '127.0.0.1' || h === '';
+    if (!ok) { $('dom').classList.remove('oculto'); $('domTxt').innerHTML = 'Atención: esta página está en <b></b>, no en <b>srsheol.github.io</b>. No confíe en este resultado; escanee el código otra vez.'; $('domTxt').getElementsByTagName('b')[0].textContent = h; }
+  })();
+
+  var NOENC = ['Revise que el código no esté dañado, roto o tapado y escanéelo otra vez.', 'Si persiste, el documento podría no ser auténtico: confírmelo directamente con FenixMex.'];
+  var corrida = 0;
+  // fragmento → {folio, clave} o null. Cualquier cosa rara (%, vacío, sin clave, caracteres de más) es null: nunca lanza.
+  function leerCodigo(h){
+    try {
+      var t = String(h || '').trim(); if (t.charAt(0) === '#') t = t.slice(1);
+      if (!t || t.length > 120) return null;
+      try { t = decodeURIComponent(t); } catch (e) { return null; }
+      var m = /^(FX-\d{4}-[0-9A-HJKMNP-TV-Z]{6})\.([0-9A-Za-z]{12,32})$/.exec(t.trim());
+      return m ? { folio: m[1], clave: m[2] } : null;
+    } catch (e) { return null; }
+  }
+  function noValidoEnlace(){ estado('invalido', 'No válido / no encontrado', 'Este enlace no contiene un código de expediente de FenixMex válido.', NOENC); }
+  function verificar(){
+    try { verificar2(); }
+    catch (e) { try { noValidoEnlace(); } catch (e2) {} }   // nada se queda en «Verificando…»
+  }
+  function verificar2(){
+    var mia = ++corrida;
+    var cod = leerCodigo(location.hash);
+    if (!cod) return noValidoEnlace();
+    if (!F || !F.projectId) return estado('error', 'Servicio no disponible', 'La verificación no está disponible en este momento. Intente de nuevo más tarde.');
+    if (navigator.onLine === false) return estado('offline', 'Sin conexión, intente de nuevo', 'Este teléfono no tiene internet. Conéctese y toque «Intentar de nuevo».');
+    cargando();
+    var folio = cod.folio, clave = cod.clave;
+    sha256(folio + '.' + clave).then(function(id){
+      var em = C.emulador, base = em ? 'http://' + (em.host || '127.0.0.1') + ':' + (em.firestorePort || 8080) : 'https://firestore.googleapis.com';
+      var url = base + '/v1/projects/' + encodeURIComponent(F.projectId) + '/databases/(default)/documents/verificaciones/' + id + (em ? '' : '?key=' + encodeURIComponent(F.apiKey || ''));
+      var ctl = window.AbortController ? new AbortController() : null, to = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
+      return fetch(url, { cache: 'no-store', credentials: 'omit', referrerPolicy: 'strict-origin', signal: ctl ? ctl.signal : undefined }).then(function(r){
+        clearTimeout(to);
+        if (mia !== corrida) return;
+        if (r.status === 404) return estado('invalido', 'No válido / no encontrado', 'Este código no corresponde a ningún expediente registrado por FenixMex.', NOENC);
+        if (!r.ok) return estado('error', 'No se pudo verificar', 'El servicio respondió con un error (' + r.status + '). Intente de nuevo en unos minutos.');
+        return r.json().then(function(j){
+          var f = (j && j.fields) || {}, d = { folio: val(f.folio), rs: val(f.razonSocial), fecha: val(f.fechaEmisionDictamen), huella: String(val(f.huella) || ''), rev: val(f.revision), est: val(f.estado), emisor: val(f.emitidoPor) };
+          if (d.folio !== folio || d.emisor !== 'FenixMex' || !/^[0-9a-f]{64}$/.test(d.huella)) return estado('invalido', 'No válido / no encontrado', 'Los datos del registro no coinciden con este código.', NOENC);
+          $('vFolio').textContent = d.folio; $('vRs').textContent = d.rs || '—'; pintarFecha(d.fecha);
+          $('vH8').textContent = d.huella.slice(0, 8); $('vHr').textContent = d.huella.slice(8, 16) + '…'; $('vH').textContent = d.huella.replace(/(.{8})/g, '$1 ').trim();
+          $('copiar').onclick = function(){ var b = $('copiar'); (navigator.clipboard ? navigator.clipboard.writeText(d.huella) : Promise.reject()).then(function(){ b.textContent = 'Copiada'; }, function(){ $('hDet').open = true; b.textContent = 'Selecciónela abajo'; }); setTimeout(function(){ b.textContent = 'Copiar'; }, 2500); };
+          if (d.est === 'cancelado') estado('cancelado', 'Expediente cancelado', 'FenixMex canceló este expediente: ya no está vigente y no debe aceptarse como válido.');
+          else estado('valido', 'Expediente válido', 'Registrado y vigente en FenixMex. Compare los datos con el documento impreso.');
+        }, function(){ if (mia === corrida) estado('error', 'No se pudo verificar', 'La respuesta del registro no se pudo leer. Intente de nuevo en unos minutos.'); });
+      }, function(){
+        clearTimeout(to);
+        if (mia !== corrida) return;
+        estado('offline', 'Sin conexión, intente de nuevo', 'No se pudo consultar el registro. Revise su conexión a internet y toque «Intentar de nuevo».');
+      });
+    }).then(null, function(){ if (mia === corrida && $('t').getAttribute('data-e') === 'cargando') estado('error', 'No se pudo verificar', 'Ocurrió un error al consultar el registro. Intente de nuevo.'); });
+  }
+  $('reint').addEventListener('click', verificar);
+  window.addEventListener('hashchange', verificar);
+  window.addEventListener('online', function(){ if (/offline|error/.test($('t').getAttribute('data-e'))) verificar(); });
+  verificar();
+
+})();
+</script>
+</body>
+</html>

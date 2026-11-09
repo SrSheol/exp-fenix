@@ -1,0 +1,66 @@
+Escrituras
+  ✓ anónimo NO puede escribir expedientes
+  ✓ cuenta no autorizada NO puede escribir
+  ✓ cuenta autorizada con correo sin verificar NO puede escribir
+  ✓ autorizada: claveHash que no corresponde → rechazado
+  ✓ autorizada: público con id distinto al hash → rechazado
+  ✓ autorizada: primera revisión ≠ 1 → rechazado
+  ✓ autorizada: campo extra en lo público → rechazado
+  ✓ autorizada: público solo (sin registro privado) → rechazado
+  ✓ autorizada (correo en MAYÚSCULAS) registra revisión 1
+  ✓ autorizada: reexportar con createdAt nuevo (autoría alterada) → rechazado
+  ✓ autorizada: revisión 2 (+1) con huella nueva
+  ✓ otra cuenta autorizada puede corregir (revisión 3) conservando la autoría
+  ✓ no se puede firmar como otra persona (updatedBy ajeno) → rechazado
+  ✓ autorizada: saltar de revisión (+2) → rechazado
+  ✓ autorizada: cambiar la clave → rechazado
+  ✓ autorizada: cambiar createdBy → rechazado
+  ✓ autorizada: público que no coincide con el privado (huella) → rechazado
+  ✓ autorizada: ids de Drive en el registro
+  ✓ autorizada: cancelar (privado + público en un lote)
+  ✓ autorizada: cancelar solo lo público → rechazado (debe coincidir)
+  ✓ cuenta no autorizada NO puede cancelar
+  ✓ cuenta no autorizada NO puede borrar
+  ✓ anónimo NO puede borrar
+Lecturas
+  ✓ anónimo lee lo público con el id exacto (folio + clave)
+  ✓ anónimo con clave equivocada → no existe (sin datos)
+  ✓ anónimo NO puede listar verificaciones
+  ✓ anónimo NO puede buscar por folio (query)
+  ✓ anónimo NO puede leer el registro privado (clave)
+  ✓ anónimo NO puede listar expedientes
+  ✓ anónimo NO puede leer la lista de acceso
+  ✓ cuenta no autorizada NO lee el historial
+  ✓ cuenta no autorizada NO lee la lista de acceso
+  ✓ autorizada lee la lista de acceso
+  ✓ autorizada lista el historial
+  ✓ autorizada lee la bitácora de revisiones
+  ✓ anónimo NO lee la bitácora de revisiones
+  ✓ nadie escribe la lista de acceso desde la app
+v18 · revisión solo con huella nueva
+  ✓ registra revisión 1 (otro folio)
+  ✓ revisión +1 con la MISMA huella → rechazado (reexportar lo mismo no sube la revisión)
+  ✓ misma revisión con huella DISTINTA → rechazado
+  ✓ revisión +1 con huella nueva → permitido
+  ✓ Cat II: cambiar solo la fecha del dictamen (sin revisión) → rechazado (es automática y estable)
+  ✓ nota de limpieza de Drive (pendingCleanup) sin cambiar la revisión → permitido
+v18 · fecha del dictamen Cat III (en trámite → capturada → corregida)
+  ✓ Cat III se registra sin fecha (en trámite: fecha vacía en lo público)
+  ✓ anónimo lee lo público: fecha vacía (verificar.html muestra «En trámite»)
+  ✓ fecha futura → rechazado
+  ✓ fecha anterior a la creación del expediente → rechazado
+  ✓ fecha mal formada → rechazado
+  ✓ capturar a nombre de otra persona (fechaDictamenPor ajeno) → rechazado
+  ✓ capturar y a la vez subir la revisión → rechazado
+  ✓ capturar y a la vez cambiar la huella → rechazado
+  ✓ capturar y a la vez cambiar otro campo (razón social) → rechazado
+  ✓ cambiar la fecha solo en lo público → rechazado (debe coincidir con lo privado)
+  ✓ cuenta no autorizada NO puede capturar la fecha
+  ✓ autorizada captura la fecha (privado + público, misma revisión y huella)
+  ✓ tras capturar: revisión 1 y huella intactas; quién y cuándo solo en lo privado
+  ✓ otra cuenta autorizada corrige la fecha («Corregir fecha»)
+  ✓ Drive / cancelar no pueden cambiar la fecha de paso (misma revisión) → rechazado
+Eliminar
+  ✓ autorizada elimina (privado + público + bitácora)
+  ✓ tras eliminar, el QR ya no encuentra nada
+60 correctas, 0 fallidas
