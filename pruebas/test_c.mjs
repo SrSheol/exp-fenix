@@ -10,7 +10,7 @@ const srv = await servidor(5514, PROY, { '/orig/index.html': fs.readFileSync(S +
 const b = borrador(3); b.draft.equipos[1].presionCalibracion = '6.00'; b.draft.equipos[1].folio = '123'; b.draft.empresaTelefono = '55 1234 5678'; b.draft.empresaCorreo = 'contacto@pena.com.mx';
 const res = {};
 for (const [v, url] of [['orig', '/orig/index.html'], ['nuevo', '/index.html']]) {
-  const logs = []; const { br, ctx } = await navegador({ config: null });   // nube-config.js tal cual se entrega
+  const logs = []; const { br, ctx } = await navegador({ config: 'window.FX_NUBE={firebase:null};' });   // nube sin configurar (simulada: el nube-config.js real ya tiene el proyecto de producción)
   const p = await abrirApp(ctx, `http://127.0.0.1:5514${url}#generar`, logs);
   await importarBorrador(p, b, `c_${v}.json`);
   const g = await generar(p, true);

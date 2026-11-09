@@ -12723,7 +12723,7 @@ async function registrar(job){
     const fecha=ext?(base&&base.fechaDictamenPor?fb:''):(fb||job.fecha||'');
     const priv={folio:job.folio,clave:job.clave,claveHash:idp,razonSocial:job.rs,fechaEmisionDictamen:fecha,dictamenExterno:ext,huella:job.huella,revision:rev,estado,emitidoPor:'FenixMex',
       numEquipos:job.nEq,hojas:job.hojas,createdBy:base?base.createdBy:q,createdAt:base?base.createdAt:TS(),updatedBy:q,updatedAt:TS()};
-    for(const k of ['driveZipId','driveZipNombre','driveZipBytes','driveBorradorId','driveActualizado','pendingCleanup','fechaDictamenPor','fechaDictamenEn'])if(base&&base[k]!=null)priv[k]=base[k];
+    for(const k of ['driveZipId','driveZipNombre','driveZipBytes','driveBorradorId','driveCarpetaId','driveActualizado','pendingCleanup','fechaDictamenPor','fechaDictamenEn'])if(base&&base[k]!=null)priv[k]=base[k];
     t.set(ref,priv);
     t.set(pub,{folio:job.folio,razonSocial:job.rs,fechaEmisionDictamen:fecha,huella:job.huella,revision:rev,estado,emitidoPor:'FenixMex',actualizado:TS()});
     t.set(ref.collection('revisiones').doc(String(rev)),{revision:rev,huella:job.huella,hojas:job.hojas,numEquipos:job.nEq,por:q,fecha:TS()});
@@ -12791,7 +12791,7 @@ async function pendProcesar(interactivo){
         if(!j.reg){const r=await registrar(j);j.reg=r.rev;j.igual=!!r.igual;j.estadoReg=r.estado;j.error='';await pendGuardar();if(D&&D.fxId&&D.fxId.folio===j.folio){D.fxId.revision=r.rev;D.fxId.registrado=new Date().toISOString();guardar();}}
         if(driveConfig()){
           if(!(await driveListo(interactivo))){j.error='falta conectar Google Drive';await pendGuardar();continue;}
-          await driveTrabajo(j);
+          await driveTrabajo(j,!!interactivo||Date.now()-Date.parse(j.fechaGen||0)<10*60*1000);
         }
         delete PEND[j.folio];await pendGuardar();
         toast(j.igual?`${j.folio}: mismos datos, sigue en la revisión ${j.reg}${driveConfig()?' · Drive actualizado':''}.`:`Registrado ${j.folio} · revisión ${j.reg}${driveConfig()?' · respaldado en Drive':''}.`,5000);
@@ -12836,24 +12836,25 @@ async function driveListo(interactivo){
   return driveElegir([NUBE.driveFolderId],'carpeta');
 }
 // selector de Google: concede a la app acceso (drive.file) a la carpeta compartida o a un archivo que creó otra persona
-async function driveElegir(ids,tipo){
+async function driveElegir(ids,tipo,nombreSub){
   if(!NUBE.googleApiKey){toast('Falta googleApiKey en nube-config.js (selector de Google).',7000);return false;}
   await cargarJs('https://apis.google.com/js/api.js');await new Promise(r=>gapi.load('picker',r));
   const tok=await driveToken(true);if(!tok)return false;
   return new Promise(res=>{
-    const P=google.picker,v=new P.DocsView(tipo==='carpeta'?P.ViewId.FOLDERS:P.ViewId.DOCS).setIncludeFolders(true).setSelectFolderEnabled(tipo==='carpeta');
+    const esCarpeta=tipo==='carpeta'||tipo==='subcarpeta';   // v19: subcarpeta = la del expediente
+    const P=google.picker,v=new P.DocsView(esCarpeta?P.ViewId.FOLDERS:P.ViewId.DOCS).setIncludeFolders(true).setSelectFolderEnabled(esCarpeta);
     try{if(ids&&ids.length&&v.setFileIds)v.setFileIds(ids.join(','));}catch(_){}
     const pk=new P.PickerBuilder().addView(v).setOAuthToken(tok).setDeveloperKey(NUBE.googleApiKey).setAppId(NUBE.googleAppId||'').setLocale('es')
-      .setTitle(tipo==='carpeta'?`Elige la carpeta «${NUBE.driveFolderName}»`:'Elige el archivo del expediente para abrirlo')
+      .setTitle(tipo==='carpeta'?`Elige la carpeta «${NUBE.driveFolderName}»`:tipo==='subcarpeta'?`Elige la carpeta «${nombreSub||'del expediente'}» para guardar ahí el expediente`:'Elige el archivo del expediente para abrirlo')
       .setCallback(d=>{if(d.action===P.Action.PICKED){const ok=(d.docs||[]).some(x=>ids.includes(x.id));if(tipo==='carpeta')NB.carpetaOk=ok;if(!ok)toast('Ese no es el elemento indicado; vuelve a intentarlo.',6000);res(ok);}else if(d.action===P.Action.CANCEL)res(false);}).build();
     pk.setVisible(true);
   });
 }
-async function driveSubir(o){   // o: {nombre, mime, datos: Blob, id (actualizar), prog(fr)} → {id, name, size}
+async function driveSubir(o){   // o: {nombre, mime, datos: Blob, id (actualizar), padre (carpeta destino de un archivo nuevo), prog(fr)} → {id, name, size}
   const tot=o.datos.size,CH=8*1024*1024;
   const crear=async(id)=>{
     const url=`${NUBE.driveApi}/upload/drive/v3/files${id?'/'+encodeURIComponent(id):''}?uploadType=resumable&supportsAllDrives=true&fields=id,name,size`;
-    const meta=id?{name:o.nombre}:{name:o.nombre,mimeType:o.mime,parents:[NUBE.driveFolderId],description:o.desc||''};
+    const meta=id?{name:o.nombre}:{name:o.nombre,mimeType:o.mime,parents:[o.padre||NUBE.driveFolderId],description:o.desc||''};
     return dFetch(url,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json; charset=UTF-8','X-Upload-Content-Type':o.mime,'X-Upload-Content-Length':String(tot)},body:JSON.stringify(meta)});
   };
   let r=await crear(o.id),huerfano=null;
@@ -12881,14 +12882,72 @@ async function subirSesion(r,o,tot,CH){
       if(st.status===308){const g=st.headers.get('Range');pos=g?+g.split('-')[1]+1:0;}}catch(_){}
   }
 }
-async function driveTrabajo(j){
+// ---- v19 · una subcarpeta por expediente dentro de «Fenix · Expedientes»: «FX-2026-XXXXXX · Razón social» ----
+const MIME_CARPETA='application/vnd.google-apps.folder';
+function nombreCarpeta(folio,rs){
+  // sin caracteres de control ni los que estorban en Drive / Drive para escritorio (\ / : * ? " < > |), espacios simples, ≤ 120
+  const limpio=String(rs||'').normalize('NFC').replace(/[\u0000-\u001f\u007f-\u009f]/g,' ').replace(/[\\/:*?"<>|]/g,' ').replace(/\s+/g,' ').trim();
+  let n=limpio?`${folio} · ${limpio}`:String(folio);
+  if(Array.from(n).length>120)n=Array.from(n).slice(0,120).join('').replace(/[\s·,;-]+$/,'');   // recortado: sin separador colgando al final
+  return n;
+}
+const dUrl=(id,q)=>`${NUBE.driveApi}/drive/v3/files/${encodeURIComponent(id)}?supportsAllDrives=true${q?'&'+q:''}`;
+async function driveMeta(id,campos){const r=await dFetch(dUrl(id,'fields='+encodeURIComponent(campos)));return r.ok?{ok:true,j:await r.json()}:{ok:false,status:r.status};}
+async function driveCrearCarpeta(nombre,folio){
+  const r=await dFetch(`${NUBE.driveApi}/drive/v3/files?supportsAllDrives=true&fields=id,name`,{method:'POST',headers:{'Content-Type':'application/json; charset=UTF-8'},
+    body:JSON.stringify({name:nombre,mimeType:MIME_CARPETA,parents:[NUBE.driveFolderId],description:`Expediente ${folio} (Expedientes FenixMex)`})});
+  if(!r.ok)throw new Error(`Drive respondió ${r.status} al crear la carpeta del expediente.`);
+  return (await r.json()).id;
+}
+// la subcarpeta del expediente, lista para escribir. pedir = se puede mostrar el selector de Google (lo pidió la persona hace poco).
+// Sin acceso (drive.file: la creó otra cuenta): selector → si no, carpeta nueva propia y la anterior a pendingCleanup. Nunca se pierde la subida.
+async function driveCarpeta(j,x,pedir,huerf){
+  const nombre=nombreCarpeta(j.folio,j.rs),campos='id,name,trashed,capabilities(canAddChildren,canRename)';
+  let id=j.drive.carpeta||x.driveCarpetaId||null;
+  if(id){
+    let m=await driveMeta(id,campos);
+    if(!m.ok&&m.status!==403&&m.status!==404)throw new Error(`Drive respondió ${m.status} al revisar la carpeta del expediente; se reintentará.`);
+    const sirve=m=>m.ok&&!m.j.trashed&&(!m.j.capabilities||m.j.capabilities.canAddChildren!==false);
+    if(!sirve(m)&&!(m.ok&&m.j.trashed)){
+      if(!pedir){const e=new Error('falta acceso a la carpeta del expediente en Drive (toca «Registrar ahora»)');e.code='carpeta-sin-acceso';throw e;}
+      let ok=false;try{ok=await driveElegir([id],'subcarpeta',nombre);}catch(e){console.warn('selector de Google',e);}
+      if(ok){m=await driveMeta(id,campos);if(!m.ok&&m.status!==403&&m.status!==404)throw new Error(`Drive respondió ${m.status} al revisar la carpeta del expediente; se reintentará.`);}
+    }
+    if(sirve(m)){
+      j.drive.carpeta=id;
+      if(m.j.name!==nombre&&(!m.j.capabilities||m.j.capabilities.canRename!==false)){   // cambió la razón social: se renombra (si falla, no pasa nada)
+        try{const r=await dFetch(dUrl(id,'fields=id,name'),{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify({name:nombre})});if(!r.ok)console.warn('renombrar carpeta',r.status);}
+        catch(e){console.warn('renombrar carpeta',e);}
+      }
+      return id;
+    }
+    if(!(m.ok&&m.j.trashed)){huerf({huerfano:{fileId:id,status:m.ok?403:m.status}},'carpeta');
+      toast(`Sin acceso a la carpeta de ${j.folio} en Drive: se creó otra carpeta para este expediente.`,7000);}
+  }
+  id=await driveCrearCarpeta(nombre,j.folio);j.drive.carpeta=id;await pendGuardar();   // se guarda antes de subir: un reintento no duplica la carpeta
+  return id;
+}
+// deja un archivo ya existente dentro de la subcarpeta (lo mueve si está suelto). 'ok' o el código HTTP si no se pudo (sin acceso)
+async function driveMover(id,carpeta){
+  const m=await driveMeta(id,'id,parents,trashed');
+  if(!m.ok){if(m.status===403||m.status===404)return m.status;throw new Error(`Drive respondió ${m.status} al revisar un archivo; se reintentará.`);}
+  if(m.j.trashed)return 404;
+  const ps=m.j.parents||[];if(ps.includes(carpeta))return 'ok';
+  const r=await dFetch(dUrl(id,`addParents=${encodeURIComponent(carpeta)}${ps.length?'&removeParents='+encodeURIComponent(ps.join(',')):''}&fields=id,parents`),{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body:'{}'});
+  if(r.ok)return 'ok';if(r.status===403||r.status===404)return r.status;
+  throw new Error(`Drive respondió ${r.status} al mover un archivo a la carpeta del expediente; se reintentará.`);
+}
+async function driveTrabajo(j,pedir){
   j.drive=j.drive||{};const prog=(q,f)=>{j.prog=q+' '+Math.round(f*100)+' %';nubePintarProg(j);};
   // v18: si el archivo anterior no se pudo reemplazar (403/404: lo subió otra persona), se sube uno nuevo y el anterior queda anotado
-  const huerf=(r,tipo)=>{if(r&&r.huerfano){j.drive.huerfanos=(j.drive.huerfanos||[]).concat({fileId:r.huerfano.fileId,tipo,status:r.huerfano.status,desde:new Date().toISOString(),por:(nubeQuien()||{}).email||''});}};
+  const huerf=(r,tipo)=>{if(r&&r.huerfano&&!(j.drive.huerfanos||[]).some(h=>h.fileId===r.huerfano.fileId)){j.drive.huerfanos=(j.drive.huerfanos||[]).concat({fileId:r.huerfano.fileId,tipo,status:r.huerfano.status,desde:new Date().toISOString(),por:(nubeQuien()||{}).email||''});}};
   const ref=NB.fs.collection('expedientes').doc(j.folio),s=await ref.get(),x=s.exists?s.data():{};
-  if(!j.drive.bor&&j.borrador){const b=await driveSubir({nombre:`${j.folio} · borrador.json`,mime:'application/json',datos:j.borrador instanceof Blob?j.borrador:new Blob([j.borrador],{type:'application/json'}),id:x.driveBorradorId||null,desc:`Borrador de ${j.rs} (Expedientes FenixMex)`,prog:f=>prog('Borrador',f)});j.drive.bor=b.id;huerf(b,'borrador');await pendGuardar();}
-  if(!j.drive.zip&&j.zip){const z=await driveSubir({nombre:j.zipNombre.replace(/\.zip$/i,'')+` · ${j.folio}.zip`,mime:'application/zip',datos:j.zip,id:x.driveZipId||null,desc:`Expediente ${j.folio} · ${j.rs}`,prog:f=>prog('ZIP',f)});j.drive.zip=z.id;j.drive.zipBytes=+z.size||j.zip.size;huerf(z,'ZIP');await pendGuardar();}
-  const up={driveActualizado:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:nubeQuien(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  // v19: subcarpeta del expediente; los archivos que ya existían (también los sueltos de antes) se mueven a ella o, sin acceso, se suben de nuevo
+  const carpeta=await driveCarpeta(j,x,pedir,huerf);
+  const previo=async(id,tipo)=>{if(!id)return null;const m=await driveMover(id,carpeta);if(m==='ok')return id;huerf({huerfano:{fileId:id,status:m}},tipo);return null;};
+  if(!j.drive.bor&&j.borrador){const b=await driveSubir({nombre:`${j.folio} · borrador.json`,mime:'application/json',datos:j.borrador instanceof Blob?j.borrador:new Blob([j.borrador],{type:'application/json'}),id:await previo(x.driveBorradorId,'borrador'),padre:carpeta,desc:`Borrador de ${j.rs} (Expedientes FenixMex)`,prog:f=>prog('Borrador',f)});j.drive.bor=b.id;huerf(b,'borrador');await pendGuardar();}
+  if(!j.drive.zip&&j.zip){const z=await driveSubir({nombre:j.zipNombre.replace(/\.zip$/i,'')+` · ${j.folio}.zip`,mime:'application/zip',datos:j.zip,id:await previo(x.driveZipId,'ZIP'),padre:carpeta,desc:`Expediente ${j.folio} · ${j.rs}`,prog:f=>prog('ZIP',f)});j.drive.zip=z.id;j.drive.zipBytes=+z.size||j.zip.size;huerf(z,'ZIP');await pendGuardar();}
+  const up={driveCarpetaId:carpeta,driveActualizado:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:nubeQuien(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   if(j.drive.bor)up.driveBorradorId=j.drive.bor;if(j.drive.zip){up.driveZipId=j.drive.zip;up.driveZipNombre=j.zipNombre;up.driveZipBytes=j.drive.zipBytes|0;}
   const hu=(j.drive.huerfanos||[]).filter(h=>h&&h.fileId);
   if(hu.length){const prev=Array.isArray(x.pendingCleanup)?x.pendingCleanup:[],ids=new Set(prev.map(h=>h.fileId));
@@ -12902,6 +12961,16 @@ async function driveBajar(id){
   if(r.status===404||r.status===403){if(await driveElegir([id],'archivo'))r=await dFetch(`${NUBE.driveApi}/drive/v3/files/${encodeURIComponent(id)}?alt=media&supportsAllDrives=true`);}
   if(!r.ok)throw new Error(`No se pudo leer el archivo de Drive (${r.status}).`);
   return r.text();
+}
+// v19: la subcarpeta del expediente se manda a la papelera de Drive (recuperable 30 días) y solo si la app ya no ve nada dentro.
+// No se borra para siempre: con drive.file la app no ve lo que otras personas pongan ahí, y borrar la carpeta se lo llevaría.
+async function driveBorrarCarpeta(id){
+  if(!id)return 'ok';
+  const l=await dFetch(`${NUBE.driveApi}/drive/v3/files?supportsAllDrives=true&includeItemsFromAllDrives=true&pageSize=5&fields=files(id)&q=${encodeURIComponent(`'${id}' in parents and trashed=false`)}`);
+  if(l.status===404)return 'ok';if(!l.ok)return 'error '+l.status;
+  if(((await l.json()).files||[]).length)return 'no vacía';
+  const r=await dFetch(dUrl(id,'fields=id,trashed'),{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify({trashed:true})});
+  if(r.ok||r.status===404)return 'ok';if(r.status===403)return 'sin permiso';return 'error '+r.status;
 }
 async function driveBorrar(id){if(!id)return 'sin archivo';const r=await dFetch(`${NUBE.driveApi}/drive/v3/files/${encodeURIComponent(id)}?supportsAllDrives=true`,{method:'DELETE'});
   if(r.status===204||r.status===200||r.status===404)return 'ok';if(r.status===403)return 'sin permiso';return 'error '+r.status;}
@@ -12987,7 +13056,7 @@ function nubeCerrar(){$('#mNube').classList.add('oculto');}
 const enTramite=x=>!!(x&&x.dictamenExterno&&!x.fechaEmisionDictamen);
 // v18: archivos de Drive que no se pudieron reemplazar (los subió otra persona): se muestran discretamente para limpiarlos a mano
 function limpiarTxt(x){const l=Array.isArray(x.pendingCleanup)?x.pendingCleanup.filter(h=>h&&h.fileId):[];if(!l.length)return '';
-  const tipos=[...new Set(l.map(h=>h.tipo==='borrador'?'Borrador':'ZIP'))];
+  const tipos=[...new Set(l.map(h=>h.tipo==='borrador'?'Borrador':h.tipo==='carpeta'?'Carpeta':'ZIP'))];
   return `<span class="hist-limpiar" title="${esc('En Google Drive, archivo(s) anterior(es) que subió otra cuenta: '+l.map(h=>h.fileId).join(', '))}">${tipos.map(t=>t+' anterior pendiente de limpiar').join(' · ')}</span>`;}
 function histPintar(){
   const cab=$('#nubeCuenta'),lst=$('#histLista'),pend=$('#histPend');if(!cab)return;const u=NB.usr;
@@ -13049,10 +13118,16 @@ async function histBorrar(){
   const info=$('#mBorrarInfo'),ok=$('#mBorrarOk');ok.disabled=true;info.textContent='Eliminando…';
   try{
     const dr=[];
-    const viejos=(Array.isArray(x.pendingCleanup)?x.pendingCleanup:[]).filter(h=>h&&h.fileId).map(h=>[h.fileId,(h.tipo==='borrador'?'borrador':'ZIP')+' anterior']);   // v18
-    if(x.driveZipId||x.driveBorradorId||viejos.length){
+    const pc=(Array.isArray(x.pendingCleanup)?x.pendingCleanup:[]).filter(h=>h&&h.fileId);
+    const viejos=pc.filter(h=>h.tipo!=='carpeta').map(h=>[h.fileId,(h.tipo==='borrador'?'borrador':'ZIP')+' anterior']);   // v18
+    const carpetas=[[x.driveCarpetaId,'carpeta'],...pc.filter(h=>h.tipo==='carpeta').map(h=>[h.fileId,'carpeta anterior'])].filter(c=>c[0]);   // v19
+    if(x.driveZipId||x.driveBorradorId||viejos.length||carpetas.length){
       if(!driveConfig()||!(await driveToken(true)))dr.push('no se pudo entrar a Drive: borra los archivos a mano');
-      else for(const [id,q] of [[x.driveZipId,'ZIP'],[x.driveBorradorId,'borrador'],...viejos])if(id){const r=await driveBorrar(id);if(r!=='ok')dr.push(`${q}: ${r==='sin permiso'?'lo subió otra persona; bórralo en Drive':r}`);}
+      else{
+        for(const [id,q] of [[x.driveZipId,'ZIP'],[x.driveBorradorId,'borrador'],...viejos])if(id){const r=await driveBorrar(id);if(r!=='ok')dr.push(`${q}: ${r==='sin permiso'?'lo subió otra persona; bórralo en Drive':r}`);}
+        // v19: después de los archivos, la subcarpeta (a la papelera, solo si quedó vacía)
+        for(const [id,q] of carpetas){const r=await driveBorrarCarpeta(id);if(r!=='ok')dr.push(`${q}: ${r==='sin permiso'?'la creó otra persona; bórrala en Drive':r==='no vacía'?'aún tiene otros archivos; revísala en Drive':r}`);}
+      }
     }
     await registroBorrar(x.folio);
     if(D&&D.fxId&&D.fxId.folio===x.folio){delete D.fxId;guardar();}   // el expediente abierto aquí recibirá un folio nuevo si se vuelve a generar
@@ -13126,7 +13201,7 @@ function initNube(){
   setInterval(()=>{if(Object.keys(PEND).length&&!NB.proc)pendProcesar(false);},5*60*1000);
 }
 // para las pruebas automáticas (sin efecto en el uso normal)
-window.FXNube={canon,huellaDe,huellaActual,fxIdNuevo,qrUrl,RX_FOLIO,RX_CLAVE,claveHash,fechaEmision,dictamenExterno,driveSubir,
+window.FXNube={canon,huellaDe,huellaActual,fxIdNuevo,qrUrl,RX_FOLIO,RX_CLAVE,claveHash,fechaEmision,dictamenExterno,driveSubir,nombreCarpeta,
   estado:()=>({usr:NB.usr&&NB.usr.email,aut:NB.aut,pend:pendLista().map(j=>({folio:j.folio,reg:j.reg,error:j.error,drive:j.drive})),fxId:D&&D.fxId,hist:NB.hist.length,token:!!NB.token,carpetaOk:NB.carpetaOk}),
   procesar:i=>pendProcesar(i),histCargar,nb:NB,nube:NUBE,
   datos:()=>({D,G,IMG})};

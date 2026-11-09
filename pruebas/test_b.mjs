@@ -58,7 +58,11 @@ t(x && x.numEquipos === 14 && x.hojas > 0 && x.razonSocial.startsWith('PEÑA'), 
 let v = await leer(`verificaciones/${ID}`);
 t(v && v.revision === 1 && v.folio === F && Object.keys(v).sort().join() === 'actualizado,emitidoPor,estado,fechaEmisionDictamen,folio,huella,razonSocial,revision', 'registro público verificaciones/sha256(folio.clave): solo los campos de la verificación (sin clave)');
 const zipD = drive.files.get(x.driveZipId), borD = drive.files.get(x.driveBorradorId);
-t(zipD && zipD.datos.equals(g1.zip) && zipD.parents[0] === 'CARPETA1', `ZIP en Drive (${(g1.zip.length / 1048576).toFixed(1)} MB, subida reanudable en trozos de 8 MB) idéntico al descargado, en la carpeta compartida`);
+t(zipD && zipD.datos.equals(g1.zip) && zipD.parents[0] === x.driveCarpetaId, `ZIP en Drive (${(g1.zip.length / 1048576).toFixed(1)} MB, subida reanudable en trozos de 8 MB) idéntico al descargado, en la subcarpeta del expediente`);
+const carpeta1 = x.driveCarpetaId;
+{ const c = drive.carpetas.get(carpeta1);
+  t(c && c.name === `${F} · PEÑA Y ASOCIADOS INDUSTRIALES, S. DE R.L. DE C.V.` && c.parents[0] === 'CARPETA1' && c.mimeType === 'application/vnd.google-apps.folder' && drive.carpetas.size === 1, `subcarpeta: la primera subida crea «${c && c.name}» dentro de «Fenix · Expedientes» y guarda driveCarpetaId`);
+  t(borD && borD.parents[0] === carpeta1, 'subcarpeta: el borrador también va dentro'); }
 t(borD && JSON.parse(borD.datos.toString()).draft.fxId.folio === F, 'borrador (.json) en Drive con el folio y la clave');
 t(drive.log.some(l => l.startsWith('PUT /upload/sesion')) && drive.log.filter(l => /^PUT/.test(l)).length >= 3, `reintentos: un 503 y un 401 (token vencido) se superaron (${drive.log.filter(l => /^PUT/.test(l)).length} PUT)`);
 const huella1 = x.huella;
@@ -79,6 +83,16 @@ await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 180000);
 x = await leer(`expedientes/${F}`); v = await leer(`verificaciones/${ID}`);
 t(x.revision === 1 && v.revision === 1 && x.huella === huella1, 'reexportar los mismos datos: sigue en la revisión 1 · misma huella (no sube)');
 t(drive.files.get(x.driveZipId).versiones === 2 && drive.files.size === 2, 'Drive: el mismo ZIP y el mismo borrador se actualizan (sin duplicados)');
+t(x.driveCarpetaId === carpeta1 && drive.carpetas.size === 1 && drive.files.get(x.driveZipId).parents[0] === carpeta1 && drive.files.get(x.driveBorradorId).parents[0] === carpeta1, 'subcarpeta: reexportar usa la misma carpeta y reemplaza los mismos archivos dentro');
+{ // nombre de la subcarpeta: «FX-… · Razón social», sin caracteres problemáticos, ≤ 120
+  const nc = (f, rs) => p.evaluate(([f, rs]) => window.FXNube.nombreCarpeta(f, rs), [f, rs]);
+  t((await nc('FX-2026-ABCDEF', 'PEÑA Y ASOCIADOS INDUSTRIALES, S. DE R.L. DE C.V.')) === 'FX-2026-ABCDEF · PEÑA Y ASOCIADOS INDUSTRIALES, S. DE R.L. DE C.V.', 'nombre de carpeta: «folio · razón social» (conserva acentos y el punto final)');
+  const raro = await nc('FX-2026-ABCDEF', 'ACME / "ÑANDÚ" <S.A.>:\tC*V?|\\x\n');
+  t(raro === 'FX-2026-ABCDEF · ACME ÑANDÚ S.A. C V x', `nombre de carpeta: sin \\ / : * ? " < > |, tabuladores ni saltos; espacios simples («${raro}»)`);
+  const largo = await nc('FX-2026-ABCDEF', 'CORPORATIVO INDUSTRIAL, '.repeat(12));
+  t([...largo].length <= 120 && largo.startsWith('FX-2026-ABCDEF · CORPORATIVO INDUSTRIAL') && !/[\s·,;-]$/.test(largo), `nombre de carpeta: recortado a ${[...largo].length} caracteres, sin separador colgando`);
+  t((await nc('FX-2026-ABCDEF', '   ')) === 'FX-2026-ABCDEF' && (await nc('FX-2026-ABCDEF', 'PEÑA')) === 'FX-2026-ABCDEF · PEÑA', 'nombre de carpeta: sin razón social queda solo el folio; acentos combinados se normalizan');
+}
 const qr = (b, n) => { const f = `${OUT}/${n}.pdf`; fs.writeFileSync(f, b); return py('decode_py.py', f, '1', '150', `${OUT}/${n}.png`, '240', '545', '372', '677').zxing[0]; };
 const u1 = qr((await JSZip.loadAsync(g1.zip)).file(/\.pdf$/)[0] ? await (await JSZip.loadAsync(g1.zip)).file(/^EXP .*\.pdf$/)[0].async('nodebuffer') : g1.pdfs[0].bytes, 'b_rev1'), u2 = qr(g2.pdfs[0].bytes, 'b_rev2');
 t(u1 === u2 && u1 === `https://srsheol.github.io/exp-fenix/verificar.html#${F}.${K}`, 'el QR de la portada es idéntico en las revisiones 1 y 2 (leído del PDF dentro del ZIP)');
@@ -186,11 +200,42 @@ const F2 = (await est(p)).fxId.folio;
   x2 = await leer(`expedientes/${F2}`); const K2b = x2.clave, v2 = await leer(`verificaciones/${sha(F2 + '.' + K2b)}`);
   t(x2.revision === 2 && x2.fechaEmisionDictamen === ymdMx(0) && v2.fechaEmisionDictamen === ymdMx(0), 'Cat II: corregir y reexportar (revisión 2) conserva la fecha registrada');
   const z = await ver(vctx, `${F2}.${K2b}`); t(z.r.e === 'valido' && z.r.d.includes(hoyMx) && !(await z.q.$('#vFecha .chip')), `Cat II en verificar.html: «${hoyMx}» (sin «En trámite»)`); await z.q.close();
+  // subcarpeta: cambiar la razón social la renombra (misma carpeta)
+  const c2 = x2.driveCarpetaId, rsCambio = async rs => { await p.evaluate(rs => { const { D } = window.FXNube.datos(); D.razonSocialPropietario = D.razonSocialUsuario = rs; }, rs); await generar(p, true); await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 120000); return leer(`expedientes/${F2}`); };
+  t(c2 && drive.carpetas.get(c2).name === `${F2} · COMPRESORES DEL BAJÍO, S.A. DE C.V.`, 'subcarpeta de F2 con su razón social');
+  x2 = await rsCambio('COMPRESORES DEL BAJÍO NORTE, S.A. DE C.V.');
+  t(x2.driveCarpetaId === c2 && drive.carpetas.get(c2).name === `${F2} · COMPRESORES DEL BAJÍO NORTE, S.A. DE C.V.` && x2.razonSocial === 'COMPRESORES DEL BAJÍO NORTE, S.A. DE C.V.', 'cambiar la razón social renombra la misma subcarpeta');
+  drive.sinRenombrar.add(c2);
+  x2 = await rsCambio('COMPRESORES DEL BAJÍO, S.A. DE C.V.');
+  t(x2.razonSocial === 'COMPRESORES DEL BAJÍO, S.A. DE C.V.' && x2.driveCarpetaId === c2 && drive.carpetas.get(c2).name.endsWith('NORTE, S.A. DE C.V.') && drive.files.get(x2.driveZipId).parents[0] === c2, 'si Drive no deja renombrar la carpeta, el guardado y la subida siguen bien (el nombre queda como estaba)');
+  drive.sinRenombrar.delete(c2);
 }
 await p.evaluate(() => window.FXNube.nb.auth.signOut()); await entrar(p, 'apoyomecv@gmail.com', 'Apoyo MECV'); await esperar(p, () => window.FXNube.estado().aut === true);
 await importarBorrador(p, borrador(3, 'LAVANDERÍA INDUSTRIAL LA ESTRELLA, S.A. DE C.V.'), 'b3.json');
 await generar(p, true); await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 120000);
 const F3 = (await est(p)).fxId.folio;
+console.log('== Drive: expediente con archivos sueltos (de antes de las subcarpetas) → subcarpeta en la siguiente exportación');
+{
+  const sueltos = async () => {   // como un expediente anterior: sin driveCarpetaId, ZIP y borrador sueltos en «Fenix · Expedientes», sin subcarpeta
+    const y = await leer(`expedientes/${F3}`);
+    for (const id of [y.driveZipId, y.driveBorradorId]) drive.files.get(id).parents = ['CARPETA1'];
+    drive.carpetas.delete(y.driveCarpetaId);
+    await fetch(`${EMU}/expedientes/${F3}?updateMask.fieldPaths=driveCarpetaId`, { method: 'PATCH', headers: owner, body: JSON.stringify({ fields: {} }) });
+    return y; };
+  let y0 = await sueltos();
+  t((await leer(`expedientes/${F3}`)).driveCarpetaId === undefined && drive.files.get(y0.driveZipId).parents[0] === 'CARPETA1', 'expediente anterior: archivos sueltos y sin driveCarpetaId');
+  await generar(p, true); await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 120000);
+  let y = await leer(`expedientes/${F3}`); const c3 = drive.carpetas.get(y.driveCarpetaId);
+  t(c3 && c3.name === `${F3} · LAVANDERÍA INDUSTRIAL LA ESTRELLA, S.A. DE C.V.` && c3.parents[0] === 'CARPETA1', 'archivos sueltos: la siguiente exportación crea la subcarpeta');
+  t(y.driveZipId === y0.driveZipId && y.driveBorradorId === y0.driveBorradorId && drive.files.get(y.driveZipId).parents.join() === y.driveCarpetaId && drive.files.get(y.driveBorradorId).parents.join() === y.driveCarpetaId, 'archivos sueltos: el ZIP y el borrador se MUEVEN a la subcarpeta (mismos archivos, sin copias)');
+  t(![...drive.files.values()].some(f => (f.parents || []).includes('CARPETA1')), '«Fenix · Expedientes» ya no tiene archivos sueltos');
+  // sin acceso al ZIP suelto (lo subió otra cuenta): se sube uno nuevo dentro y el anterior queda anotado
+  y0 = await sueltos(); drive.ajenos.add(y0.driveZipId);
+  await generar(p, true); await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 120000);
+  y = await leer(`expedientes/${F3}`); const pc = Array.isArray(y.pendingCleanup) ? y.pendingCleanup : [];
+  t(drive.carpetas.has(y.driveCarpetaId) && y.driveZipId !== y0.driveZipId && drive.files.get(y.driveZipId).parents[0] === y.driveCarpetaId && y.driveBorradorId === y0.driveBorradorId && drive.files.get(y.driveBorradorId).parents[0] === y.driveCarpetaId, 'sin acceso al ZIP suelto: se sube uno nuevo en la subcarpeta (el borrador sí se movió)');
+  t(pc.some(h => h.fileId === y0.driveZipId && h.tipo === 'ZIP' && h.status === 403) && drive.files.get(y0.driveZipId).parents[0] === 'CARPETA1', 'sin acceso: el ZIP suelto anterior queda en pendingCleanup y donde estaba');
+}
 t(F2 !== F && F3 !== F2 && /^FX-2026-/.test(F3), `folios distintos por expediente (${F}, ${F2}, ${F3})`);
 // abrir el primero (lo hizo Juan) para corregirlo
 await p.click('#btnNube'); await esperar(p, () => document.querySelectorAll('#histLista .hist-it').length === 3);
@@ -203,13 +248,26 @@ await p.waitForTimeout(800);
 e = await est(p);
 t(e.fxId.folio === F && e.fxId.clave === K && (await p.evaluate(() => window.FXNube.datos().D.equipos.length)) === 14, 'abrir para corregir: carga los 14 equipos desde Drive y conserva folio y clave');
 t((await p.evaluate(() => window.FXNube.datos().D.equipos[9].numeroSerie)) === '9999', 'abrir para corregir: trae la última versión de los datos');
+const cF = (await leer(`expedientes/${F}`)).driveCarpetaId;
+drive.ajenos.add(cF);   // la subcarpeta de F la creó Juan: con drive.file, apoyomecv no puede escribir en ella hasta elegirla en el selector
+await p.evaluate(() => { window.__picker = 'elegir'; window.__pickerVeces = 0; });
 await generar(p, true); await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 180000);
 x = await leer(`expedientes/${F}`);
 t(x.revision === 2, 'abrir desde Drive y reexportar sin cambios: sigue en la revisión 2');
+t(x.driveCarpetaId === cF && (await p.evaluate(() => window.__pickerVeces)) === 1 && drive.selector.includes(cF) && (await p.evaluate(() => window.__pickerTitulo)).includes(F) && drive.files.get(x.driveZipId).parents[0] === cF,
+  'otra cuenta sin acceso a la subcarpeta: el selector de Google la pide (vista de carpetas), se concede y se sigue usando la misma');
+drive.concedidos.delete(cF);   // ahora sin el permiso, y esta vez se cancela el selector
+await p.evaluate(() => { window.__picker = 'cancelar'; window.__pickerVeces = 0; window.__toasts = [];
+  if (!window.__toastObs) { window.__toastObs = new MutationObserver(() => window.__toasts.push(document.querySelector('#toast').textContent)); window.__toastObs.observe(document.querySelector('#toast'), { childList: true, characterData: true, subtree: true }); } });
 await p.evaluate(() => { const { D } = window.FXNube.datos(); D.equipos[3].ubicacion = 'PATIO DE MANIOBRAS'; });
 await generar(p, true); await esperar(p, () => window.FXNube.estado().pend.length === 0, null, 180000);
 x = await leer(`expedientes/${F}`);
 t(x.revision === 3 && x.updatedBy.fields.email.stringValue === 'apoyomecv@gmail.com' && x.createdBy.fields.email.stringValue === 'juan@fenixmex.com', 'corrección por otra cuenta: revisión 3, la modificó apoyomecv, la hizo Juan');
+{ const pc = Array.isArray(x.pendingCleanup) ? x.pendingCleanup : [], cN = drive.carpetas.get(x.driveCarpetaId);
+  t(x.driveCarpetaId !== cF && cN && cN.name === `${F} · PEÑA Y ASOCIADOS INDUSTRIALES, S. DE R.L. DE C.V.` && cN.parents[0] === 'CARPETA1' && (await p.evaluate(() => window.__pickerVeces)) === 1, 'selector cancelado: se crea otra subcarpeta (de quien sube) y driveCarpetaId apunta a ella');
+  t(pc.some(h => h.fileId === cF && h.tipo === 'carpeta'), 'la subcarpeta anterior queda en pendingCleanup');
+  t(drive.files.get(x.driveZipId).parents[0] === x.driveCarpetaId && drive.files.get(x.driveBorradorId).parents[0] === x.driveCarpetaId && (await est(p)).pend.length === 0, 'no se pierde la subida: el ZIP y el borrador quedan en la carpeta nueva');
+  t(await p.evaluate(() => window.__toasts.some(z => /se creó otra carpeta para este expediente/.test(z))), 'aviso corto: «Sin acceso a la carpeta … se creó otra carpeta para este expediente»'); }
 
 console.log('== Drive: reemplazar archivos que subió otra cuenta (403) o que ya no se ven (404) → archivo nuevo + nota «pendiente de limpiar»');
 {
@@ -318,6 +376,7 @@ const x3 = await leer(`expedientes/${F3}`), K3 = x3.clave;
 await p.click('#mBorrarOk'); await esperar(p, () => document.querySelector('#mBorrar').classList.contains('oculto'));
 t((await leer(`expedientes/${F3}`)) === null && (await leer(`verificaciones/${sha(F3 + '.' + K3)}`)) === null, 'eliminar: se borran el registro privado y el público');
 t(!drive.files.has(x3.driveZipId) && !drive.files.has(x3.driveBorradorId), 'eliminar: se borran el ZIP y el borrador de Drive');
+t(drive.carpetas.get(x3.driveCarpetaId) && drive.carpetas.get(x3.driveCarpetaId).trashed === true, 'eliminar: la subcarpeta (ya vacía) se manda a la papelera de Drive');
 r = await ver(vctx, `${F3}.${K3}`); t(r.r.e === 'invalido', 'eliminar: el QR muestra «No válido / no encontrado»');
 await p.waitForTimeout(700); await p.screenshot({ path: CAP + '/historial-tras-eliminar-escritorio.png' });
 

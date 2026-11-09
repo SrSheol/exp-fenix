@@ -1,0 +1,10 @@
+✓ nube sin configurar: genera y queda «Pendiente de registrar · la nube aún no está configurada»
+✓ el panel Mis expedientes lo explica (CONFIGURAR-NUBE.md)
+✓ verificar.html sin configurar → «Servicio no disponible» (nunca «válido»)
+✓ misma estructura del ZIP: DATOS/ | DATOS/Contacto de la empresa.txt | DICTAMEN COM-02 PENA Y ASOCIADOS INDUSTRIALES S DE RL DE CV.pdf | EXP PENA Y ASOCIADOS INDUSTRIALES S DE RL DE CV.pdf | PREVIO COM-02 PENA Y ASOCIADOS INDUSTRIALES S DE RL DE CV.pdf
+✓ DICTAMEN COM-02 PENA Y ASOCIADOS INDUSTRIALES S DE RL DE CV.pdf: 1 hojas iguales; texto distinto solo en ninguna ([])
+✓ EXP PENA Y ASOCIADOS INDUSTRIALES S DE RL DE CV.pdf: 164 hojas iguales; texto distinto solo en la portada ([1])
+✓ PREVIO COM-02 PENA Y ASOCIADOS INDUSTRIALES S DE RL DE CV.pdf: 1 hojas iguales; texto distinto solo en ninguna ([])
+✓ sin errores de la página en la versión nueva
+
+8 correctas, 0 fallidas

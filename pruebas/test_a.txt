@@ -22,12 +22,12 @@
 ✓ 50: cambiar el número de serie del equipo 50 cambia la huella
 ✓ 50: agregar una firma (imagen) cambia la huella
 ✓ 50: sin la firma vuelve a la huella original
-✓ 1: mismo folio y clave en la reexportación (FX-2026-8JS0VC)
+✓ 1: mismo folio y clave en la reexportación (FX-2026-3EX8BF)
 ✓ 1: QR de la portada (a) a 150 dpi → zxing ✓ jsQR ✓ OpenCV ✓
 ✓ 1: QR de la portada (b) a 150 dpi → zxing ✓ jsQR ✓ OpenCV ✓
 ✓ 1: QR de la portada (a) a 300 dpi → zxing ✓ jsQR ✓ OpenCV —
 ✓ 1: QR de la portada (b) a 300 dpi → zxing ✓ jsQR ✓ OpenCV —
-✓ 14: mismo folio y clave en la reexportación (FX-2026-066PX1)
+✓ 14: mismo folio y clave en la reexportación (FX-2026-0GQPK0)
 ✓ 14: QR de la portada (a) a 150 dpi → zxing ✓ jsQR ✓ OpenCV ✓
 ✓ 14: QR de la portada (b) a 150 dpi → zxing ✓ jsQR ✓ OpenCV ✓
 ✓ 14: QR de la portada (a) a 300 dpi → zxing ✓ jsQR ✓ OpenCV —

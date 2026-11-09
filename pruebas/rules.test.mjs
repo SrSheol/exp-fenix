@@ -114,6 +114,26 @@ console.log('v18 · fecha del dictamen Cat III (en trámite → capturada → co
   await t('Drive / cancelar no pueden cambiar la fecha de paso (misma revisión) → rechazado', () => assertFails(updateDoc(doc(juan, 'expedientes', F3), { fechaEmisionDictamen: hoy, driveZipId: 'x', updatedBy: yoJ, updatedAt: serverTimestamp() })));
 }
 
+console.log('v19 · subcarpeta del expediente en Drive (driveCarpetaId)');
+{
+  const FC = 'FX-2026-C4RP3T', KC = 'carpetaDrive01', IDC = sha(FC + '.' + KC);
+  const pv = (rev, h, extra) => Object.assign({}, priv(juan, rev, h), { folio: FC, clave: KC, claveHash: IDC }, extra || {});
+  const pb = (rev, h, extra) => Object.assign({}, pub(rev, h), { folio: FC }, extra || {});
+  const lote = (db, rev, h, o) => { o = o || {}; const b = writeBatch(db); b.set(doc(db, 'expedientes', FC), o.priv || pv(rev, h)); b.set(doc(db, 'verificaciones', IDC), o.pub || pb(rev, h)); return b.commit(); };
+  await t('registra revisión 1 (folio para la carpeta)', () => assertSucceeds(lote(juan, 1, H1)));
+  const ref = doc(juan, 'expedientes', FC), yoA = { email: 'apoyomecv@gmail.com', nombre: 'Apoyo' }, ana = env.authenticatedContext('u-apoyo', { email: 'apoyomecv@gmail.com', email_verified: true }).firestore();
+  await t('autorizada guarda driveCarpetaId junto con los ids de Drive (misma revisión)', () => assertSucceeds(updateDoc(ref, { driveCarpetaId: '1CarpetaAbc', driveZipId: '1Zip', driveBorradorId: '1Bor', driveActualizado: serverTimestamp(), updatedBy: yoJ, updatedAt: serverTimestamp() })));
+  await t('otra cuenta autorizada cambia driveCarpetaId (carpeta nueva por falta de acceso)', () => assertSucceeds(updateDoc(doc(ana, 'expedientes', FC), { driveCarpetaId: '1CarpetaNueva', pendingCleanup: [{ fileId: '1CarpetaAbc', tipo: 'carpeta', status: 403, desde: '2026-11-09T18:00:00Z', por: 'apoyomecv@gmail.com' }], updatedBy: yoA, updatedAt: serverTimestamp() })));
+  await t('driveCarpetaId que no es texto → rechazado', () => assertFails(updateDoc(ref, { driveCarpetaId: 12345, updatedBy: yoJ, updatedAt: serverTimestamp() })));
+  await t('driveCarpetaId de más de 200 caracteres → rechazado', () => assertFails(updateDoc(ref, { driveCarpetaId: 'x'.repeat(201), updatedBy: yoJ, updatedAt: serverTimestamp() })));
+  await t('cuenta no autorizada NO puede poner driveCarpetaId', () => assertFails(updateDoc(doc(otro, 'expedientes', FC), { driveCarpetaId: '1Intruso', updatedBy: { email: 'intruso@gmail.com', nombre: '' }, updatedAt: serverTimestamp() })));
+  await t('anónimo NO puede poner driveCarpetaId', () => assertFails(updateDoc(doc(anon, 'expedientes', FC), { driveCarpetaId: '1Anon' })));
+  await t('nueva revisión (huella nueva) conservando driveCarpetaId → permitido', async () => { const s = (await getDoc(ref)).data();
+    await assertSucceeds(lote(juan, 2, H2, { priv: pv(2, H2, { createdAt: s.createdAt, createdBy: s.createdBy, driveCarpetaId: s.driveCarpetaId, driveZipId: s.driveZipId, driveBorradorId: s.driveBorradorId, pendingCleanup: s.pendingCleanup }), pub: pb(2, H2) })); });
+  await t('driveCarpetaId en lo público → rechazado (no sale del registro privado)', () => assertFails(updateDoc(doc(juan, 'verificaciones', IDC), { driveCarpetaId: '1CarpetaNueva', actualizado: serverTimestamp() })));
+  await t('anónimo lee lo público sin driveCarpetaId', async () => { const d = (await assertSucceeds(getDoc(doc(anon, 'verificaciones', IDC)))).data(); if ('driveCarpetaId' in d) throw new Error('se filtró'); });
+}
+
 console.log('Eliminar');
 await t('autorizada elimina (privado + público + bitácora)', async () => { const b = writeBatch(juan); const r = await getDocs(collection(juan, `expedientes/${F}/revisiones`)); r.forEach(d => b.delete(d.ref)); b.delete(doc(juan, 'verificaciones', ID)); b.delete(doc(juan, 'expedientes', F)); await assertSucceeds(b.commit()); });
 await t('tras eliminar, el QR ya no encuentra nada', async () => { const s = await getDoc(doc(anon, 'verificaciones', ID)); if (s.exists()) throw new Error('sigue existiendo'); });

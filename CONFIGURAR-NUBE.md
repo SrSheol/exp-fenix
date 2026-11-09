@@ -117,6 +117,8 @@ En **Credenciales** está la clave **«Browser key (auto created by Firebase)»*
 
 **Una vez por persona y por navegador**: en la app, **Mis expedientes › Conectar Google Drive** y elegir la carpeta `Fenix · Expedientes` en el selector de Google. Con el permiso mínimo `drive.file`, la app solo puede tocar lo que ella misma creó o lo que la persona eligió en ese selector, y **nunca** ve el resto del Drive.
 
+**Cómo queda ordenada la carpeta**: dentro de `Fenix · Expedientes` cada expediente tiene **su propia subcarpeta**, `FX-2026-XXXXXX · Razón social` (sin `\ / : * ? " < > |` y hasta 120 caracteres). Ahí van su ZIP y su `borrador.json`; al reexportar se reemplazan esos mismos archivos y, si cambia la razón social, la subcarpeta se renombra. Los expedientes de antes, con archivos sueltos en la carpeta principal, pasan solos a su subcarpeta la siguiente vez que se exportan. Si un compañero no tiene acceso a la subcarpeta que creó otra persona, la app le muestra el selector de Google para concederlo; si lo cancela, crea otra subcarpeta suya y en Mis expedientes aparece «Carpeta anterior pendiente de limpiar». Al **Eliminar** un expediente se borran sus archivos y su subcarpeta va a la papelera de Drive (solo si quedó vacía).
+
 ## 8. Publicar
 
 Sube a la rama de GitHub Pages del repositorio `exp-fenix`: `index.html`, `verificar.html` y `nube-config.js` (también `firestore.rules`, `CONFIGURAR-NUBE.md` y `pruebas/`, como respaldo). La carpeta `capturas/` es opcional.

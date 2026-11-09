@@ -60,7 +60,18 @@ v18 · fecha del dictamen Cat III (en trámite → capturada → corregida)
   ✓ tras capturar: revisión 1 y huella intactas; quién y cuándo solo en lo privado
   ✓ otra cuenta autorizada corrige la fecha («Corregir fecha»)
   ✓ Drive / cancelar no pueden cambiar la fecha de paso (misma revisión) → rechazado
+v19 · subcarpeta del expediente en Drive (driveCarpetaId)
+  ✓ registra revisión 1 (folio para la carpeta)
+  ✓ autorizada guarda driveCarpetaId junto con los ids de Drive (misma revisión)
+  ✓ otra cuenta autorizada cambia driveCarpetaId (carpeta nueva por falta de acceso)
+  ✓ driveCarpetaId que no es texto → rechazado
+  ✓ driveCarpetaId de más de 200 caracteres → rechazado
+  ✓ cuenta no autorizada NO puede poner driveCarpetaId
+  ✓ anónimo NO puede poner driveCarpetaId
+  ✓ nueva revisión (huella nueva) conservando driveCarpetaId → permitido
+  ✓ driveCarpetaId en lo público → rechazado (no sale del registro privado)
+  ✓ anónimo lee lo público sin driveCarpetaId
 Eliminar
   ✓ autorizada elimina (privado + público + bitácora)
   ✓ tras eliminar, el QR ya no encuentra nada
-60 correctas, 0 fallidas
+70 correctas, 0 fallidas

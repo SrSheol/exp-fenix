@@ -32,21 +32,61 @@ export const CONFIG_EMU = (extra) => 'window.FX_NUBE=' + JSON.stringify(Object.a
 // Drive simulado (API v3 + subida reanudable + GIS). Registra cada llamada en drive.log.
 export function driveSimulado(opt) {
   opt = opt || {};
-  // ajenos: ids de archivos que subió OTRA cuenta (con drive.file esta app no puede modificarlos ni borrarlos → 403)
-  const d = { files: new Map(), sesiones: new Map(), log: [], n: 0, fallar503: opt.fallar503 || 0, expirar401: opt.expirar401 || 0, tokens: 0, ajenos: new Set() };
+  // ajenos: ids de archivos o carpetas que creó OTRA cuenta (con drive.file esta app no puede modificarlos, moverlos ni borrarlos → 403;
+  //   una carpeta ajena dice canAddChildren:false). concedidos: los que esta cuenta eligió en el selector de Google (ya puede usarlos).
+  // carpetas: subcarpetas creadas por la app. sinRenombrar: carpetas cuyo nombre no se deja cambiar (403).
+  const d = { files: new Map(), carpetas: new Map(), sesiones: new Map(), log: [], n: 0, fallar503: opt.fallar503 || 0, expirar401: opt.expirar401 || 0, tokens: 0,
+    ajenos: new Set(), concedidos: new Set(), sinRenombrar: new Set(), selector: [] };
+  const sinAcceso = id => d.ajenos.has(id) && !d.concedidos.has(id);
   const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS', 'Access-Control-Expose-Headers': 'Location, Range' };
   d.gis = `window.google=window.google||{};google.accounts={oauth2:{initTokenClient:function(c){return{requestAccessToken:function(){window.__tokens=(window.__tokens||0)+1;setTimeout(function(){c.callback({access_token:'tok-'+window.__tokens,expires_in:3600,scope:c.scope});},30);}};},revoke:function(t,cb){cb&&cb();}}};`;
+  // selector de Google simulado: window.__picker = 'elegir' (concede el id pedido) | 'cancelar' (por omisión)
+  d.picker = `window.gapi={load:function(n,cb){setTimeout(cb,0);}};window.google=window.google||{};google.picker={ViewId:{FOLDERS:'folders',DOCS:'docs'},Action:{PICKED:'picked',CANCEL:'cancel'},
+    DocsView:function(v){var o={ids:[]};o.setIncludeFolders=function(){return o;};o.setSelectFolderEnabled=function(){return o;};o.setFileIds=function(x){o.ids=String(x).split(',');return o;};return o;},
+    PickerBuilder:function(){var b={},cb=null,vista=null,titulo='';['setOAuthToken','setDeveloperKey','setAppId','setLocale'].forEach(function(k){b[k]=function(){return b;};});
+      b.addView=function(v){vista=v;return b;};b.setTitle=function(t){titulo=t;return b;};b.setCallback=function(f){cb=f;return b;};
+      b.build=function(){return{setVisible:function(){window.__pickerVeces=(window.__pickerVeces||0)+1;window.__pickerTitulo=titulo;var r=window.__picker||'cancelar';
+        setTimeout(function(){if(r==='elegir')fetch('https://www.googleapis.com/drive/v3/__conceder/'+encodeURIComponent(vista.ids.join(','))).then(function(){cb({action:'picked',docs:vista.ids.map(function(i){return{id:i};})});});
+          else cb({action:'cancel'});},40);}};};return b;}};`;
   d.handler = async (route) => {
     const q = route.request(), u = new URL(q.url()), m = q.method(), auth = q.headers()['authorization'] || '';
     if (m === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
     d.log.push(m + ' ' + u.pathname + u.search.slice(0, 60));
     const j = (st, body, h) => route.fulfill({ status: st, headers: Object.assign({ 'Content-Type': 'application/json' }, cors, h || {}), body: body == null ? '' : JSON.stringify(body) });
+    const cc = /^\/drive\/v3\/__conceder\/(.+)$/.exec(u.pathname);
+    if (cc) { decodeURIComponent(cc[1]).split(',').forEach(i => { d.concedidos.add(i); d.selector.push(i); }); return j(200, {}); }
     if (!/^Bearer tok-/.test(auth)) return j(401, { error: { code: 401 } });
     if (d.expirar401 > 0 && u.pathname.startsWith('/upload/')) { d.expirar401--; return j(401, { error: { code: 401, message: 'expired' } }); }
     if (u.pathname === '/drive/v3/files/CARPETA1') return j(200, { id: 'CARPETA1', name: 'Fenix · Expedientes', capabilities: { canAddChildren: true } });
+    // crear una subcarpeta (metadatos, sin contenido)
+    if (u.pathname === '/drive/v3/files' && m === 'POST') {
+      const meta = JSON.parse(q.postData() || '{}'); if (meta.mimeType !== 'application/vnd.google-apps.folder') return j(400, { error: 'solo carpetas' });
+      const id = 'D' + (++d.n); d.carpetas.set(id, { id, name: meta.name, parents: meta.parents || [], mimeType: meta.mimeType, descripcion: meta.description || '', trashed: false });
+      return j(200, { id, name: meta.name });
+    }
+    // listar hijos visibles: q="'X' in parents and trashed=false"
+    if (u.pathname === '/drive/v3/files' && m === 'GET') {
+      const pq = /'([^']+)' in parents/.exec(u.searchParams.get('q') || ''); if (!pq) return j(400, {});
+      const hijos = [...d.files.values(), ...d.carpetas.values()].filter(f => (f.parents || []).includes(pq[1]) && !f.trashed).map(f => ({ id: f.id }));
+      return j(200, { files: hijos });
+    }
+    const md = /^\/drive\/v3\/files\/([^/]+)$/.exec(u.pathname);
+    if (md && u.searchParams.get('alt') !== 'media' && (m === 'GET' || m === 'PATCH')) {
+      const id = decodeURIComponent(md[1]), c = d.carpetas.get(id), f = d.files.get(id), x = c || f;
+      if (!x) return j(404, { error: { code: 404 } });
+      if (m === 'GET') return j(200, c ? { id, name: c.name, trashed: c.trashed, parents: c.parents, capabilities: { canAddChildren: !sinAcceso(id), canRename: !sinAcceso(id) && !d.sinRenombrar.has(id) } }
+        : { id, name: f.name, parents: f.parents, trashed: !!f.trashed });
+      // PATCH de metadatos: mover (addParents/removeParents), renombrar o mandar a la papelera
+      if (sinAcceso(id)) return j(403, { error: { code: 403 } });
+      const body = JSON.parse(q.postData() || '{}'), add = u.searchParams.get('addParents'), del = u.searchParams.get('removeParents');
+      if (add || del) x.parents = (x.parents || []).filter(p => !(del || '').split(',').includes(p)).concat(add ? add.split(',') : []);
+      if (body.name != null) { if (d.sinRenombrar.has(id)) return j(403, { error: { code: 403 } }); x.name = body.name; }
+      if (body.trashed === true) x.trashed = true;
+      return j(200, { id, name: x.name, parents: x.parents, trashed: !!x.trashed });
+    }
     if (u.pathname.startsWith('/upload/drive/v3/files') && (m === 'POST' || m === 'PATCH')) {
       const id = m === 'PATCH' ? u.pathname.split('/').pop() : 'F' + (++d.n);
-      if (m === 'PATCH' && d.ajenos.has(id)) return j(403, { error: { code: 403, message: 'The user does not have sufficient permissions for this file.' } });
+      if (m === 'PATCH' && sinAcceso(id)) return j(403, { error: { code: 403, message: 'The user does not have sufficient permissions for this file.' } });
       if (m === 'PATCH' && !d.files.has(id)) return j(404, { error: { code: 404 } });
       const meta = JSON.parse(q.postData() || '{}'), tot = +q.headers()['x-upload-content-length'], sid = 'S' + (++d.n);
       d.sesiones.set(sid, { id, meta, tot, buf: [], pos: 0 });
@@ -68,7 +108,7 @@ export function driveSimulado(opt) {
     }
     const fm = /^\/drive\/v3\/files\/([^/]+)$/.exec(u.pathname);
     if (fm && m === 'GET' && u.searchParams.get('alt') === 'media') { const f = d.files.get(fm[1]); return f ? route.fulfill({ status: 200, headers: Object.assign({ 'Content-Type': 'application/octet-stream' }, cors), body: f.datos }) : j(404, {}); }
-    if (fm && m === 'DELETE') { if (d.ajenos.has(fm[1])) return j(403, { error: { code: 403 } }); const ok = d.files.delete(fm[1]); return j(ok ? 204 : 404, null); }
+    if (fm && m === 'DELETE') { if (sinAcceso(fm[1])) return j(403, { error: { code: 403 } }); const ok = d.files.delete(fm[1]); return j(ok ? 204 : 404, null); }
     return j(404, { error: 'ruta simulada desconocida' });
   };
   return d;
@@ -84,6 +124,7 @@ export async function navegador(opt) {
   if (opt.drive) {
     await ctx.route(/accounts\.google\.com\/gsi\/client/, r => r.fulfill({ status: 200, contentType: 'text/javascript', body: opt.drive.gis }));
     await ctx.route(/www\.googleapis\.com\/(upload|drive)\//, opt.drive.handler);
+    await ctx.route(/apis\.google\.com\/js\/api\.js/, r => r.fulfill({ status: 200, contentType: 'text/javascript', body: opt.drive.picker }));
   } else await ctx.route(/www\.googleapis\.com\/(upload|drive)\/|accounts\.google\.com/, r => r.abort());
   if (opt.config != null) await ctx.route(/\/nube-config\.js$/, r => r.fulfill({ status: 200, contentType: 'text/javascript', body: opt.config }));
   return { br, ctx };

@@ -49,7 +49,7 @@ service cloud.firestore {
       function datosValidos(d) {
         return d.keys().hasOnly(['folio', 'clave', 'claveHash', 'razonSocial', 'fechaEmisionDictamen', 'huella', 'revision',
                                  'estado', 'emitidoPor', 'numEquipos', 'hojas', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt',
-                                 'driveZipId', 'driveZipNombre', 'driveZipBytes', 'driveBorradorId', 'driveActualizado',
+                                 'driveZipId', 'driveZipNombre', 'driveZipBytes', 'driveBorradorId', 'driveCarpetaId', 'driveActualizado',
                                  'dictamenExterno', 'fechaDictamenPor', 'fechaDictamenEn', 'pendingCleanup'])
           && d.keys().hasAll(['folio', 'clave', 'claveHash', 'razonSocial', 'fechaEmisionDictamen', 'huella', 'revision',
                               'estado', 'emitidoPor', 'createdBy', 'createdAt', 'updatedBy', 'updatedAt'])
@@ -70,6 +70,7 @@ service cloud.firestore {
           && (!('driveZipNombre' in d) || texto(d.driveZipNombre, 300))
           && (!('driveZipBytes' in d) || d.driveZipBytes is int)
           && (!('driveBorradorId' in d) || texto(d.driveBorradorId, 200))
+          && (!('driveCarpetaId' in d) || texto(d.driveCarpetaId, 200))   // v19: subcarpeta del expediente en Drive
           && (!('driveActualizado' in d) || d.driveActualizado is timestamp)
           // v18: Cat III (dictamen de expertos externos; fecha '' = en trámite), quién capturó la fecha y archivos de Drive por limpiar
           && (!('dictamenExterno' in d) || d.dictamenExterno is bool)
