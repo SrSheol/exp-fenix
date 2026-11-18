@@ -4705,25 +4705,32 @@ var qrcode = function() {
   // sin reducir), ya derecho, sin el QR ni «Escanea para verificar» y con los valores que cambian borrados con el fondo de su renglón
   // (pruebas-hoja66/preparar-imagen-hoja66.py). La imagen va a todo lo ancho y centrada en alto (≈2 pt de papel arriba y abajo).
   // Campos en px de la imagen: x = inicio del texto, y = línea base, s = tamaño, f = fuente (Liberation Sans R / B, la Arial del escaneo),
-  // g = gris medido en el escaneo, xMax = fin de la celda (un valor de un renglón que no cabe se achica).
+  // t = color de la tinta (RGB 0–255, ver T66), xMax = fin de la celda (un valor de un renglón que no cabe se achica).
   // v15: también CDTP (kPa), TIPO DE SERVICIO (fluido) y la medida de CONEXIÓN DE ENTRADA; CLIENTE en 1 o 2 renglones (cliente66).
   // Todo lo demás de la hoja (tipo de válvula, material, construcción, tipo de conexión, conexión de salida, orificio, área,
   // temperaturas, capacidad de descarga, materiales, sello, logo, firma, condiciones) es el escaneo tal cual.
+  // v16 · tinta de los valores impresos medida en la propia hoja a 200 dpi (pruebas-hoja66-color/medir66.py) en el texto escaneado vecino
+  // que no cambia: la tinta del escaneo es gris con un tinte verde-azulado (G y B ≈ 4–5 arriba de R) y su trazo trae trama (huecos
+  // claros), así que un trazo sólido del mismo color se ve más pesado. Cada color es el punto medio entre el que iguala el centro del
+  // trazo (núcleo) y el que iguala la tinta media del trazo (peso): las dos medidas quedan a ≤ ~5 por canal del escaneo.
+  //   info: valores originales de INFORMACIÓN GENERAL (escaneo sin borrar) · tec: «Válvula de seguridad», «Roscada», «Atmosférica ASME
+  //   B1.20.1» · entrada: «NPS» y « - DN 8 macho ASME B1.20.1» · cdtp: «0.078 m³/s» · folio: la etiqueta «FOLIO DE CERTIFICACIÓN:».
+  const T66 = { info: [115, 119, 119], tec: [116, 121, 121], entrada: [117, 121, 121], cdtp: [107, 112, 112], folio: [67, 67, 72] };
   const C66 = {
     W: 6460, H: 4960, pw: 792, ph: 612,
     c: {
-      folioCert: { x: 5526, y: 683, s: 65.5, f: 'B', g: 0.12, xMax: 6400 },   // FOLIO DE CERTIFICACIÓN: (arriba a la derecha)
-      cliente: { x: 1336, y: 1384, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      pedido: { x: 1336, y: 1514, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      factura: { x: 1336, y: 1643, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      folio: { x: 1336, y: 1772, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      serie: { x: 1336, y: 1902, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      fecha: { x: 1336, y: 2030, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      modelo: { x: 1336, y: 2448, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      ajuste: { x: 1336, y: 2966, s: 58, f: 'R', g: 0.37, xMax: 3140 },
-      entrada: { x: 1472, y: 3225, s: 58, f: 'R', g: 0.37, xMax: 1800 },     // solo la medida de «NPS 1/4 - DN 8 …» (ver C66.resto)
-      servicio: { x: 1337, y: 3999, s: 58, f: 'R', g: 0.37, xMax: 2700 },    // el sello entra al renglón después de x ≈ 2750
-      cdtp: { x: 4306, y: 1384, s: 58, f: 'R', g: 0.37, xMax: 6020 }          // PRESIÓN DIFERENCIAL DE PRUEBA EN FRÍO (CDTP)
+      folioCert: { x: 5526, y: 683, s: 65.5, f: 'B', t: T66.folio, xMax: 6400 },   // FOLIO DE CERTIFICACIÓN: (arriba a la derecha)
+      cliente: { x: 1336, y: 1384, s: 58, f: 'R', t: T66.info, xMax: 3140 },
+      pedido: { x: 1336, y: 1514, s: 58, f: 'R', t: T66.info, xMax: 3140 },
+      factura: { x: 1336, y: 1643, s: 58, f: 'R', t: T66.info, xMax: 3140 },
+      folio: { x: 1336, y: 1772, s: 58, f: 'R', t: T66.info, xMax: 3140 },
+      serie: { x: 1336, y: 1902, s: 58, f: 'R', t: T66.info, xMax: 3140 },
+      fecha: { x: 1336, y: 2030, s: 58, f: 'R', t: T66.info, xMax: 3140 },
+      modelo: { x: 1336, y: 2448, s: 58, f: 'R', t: T66.tec, xMax: 3140 },
+      ajuste: { x: 1336, y: 2966, s: 58, f: 'R', t: T66.tec, xMax: 3140 },
+      entrada: { x: 1472, y: 3225, s: 58, f: 'R', t: T66.entrada, xMax: 1800 },  // solo la medida de «NPS 1/4 - DN 8 …» (ver C66.resto)
+      servicio: { x: 1337, y: 3999, s: 58, f: 'R', t: T66.tec, xMax: 2700 },    // el sello entra al renglón después de x ≈ 2750
+      cdtp: { x: 4306, y: 1384, s: 58, f: 'R', t: T66.cdtp, xMax: 6020 }          // PRESIÓN DIFERENCIAL DE PRUEBA EN FRÍO (CDTP)
     },
     // CLIENTE en 2 renglones: franja de px 1302–1431; centro de las mayúsculas en cy, interlineado L (≈ el de «PRESIÓN DIFERENCIAL DE /
     // PRUEBA EN FRÍO (CDTP)» del escaneo); se achica solo si los 2 renglones no caben, de preferencia no menos de min × s.
@@ -4767,18 +4774,18 @@ var qrcode = function() {
     const im = await img('cert66', skB64(AS.cert66 || FA.cert66));
     if (im) page.drawImage(im, { x: 0, y: oy, width: C66.pw, height: C66.H * k });
     const val = Object.assign({}, v, { modelo: e.v66Modelo, ajuste: e.pcal ? e.pcal + ' kg/cm²' : '', cdtp: e.v66Cdtp, servicio: e.v66Servicio || 'Aire', entrada: e.v66Pulg || '1/4' });
-    const gris = c => rgb(c.g, c.g, c.g);
+    const tinta = c => rgb(c.t[0] / 255, c.t[1] / 255, c.t[2] / 255);
     for (const [key, c] of Object.entries(C66.c)) {
       const f = await kit.font(c.f);
       if (key === 'cliente') {
         const r = cliente66(safeText(String(ctx.rs || '')), (t, z) => f.widthOfTextAtSize(t, z));
-        r.lines.forEach((t, i) => page.drawText(t, { x: c.x * k, y: Y(r.ys[i]), size: r.size * k, font: f, color: gris(c) }));
+        r.lines.forEach((t, i) => page.drawText(t, { x: c.x * k, y: Y(r.ys[i]), size: r.size * k, font: f, color: tinta(c) }));
         continue;
       }
       const txt = safeText(String(val[key] || '')).trim(); if (!txt) continue;
       const w0 = f.widthOfTextAtSize(txt, c.s * k), max = (c.xMax - c.x) * k;
       const size = w0 > max ? c.s * k * max / w0 : c.s * k;
-      page.drawText(txt, { x: c.x * k, y: Y(c.y), size, font: f, color: gris(c) });
+      page.drawText(txt, { x: c.x * k, y: Y(c.y), size, font: f, color: tinta(c) });
       if (key === 'entrada') {   // « - DN 8 macho ASME B1.20.1» del escaneo, después de la medida nueva
         const R = C66.resto, d = f.widthOfTextAtSize(txt, size) / k - f.widthOfTextAtSize(R.ref, c.s), dx = Math.round(d / R.q) * R.q;
         const ie = await img('cert66e', skB64(AS.cert66e || FA.cert66e));
