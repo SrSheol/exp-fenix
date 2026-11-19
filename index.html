@@ -1477,7 +1477,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
 
     <!-- 6 · GENERAR -->
     <section class="paso" id="p-generar" data-paso="generar">
-      <div class="paso-cab"><div><h2><span class="num">6</span>Generar</h2><p>Expediente carta y, por cada equipo categoría II, su previo y su dictamen A4. El ZIP agrega la carpeta DATOS con los documentos de la visita. Los PDF no se suben a la nube.</p></div></div>
+      <div class="paso-cab"><div><h2><span class="num">6</span>Generar</h2><p>Expediente carta y, por cada equipo categoría II, su previo, su dictamen digital y su dictamen físico, tamaño carta. El ZIP agrega la carpeta DATOS con los documentos de la visita. Los PDF no se suben a la nube.</p></div></div>
       <div class="tarjeta">
         <div class="plan" id="plan"></div>
         <div id="validacion"></div>
@@ -6042,18 +6042,196 @@ var qrcode = function() {
     return { bytes: await doc.save({ useObjectStreams: true }), pages: seq.length, planos, portada: portadaInfo, hojaRel };
   }
 
+  // ---------- Cat II (rediseño 2026-11): carta 612 × 792, dibujados por el motor ----------
+  // Diseño aprobado: referencia-cat2/dictamen-marco-E y previo-P12 (marco E: filete vino, hueco blanco, filete oro fino + vino fino;
+  // encabezado logo + título + sello redondo del folio; bloques redondeados EMPRESA / EQUIPO / PRESIONES / PRACTICARON; RESULTADO CUMPLE,
+  // VIGENCIA y las 2 firmas). Ya no se usan las plantillas A4 (A.tplPrevio / A.tplDict / A.map.cat2 quedan en FX_ASSETS sin uso).
+  // Mismos datos y textos que las plantillas: {d.cdmx} {rs} {dom} {e.nombre} {e.tag} N/A {e.ns} {e.fluido} {e.anioSD} {e.pmax} {e.pdis}
+  // {e.pcal} {e.pop} {e.tdis} {e.top} {e.cv} {e.ndisp} {e.relevo} {e.ubic} {d.larga2} {rep} {fi} {e.folio}. El previo conserva lo de
+  // siempre: FOLIO xxx, «XXXX…» como firmante izquierdo (sin su firma) y la firma del representante legal; lleva además la cinta y la marca
+  // de agua PRELIMINAR. kind: 'previo' | 'dictamen' (digital: las 2 firmas) | 'fisico' (el digital sin la imagen de la firma del
+  // representante legal; su nombre se imprime igual).
+  const C2_XS = 'XXXXXXXXXXXXXXXXXXXXXXXXXX';
   async function buildCat2(kind, st, e, idx, A) {
-    const { PDFDocument } = L();
-    const map = A.map.cat2[kind];
-    const doc = await PDFDocument.load(kind === 'previo' ? A.tplPrevio : A.tplDict, { updateMetadata: false });
-    const kit = await makeKit(doc, A.fonts), img = await imageCache(doc);
-    const page = doc.getPages()[0];
-    const ctx = Object.assign({}, baseCtx(st), { e: equipoCtx(e, idx), d: dates(e.fechaPnd) });
-    for (const fd of map.fields) await drawField(page, kit, fd, ctx, 0);
-    const roleBytes = { rep: st.representanteLegalFirma, fi: A.globals.firmanteIzquierdoFirma };
-    for (const sl of map.imgs) { const im = await img(sl.role, roleBytes[sl.role]); if (im) drawFit(page, im, sl, 0); }
-    if (kind === 'dictamen') await replaceLogo(doc, A.globals.logoFenix, [581, 97]);
-    doc.setTitle((kind === 'previo' ? 'PRE DICTAMEN ' : 'DICTAMEN TÉCNICO CATEGORIA II ') + ctx.e.tag); doc.setProducer('FenixMex');
+    const { PDFDocument, degrees } = L();
+    const previo = kind === 'previo', fisico = kind === 'fisico';
+    const doc = await PDFDocument.create(), H = 792, page = doc.addPage([612, H]);
+    doc.registerFontkit(root.fontkit);
+    const R = await doc.embedFont(A.fonts.R, { subset: true }), B = await doc.embedFont(A.fonts.B || A.fonts.R, { subset: true });
+    const img = await imageCache(doc), g = A.globals || {};
+    const ctx = Object.assign({}, baseCtx(st), { e: equipoCtx(e, idx), d: dates(e.fechaPnd) }), E = ctx.e, C = SKC, GRIS = [0xDD, 0xDD, 0xDD];
+    const firmas = { rep: previo || !fisico ? await img('rep', st.representanteLegalFirma) : null, fi: previo ? null : await img('fi', g.firmanteIzquierdoFirma) };
+    const logo = await img('logo', g.logoHdr || g.logoFenix);
+    let seco = true;   // primera pasada: solo mide (para achicar los datos si no caben)
+
+    // ---- texto (y = línea base, arriba-izquierda); ls = espaciado entre letras ----
+    const anchoLs = (f, t, s, ls) => skW(f, t, s) + (ls || 0) * Math.max(0, t.length - 1);
+    function tx(f, t, x, y, s, c, o) {
+      o = o || {}; t = safeText(t == null ? '' : t); if (!t) return 0;
+      const ls = o.ls || 0, w = anchoLs(f, t, s, ls);
+      if (seco) return w;
+      let xx = o.a === 'c' ? x - w / 2 : o.a === 'r' ? x - w : x;
+      const op = { y: H - y, size: s, font: f, color: skRgb(c) };
+      if (!ls) { page.drawText(t, Object.assign({ x: xx }, op)); return w; }
+      for (const ch of t) { page.drawText(ch, Object.assign({ x: xx }, op)); xx += skW(f, ch, s) + ls; }
+      return w;
+    }
+    function txGiro(f, t, cx, cy, s, c, ls, ang, opac) {   // centrado en (cx, cy), girado ang° (sentido PDF)
+      if (seco) return; t = safeText(t);
+      const w = anchoLs(f, t, s, ls), a = ang * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux;
+      let px = cx - ux * w / 2 - nx * 0.36 * s, py = (H - cy) - uy * w / 2 - ny * 0.36 * s;
+      for (const ch of t) {
+        page.drawText(ch, { x: px, y: py, size: s, font: f, color: skRgb(c), rotate: degrees(ang), opacity: opac == null ? 1 : opac });
+        const adv = skW(f, ch, s) + ls; px += ux * adv; py += uy * adv;
+      }
+    }
+    const linea = (x0, y0, x1, y1, w, c, dash) => { if (!seco) page.drawLine({ start: { x: x0, y: H - y0 }, end: { x: x1, y: H - y1 }, thickness: w, color: skRgb(c), dashArray: dash || undefined }); };
+    const puntos = (x0, x1, y) => linea(x0, y, x1, y, 0.5, GRIS, [0.75, 0.75]);
+    const caja = (x0, y0, x1, y1, r, o) => { if (!seco) skRR(page, H, x0, y0, x1, y1, r, o); };
+    const circ = (cx, cy, r, o) => { if (!seco) page.drawCircle(Object.assign({ x: cx, y: H - cy, size: r }, o)); };
+    // renglones: corta entre palabras (espacio normal; el espacio duro une «S.A. DE C.V.»); una palabra más ancha que la celda se parte
+    function renglones(f, t, s, w) {
+      const out = []; let cur = '';
+      for (let p of String(t || '').split(/[ \t\r\n]+/).filter(Boolean)) {
+        while (skW(f, p, s) > w && p.length > 1) {
+          if (cur) { out.push(cur); cur = ''; }
+          let k = p.length - 1; while (k > 1 && skW(f, p.slice(0, k), s) > w) k--;
+          const gu = p.slice(0, k).lastIndexOf('-'); if (gu > 0) k = gu + 1;   // de preferencia, después de un guion
+          out.push(p.slice(0, k)); p = p.slice(k);
+        }
+        const q = cur ? cur + ' ' + p : p;
+        if (!cur || skW(f, q, s) <= w) cur = q; else { out.push(cur); cur = p; }
+      }
+      if (cur) out.push(cur);
+      return out;
+    }
+    const pegaSufijo = t => String(t || '').trim().replace(/ DE (C\. ?V\.?)$/i, ' DE $1');
+    // valor: texto (se parte en renglones) o [[texto, superíndice], …] (un renglón: kg/cm², m³)
+    const conUnidad = (v, u, sup) => { v = String(v || '').trim(); return v ? (sup ? [[v + ' ' + u, 0], [sup, 1]] : v + ' ' + u) : ''; };
+    const renglonesValor = (v, s, w) => Array.isArray(v) ? [v] : renglones(B, safeText(v), s, w);
+    function valor(ln, x, y, s, w) {
+      if (!Array.isArray(ln)) return tx(B, ln, x, y, s, C.TXT);
+      const tot = ln.reduce((a, [t, sp]) => a + skW(B, safeText(t), sp ? 0.65 * s : s), 0), k = tot > w ? w / tot : 1;
+      let xx = x; for (const [t, sp] of ln) { const z = (sp ? 0.65 : 1) * s * k; tx(B, t, xx, y - (sp ? 0.43 * s * k : 0), z, C.TXT); xx += skW(B, safeText(t), z); }
+    }
+    // párrafo justificado con palabras en negritas: segs = [[texto, negrita], …]; centrado verticalmente en yc
+    function parrafo(segs, x0, x1, yc, s, lh) {
+      const pal = []; for (const [t, b] of segs) for (const p of t.split(/ +/).filter(Boolean)) pal.push({ t: p, f: b ? B : R, w: skW(b ? B : R, p, s) });
+      const sp = skW(R, ' ', s), W = x1 - x0, out = []; let cur = [], cw = 0;
+      for (const p of pal) { const add = (cur.length ? sp : 0) + p.w; if (cur.length && cw + add > W) { out.push(cur); cur = [p]; cw = p.w; } else { cur.push(p); cw += add; } }
+      if (cur.length) out.push(cur);
+      let y = yc - (out.length - 1) * lh / 2 + 0.35 * s;
+      out.forEach((ln, i) => {
+        const tot = ln.reduce((a, p) => a + p.w, 0), gap = i < out.length - 1 && ln.length > 1 ? (W - tot) / (ln.length - 1) : sp;
+        let x = x0; for (const p of ln) { tx(p.f, p.t, x, y, s, C.TXT); x += p.w + gap; } y += lh;
+      });
+    }
+
+    // ---- bloques redondeados ----
+    const XL = 60.7, XV = 217.7, XR = 551.1, XV2 = 481.3, LS = 7.9;
+    function bloque(y0, titulo, filas, VS) {
+      const lh = 1.14 * VS; let b = y0 + 23.9;
+      tx(B, titulo, XL, y0 + 10.5, 6.8, C.ORO, { ls: 1.6 });
+      for (const cols of filas) {
+        const Ls = cols.map(c => c.l != null ? [c.l] : renglonesValor(c.v, VS, c.w)), n = Math.max(1, ...Ls.map(a => a.length));
+        cols.forEach((c, i) => {
+          Ls[i].forEach((ln, k) => c.l != null ? tx(R, ln, c.x, b + k * lh, LS, C.SEC) : valor(ln, c.x, b + k * lh, VS, c.w));
+          puntos(c.x, c.x + c.w, b + (n - 1) * lh + 4.95);
+        });
+        b += (n - 1) * lh + 15;
+      }
+      const y1 = b - 15 + 8.4;
+      caja(52.4, y0, 559.6, y1, 6.6, { stroke: C.OROC, w: 0.75 });
+      return y1;
+    }
+    const kv = (l, v) => [{ x: XL, w: 150, l }, { x: XV, w: XR - XV, v }];
+    function kv4(pares) {   // 4 columnas: etiqueta 150 · valor · etiqueta (la más ancha del bloque) · valor 70
+      const w3 = Math.max(...pares.map(p => skW(R, p[2], LS))), x3 = XV2 - 7 - w3;
+      return pares.map(([l1, v1, l2, v2]) => [{ x: XL, w: 150, l: l1 }, { x: XV, w: x3 - 7 - XV, v: v1 }, { x: x3, w: w3, l: l2 }, { x: XV2, w: XR - XV2, v: v2 }]);
+    }
+
+    function armar(VS) {
+      // marco E
+      if (!seco) {
+        page.drawRectangle({ x: 18, y: H - 774, width: 576, height: 756, borderColor: skRgb(C.VINO), borderWidth: 1.4 });
+        page.drawRectangle({ x: 32, y: H - 760, width: 548, height: 728, borderColor: skRgb(C.ORO), borderWidth: 0.6 });
+        page.drawRectangle({ x: 35, y: H - 757, width: 542, height: 722, borderColor: skRgb(C.VINO), borderWidth: 0.4 });
+        if (logo) skLogoCaja(page, H, logo, [52, 63, 148, 99]);
+      }
+      // encabezado: kicker espaciado, título, filete y sello del folio
+      const cx = previo ? 293 : 319, sx = previo ? 472.9 : 525, dy = previo ? -6 : 0;
+      tx(B, previo ? 'PRE DICTAMEN · NOM-020-STPS-2011' : 'CERTIFICADO · NOM-020-STPS-2011', cx, 68.2 + dy, 7.5, C.ORO, { a: 'c', ls: 3 });
+      tx(B, previo ? 'PRE DICTAMEN' : 'DICTAMEN TÉCNICO CATEGORÍA II', cx, 89.2 + dy, 17, C.VINO, { a: 'c', ls: 0.4 });
+      linea(cx - 55.1, 100.15 + dy, cx + 55.1, 100.15 + dy, 0.6, C.ORO);
+      if (previo) tx(B, 'DICTAMEN TÉCNICO CATEGORÍA II', cx, 105, 7, C.ORO, { a: 'c', ls: 1.8 });
+      circ(sx, 81, 38.5, { color: skRgb(C.ORO) }); circ(sx, 81, 37.7, { color: skRgb(C.BLANCO) });
+      circ(sx, 81, 34.4, { color: skRgb(C.TINT), borderColor: skRgb(C.VINO), borderWidth: 1.5 });
+      tx(B, 'FOLIO:', sx, 73.5, 6.5, C.ORO, { a: 'c', ls: 1.6 });
+      { const f = previo ? 'xxx' : E.folio, ls = previo ? 0.8 : 0, w = anchoLs(B, safeText(f), 19, ls), z = w > 58 ? 19 * 58 / w : 19;
+        tx(B, f, sx, 90.8 - (19 - z) * 0.36, z, C.VINO, { a: 'c', ls }); }
+
+      // bloques de datos
+      let y = 128.6;
+      y = bloque(y, 'EMPRESA', [kv('Fecha de Emisión:', ctx.d.cdmx), kv('Razón Social de la Empresa:', pegaSufijo(ctx.rs)), kv('Ubicado en:', ctx.dom)], VS) + 8.3;
+      y = bloque(y, 'EQUIPO', kv4([['Nombre Genérico del Equipo:', E.nombre, 'Tag:', E.tag], ['No. de Control S.T.P.S.', 'N/A', 'No. de Serie:', E.ns],
+        ['Fluido Manejado:', E.fluido, 'Año de Fabricación:', E.anioSD]]), VS) + 8.3;
+      y = bloque(y, 'PRESIONES DEL EQUIPO', kv4([['Máxima de Trabajo Permitida:', conUnidad(E.pmax, 'kg/cm', '2'), 'Diseño:', conUnidad(E.pdis, 'kg/cm', '2')],
+        ['Presión de Calibración:', conUnidad(E.pcal, 'kg/cm', '2'), 'Operación:', conUnidad(E.pop, 'kg/cm', '2')],
+        ['Temperatura de Diseño:', conUnidad(E.tdis, '°C'), 'Temperatura de Operación:', conUnidad(E.top, '°C')],
+        ['Capacidad Volumétrica:', conUnidad(E.cv, 'm', '3'), 'No. de Dispositivo:', E.ndisp]])
+        .concat([kv('Tipo de Dispositivo de Relevo de Presión:', E.relevo), kv('Área de Ubicación del Equipo:', E.ubic)]), VS) + 8.3;
+      { // AL EQUIPO ANTES DESCRITO SE LE PRACTICARON
+        const y0 = y, c2 = 364.8, c3 = 499.7; let b = y0 + 22.9;
+        tx(B, 'AL EQUIPO ANTES DESCRITO SE LE PRACTICARON:', XL, y0 + 10.5, 6.8, C.ORO, { ls: 1.6 });
+        tx(B, '———', c2, b, 7, C.ORO, { a: 'c' }); tx(B, 'Resultado', c3, b, 7, C.ORO, { a: 'c' }); puntos(XL, XR, b + 4.95);
+        const filas = [['Pruebas de Presión:', 'PARTÍCULAS MAGNÉTICAS', 'SATISFACTORIO'], ['Exámenes No Destructivos:', 'ULTRASONIDO INDUSTRIAL', 'SATISFACTORIO'],
+          ['Fecha de los Exámenes No Destructivos:', ctx.d.larga2, ''], ['Método Alternativo', '———', '———']];
+        b += 15;
+        filas.forEach(([l, v, r], i) => { tx(R, l, 64.7, b, 7.8, C.SEC); tx(B, v, c2, b, 7.8, C.TXT, { a: 'c' }); tx(B, r, c3, b, 7.8, C.TXT, { a: 'c' }); puntos(XL, XR, b + 4.95); if (i < filas.length - 1) b += 14.5; });
+        y = b + 8.6;
+        caja(52.4, y0, 559.6, y, 6.6, { stroke: C.OROC, w: 0.75 });
+      }
+      // RESULTADO CUMPLE
+      const v1 = y + 7.9;
+      caja(51.7, v1, 156.8, v1 + 39.8, 8, { fill: C.VINO });
+      tx(R, 'RESULTADO', 104.25, v1 + 12, 6.4, C.OROC, { a: 'c', ls: 1.6 }); tx(B, 'CUMPLE', 104.25, v1 + 29.2, 17, C.BLANCO, { a: 'c', ls: 1.5 });
+      caja(165.4, v1 + 0.4, 559.6, v1 + 39.4, 7.6, { stroke: C.OROC, w: 0.75 });
+      parrafo([['Una vez obtenidos los resultados de la Verificación avalamos que el centro de trabajo ', 0], ['CUMPLE', 1], [' con los requerimientos establecidos en la NOM-020-STPS-2011.', 0]],
+        174.5, 550.3, v1 + 19.9, 7.9, 11.3);
+      // VIGENCIA
+      const v2 = v1 + 46.1;
+      caja(52.4, v2, 143.6, v2 + 43.5, 7.6, { fill: C.TINT, stroke: C.ORO, w: 0.75 });
+      tx(B, 'VIGENCIA', 97.85, v2 + 14.7, 6.4, C.ORO, { a: 'c', ls: 1.4 }); tx(B, '5 años', 97.85, v2 + 31.9, 18, C.VINO, { a: 'c' });
+      caja(152.6, v2, 559.6, v2 + 43.5, 7.6, { stroke: C.OROC, w: 0.75 });
+      parrafo([['Este dictamen tiene una vigencia de ', 0], ['5', 1], [' años por tratarse de un equipo ', 0], ['USADO', 1],
+        [' contados a partir de la fecha en la que se concluyó satisfactoriamente la última prueba de presión y/o exámenes no destructivos o método alterno. Este Recipiente Sujeto a Presión es clasificado dentro de la categoría II.', 0]],
+        161.7, 550.3, v2 + 21.75, 7.9, 10.9);
+      // firmas: izquierda = firmante izquierdo (previo: XXXX… sin firma) · derecha = representante legal
+      const s0 = v2 + 43.5 + 16;
+      [[179, previo ? C2_XS : ctx.fi, firmas.fi, null], [433, ctx.rep, firmas.rep, 'Representante Legal Centro de Trabajo']].forEach(([c, nom, im, rol]) => {
+        if (im && !seco) drawFit(page, im, { x: c - 60, y: H - (s0 + 34), w: 120, h: 34 }, 0);
+        const t = safeText(String(nom || '').trim()), w = skW(B, t, 8), z = w > 188 ? 8 * 188 / w : 8;
+        tx(B, t, c, s0 + 39.2, z, C.TXT, { a: 'c' });
+        linea(c - 94.9, s0 + 44.4, c + 94.9, s0 + 44.4, 0.6, C.ORO);
+        tx(R, 'Nombre y Firma', c, s0 + 54.9, 8, C.SEC, { a: 'c' });
+        if (rol) tx(R, rol, c, s0 + 65.4, 8, C.SEC, { a: 'c' });
+      });
+      // previo: cinta PRELIMINAR (esquina superior derecha, dentro del filete fino) y marca de agua tenue (los datos se leen igual)
+      if (previo && !seco) {
+        const a = 471.8, b2 = 450.6, top = 35, rgt = 577;   // bordes de la cinta: y = x − a (arriba) y y = x − b2 (abajo)
+        const P = [[top + b2, top], [top + a, top], [rgt, rgt - a], [rgt, rgt - b2]];
+        page.drawSvgPath('M' + P.map(p => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join(' L') + ' Z', { x: 0, y: H, color: skRgb(C.VINO), borderWidth: 0 });
+        const k = 0.35 * Math.SQRT2;   // filete oro de 0.7 por dentro de cada borde
+        linea(top + a - k, top, rgt, rgt - a + k, 0.7, C.ORO); linea(top + b2 + k, top, rgt, rgt - b2 - k, 0.7, C.ORO);
+        txGiro(B, 'PRELIMINAR', 531.3, 70.2, 7, C.OROC, 2.6, -45);
+        txGiro(B, 'PRELIMINAR', 301.8, 398.6, 78, C.VINO, 10, 32, 0.09);
+      }
+      return s0 + 66;
+    }
+    let VS = 7.9;
+    for (const z of [7.9, 7.5, 7.1, 6.7, 6.3, 5.9]) { VS = z; if (armar(z) <= 745) break; }
+    seco = false; armar(VS);
+    doc.setTitle((previo ? 'PRE DICTAMEN ' : 'DICTAMEN TÉCNICO CATEGORÍA II ') + E.tag); doc.setProducer('FenixMex'); doc.setCreator('FenixMex Expedientes NOM-020');
     return await doc.save({ useObjectStreams: true });
   }
 
@@ -6072,7 +6250,11 @@ var qrcode = function() {
   function nombresArchivo(rs, tag) {
     const R = fileName(rs) || 'SIN NOMBRE', T = fileName(tag);
     const j = (...a) => a.filter(Boolean).join(' ');
-    return { exp: j('EXP', R) + '.pdf', zip: j('EXP', R) + '.zip', previo: j('PREVIO', T, R) + '.pdf', dictamen: j('DICTAMEN', T, R) + '.pdf' };
+    // Cat II (2026-11): 3 archivos por equipo, en mayúsculas y sin acentos; DICTAMEN_DIGITAL / DICTAMEN_FISICO conservan el guion bajo
+    // (se agregan después de fileName, que cambia «_» por espacio)
+    const RU = R.toUpperCase(), TU = T.toUpperCase();
+    return { exp: j('EXP', R) + '.pdf', zip: j('EXP', R) + '.zip', previo: j('PREVIO', TU, RU) + '.pdf', dictamen: j('DICTAMEN', T, R) + '.pdf',
+      digital: j('DICTAMEN_DIGITAL', TU, RU) + '.pdf', fisico: j('DICTAMEN_FISICO', TU, RU) + '.pdf' };
   }
 
   function estimatePages(st, map) { return planExp(st, map.exp).length; }
@@ -10996,7 +11178,7 @@ function refrescar(){
   tl.innerHTML=err.length?`<i></i><span><b>${err.length}</b><span class="lbl"> pendiente${err.length>1?'s':''}</span></span>`:`<i></i><span>Listo<span class="lbl"> para generar</span></span>`;
   tl.title=err.length?'Ver qué falta para generar':'Ir a generar el expediente';
   $('#rsCat').innerHTML=['I','II','III'].map((k,i)=>`<span><i style="background:var(--cat${i+1})"></i>Cat ${k}: ${c[k]}</span>`).join('');
-  $('#plan').innerHTML=`<div><b>${pags}</b><span>hojas del expediente, carta</span></div><div><b>${D.equipos.length}</b><span>equipo${D.equipos.length===1?'':'s'}</span></div><div><b>${c.II*2}</b><span>PDF Cat II, previo y dictamen A4</span></div><div><b>${c.III}</b><span>certificado${c.III===1?'':'s'} de válvula, hoja 66</span></div>`;
+  $('#plan').innerHTML=`<div><b>${pags}</b><span>hojas del expediente, carta</span></div><div><b>${D.equipos.length}</b><span>equipo${D.equipos.length===1?'':'s'}</span></div><div><b>${c.II*3}</b><span>PDF Cat II: previo, dictamen digital y dictamen físico, carta</span></div><div><b>${c.III}</b><span>certificado${c.III===1?'':'s'} de válvula, hoja 66</span></div>`;
   $('#domReq').classList.toggle('oculto',!D.equipos.some(e=>catDe(e)==='II'));
   $$('#pasos li').forEach(li=>{const s=li.dataset.paso,b=$('[data-badge]',li);
     const n=s==='generar'||s==='revision'?err.length:err.filter(x=>x.paso===s).length;
@@ -11203,9 +11385,10 @@ async function generar(zip){
     let k=0;
     for(const q of cat2){
       const n2=Fx().nombresArchivo(Fx().razonSocial(st),q.e.tag||('EQ'+q.i));
-      txt.textContent=`Cat II · ${q.e.tag||q.e.nombre}: previo y dictamen…`;
-      SALIDA.push({nombre:n2.previo,bytes:await Fx().buildCat2('previo',st,q.e,q.i,A),det:'1 hoja · A4'});
-      SALIDA.push({nombre:n2.dictamen,bytes:await Fx().buildCat2('dictamen',st,q.e,q.i,A),det:'1 hoja · A4'});
+      txt.textContent=`Cat II · ${q.e.tag||q.e.nombre}: previo, dictamen digital y dictamen físico…`;
+      SALIDA.push({nombre:n2.previo,bytes:await Fx().buildCat2('previo',st,q.e,q.i,A),det:'1 hoja · carta'});
+      SALIDA.push({nombre:n2.digital,bytes:await Fx().buildCat2('dictamen',st,q.e,q.i,A),det:'1 hoja · carta · con las 2 firmas'});
+      SALIDA.push({nombre:n2.fisico,bytes:await Fx().buildCat2('fisico',st,q.e,q.i,A),det:'1 hoja · carta · sin la firma del representante legal'});
       k++;bi.style.width=(80+Math.round(k/cat2.length*18))+'%';
     }
     SALIDA.forEach(f=>f.url=URL.createObjectURL(new Blob([f.bytes],{type:'application/pdf'})));
@@ -11219,7 +11402,7 @@ async function generar(zip){
       descargar(blob,nom.zip);zipBlob=blob;
     }
     const tot=SALIDA.reduce((a,f)=>a+f.bytes.length,0);
-    $('#sellado').innerHTML=`<div class="sellado" role="status"><div class="estampa">EXPEDIENTE<br>NOM-020<br>GENERADO</div><p><b>${esc(nom.exp.replace(/\.pdf$/,''))}</b>${r.pages} hojas${plPend.length?` (${plPend.length} con PLANO PENDIENTE: ${esc(plPend.map(p=>p.tag||p.nombre||('equipo '+p.i)).join(', '))})`:''}${cat2.length?` y ${cat2.length*2} PDF categoría II`:''} · ${(tot/1048576).toFixed(1)} MB${zip?` · descargado como ${esc(nom.zip)}${dvZ?` con la carpeta DATOS (${esc(dvZ)})`:''}`:''}</p></div>${!zip&&fxid?`<p class="nota" id="notaVistaPrevia">Vista previa: no cambia el registro del QR. La revisión de ${esc(fxid.folio)} se registra al generar y descargar el ZIP (y solo sube si cambiaron los datos).</p>`:''}`;
+    $('#sellado').innerHTML=`<div class="sellado" role="status"><div class="estampa">EXPEDIENTE<br>NOM-020<br>GENERADO</div><p><b>${esc(nom.exp.replace(/\.pdf$/,''))}</b>${r.pages} hojas${plPend.length?` (${plPend.length} con PLANO PENDIENTE: ${esc(plPend.map(p=>p.tag||p.nombre||('equipo '+p.i)).join(', '))})`:''}${cat2.length?` y ${cat2.length*3} PDF categoría II`:''} · ${(tot/1048576).toFixed(1)} MB${zip?` · descargado como ${esc(nom.zip)}${dvZ?` con la carpeta DATOS (${esc(dvZ)})`:''}`:''}</p></div>${!zip&&fxid?`<p class="nota" id="notaVistaPrevia">Vista previa: no cambia el registro del QR. La revisión de ${esc(fxid.folio)} se registra al generar y descargar el ZIP (y solo sube si cambiaron los datos).</p>`:''}`;
     nubeDespuesDeGenerar({zip:zipBlob,zipNombre:nom.zip,hojas:r.pages});idPintar();   // v17: registro (revisión +1) y respaldo en Drive; sin red queda pendiente
     if(plPend.length)toast(`Ojo: ${plPend.length} equipo${plPend.length>1?'s':''} sin plano; su hoja 20 dice PLANO PENDIENTE (${plPend.map(p=>p.tag||p.nombre).join(', ')}).`,8000);
   }catch(e){console.error(e);txt.textContent='';toast('Error al generar: '+(e&&e.message||e));}
