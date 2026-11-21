@@ -8,7 +8,7 @@
 (function(){var M={dark:'brasa',light:'claro'},T=['claro','brasa','pizarra','musgo','indigo','mono','mono-noche'],t='brasa';try{t=localStorage.getItem('fenixmex-theme')||'brasa';}catch(e){}t=M[t]||t;if(T.indexOf(t)<0)t='brasa';var h=document.documentElement;h.setAttribute('data-theme',t);h.setAttribute('data-tono',t==='claro'||t==='mono'?'claro':'oscuro');})();
 </script>
 
-<title>FenixMex · Expedientes NOM-020-STPS-2011</title>
+<title>[Fase 3 · P2] FenixMex · Expedientes NOM-020-STPS-2011</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><rect width='24' height='24' rx='6' fill='%237d1a22'/><path d='M6.63 18.37A7.6 7.6 0 0 1 5.8 8.6' stroke='%236fb3dc' stroke-width='2.3'/><path d='M6.48 7.78A7.6 7.6 0 0 1 11.47 5.42' stroke='%23ecc56f' stroke-width='2.3'/><path d='M12.53 5.42A7.6 7.6 0 0 1 17.37 18.37' stroke='%23ff8f86' stroke-width='2.3'/><path d='M16.3 8.26L12.85 13.77 11.15 12.23z' fill='%23f6ead2'/><circle cx='12' cy='13' r='1.9' fill='%23d4ac60'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1290,48 +1290,434 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <!-- v17 · proyecto Firebase de Fenix, OAuth de Google y carpeta de Drive: TODO se configura en nube-config.js (CONFIGURAR-NUBE.md) -->
 <script src="nube-config.js"></script>
+<script>if(!window.FX_NUBE)document.write('<script src="../../nube-config.js"><\/script>');</script>
+<style>
+/* ================= FenixMex · rediseño FASE 1 · armazón P2 (barra lateral + pestañas por equipo) =================
+   Solo la pantalla: los PDF se dibujan con sus propios colores y fuentes. Todo lo de abajo usa las variables de tema de
+   la app (--placa, --tinta, --laton…), así que los 7 temas siguen funcionando. Brasa (oscuro, por omisión) y Claro toman
+   la paleta de marca de rediseno/propuestas/assets/comun.css (vino #4A0205, oro #A7683C, oro claro #D8B287). */
+:root{--fuente:"Liberation Sans",Arial,Helvetica,sans-serif;--top:56px;--lat:272px}
+html[data-theme="brasa"]{
+  --horno:#14100E; --placa:#1C1613; --placa-2:#251D19; --placa-3:#2F2520; --hundido:#120E0C;
+  --acero:#3A2F29; --acero-2:#5A4A40; --tinta:#F2E9DF; --tinta-2:#C7B8AA; --tinta-3:#A39282;
+  --vino:#D8B287; --vino-2:#E6C6A0; --vino-suave:#33291A; --laton:#D8B287; --laton-2:#E6C6A0; --laton-suave:#2E241A;
+  --sobre-prim:#2B0A06; --sobre-laton:#2B0A06;
+  --ok:#7FCB9C; --ok-suave:#16271D; --warn:#EBBC5E; --warn-suave:#302512; --err:#F3877D; --err-suave:#3A1A18;
+  --cat1:#6FAEDB; --cat2:#E2B25A; --cat3:#F07A7F; --fondo-extra:none;
+}
+html[data-theme="claro"]{
+  --horno:#F5F1EC; --placa:#FFFFFF; --placa-2:#FAF7F3; --placa-3:#F1EAE3; --hundido:#F7F3EF;
+  --acero:#E2D7CC; --acero-2:#C4B3A3; --tinta:#1F1714; --tinta-2:#5A4B44; --tinta-3:#6F6058;
+  --vino:#4A0205; --vino-2:#680A10; --vino-suave:#F6E7E8; --laton:#8A5530; --laton-2:#A7683C; --laton-suave:#F7EFE6;
+  --sobre-prim:#FFFFFF; --sobre-laton:#FFFFFF;
+  --ok:#1E7347; --ok-suave:#E6F3EB; --warn:#8A5A00; --warn-suave:#FBF1DA; --err:#B3261E; --err-suave:#FBE9E7;
+  --cat1:#2F6E9E; --cat2:#9A6A10; --cat3:#B3262E;
+}
+/* alias de los tokens de comun.css (P2) → variables de la app */
+:root{--sup:var(--placa);--sup-2:var(--placa-2);--sup-3:var(--placa-3);--hund:var(--hundido);--borde:var(--acero);--borde-f:var(--acero-2);
+  --tx:var(--tinta);--tx-2:var(--tinta-2);--tx-3:var(--tinta-3);--acento:var(--laton);--acento-s:var(--laton-suave);
+  --av:var(--warn);--av-s:var(--warn-suave);--er:var(--err);--er-s:var(--err-suave);--ok-s:var(--ok-suave)}
+html{scroll-padding-top:calc(var(--top) + 24px)}
+body{background:var(--horno)}
+
+/* ---------- armazón ---------- */
+.fx-marco{display:grid;grid-template-columns:var(--lat) minmax(0,1fr);min-height:100vh}
+.fx-prin{min-width:0;display:flex;flex-direction:column}
+#main{padding:24px 32px 72px;max-width:1240px;width:100%}
+#eqbar{display:none!important}
+.paso-pie{display:none!important}
+.paso-cab h2 .num{display:none}
+.paso-cab h2{font-size:24px;font-stretch:100%}
+.fx-oculto{display:none!important}
+
+/* ---------- barra lateral ---------- */
+.fx-lat{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--sup);border-right:1px solid var(--borde);z-index:50;min-width:0}
+.fx-lat-cab{padding:16px 16px 10px}
+.fx-lat .marca .emblema{width:34px;height:34px}
+.fx-lat-exp{margin-top:14px;padding:10px 10px 12px;border-radius:12px;border:1px solid var(--borde);background:var(--sup-2);display:flex;flex-direction:column;gap:8px}
+.fx-lat-exp-fila{display:flex;align-items:center;gap:6px}
+.fx-lat-exp .ficha-nombre{appearance:none;flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px;height:auto;padding:2px 4px;border:0;background:none;border-radius:8px;cursor:pointer;text-align:left;color:var(--tx)}
+.fx-lat-exp .ficha-nombre:hover{background:var(--sup-3)}
+.fx-lat-exp .ficha-nombre small{font-size:11px;color:var(--tx-3);letter-spacing:.04em}
+.fx-lat-exp .ficha-nombre span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700;line-height:1.3}
+.fx-lat-exp .ficha-nombre.vacio span{color:var(--err);font-style:italic}
+.fx-lat-nube{appearance:none;position:relative;flex:none;width:36px;height:36px;border-radius:9px;border:1px solid var(--borde);background:var(--sup);color:var(--tx-2);display:grid;place-items:center;cursor:pointer}
+.fx-lat-nube:hover{border-color:var(--borde-f);color:var(--tx)}
+.fx-lat-nube svg{width:18px;height:18px}
+.fx-lat-nube .nube-av{position:absolute;bottom:-6px;right:-6px;min-width:18px;height:18px;font-size:9.5px;padding:0 4px}
+.fx-lat-meta{display:flex;gap:10px;padding:0 4px;font-size:12px;color:var(--tx-3)}
+.fx-lat-meta .ficha-dato{border:0;padding:0;font-size:12px;text-align:left;color:var(--tx-3)}
+.fx-lat-meta .ficha-dato b{display:inline;font-size:12px;font-weight:700;color:var(--tx-2);margin-right:3px}
+.fx-lat-av{display:flex;align-items:center;gap:8px;padding:0 4px;font-size:12px;color:var(--tx-3)}
+.fx-barra{flex:1;height:6px;border-radius:99px;background:var(--sup-3);overflow:hidden}
+.fx-barra i{display:block;height:100%;width:0;border-radius:inherit;background:var(--acento);transition:width .4s}
+.fx-barra.ok i{background:var(--ok)}
+.fx-lat-exp .ficha-estado{margin:0;align-self:flex-start;height:28px;font-size:12px;border:1px solid transparent;border-radius:999px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:700}
+.fx-lat-exp .ficha-estado i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.fx-buscar{appearance:none;display:flex;align-items:center;gap:8px;margin:0 16px 6px;width:calc(100% - 32px);height:40px;padding:0 6px 0 12px;border-radius:10px;border:1px solid var(--borde-f);background:var(--hund);color:var(--tx-3);font-size:13.5px;cursor:pointer;text-align:left}
+.fx-buscar:hover{border-color:var(--tx-3);color:var(--tx-2)}
+.fx-buscar svg{width:16px;height:16px;flex:none}
+.fx-buscar .lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fx-buscar kbd{font:700 11px/1 var(--fuente);border:1px solid var(--borde-f);border-radius:5px;padding:3px 5px;color:var(--tx-3)}
+.fx-lat-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 12px 14px;scrollbar-width:thin}
+.fx-grupo-t{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx-3);padding:16px 12px 6px}
+.fx-lat-lista{list-style:none;margin:0;padding:0}
+/* elemento de navegación: los <li data-paso> originales y los nuevos (Empresa, Rutas) se ven igual */
+#pasos li>button,.fx-it{appearance:none;width:100%;display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--tx-2);font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer;position:relative}
+#pasos li>button:hover,.fx-it:hover{background:var(--sup-3);color:var(--tx)}
+#pasos li>button .n,.fx-it .n{display:grid;place-items:center;width:20px;height:20px;flex:none;color:var(--tx-3)}
+#pasos li>button .n svg,.fx-it .n svg{width:20px;height:20px}
+#pasos li>button .t{flex:1;min-width:0}
+#pasos li>button .t b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pasos li>button .t small{display:none}
+.fx-it .lb{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pasos .badge,.fx-cnt{min-width:22px;height:20px;padding:0 6px;border-radius:99px;display:grid;place-items:center;font-size:11.5px;font-weight:700;flex:none}
+#pasos .badge.ok{display:none}
+.fx-cnt:empty{display:none}
+.fx-cnt.err{background:var(--err-suave);color:var(--err)} .fx-cnt.warn{background:var(--warn-suave);color:var(--warn)}
+#pasos li[data-paso="visita"] .badge{display:none}   /* Empresa y Visita llevan su propio contador (el del paso los sumaba) */
+#pasos .fx-act,#pasos li.activo:not(.fx-sub-otro)>button{background:var(--acento-s);color:var(--tx)}
+#pasos .fx-act::before,#pasos li.activo:not(.fx-sub-otro)>button::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--acento)}
+#pasos .fx-act .n,#pasos li.activo:not(.fx-sub-otro)>button .n{color:var(--acento)}
+/* grupo Equipos: el paso «equipos» (li) es el título del grupo */
+.fx-grupo-eq{display:flex;align-items:center;gap:4px;padding:12px 0 4px}
+.fx-grupo-eq .fx-lat-lista{flex:1;min-width:0}
+.fx-grupo-eq li>button{min-height:32px!important;font-size:11px!important;letter-spacing:.1em;text-transform:uppercase;color:var(--tx-3)!important;background:none!important}
+.fx-grupo-eq li>button::before{display:none!important}
+.fx-grupo-eq li>button .n{display:none!important}
+.fx-grupo-eq li>button .t b{font-weight:700}
+.fx-grupo-eq li>button:hover{color:var(--tx)!important}
+.fx-grupo-eq #eqNuevo{height:28px;min-width:28px;padding:0 8px;border-radius:8px;background:none;border:1px solid var(--borde);color:var(--tx-2);box-shadow:none}
+.fx-grupo-eq #eqNuevo:hover{border-color:var(--acento);color:var(--tx)}
+.fx-grupo-eq #eqNuevo .lbl{display:none}
+.fx-grupo-eq #eqNuevo svg{width:15px;height:15px}
+/* lista de equipos = #eqTabs de la app, con piel nueva */
+#eqTabs{display:flex;flex-direction:column;gap:2px;overflow:visible}
+#eqTabs .eqtab{appearance:none;width:100%;display:flex;align-items:center;min-height:46px;padding:4px 10px;border:0;border-radius:10px;background:none;text-align:left;cursor:pointer;color:var(--tx-2);position:relative}
+#eqTabs .eqtab>:not(.fx-eq){display:none}
+#eqTabs .eqtab:hover{background:var(--sup-3);color:var(--tx)}
+#eqTabs .eqtab[aria-selected="true"]{background:none}
+body:is([data-paso="equipos"],[data-paso="plano"]:not([data-sub="rutas"])) #eqTabs .eqtab[aria-selected="true"]{background:var(--acento-s);color:var(--tx)}
+body:is([data-paso="equipos"],[data-paso="plano"]:not([data-sub="rutas"])) #eqTabs .eqtab[aria-selected="true"]::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--acento)}
+.fx-eq{display:flex;align-items:center;gap:10px;min-height:38px;flex:1;min-width:0}
+.fx-num{position:relative;width:30px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:700;background:var(--sup-3);color:var(--tx-2);flex:none}
+.fx-num .fx-pto{position:absolute;right:-3px;top:-3px;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 2px var(--sup);background:var(--tx-3)}
+.fx-pto.ok{background:var(--ok)!important}.fx-pto.warn{background:var(--warn)!important}.fx-pto.err{background:var(--err)!important}
+.fx-lb{flex:1;min-width:0;line-height:1.25}
+.fx-lb b{display:block;font-size:14px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fx-lb small{display:block;font-size:12px;color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fx-nc{flex:none;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 6px;border-radius:6px;background:var(--err-suave);color:var(--err);white-space:nowrap}
+.fx-lat-pie{border-top:1px solid var(--borde);padding:10px 12px;display:flex;align-items:center;gap:8px}
+.fx-lat-pie .tema{flex:1;min-width:0;height:36px;border-radius:10px}
+.fx-lat-pie .tema select{flex:1;min-width:0}
+.fx-lat .contador{display:none}
+
+/* ---------- barra superior (migas + guardado) ---------- */
+.fx-barra-sup{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;height:var(--top);padding:0 32px;background:color-mix(in srgb,var(--horno) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--borde)}
+.fx-migas{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--tx-3);min-width:0;white-space:nowrap;overflow:hidden}
+.fx-migas button{appearance:none;border:0;background:none;padding:2px 2px;font:inherit;color:var(--tx-2);cursor:pointer;border-radius:5px}
+.fx-migas button:hover{color:var(--tx);text-decoration:underline}
+.fx-migas b{color:var(--tx);overflow:hidden;text-overflow:ellipsis}
+.fx-migas .fx-sep{color:var(--tx-3)}
+.fx-barra-sup .estado{margin-left:auto;max-width:260px;font-size:13px}
+.fx-menu{display:none;appearance:none;width:44px;height:44px;border:0;border-radius:10px;background:none;color:var(--tx);place-items:center;cursor:pointer;flex:none}
+.fx-menu svg{width:22px;height:22px}
+.fx-velo{display:none}
+
+/* ---------- encabezado de página y pestañas del equipo ---------- */
+.fx-encab{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.fx-encab[hidden]{display:none}
+.fx-tit{min-width:0}
+.fx-tit h1{margin:0;font-size:24px;line-height:1.25;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fx-nom{font-size:14px;color:var(--tx-3);margin-top:2px}
+.fx-acc{margin-left:auto;display:flex;gap:8px;align-items:center}
+.fx-acc .menu>summary{height:40px}
+.fx-acc[hidden]{display:none}
+#eqTabs .eqtab{border:0;box-shadow:none}
+#main .seg-campo .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+.fx-cat{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.02em;border:1px solid currentColor;background:color-mix(in srgb,currentColor 12%,transparent)}
+.fx-cat.c1{color:var(--cat1)}.fx-cat.c2{color:var(--cat2)}.fx-cat.c3{color:var(--cat3)}.fx-cat.c0{color:var(--tx-3)}
+.fx-chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:13px;font-weight:700}
+.fx-chip.nc{background:var(--err-suave);color:var(--err)}
+.fx-tabs{display:flex;gap:2px;margin:16px 0 20px;border-bottom:1px solid var(--borde);overflow-x:auto;scrollbar-width:none}
+.fx-tabs::-webkit-scrollbar{display:none}
+.fx-tabs[hidden]{display:none}
+.fx-tabs button{appearance:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:0;background:none;color:var(--tx-2);font:inherit;font-size:14px;font-weight:700;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;flex:none}
+.fx-tabs button:hover{color:var(--tx)}
+.fx-tabs button[aria-selected="true"]{color:var(--tx);border-bottom-color:var(--acento)}
+.fx-mk{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:800;line-height:1}
+.fx-mk.err{background:var(--err-suave);color:var(--err)} .fx-mk.warn{background:var(--warn-suave);color:var(--warn)}
+/* modo pestañas: solo se ve el bloque abierto; su cabecera plegable la reemplaza la pestaña */
+#eqForm .bloque.cerrado{display:none}
+#eqForm .bloque-cab{display:none}
+#eqForm .bloque-cuerpo{border-top:0}
+body[data-paso="equipos"] #p-equipos>.paso-cab{display:none}
+#eqPlegar{display:none!important}
+/* Empresa / Visita (paso visita) y Plano / Rutas (paso plano) */
+body[data-paso="visita"] #p-visita>.paso-cab{display:none}
+body[data-sub="empresa"] #p-visita>:not(#t-empresa){display:none!important}
+body:not([data-sub="empresa"]) #p-visita>#t-empresa{display:none!important}
+body[data-paso="plano"][data-sub="rutas"] #p-plano>:not(#pc-rutas){display:none!important}
+body[data-paso="plano"]:not([data-sub="rutas"]) #pc-rutas{display:none!important}
+:focus-visible{outline:2px solid var(--laton);outline-offset:2px}
+
+/* ================= FASE 2 ================= */
+/* «Continuar»: P2 no lleva pie de paso; solo queda «Ir a generar →» al final de Revisión (como la acción de Revisión en P2) */
+/* (fase 3: «Ir a generar →» pasa a la cabecera de Revisión, junto a los contadores; ya no queda ningún pie de paso) */
+/* Personas (cliente) / Ajustes (FenixMex y logo): una sola sección del paso, dos sub-vistas */
+body[data-paso="personas"] #p-personas>.paso-cab{display:none}
+body[data-paso="personas"][data-sub="ajustes"] #p-personas>:not(#p2Ajustes){display:none!important}
+body:not([data-sub="ajustes"]) #p2Ajustes{display:none!important}
+#p2Ajustes>.cab-t{margin-top:4px!important}
+.fx-nota-aj{margin:22px 0 0;padding:12px 16px;border:1px solid var(--borde);border-radius:12px;background:var(--sup);font-size:14px;color:var(--tx-2)}
+.fx-nota-aj button{appearance:none;border:0;background:none;padding:0 2px;font:inherit;font-weight:700;color:var(--acento);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#pasos li[data-paso="personas"] .badge{display:none}
+.fx-aj{appearance:none;position:relative;flex:none;width:40px;height:36px;border-radius:10px;border:1px solid var(--borde);background:none;color:var(--tx-2);display:grid;place-items:center;cursor:pointer}
+.fx-aj:hover{border-color:var(--borde-f);color:var(--tx)}
+.fx-aj svg{width:19px;height:19px}
+.fx-aj.fx-act{background:var(--acento-s);border-color:var(--acento);color:var(--tx)}
+.fx-aj .fx-cnt{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;font-size:10.5px}
+/* subtítulos dentro de una pestaña (Datos › Construcción y plano, Croquis › Orientación y dimensiones) */
+.fx-subt{grid-column:1/-1;margin:18px 0 2px;padding-top:16px;border-top:1px solid var(--borde);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tx-3)}
+#eqForm .lev-dims{margin-top:8px}
+/* Croquis: la base del equipo va arriba de la lista de boquillas, junto al dibujo */
+.lev-bq>.lev-base{margin:0 0 16px;padding:0;border:0;background:none}
+.lev-bq>.lev-base .lev-base-fila{flex-wrap:wrap;gap:10px}
+.lev-bq>.lev-base .lev-base-txt{flex:1 1 100%}
+.lev-bq>.lev-base .lev-base-sel{flex:1 1 auto;min-width:0}
+/* Inicio: «Mis expedientes» como página */
+html.fx-inicio #main>:not(#mNube){display:none!important}
+html.fx-inicio body #eqTabs .eqtab[aria-selected="true"]{background:none!important}
+html.fx-inicio body #eqTabs .eqtab[aria-selected="true"]::before{display:none!important}
+#mNube.fx-pagina{position:static;inset:auto;z-index:auto;display:block;padding:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+#mNube.fx-pagina>.modal-caja{max-width:none;max-height:none;width:100%;padding:0;border:0;border-radius:0;background:none;box-shadow:none;animation:none;overflow:visible;gap:16px}
+#mNube.fx-pagina .nube-cab{align-items:center;flex-wrap:wrap;gap:12px 16px}
+#mNube.fx-pagina .nube-cab>div:first-child{flex:1 1 360px;min-width:0}
+#mNube.fx-pagina #mNubeT{font-size:24px;margin:0 0 4px}
+#mNube.fx-pagina .nube-cab [data-cerrar]{display:none}
+.fx-ini-acc{display:flex;gap:8px;flex-wrap:wrap}
+.fx-ini-acc .btn svg{width:16px;height:16px}
+.fx-local{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.3fr) minmax(0,1fr) auto;gap:16px 24px;align-items:center;padding:16px 20px;border:1px solid var(--borde);border-radius:14px;background:var(--sup);margin:4px 0 8px}
+.fx-local-k{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tx-3);margin-bottom:4px}
+.fx-local-t b{display:block;font-size:16px;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-local-m{display:block;font-size:13px;color:var(--tx-3);margin-top:2px}
+.fx-local .cats{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--tx-2)}
+.fx-local .cats span{display:inline-flex;align-items:center;gap:6px}
+.fx-local .cats i{width:8px;height:8px;border-radius:50%}
+.fx-local-av{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 8px;font-size:13px;color:var(--tx-2)}
+.fx-local-av .fx-local-k{grid-column:1/-1}
+@media (max-width:1023px){.fx-local{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.fx-local>.btn{grid-column:1/-1;justify-self:start}}
+@media (max-width:767px){#mNube.fx-pagina .hist-barra{flex-wrap:wrap}#mNube.fx-pagina .hist-barra>.caja{flex:1 1 100%}#mNube.fx-pagina #histFiltro{max-width:100%;overflow-x:auto;scrollbar-width:none}}
+@media (max-width:767px){.fx-local{grid-template-columns:minmax(0,1fr);padding:14px}.fx-local>.btn{width:100%;justify-content:center}.fx-ini-acc{width:100%}.fx-ini-acc>*{flex:1;justify-content:center}}
+
+/* ---------- tableta: riel de iconos ---------- */
+@media (max-width:1279px){
+  :root{--lat:76px}
+  .fx-lat-cab{padding:12px 0;display:flex;flex-direction:column;align-items:center}
+  .fx-lat .marca-txt,.fx-lat-exp>:not(.fx-lat-exp-fila),.fx-lat-exp .ficha-nombre,.fx-grupo-t,#pasos li>button .t,.fx-it .lb,.fx-lb,.fx-nc,.fx-buscar .lbl,.fx-buscar kbd{display:none}
+  .fx-lat-exp{margin-top:12px;padding:0;border:0;background:none}
+  .fx-buscar{margin:0 auto 6px;width:48px;height:44px;padding:0;justify-content:center}
+  .fx-lat-nav{padding:4px 10px 12px}
+  #pasos li>button,.fx-it{justify-content:center;padding:0;min-height:48px}
+  #pasos li>button::before,.fx-it::before{left:-10px!important}
+  #pasos .badge,.fx-cnt{position:absolute;top:5px;right:6px;min-width:0;width:9px;height:9px;padding:0;font-size:0}
+  .fx-grupo-eq{padding:10px 0 2px;justify-content:center}
+  .fx-grupo-eq .fx-lat-lista{display:none}
+  .fx-grupo-eq #eqNuevo{width:44px;height:36px}
+  #eqTabs .eqtab{padding:4px;min-height:44px;justify-content:center}
+  #eqTabs .eqtab::before{left:-10px!important}
+  .fx-eq{justify-content:center;min-height:36px;flex:none}
+  .fx-lat-sep{display:block;height:1px;background:var(--borde);margin:8px 6px}
+  .fx-lat-pie{justify-content:center;padding:8px}
+  .fx-lat-pie .tema{flex:none;width:44px;padding:0;justify-content:center;position:relative}
+  .fx-lat-pie .tema select{position:absolute;inset:0;width:100%;opacity:0}
+  #main{padding:20px 24px 64px}
+  .fx-barra-sup{padding:0 24px}
+}
+@media (min-width:1280px){.fx-lat-sep{display:none}}
+/* ---------- teléfono: cajón ---------- */
+@media (max-width:767px){
+  :root{--lat:0px}
+  .fx-marco{grid-template-columns:minmax(0,1fr)}
+  .fx-lat{position:fixed;left:0;top:var(--top);bottom:0;height:auto;width:min(320px,86vw);transform:translateX(-102%);transition:transform .25s cubic-bezier(.2,.7,.2,1);box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+  html.fx-cajon .fx-lat{transform:none}
+  html.fx-cajon .fx-barra-sup{z-index:51}   /* (4.ª QA, N3) el cajón se abre debajo de la barra: ☰ queda a la vista y lo cierra */
+  html.fx-cajon .fx-velo{display:block;position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.55)}
+  .fx-lat-cab{padding:16px;display:block}
+  .fx-lat .marca-txt{display:block}
+  .fx-lat-exp{margin-top:14px;padding:10px 10px 12px;border:1px solid var(--borde);background:var(--sup-2)}
+  .fx-lat-exp>:not(.fx-lat-exp-fila){display:flex}
+  .fx-lat-exp .ficha-nombre{display:flex}
+  .fx-grupo-t{display:flex}
+  #pasos li>button .t{display:block}
+  .fx-it .lb,.fx-lb{display:block}
+  .fx-nc{display:inline-block}
+  .fx-buscar{margin:0 16px 6px;width:calc(100% - 32px);padding:0 6px 0 12px;justify-content:flex-start}
+  .fx-buscar .lbl{display:block}
+  #pasos li>button,.fx-it{justify-content:flex-start;padding:0 12px;min-height:44px}
+  #pasos .badge,.fx-cnt{position:static;width:auto;min-width:22px;height:20px;padding:0 6px;font-size:11.5px}
+  .fx-grupo-eq{padding:12px 0 4px;justify-content:flex-start}
+  .fx-grupo-eq .fx-lat-lista{display:block}
+  .fx-lat #eqTabs .eqtab{padding:4px 10px;justify-content:flex-start}
+  .fx-lat .fx-eq{justify-content:flex-start;flex:1}
+  .fx-lat-sep{display:none}
+  .fx-lat-pie{justify-content:flex-start}
+  .fx-lat-pie .tema{flex:1;width:auto;padding:0 4px 0 11px}
+  .fx-lat-pie .tema select{position:static;opacity:1;width:auto;color:inherit;padding:0 24px 0 0}
+  .fx-menu{display:grid}
+  .fx-barra-sup{padding:0 8px 0 4px;gap:4px}
+  .fx-migas{font-size:13px}
+  .fx-migas .fx-ant{display:none}
+  .fx-barra-sup .estado{font-size:0;gap:0;width:28px;justify-content:center;flex:none}
+  #main{padding:16px 14px 56px}
+  .fx-tit h1{font-size:20px}
+  .fx-acc{margin-left:0;width:100%}
+  .fx-tabs{margin:12px -14px 16px;padding:0 6px}
+  .toast{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+}
+/* ================= FASE 3 ================= */
+/* anillo de avance del equipo */
+.fx-anillo{position:relative;width:54px;height:54px;flex:none;display:grid;place-items:center}
+.fx-anillo[hidden]{display:none}
+.fx-anillo svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.fx-anillo circle{fill:none;stroke-width:5}
+.fx-anillo .f{stroke:var(--sup-3)}
+.fx-anillo .v{stroke:var(--acento);stroke-linecap:round;transition:stroke-dasharray .4s}
+.fx-anillo .v.ok{stroke:var(--ok)}.fx-anillo .v.warn{stroke:var(--warn)}.fx-anillo .v.err{stroke:var(--err)}
+.fx-anillo b{font-size:10.5px;letter-spacing:-.02em;font-weight:800;color:var(--tx)}
+/* navegador de avisos bajo las pestañas */
+.fx-avisos{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;margin:-8px 0 18px;padding:12px 16px;border-radius:12px;border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);background:var(--warn-suave)}
+.fx-avisos.err{border-color:color-mix(in srgb,var(--err) 45%,transparent);background:var(--err-suave)}
+.fx-avisos[hidden]{display:none}
+.fx-av-ico{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;background:var(--warn);color:var(--horno)}
+.fx-av-ico.err{background:var(--err)}
+.fx-av-t{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.fx-av-t b{font-size:14px;color:var(--tx)}
+.fx-av-m{font-size:13.5px;color:var(--tx-2);line-height:1.4}
+.fx-av-m i{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-right:6px;padding:1px 6px;border-radius:5px}
+.fx-av-m i.err{background:var(--err);color:var(--horno)} .fx-av-m i.warn{background:var(--warn);color:var(--horno)}
+.fx-av-m small{color:var(--tx-3)}
+.fx-av-nav{display:flex;align-items:center;gap:6px;margin-left:auto}
+.fx-av-fl{appearance:none;width:36px;height:36px;border-radius:9px;border:1px solid var(--borde-f);background:var(--sup);color:var(--tx);font-size:20px;line-height:1;cursor:pointer}
+.fx-av-fl:hover{border-color:var(--acento)}
+.fx-av-k{font-size:12.5px;color:var(--tx-2);min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+/* Revisión: contadores */
+.fx-revcab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:12px;align-items:stretch;margin:0 0 18px}
+.fx-revcab:empty{display:none}
+.fx-rc{padding:14px 16px;border-radius:12px;border:1px solid var(--borde);background:var(--sup);display:flex;flex-direction:column;gap:2px}
+.fx-rc span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tx-3)}
+.fx-rc b{font-size:28px;line-height:1.1;color:var(--tx);font-variant-numeric:tabular-nums}
+.fx-rc small{font-size:12.5px;color:var(--tx-3)}
+.fx-rc.err b{color:var(--err)} .fx-rc.warn b{color:var(--warn)} .fx-rc.ok b{color:var(--ok)}
+.fx-rc .fx-barra{flex:none;margin-top:8px}
+.fx-rc-acc{display:flex;align-items:center}
+@media (max-width:1023px){.fx-revcab{grid-template-columns:repeat(3,minmax(0,1fr))}.fx-rc-acc{grid-column:1/-1}}
+@media (max-width:767px){.fx-revcab{grid-template-columns:repeat(2,minmax(0,1fr))}.fx-rc.av{grid-column:1/-1}.fx-rc-acc .btn{width:100%;justify-content:center}}
+/* Generar: lo que falta, con «Ir al campo» */
+.fx-faltan{list-style:none;margin:-4px 0 14px;padding:0;display:flex;flex-direction:column;gap:6px}
+.fx-faltan li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--err-suave);border:1px solid color-mix(in srgb,var(--err) 35%,transparent)}
+.fx-faltan .m{flex:1;min-width:0;font-size:14px;color:var(--tx)}
+.fx-faltan .m small{display:block;font-size:12.5px;color:var(--tx-3)}
+@media (max-width:767px){.fx-faltan li{flex-wrap:wrap}.fx-faltan .btn{width:100%;justify-content:center}}
+/* deshabilitado con motivo (folio y «usado o nuevo» fuera de Cat I / II) */
+.fx-bloq label,.fx-bloq .caja{opacity:.55}
+.fx-bloq .caja{background:var(--hund)}
+.fx-bloq input,.fx-bloq select{cursor:not-allowed}
+.fx-bloq .ayuda{display:none}
+.fx-motivo{margin-top:6px;font-size:12.5px;color:var(--tx-2);display:flex;align-items:center;gap:6px}
+.fx-motivo::before{content:"🔒";font-size:11px}
+.fx-motivo[hidden]{display:none}
+/* modo por pasos: solo en teléfono */
+.fx-pasos-btn{display:none;appearance:none;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:9px;border:1px solid var(--borde-f);background:none;color:var(--tx-2);font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex:none}
+.fx-pasos-btn svg{width:18px;height:18px}
+.fx-pasos-btn[aria-pressed="true"]{background:var(--acento-s);border-color:var(--acento);color:var(--tx)}
+.fx-pasos-sup[hidden],.fx-pasos-inf[hidden]{display:none}
+@media (max-width:767px){
+  .fx-pasos-btn{display:inline-flex}
+  .fx-pasos-sup{position:sticky;top:var(--top);z-index:29;padding:8px 14px 10px;background:var(--sup);border-bottom:1px solid var(--borde)}
+  .fx-pasos-fila{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;color:var(--tx-2)}
+  .fx-pasos-fila span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;color:var(--tx)}
+  .fx-pasos-fila button{appearance:none;border:0;background:none;padding:4px 0;font:inherit;font-size:12.5px;font-weight:700;color:var(--acento);text-decoration:underline;text-underline-offset:3px;cursor:pointer;flex:none}
+  .fx-pasos-sup .fx-barra{height:5px}
+  .fx-pasos-inf{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--sup);border-top:1px solid var(--borde);box-shadow:0 -10px 30px -12px rgba(0,0,0,.5)}
+  .fx-pasos-inf .btn{height:48px;justify-content:center}
+  .fx-pasos-inf #p2PasosAnt{flex:none;padding:0 14px}
+  .fx-pasos-inf #p2PasosSig{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;line-height:48px}
+  html.fx-pasos #main{padding-bottom:110px}
+  html.fx-pasos .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .fx-avisos{margin:-4px 0 14px}
+  .fx-av-nav{width:100%;margin-left:0}
+  .fx-av-nav .btn{flex:1;justify-content:center}
+}
+/* ================= revisión de calidad (QA) ================= */
+/* «Dibujó» en el cajetín del Plano: solo el renglón del equipo activo */
+#pc-esp .fx-dib{margin:16px 0 4px;padding:14px 16px;border:1px solid var(--borde);border-radius:12px;background:var(--sup-2)}
+#pc-esp .fx-dib .dib-fila.fx-otro{display:none}
+#pc-esp .fx-dib .persona-cab .av{display:none}
+/* tableta (riel de iconos, 76 px): tema y ajustes uno sobre otro; la barra superior no corta el estado */
+@media (min-width:768px) and (max-width:1279px){
+  .fx-lat-pie{flex-direction:column;gap:6px}
+  .fx-lat-pie .tema,.fx-aj{width:44px;height:40px}
+  .fx-barra-sup{gap:10px}
+  .fx-migas{flex:1 1 auto;min-width:0}
+  .fx-barra-sup .estado{flex:0 1 auto;min-width:0;max-width:46%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media (max-width:1023px) and (min-width:768px){.fx-barra-sup .estado{font-size:12.5px}}
+@media print{.fx-lat,.fx-barra-sup,.fx-tabs,.fx-encab{display:none}}
+</style>
 </head>
 <body>
-<header class="top">
+<div class="fx-marco">
+<aside class="fx-lat" id="lat" aria-label="Navegación del expediente">
+  <div class="fx-lat-cab">
   <a class="marca" href="#visita" title="FenixMex · ir a la visita">
     <span class="emblema"><svg viewBox="3.4 3.6 17.2 17.6" fill="none" aria-hidden="true"><path d="M6.63 18.37A7.6 7.6 0 0 1 5.8 8.6" stroke="#6fb3dc" stroke-width="2.1"/><path d="M6.48 7.78A7.6 7.6 0 0 1 11.47 5.42" stroke="#ecc56f" stroke-width="2.1"/><path d="M12.53 5.42A7.6 7.6 0 0 1 17.37 18.37" stroke="#ff8f86" stroke-width="2.1"/><path d="M16.3 8.26L12.85 13.77 11.15 12.23z" fill="#f6ead2"/><circle cx="12" cy="13" r="1.9" fill="url(#gMarca)"/><path d="M9.2 20.2h5.6" stroke="#e8c67f" stroke-width="1.4" stroke-linecap="round" opacity=".75"/><defs><radialGradient id="gMarca" cx=".35" cy=".3" r=".9"><stop stop-color="#f6dfa4"/><stop offset="1" stop-color="#a97a2c"/></radialGradient></defs></svg></span>
     <span class="marca-txt"><b>FenixMex</b><small>Expedientes NOM-020-STPS-2011</small></span>
   </a>
-  <div class="ficha" id="ficha">
-    <button type="button" class="ficha-nombre" id="topRs" title="Cambiar el nombre de la empresa"><small>Expediente de</small><span id="topRsTxt">Falta el nombre</span></button>
-    <span class="ficha-dato" id="topEq"></span>
-    <span class="ficha-dato" id="topHojas"></span>
+  <div class="fx-lat-exp" id="ficha">
+    <div class="fx-lat-exp-fila"><button type="button" class="ficha-nombre" id="topRs" title="Cambiar el nombre de la empresa"><small>Expediente de</small><span id="topRsTxt">Falta el nombre</span></button><button type="button" class="fx-lat-nube nube-btn" id="btnNube" title="Mis expedientes (nube)" aria-label="Mis expedientes (nube)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/><path d="M9.5 13.5l2 2 3.5-3.5"/></svg><span class="nube-av" id="btnNubeAv" hidden></span><span class="nube-pend" id="btnNubePend" hidden>0</span></button></div>
+    <div class="fx-lat-meta"><span class="ficha-dato" id="topEq"></span><span class="ficha-dato" id="topHojas"></span></div>
+    <div class="fx-lat-av"><div class="fx-barra" id="p2Barra" role="progressbar" aria-label="Avance del expediente" aria-valuemin="0" aria-valuemax="100"><i></i></div><span id="p2AvTxt">—</span></div>
     <button type="button" class="ficha-estado" id="topListo" data-s="err"></button>
   </div>
-  <button type="button" class="tbtn" id="btnBuscar" title="Buscar un campo (Ctrl+K o /)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="lbl">Buscar campo</span><kbd>Ctrl K</kbd></button>
-  <button type="button" class="tbtn nube-btn" id="btnNube" title="Mis expedientes (nube)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/><path d="M9.5 13.5l2 2 3.5-3.5"/></svg><span class="lbl">Mis expedientes</span><span class="nube-av" id="btnNubeAv" hidden></span><span class="nube-pend" id="btnNubePend" hidden>0</span></button>
-  <label class="tema" title="Tema de la pantalla (no cambia los PDF)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9c0-1.2-1-1.6-1.8-1.2A4.6 4.6 0 0 1 12.7 4.6C13.1 3.8 13 3 12 3z"/></svg><span class="sr">Tema</span><select id="selTema" aria-label="Tema de la pantalla"></select></label>
-  <div class="estado" id="estadoGuardado" role="status">Cargando…</div>
-</header>
-
-<div class="app">
-  <nav class="pasos" id="pasos" aria-label="Pasos del expediente">
-    <ol>
-      <li data-paso="visita"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6l8-3 8 3v15"/><path d="M9 21v-5h6v5M8 9h2M14 9h2M8 12.5h2M14 12.5h2"/></svg></span><span class="t"><b>Visita</b><small>Empresa y emergencias</small></span><span class="badge" data-badge></span></button></li>
-      <li data-paso="equipos"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 6h9a4.5 4.5 0 0 1 0 9h-9a4.5 4.5 0 0 1 0-9z"/><path d="M9 6v9M15 6v9M10.5 4.2V6M3 19h18M3 17.5v3M21 17.5v3"/></svg></span><span class="t"><b>Equipos</b><small>Levantamiento y PND</small></span><span class="badge" data-badge></span></button></li>
-      <li data-paso="plano"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M13 20v-5h8M13 17.5h8M6 8.5h7M6 11.5h4"/></svg></span><span class="t"><b>Plano</b><small>Memoria de cálculo</small></span><span class="badge" data-badge></span></button></li>
-      <li data-paso="personas"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4"/><path d="M15 12.5c2-.3 3.5-1.3 4.5-3M17.5 20c0-1.5-.3-2.8-.9-3.9"/></svg></span><span class="t"><b>Personas</b><small>Datos y firmas</small></span><span class="badge" data-badge></span></button></li>
-      <li data-paso="revision"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/></svg></span><span class="t"><b>Revisión</b><small>Pendientes y avisos</small></span><span class="badge" data-badge></span></button></li>
-      <li data-paso="generar"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6m0 0l-2.5-2.5M12 17l2.5-2.5"/></svg></span><span class="t"><b>Generar</b><small>PDF, Cat II y ZIP</small></span><span class="badge" data-badge></span></button></li>
-    </ol>
-    <div class="contador" aria-live="polite">
+  </div>
+  <button type="button" class="fx-buscar" id="btnBuscar" title="Buscar un campo (Ctrl+K o /)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="lbl">Buscar campo</span><kbd>Ctrl K</kbd></button>
+  <nav class="fx-lat-nav" id="pasos" aria-label="Pasos del expediente">
+    <button type="button" class="fx-it fx-it-ini" data-p2="inicio"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="lb">Mis expedientes</span></button>
+    <div class="fx-lat-sep"></div>
+    <div class="fx-grupo-t">Expediente</div>
+    <button type="button" class="fx-it" data-p2="empresa"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6l8-3 8 3v15"/><path d="M9 21v-5h6v5M8 9h2M14 9h2M8 12.5h2M14 12.5h2"/></svg></span><span class="lb">Empresa</span><span class="fx-cnt" data-p2cnt="empresa"></span></button>
+    <ul class="fx-lat-lista"><li data-paso="visita"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><span class="t"><b>Visita</b><small>Emergencias, tríptico y documentos</small></span><span class="fx-cnt" data-p2cnt="visita"></span><span class="badge" data-badge></span></button></li><li data-paso="personas"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4"/><path d="M15 12.5c2-.3 3.5-1.3 4.5-3M17.5 20c0-1.5-.3-2.8-.9-3.9"/></svg></span><span class="t"><b>Personas y firmas</b><small>Datos y firmas</small></span><span class="fx-cnt" data-p2cnt="personas"></span><span class="badge" data-badge></span></button></li></ul>
+    <button type="button" class="fx-it" data-p2="rutas"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span><span class="lb">Rutas de evacuación</span><span class="fx-cnt" data-p2cnt="rutas"></span></button>
+    <div class="fx-lat-sep"></div>
+    <div class="fx-grupo-eq"><ul class="fx-lat-lista"><li data-paso="equipos"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 6h9a4.5 4.5 0 0 1 0 9h-9a4.5 4.5 0 0 1 0-9z"/><path d="M9 6v9M15 6v9M10.5 4.2V6M3 19h18M3 17.5v3M21 17.5v3"/></svg></span><span class="t"><b>Equipos<span id="p2NumEq"></span></b><small>Levantamiento y PND</small></span><span class="badge" data-badge></span></button></li></ul><button type="button" class="btn chico" aria-label="Agregar equipo" id="eqNuevo" title="Agrega un equipo (toma la ubicación y la fecha de inspección del activo)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Equipo</span></button></div>
+    <div class="eqtabs" role="tablist" aria-label="Equipos del expediente" id="eqTabs"></div>
+    <ul class="fx-lat-lista fx-oculto"><li data-paso="plano"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M13 20v-5h8M13 17.5h8M6 8.5h7M6 11.5h4"/></svg></span><span class="t"><b>Plano</b><small>Memoria de cálculo</small></span><span class="badge" data-badge></span></button></li></ul>
+    <div class="fx-lat-sep"></div>
+    <div class="fx-grupo-t">Entregar</div>
+    <ul class="fx-lat-lista"><li data-paso="revision"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/></svg></span><span class="t"><b>Revisión</b><small>Pendientes y avisos</small></span><span class="badge" data-badge></span></button></li><li data-paso="generar"><button type="button"><span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6m0 0l-2.5-2.5M12 17l2.5-2.5"/></svg></span><span class="t"><b>Generar</b><small>PDF, Cat II y ZIP</small></span><span class="badge" data-badge></span></button></li></ul>
+  </nav>
+  <div class="contador" aria-live="polite">
       <div class="cn"><span id="rsPaginas">—</span><small>hojas</small></div>
       <div style="font-size:12.5px;color:var(--tinta-3)">en el expediente carta</div>
-      <div class="cats" id="rsCat"></div>
+      
     </div>
-  </nav>
-
+  <div class="fx-lat-pie"><label class="tema" title="Tema de la pantalla (no cambia los PDF)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9c0-1.2-1-1.6-1.8-1.2A4.6 4.6 0 0 1 12.7 4.6C13.1 3.8 13 3 12 3z"/></svg><span class="sr">Tema</span><select id="selTema" aria-label="Tema de la pantalla"></select></label><button type="button" class="fx-aj" data-p2="ajustes" title="Ajustes: personas de FenixMex y logo" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="fx-cnt" data-p2cnt="ajustes"></span></button></div>
+</aside>
+<div class="fx-velo" id="p2Velo"></div>
+<div class="fx-prin">
+  <div class="fx-barra-sup"><button type="button" class="fx-menu" id="p2Menu" aria-label="Abrir el menú" aria-controls="lat" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><nav class="fx-migas" id="p2Migas" aria-label="Ubicación"></nav><div class="estado" id="estadoGuardado" role="status">Cargando…</div><button type="button" class="fx-pasos-btn" id="p2PasosBtn" aria-pressed="false" title="Recorrer el expediente una pantalla a la vez"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M4 12h16M4 18h7"/><path d="M17 15l3 3-3 3"/></svg><span>Por pasos</span></button></div>
+  <div class="fx-pasos-sup" id="p2PasosSup" hidden><div class="fx-pasos-fila"><span id="p2PasosTxt"></span><button type="button" id="p2PasosSalir">Salir a vista normal</button></div><div class="fx-barra" id="p2PasosBarra"><i></i></div></div>
+  <nav class="fx-pasos-inf" id="p2PasosInf" aria-label="Modo por pasos" hidden><button type="button" class="btn" id="p2PasosAnt">← Anterior</button><button type="button" class="btn prim" id="p2PasosSig">Siguiente →</button></nav>
   <main id="main">
-    <!-- barra de equipos: la misma en Equipos y en Plano (un equipo activo en toda la app) -->
-    <div class="eqbar oculto" id="eqbar" role="toolbar" aria-label="Equipo que se edita">
-      <div class="eqtabs" role="tablist" aria-label="Equipos de la visita" id="eqTabs"></div>
-      <button type="button" class="btn chico laton" id="eqNuevo" title="Agrega un equipo (toma la ubicación y la fecha de inspección del activo)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Equipo</span></button>
-      <details class="menu" id="eqMenu"><summary class="btn chico" title="Más acciones del equipo">⋯</summary><div class="menu-caja" role="menu">
+    <div class="fx-encab" id="p2Encab" hidden><div class="fx-tit"><h1 id="p2Tit"></h1><div class="fx-nom" id="p2Nom"></div></div><div class="fx-acc"><span class="fx-anillo" id="p2Anillo" role="img"></span><details class="menu" id="levMenu"><summary class="btn chico" title="Levantamiento: PDF, JSON, visita y formatos en blanco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Levantamiento ▾</summary><div class="menu-caja" role="menu">
+            <button type="button" id="levPdf">Hoja de campo de este equipo (PDF)</button>
+            <button type="button" id="levJson">Levantamiento de este equipo (.json)</button>
+            <button type="button" id="levVisita"><b>Visita completa</b>&nbsp;· todos los equipos (.json)</button>
+            <hr>
+            <button type="button" data-formato="H"><b class="l">H</b>Formato horizontal en blanco (PDF)</button>
+            <button type="button" data-formato="V"><b class="l">V</b>Formato vertical en blanco (PDF)</button>
+          </div></details><details class="menu" id="eqMenu"><summary class="btn chico" title="Más acciones del equipo">⋯</summary><div class="menu-caja" role="menu">
         <button type="button" data-eqa="dup">Duplicar el equipo activo</button>
         <button type="button" data-eqa="antes">← Moverlo antes</button>
         <button type="button" data-eqa="despues">Moverlo después →</button>
@@ -1340,8 +1726,37 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <label for="fImportPdfEq">Importar PDF del levantamiento<input id="fImportPdfEq" type="file" accept=".pdf,application/pdf" class="oculto"></label>
         <hr>
         <button type="button" data-eqa="del" class="peligro">Eliminar el equipo activo</button>
-      </div></details>
+      </div></details></div></div>
+    <div class="fx-tabs" id="p2Tabs" role="tablist" aria-label="Secciones del equipo" hidden></div>
+<!-- v17 · Mis expedientes (historial en la nube) -->
+<div class="modal oculto fx-pagina" id="mNube" role="region" aria-labelledby="mNubeT">
+  <div class="modal-caja nube-caja">
+    <div class="nube-cab"><div><h3 id="mNubeT">Mis expedientes</h3><p class="modal-nota">Historial de FenixMex en la nube: nunca se borra solo y lo ven todas las cuentas autorizadas. Abre uno para corregirlo sin volver a capturar.</p></div><div class="fx-ini-acc"><label class="btn" for="fImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>Importar borrador</label><button type="button" class="btn prim" data-p2acc="nuevo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo expediente</button></div><button type="button" class="btn chico fantasma" data-cerrar aria-label="Cerrar">✕</button></div>
+    <section class="fx-local" id="p2Local" aria-label="Expediente abierto en este navegador"><div class="fx-local-t"><span class="fx-local-k">Abierto en este navegador</span><b id="p2LocRs">—</b><span class="fx-local-m" id="p2LocMeta"></span></div>
+      <div class="fx-local-c"><span class="fx-local-k">Categorías</span><div class="cats" id="rsCat"></div></div>
+      <div class="fx-local-av"><span class="fx-local-k">Avance</span><div class="fx-barra" id="p2LocBarra"><i></i></div><span id="p2LocAv">—</span></div>
+      <button type="button" class="btn prim" data-p2acc="continuar">Continuar →</button></section>
+    <div id="nubeCuenta"></div>
+    <div id="histPend"></div>
+    <div class="hist-barra">
+      <div class="caja"><input id="histQ" type="search" placeholder="Buscar: folio, razón social, persona o fecha…" autocomplete="off" spellcheck="false" aria-label="Buscar expedientes"></div>
+      <div class="seg" role="group" aria-label="Filtrar por estado" id="histFiltro"><button type="button" data-hf="" aria-pressed="true">Todos</button><button type="button" data-hf="vigente" aria-pressed="false">Vigentes</button><button type="button" data-hf="cancelado" aria-pressed="false">Cancelados</button><button type="button" data-hf="tramite" aria-pressed="false" title="Categoría III sin fecha de dictamen capturada">Dictamen en trámite</button></div>
+      <button type="button" class="btn chico fantasma" data-nube="recargar" title="Volver a leer el historial">Actualizar</button>
     </div>
+    <p class="nota" id="histRes" role="status" aria-live="polite" style="margin:0"></p>
+    <ul class="hist-lista" id="histLista"></ul>
+    <details class="hist-ayuda"><summary>¿Cancelar o eliminar? La diferencia</summary>
+      <p><b>Cancelar expediente</b>: el registro se conserva y el QR impreso muestra «Expediente cancelado» (dictamen retirado o sustituido). Se puede reactivar cuando quieras.</p>
+      <p><b>Eliminar</b>: borra el registro, su bitácora y los archivos de Drive; el QR impreso muestra «No válido / no encontrado». No se puede deshacer: úsalo solo para expedientes hechos por error o de prueba.</p></details>
+  </div>
+</div>
+    <div class="fx-avisos" id="p2Avisos" role="region" aria-label="Avisos del equipo" aria-live="polite" hidden></div>
+    <span id="p2IrInicio" hidden></span>
+
+
+
+    <!-- barra de equipos: la misma en Equipos y en Plano (un equipo activo en toda la app) -->
+    <div class="eqbar oculto" id="eqbar" aria-hidden="true"></div>
 
     <!-- 1 · VISITA -->
     <section class="paso" id="p-visita" data-paso="visita">
@@ -1352,7 +1767,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
         <div class="grid">
           <div class="campo ancho" data-campo="razonSocialPropietario"><label for="d_rsp">Nombre legal de la empresa (razón social) <span class="req">*</span></label><div class="caja"><input id="d_rsp" data-d="razonSocialPropietario" data-mayus placeholder="FOCAS INDUSTRIALES, S.A. DE C.V." autocomplete="organization"></div></div>
           <div class="campo" data-campo="rfcEmpresa"><label for="d_rfc">RFC de la empresa <span class="req">*</span><span class="contador-car" id="rfcCnt">0/12</span></label><div class="caja"><input id="d_rfc" data-d="rfcEmpresa" data-mayus maxlength="12" autocomplete="off" spellcheck="false" placeholder="SLE020225076"></div><div class="ayuda">12 caracteres, solo letras y números (hoja 96).</div></div>
-          <div class="campo medio" data-campo="domicilio"><label for="d_dom">Domicilio del centro de trabajo <span class="req" id="domReq">*</span></label><div class="caja"><input id="d_dom" data-d="domicilio" placeholder="Calle, número, colonia, municipio, C.P., estado" autocomplete="street-address"></div><div class="ayuda">Hoja 20, cajetín del plano y Cat II. Obligatorio si hay un equipo categoría II.</div></div>
+          <div class="campo medio" data-campo="domicilio"><label for="d_dom">Domicilio del centro de trabajo <span class="req" id="domReq">*</span></label><div class="caja"><input id="d_dom" data-d="domicilio" placeholder="Calle, número, colonia, municipio, C.P., estado" autocomplete="street-address"></div><div class="ayuda">Hoja 20, cajetín del plano y Cat I / II. Obligatorio si hay un equipo categoría I o II.</div></div>
         </div>
       </div>
       <div class="fila2">
@@ -1396,14 +1811,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
       <div class="paso-cab"><div><h2><span class="num">2</span>Equipos</h2><p>Un equipo por recipiente: todo lo que se levanta en la visita (placa, presiones, válvula, croquis, espesores y fotos). Nombre y TAG se numeran por tipo (COMPRESOR DE AIRE NO. 1 / COM-01…).</p></div>
         <div class="acciones">
           <button type="button" class="btn chico fantasma" id="eqPlegar">Contraer todo</button>
-          <details class="menu" id="levMenu"><summary class="btn chico" title="Levantamiento: PDF, JSON, visita y formatos en blanco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Levantamiento ▾</summary><div class="menu-caja" role="menu">
-            <button type="button" id="levPdf">Hoja de campo de este equipo (PDF)</button>
-            <button type="button" id="levJson">Levantamiento de este equipo (.json)</button>
-            <button type="button" id="levVisita"><b>Visita completa</b>&nbsp;· todos los equipos (.json)</button>
-            <hr>
-            <button type="button" data-formato="H"><b class="l">H</b>Formato horizontal en blanco (PDF)</button>
-            <button type="button" data-formato="V"><b class="l">V</b>Formato vertical en blanco (PDF)</button>
-          </div></details>
+          
         </div>
       </div>
       <div id="levLegado"></div>
@@ -1485,7 +1893,10 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
           <div class="campo medio" data-campo="codigoFabricacion"><label for="pl_cod">Código de fabricación</label><div class="caja"><input id="pl_cod" data-pl="codigoFabricacion" data-mayus autocomplete="off"></div></div>
           <div class="campo" data-campo="fecha"><label for="pl_fec">Fecha del plano</label><div class="caja"><input id="pl_fec" data-pl="fecha" data-mayus autocomplete="off"></div><div class="ayuda">Vacío: mes y año de la fecha de inspección.</div></div>
         </div>
-        <h4 style="margin:16px 0 8px;font-size:11.5px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)">Datos vinculados y fijos</h4>
+        <div class="persona fx-dib" id="per-dib"><div class="persona-cab"><span class="av">DB</span><div><h3>Dibujó · cajetín</h3><p>Nombre en el cajetín del plano de este equipo (es de cada equipo). Por omisión ING. PABLO MOTA; vacío a propósito = no se imprime.</p></div></div>
+          <div class="dib-lista" id="dibLista"></div>
+          <div class="acciones"><button type="button" class="btn chico" id="dibTodos">Usar el del primer equipo en todos</button></div></div>
+            <h4 style="margin:16px 0 8px;font-size:11.5px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)">Datos vinculados y fijos</h4>
         <div class="vincs" data-vincs="espec"></div>
         <p class="nota" style="margin:14px 0 0">Boquillas y la conexión de cada una: <button type="button" class="btn mini" data-ir='{"paso":"equipos","sec":"croq","sel":"#levBqLista"}'>Equipos › Croquis y boquillas</button></p>
       </div>
@@ -1553,15 +1964,13 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
             <div class="campo ancho" data-campo="testigo2Curp"><label for="d_t2c">CURP <span class="req">*</span><span class="contador-car" id="curpCnt">0/18</span></label><div class="caja"><input id="d_t2c" data-d="testigo2Curp" data-mayus maxlength="18" autocomplete="off" spellcheck="false"></div><div class="ayuda">18 caracteres · hoja 96</div></div></div>
           <div class="img firma" data-img="d:testigo2Firma" data-label="Firma del testigo 2" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
       </div>
-      <h3 class="cab-t" style="margin:22px 0 10px">De FenixMex <span class="tag nube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/></svg>En la nube · compartido con el equipo</span></h3>
+      <p class="fx-nota-aj">Las personas de FenixMex (responsable técnico y técnicos PND) y el logo se capturan en <button type="button" data-p2ir="ajustes">Ajustes →</button></p>
+      <div class="fx-ajustes" id="p2Ajustes"><h3 class="cab-t" style="margin:22px 0 10px">De FenixMex <span class="tag nube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/></svg>En la nube · compartido con el equipo</span></h3>
       <div class="personas">
         <div class="persona" id="per-fi"><div class="persona-cab"><span class="av">RT</span><div><h3>Responsable técnico · revisa y firma <span class="tag nube">nube</span></h3><p>Firmante izquierdo: memoria de cálculo y plano (cajetín «Revisó»), bitácoras de resultados y dictamen Cat II (hojas 20, 106 y 108).</p></div></div>
           <div class="grid"><div class="campo medio" data-campo="firmanteIzquierdoNombre"><label for="g_fin">Nombre <span class="req">*</span></label><div class="caja"><input id="g_fin" data-g="firmanteIzquierdoNombre" data-mayus autocomplete="off"></div></div>
             <div class="campo" data-campo="firmanteIzquierdoCedula"><label for="g_fic">Cédula profesional</label><div class="caja"><input id="g_fic" data-g="firmanteIzquierdoCedula" inputmode="numeric" autocomplete="off"></div></div></div>
           <div class="img firma" data-img="g:firmanteIzquierdoFirma" data-label="Firma del responsable técnico" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
-        <div class="persona" id="per-dib"><div class="persona-cab"><span class="av">DB</span><div><h3>Dibujó (planos)</h3><p>Nombre en el cajetín de cada plano. Por omisión ING. PABLO MOTA; vacío a propósito = no se imprime.</p></div></div>
-          <div class="dib-lista" id="dibLista"></div>
-          <div class="acciones"><button type="button" class="btn chico" id="dibTodos">Usar el del primer equipo en todos</button></div></div>
         <div class="persona" id="per-p1"><div class="persona-cab"><span class="av">P1</span><div><h3>Técnico PND · elaboró <span class="tag nube">nube</span></h3><p>Reportes de ultrasonido y partículas magnéticas (hojas 70 y 73).</p></div></div>
           <div class="grid"><div class="campo ancho" data-campo="pnd1Nombre"><label for="g_p1">Nombre</label><div class="caja"><input id="g_p1" data-g="pnd1Nombre" data-mayus autocomplete="off"></div></div></div>
           <div class="img firma" data-img="g:firmaPnd1" data-label="Firma PND · elaboró" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
@@ -1570,13 +1979,14 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
           <div class="img firma" data-img="g:firmaPnd2" data-label="Firma PND · revisó y aprobó" data-hint="PNG con fondo transparente o dibújala aquí"></div></div>
         <div class="persona" id="per-logo"><div class="persona-cab"><span class="av">FX</span><div><h3>Logo FenixMex <span class="tag nube">nube</span></h3><p>Encabezado de cada hoja, planos y lista de documentos. Sin logo se usa el de la plantilla.</p></div></div>
           <div class="img" data-img="g:logoFenix" data-label="Logo FenixMex" data-hint="PNG o JPG horizontal, menos de 700 KB."></div></div>
-      </div>
+      </div></div>
       <div class="paso-pie"><button type="button" class="btn" data-ir-paso="plano">← Plano</button><button type="button" class="btn prim" data-ir-paso="revision">Revisar pendientes →</button></div>
     </section>
 
     <!-- 5 · REVISIÓN -->
     <section class="paso" id="p-revision" data-paso="revision">
       <div class="paso-cab"><div><h2><span class="num">5</span>Revisión</h2><p>Todo lo que falta, agrupado por paso y por equipo. Toca un pendiente para ir directo a su campo.</p></div></div>
+      <div class="fx-revcab" id="p2RevCab"></div>
       <div id="revPend"></div>
       <div class="tarjeta"><h3>Estado por equipo</h3><div class="tabla-wrap"><table class="tabla-est" id="revEquipos"></table></div></div>
       <div class="tarjeta" id="revV66" hidden><h3>Hoja 66 · certificado de la válvula de seguridad</h3><p class="nota">Lo que el certificado de calidad Vayremex de cada equipo Cat III toma del expediente (solo lectura). Cliente = razón social; el modelo sale del catálogo de válvulas (o el «Modelo» escrito en la válvula); la presión de ajuste es la presión de calibración y la CDTP es esa presión en kPa (× 98.07); la conexión de entrada lleva la medida en pulgadas de la válvula; el tipo de servicio es el fluido del equipo; la fecha de emisión es la que el programa de calibración (hoja 23) marca para la válvula. Pedido, factura y folio salen al azar al generar; el no. de serie también, salvo que se escriba en la válvula.</p><div class="tabla-wrap"><table class="tabla-est v66"></table></div></div>
@@ -1589,7 +1999,7 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
       <div class="paso-cab"><div><h2><span class="num">6</span>Generar</h2><p>Expediente carta y, por cada equipo categoría I o II, su previo, su dictamen digital y su dictamen físico, tamaño carta. El ZIP agrega la carpeta DATOS con los documentos de la visita. Los PDF no se suben a la nube.</p></div></div>
       <div class="tarjeta">
         <div class="plan" id="plan"></div>
-        <div id="validacion"></div>
+        <div id="validacion"></div><div id="p2Faltan"></div>
         <div class="acciones" style="margin-top:6px">
           <button class="btn prim grande" id="btnZip" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Generar y descargar ZIP</button>
           <button class="btn grande" id="btnGenerar" type="button">Generar sin descargar</button>
@@ -1613,25 +2023,9 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
     </section>
   </main>
 </div>
+</div>
 
 <template id="tplCroquis">
-  <div class="lev-dims">
-    <div class="seg-campo"><span class="lbl-campo">Orientación (plantilla)</span>
-      <div class="seg" role="group" aria-label="Orientación del tanque"><button type="button" data-or="H" aria-pressed="true"><b>H</b>Horizontal</button><button type="button" data-or="V" aria-pressed="false"><b>V</b>Vertical</button></div></div>
-    <div class="campo" data-campo="diametroInteriorCm"><label for="lv_dcm">Ø interior <span class="req">*</span></label><div class="caja"><input id="lv_dcm" data-e="diametroInteriorCm" data-num inputmode="decimal" placeholder="40" autocomplete="off"><span class="u">cm</span></div><div class="ayuda" data-ldh="diametroInteriorCm"></div></div>
-    <div class="campo" data-campo="longitudMm"><label for="lv_lmm">Longitud entre soldaduras <span class="req">*</span></label><div class="caja"><input id="lv_lmm" data-e="longitudMm" data-num inputmode="decimal" placeholder="900" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="longitudMm"></div></div>
-    <div class="campo" data-campo="profundidadTapaMm"><label for="lv_tmm">Profundidad de tapa</label><div class="caja"><input id="lv_tmm" data-e="profundidadTapaMm" data-num inputmode="decimal" placeholder="120" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="profundidadTapaMm"></div></div>
-    <div class="campo" data-campo="cejaRectaMm"><label for="lv_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="lv_cr" data-epl="cejaRectaMm" data-num inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="cejaRectaMm"></div></div>
-    <div class="res" data-res="capCroq"></div>
-  </div>
-  <div class="lev-base" id="levBase">
-    <div class="lev-base-fila">
-      <div class="lev-base-txt"><span class="lbl-campo">Base del equipo (soportes)</span><span class="ayuda" id="levBaseAy"></span></div>
-      <div class="lev-base-sel"><button type="button" class="lev-base-btn" id="levBaseBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="levBaseMenu"><span class="lev-base-mini" id="levBaseMini"></span><span class="lev-base-nom" id="levBaseNom">Por omisión</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
-        <div class="lev-base-menu" id="levBaseMenu" role="listbox" aria-label="Bases para este equipo" hidden></div></div>
-      <button type="button" class="btn chico laton" id="levBaseEditar">Crear / editar base</button>
-    </div>
-  </div>
   <div class="lev-dibujo">
     <div class="lev-lienzo">
       <svg id="levCroquis" class="croquis" viewBox="0 0 900 400" role="img" tabindex="0" aria-label="Croquis del tanque. Arrastra las boquillas; con una seleccionada, las flechas la mueven, + y − hacen zoom y Esc la suelta."></svg>
@@ -1677,11 +2071,30 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
       </div>
     </div>
     <div class="lev-bq">
+  <div class="lev-base" id="levBase">
+    <div class="lev-base-fila">
+      <div class="lev-base-txt"><span class="lbl-campo">Base del equipo (soportes)</span><span class="ayuda" id="levBaseAy"></span></div>
+      <div class="lev-base-sel"><button type="button" class="lev-base-btn" id="levBaseBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="levBaseMenu"><span class="lev-base-mini" id="levBaseMini"></span><span class="lev-base-nom" id="levBaseNom">Por omisión</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="lev-base-menu" id="levBaseMenu" role="listbox" aria-label="Bases para este equipo" hidden></div></div>
+      <button type="button" class="btn chico laton" id="levBaseEditar">Crear / editar base</button>
+    </div>
+  </div>
+
       <h3>Boquillas <span class="tag" id="levBqCuenta">0</span></h3>
       <p class="nota">Letras A, B, C… en el orden de la lista; se puede repetir el tipo. Toca una fila o su letra para ubicarla en el croquis. En el plano se agrupan por tipo; cada pieza lleva su conexión (columna TIPO del plano). Varias piezas en un mismo orificio (manómetro + válvula + entrada…): «+ pieza aquí» o elige su orificio en la fila; mover una pieza mueve el orificio completo.</p>
       <ol class="lev-bq-lista" id="levBqLista"></ol>
       <button type="button" class="btn chico laton" id="levBqAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar boquilla</button>
     </div>
+  </div>
+  <h4 class="fx-subt">Orientación y dimensiones</h4>
+  <div class="lev-dims">
+    <div class="seg-campo"><span class="lbl-campo">Orientación (plantilla)</span>
+      <div class="seg" role="group" aria-label="Orientación del tanque"><button type="button" data-or="H" aria-pressed="true"><b>H</b>Horizontal</button><button type="button" data-or="V" aria-pressed="false"><b>V</b>Vertical</button></div></div>
+    <div class="campo" data-campo="diametroInteriorCm"><label for="lv_dcm">Ø interior <span class="req">*</span></label><div class="caja"><input id="lv_dcm" data-e="diametroInteriorCm" data-num inputmode="decimal" placeholder="40" autocomplete="off"><span class="u">cm</span></div><div class="ayuda" data-ldh="diametroInteriorCm"></div></div>
+    <div class="campo" data-campo="longitudMm"><label for="lv_lmm">Longitud entre soldaduras <span class="req">*</span></label><div class="caja"><input id="lv_lmm" data-e="longitudMm" data-num inputmode="decimal" placeholder="900" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="longitudMm"></div></div>
+    <div class="campo" data-campo="profundidadTapaMm"><label for="lv_tmm">Profundidad de tapa</label><div class="caja"><input id="lv_tmm" data-e="profundidadTapaMm" data-num inputmode="decimal" placeholder="120" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="profundidadTapaMm"></div></div>
+    <div class="campo" data-campo="cejaRectaMm"><label for="lv_cr">Ceja recta (C.R.) <span class="req">*</span></label><div class="caja"><input id="lv_cr" data-epl="cejaRectaMm" data-num inputmode="decimal" placeholder="34" autocomplete="off"><span class="u">mm</span></div><div class="ayuda" data-ldh="cejaRectaMm"></div></div>
+    <div class="res" data-res="capCroq"></div>
   </div>
 </template>
 
@@ -1800,24 +2213,6 @@ html[data-theme="mono-noche"] .lf-lienzo[data-f="blanco"]{background:#f2f2f2}
     <p class="modal-nota" id="mDocVerSub"></p>
     <div class="dv-ver" id="dvVer"></div>
     <div class="pad-acc"><button type="button" class="btn fantasma" id="dvVerPdf">Abrir el PDF</button><div class="acciones"><button type="button" class="btn" id="dvVerDesc">Descargar PDF</button><button type="button" class="btn prim" data-cerrar>Cerrar</button></div></div>
-  </div>
-</div>
-<!-- v17 · Mis expedientes (historial en la nube) -->
-<div class="modal oculto" id="mNube" role="dialog" aria-modal="true" aria-labelledby="mNubeT">
-  <div class="modal-caja nube-caja">
-    <div class="nube-cab"><div><h3 id="mNubeT">Mis expedientes</h3><p class="modal-nota">Historial de FenixMex en la nube: nunca se borra solo y lo ven todas las cuentas autorizadas. Abre uno para corregirlo sin volver a capturar.</p></div><button type="button" class="btn chico fantasma" data-cerrar aria-label="Cerrar">✕</button></div>
-    <div id="nubeCuenta"></div>
-    <div id="histPend"></div>
-    <div class="hist-barra">
-      <div class="caja"><input id="histQ" type="search" placeholder="Buscar: folio, razón social, persona o fecha…" autocomplete="off" spellcheck="false" aria-label="Buscar expedientes"></div>
-      <div class="seg" role="group" aria-label="Filtrar por estado" id="histFiltro"><button type="button" data-hf="" aria-pressed="true">Todos</button><button type="button" data-hf="vigente" aria-pressed="false">Vigentes</button><button type="button" data-hf="cancelado" aria-pressed="false">Cancelados</button><button type="button" data-hf="tramite" aria-pressed="false" title="Categoría III sin fecha de dictamen capturada">Dictamen en trámite</button></div>
-      <button type="button" class="btn chico fantasma" data-nube="recargar" title="Volver a leer el historial">Actualizar</button>
-    </div>
-    <p class="nota" id="histRes" role="status" aria-live="polite" style="margin:0"></p>
-    <ul class="hist-lista" id="histLista"></ul>
-    <details class="hist-ayuda"><summary>¿Cancelar o eliminar? La diferencia</summary>
-      <p><b>Cancelar expediente</b>: el registro se conserva y el QR impreso muestra «Expediente cancelado» (dictamen retirado o sustituido). Se puede reactivar cuando quieras.</p>
-      <p><b>Eliminar</b>: borra el registro, su bitácora y los archivos de Drive; el QR impreso muestra «No válido / no encontrado». No se puede deshacer: úsalo solo para expedientes hechos por error o de prueba.</p></details>
   </div>
 </div>
 <div class="modal oculto" id="mBorrar" role="alertdialog" aria-modal="true" aria-labelledby="mBorrarT" aria-describedby="mBorrarD">
@@ -10254,7 +10649,7 @@ const ESP_KEYS_E=['espEnv','espSup','espInf'];
 const VALV_TIPO_OPC=()=>((window.FXPlano&&FXPlano.VALV_TIPOS)||[{id:'SILBATO',ui:'Silbato'},{id:'CAMPANA',ui:'Campana'},{id:'ARGOLLA',ui:'Argolla'}]).map(t=>[t.id,t.ui]);
 const VALV_OPC=()=>[['','— Elige el tipo —']];
 const SECC_EQ=[
- {id:'ident',t:'Identificación y placa',h:'Hojas 3, 6, 8 y 9',items:[
+ {id:'ident',t:'Datos y placa',h:'Hojas 3, 6, 8, 9, 16 y 20',items:[
   ['#tipo'],
   ['nombre','Nombre del equipo',{req:1,mayus:1,cls:'medio',ph:'COMPRESOR DE AIRE NO. 1',ayuda:' '}],
   ['tag','TAG',{req:1,mayus:1,ph:'COM-01',ayuda:'Automático por tipo (COM-01, COM-02…). Uno escrito a mano se conserva.'}],
@@ -10265,7 +10660,9 @@ const SECC_EQ=[
   ['fluido','Fluido que maneja',{req:1,mayus:1,ph:'AIRE'}],
   ['fechaPnd','Fecha de inspección (PND)',{req:1,date:1,ayuda:'Todas las fechas del expediente se calculan con esta.'}],
   ['capacidadPlaca','Capacidad de placa (referencia)',{ph:'0.500 m³ · 500 L',ayuda:' '}],
-  ['#foto']]},
+  ['#foto'],
+  ['=mat'],['tipoTapas','Tipo de tapas',{mayus:1}],
+  ['codigoMemoriaCalculo','Código de memoria · plano No.',{req:1,mascara:1,cls:'medio',ayuda:'También es el número de reporte de prueba (hojas 20 y 70–75).'}]]},
  {id:'pres',t:'Presiones y temperaturas',h:'Hojas 10 y 66',items:[
   ['presionDiseno','Presión de diseño',{req:1,num:1,u:KG,ph:'12.00'}],['=hidro'],
   ['presionCalibracion','Presión de calibración',{req:1,num:1,u:KG,ph:'10.50',ayuda:'Con esta se calcula la categoría NOM-020.'}],['=cat'],
@@ -10286,13 +10683,10 @@ const SECC_EQ=[
   ['#vista']]},
  {id:'croq',t:'Croquis y boquillas',h:'Hoja de campo · plano · hojas 71 y 75',tpl:'tplCroquis'},
  {id:'esp',t:'Espesores por ultrasonido',h:'Hojas 73 y 74',slot:'esp'},
- {id:'fotos',t:'Anexo fotográfico y croquis PND',h:'Hojas 71, 72 y 75',slot:'fotos'},
- {id:'doc',t:'Construcción, categoría y documentos',h:'Hojas 6, 16, 20 y Cat I / II',items:[
-  ['=mat'],['tipoTapas','Tipo de tapas',{mayus:1}],
-  ['pndSuperficial','PND superficial',{mayus:1,cls:'medio'}],['pndVolumetrica','PND volumétrica',{mayus:1,cls:'medio'}],
+ {id:'fotos',t:'Fotos y croquis PND',h:'Hojas 70 a 75',slot:'fotos',items:[['pndSuperficial','PND superficial',{mayus:1,cls:'medio'}],['pndVolumetrica','PND volumétrica',{mayus:1,cls:'medio'}]]},
+ {id:'doc',t:'Dictamen y resultado',h:'Hojas 6 y 20 · Cat I / II',items:[
   ['clasificacion','Categoría NOM-020',{sel:[['','Automática (presión de calibración)'],['I','I'],['II','II'],['III','III']]}],
   ['folio','Folio del dictamen Cat I / II',{reqCat2:1,num:0,ayuda:'Solo categorías I y II. El previo siempre imprime FOLIO xxx.'}],
-  ['codigoMemoriaCalculo','Código de memoria · plano No.',{req:1,mascara:1,cls:'medio',ayuda:'También es el número de reporte de prueba (hojas 20 y 70–75).'}],
   // ajustes 2026-11 · vigencia del previo / dictamen (Cat I y II): usado 5 años, nuevo 10 años. Vacío = usado (borradores anteriores).
   ['estadoEquipo','Equipo usado o nuevo',{sel:[['','Usado · vigencia de 5 años'],['nuevo','Nuevo · vigencia de 10 años']],ayuda:'Previo y dictamen Cat I / II: «vigencia de 5 años por tratarse de un equipo USADO» o «de 10 años … NUEVO».'}],
   // ajustes 2026-11 · resultado del dictamen: automático (calibración ≤ PTMP, operación < calibración, espesores ≥ requeridos) o a mano
@@ -10312,7 +10706,7 @@ const CAMPOS_VAL=[
  ['tempDiseno','Temperatura de diseño',{req:1,num:1},'pres'],['tempOperacion','Temperatura de operación',{req:1,num:1},'pres'],
  ['tipoDispositivoRelevo','Tipo de dispositivo de relevo',{req:1},'valv'],['numDispositivosRelevo','Número de dispositivos',{req:1,num:0},'valv'],
  ['tipoValvula','Tipo de válvula',{req:1},'valv'],['diametroValvulaMm','Medida de la válvula',{req:1},'valv'],
- ['folio','Folio del dictamen Cat I / II',{reqCat2:1,num:0},'doc'],['codigoMemoriaCalculo','Código de memoria de cálculo',{mascara:1},'doc']
+ ['folio','Folio del dictamen Cat I / II',{reqCat2:1,num:0},'doc'],['codigoMemoriaCalculo','Código de memoria de cálculo',{mascara:1},'ident']
 ];
 const PASOS=['visita','equipos','plano','personas','revision','generar'];
 const PASO_NOM={visita:'Visita',equipos:'Equipos',plano:'Plano',personas:'Personas',revision:'Revisión',generar:'Generar'};
@@ -11205,7 +11599,7 @@ function secCuerpo(s){
   if(s.tpl)return $('#'+s.tpl).innerHTML;
   if(s.slot==='esp')return `<p class="nota">Tres columnas como en el papel (los encabezados siguen la orientación). <b>Rellenar</b> llena la columna con la base + 0.00 a 0.03 mm al azar (al menos uno queda en la base) sin tocar lo escrito a mano. El mínimo de cada columna es el espesor empleado en el plano.</p><div class="esp" id="eqEsp"></div>`;
   if(s.slot==='fotos')return `<div class="sub"><h4>Muestras <span class="tag">Hoja 72</span></h4><p class="nota">Cuatro fotos del equipo. Sin foto se imprime SIN DATO.</p><div class="muestras">${MUESTRAS.map(n=>`<div class="img foto" data-img-eq="muestra${n}" data-label="Muestra ${n}" data-hint="Arrastra la foto aquí"></div>`).join('')}</div></div>
-    <div class="sub"><h4>Croquis de las hojas 71 (MT) y 75 (UT) <span class="tag" data-croq-tag></span></h4><p class="nota" data-croq-txt id="pndCroq"></p></div>`;
+    <div class="sub"><h4>Croquis de las hojas 71 (MT) y 75 (UT) <span class="tag" data-croq-tag></span></h4><p class="nota" data-croq-txt id="pndCroq"></p></div>${s.items?`<div class="sub"><h4>Métodos PND <span class="tag">Hojas 70 y 73</span></h4><div class="grid">${s.items.map(itemHTML).join('')}</div></div>`:''}`;
   return `<div class="grid">${s.items.map(itemHTML).join('')}</div>`;
 }
 function renderEqForm(){
@@ -11274,7 +11668,7 @@ function actEq(){
   // categoría (manómetro) junto a la presión de calibración
   {const m=$('[data-res="cat"]',box),p=nNum(e.presionCalibracion),sug=catSugerida(e);ponerAguja(m,p);
     $('.cat-txt',m).innerHTML=isNaN(p)?'<b>Categoría NOM-020</b><br>Captura la presión de calibración.':
-      e.clasificacion?(sug&&sug!==e.clasificacion?`<b>Cat ${e.clasificacion}</b> asignada a mano (Construcción y documentos). Por presión le corresponde Cat ${sug}.`:`<b>Cat ${e.clasificacion}</b> asignada a mano.`):`<b>Categoría ${sug}</b> · calculada: I &lt; 5, II 5–8, III &gt; 8 kg/cm²`;}
+      e.clasificacion?(sug&&sug!==e.clasificacion?`<b>Cat ${e.clasificacion}</b> asignada a mano (pestaña Dictamen). Por presión le corresponde Cat ${sug}.`:`<b>Cat ${e.clasificacion}</b> asignada a mano.`):`<b>Categoría ${sug}</b> · calculada: I &lt; 5, II 5–8, III &gt; 8 kg/cm²`;}
   ponRes($('[data-res="hidro"]',box),ok1(nNum(e.presionDiseno))?{n:'Prueba hidrostática',v:e.presionPruebaHidrostatica||hidro(e),u:KG,f:'= P diseño × 1.1 · hoja 10'}:{n:'Prueba hidrostática',pend:1,f:'Falta la presión de diseño (= P diseño × 1.1).'});
   // presión de trabajo máx. permitida: vinculada a la Pm del plano cuando se puede calcular; si no, se captura aquí
   {const pm=r.Pm,vinc=plOk(pm),cont=$('[data-ptmp]',box);$('[data-res="ptmp"]',cont).classList.toggle('oculto',!vinc);$('[data-ptmp-in]',cont).classList.toggle('oculto',vinc);
@@ -11282,8 +11676,8 @@ function actEq(){
   // ayuda bajo arranque / operación / PTMP manual (v14: la hoja 66 nueva ya no imprime disparo, cierre ni kPa)
   const KPA_AY={presionArranque:'Obligatoria en categoría III.',presionOperacion:'En el expediente: presión de operación.',presionTrabajoMaxPermitida:'Se calcula sola cuando el plano tiene S, E y espesores.'};
   $$('[data-kpa]',box).forEach(a=>{const q=KPA_AY[a.dataset.kpa];if(q)a.textContent=q;});
-  {const arr=$('[data-req="presionArranque"]',box);if(arr)arr.classList.toggle('oculto',c!=='III');const fo=$('[data-campo="folio"]',box);if(fo)fo.classList.toggle('oculto',!esCatDict(c));
-    const ve=$('[data-campo="estadoEquipo"]',box);if(ve)ve.classList.toggle('oculto',!esCatDict(c));}
+  {const arr=$('[data-req="presionArranque"]',box);if(arr)arr.classList.toggle('oculto',c!=='III');const fo=$('[data-campo="folio"]',box);if(fo)(window.FXP2Bloq||((el,b)=>el.classList.toggle('oculto',b)))(fo,!esCatDict(c),c);
+    const ve=$('[data-campo="estadoEquipo"]',box);if(ve)(window.FXP2Bloq||((el,b)=>el.classList.toggle('oculto',b)))(ve,!esCatDict(c),c);}
   // ajustes 2026-11 · resultado del dictamen (automático o a mano) y por qué no cumple
   {const R=resultadoEq(e,d),el=$('[data-res="resultado"]',box),ay=$('[data-ay="resultadoManual"]',box);
     const mot=R.auto.motivos.length?R.auto.motivos.join(' · '):'';
@@ -11485,7 +11879,7 @@ function pndCroqFalta(e){if(!window.FXPlano||!e)return [];try{return FXPlano.pnd
 
 // ---------- validación: cada aviso sabe a qué paso, equipo, sección y campo llevar ----------
 const lc1=t=>t.charAt(0).toLowerCase()+t.slice(1);
-let ULT={err:[],warn:[]};
+let ULT={err:[],warn:[]};window.FXUI={get ULT(){return ULT;},eqAct:()=>eqAct(),catDe:e=>catDe(e),resultadoEq:e=>resultadoEq(e),inicio:()=>nubeAbrir(),inicioCerrar:()=>nubeCerrar(),ir:x=>irA(x),paso:(p,o)=>mostrarPaso(p,o),setEq:id=>setEq(id),dib:()=>dibRender()};   // rediseño · armazón P2
 function validar(){
   const err=[],warn=[];const hayII=D.equipos.some(e=>esCatDict(catDe(e)));
   const E=(m,x)=>err.push(Object.assign({m},x||{})), W=(m,x)=>warn.push(Object.assign({m},x||{}));
@@ -11531,7 +11925,7 @@ function validar(){
     // v8: hoja 20 = plano generado de este equipo; sin geometría sale marcada PLANO PENDIENTE (nunca el plano de muestra)
     {const f=planoPend(e);if(f.length)W(`${n}: plano pendiente (falta ${f.join(' y ')}); su hoja 20 saldrá marcada PLANO PENDIENTE.`,Object.assign({sec:'croq',k:'diametroInteriorCm'},q));}
     orifSugeridos(e).forEach(s=>W(`${n}: las boquillas ${s.letras.join(', ')} están juntas en el croquis. ¿Van en un mismo orificio?`,Object.assign({sec:'croq',unir:s.ids,nokey:s.key,letras:s.letras},q)));
-    {const m=String(e.codigoMemoriaCalculo||'').trim();if(m){if(mems[m])W(`${n}: código de memoria repetido (${m}); cada plano lleva el suyo.`,Object.assign({sec:'doc',k:'codigoMemoriaCalculo'},q));mems[m]=1;}}
+    {const m=String(e.codigoMemoriaCalculo||'').trim();if(m){if(mems[m])W(`${n}: código de memoria repetido (${m}); cada plano lleva el suyo.`,Object.assign({sec:'ident',k:'codigoMemoriaCalculo'},q));mems[m]=1;}}
     // memoria de cálculo incompleta: no impide generar, pero lo que falta queda en blanco en el plano
     if(window.FXPlano&&!planoPend(e).length){try{const d=FXPlano.datos(e,{});if(d.faltan.length)W(`${n}: memoria de cálculo incompleta (falta ${d.faltan.slice(0,3).map(f=>lc1(f.m)).join(', ')}${d.faltan.length>3?'…':''}).`,{paso:'plano',eq:e.id});}catch(_){}}
   });
@@ -11627,15 +12021,15 @@ function revRender(){
   // estado por equipo
   {const t=$('#revEquipos'),cel=(e,secs,lbl)=>{const n=err.filter(x=>x.eq===e.id&&secs.includes(x.sec||'')).length,w=warn.filter(x=>x.eq===e.id&&secs.includes(x.sec||'')).length;
       return `<td><button type="button" class="p ${n?'e':w?'w':'o'}" data-revir='${esc(JSON.stringify({paso:secs[0]===''?'plano':'equipos',eq:e.id,sec:secs[0]||undefined}))}'>${n?`● ${n} pendiente${n>1?'s':''}`:w?`● ${w} aviso${w>1?'s':''}`:'✓ '+lbl}</button></td>`;};
-    t.innerHTML=`<thead><tr><th>Equipo</th><th>Datos y presiones</th><th>Válvula</th><th>Croquis</th><th>PND</th><th>Documentos</th><th>Plano</th></tr></thead><tbody>${D.equipos.map((e,i)=>`<tr><td><b>${i+1}. ${esc(e.tag||'sin TAG')}</b><br><small style="color:var(--tinta-3)">${esc(e.nombre||'')}</small></td>${cel(e,['ident','pres'],'completo')}${cel(e,['valv'],'completa')}${cel(e,['croq'],'listo')}${cel(e,['esp','fotos'],'listas')}${cel(e,['doc'],'completos')}${cel(e,[''],'listo')}</tr>`).join('')}</tbody>`;
+    t.innerHTML=`<thead><tr><th>Equipo</th><th>Datos y presiones</th><th>Válvula</th><th>Croquis</th><th>PND</th><th>Dictamen</th><th>Plano</th></tr></thead><tbody>${D.equipos.map((e,i)=>`<tr><td><b>${i+1}. ${esc(e.tag||'sin TAG')}</b><br><small style="color:var(--tinta-3)">${esc(e.nombre||'')}</small></td>${cel(e,['ident','pres'],'completo')}${cel(e,['valv'],'completa')}${cel(e,['croq'],'listo')}${cel(e,['esp','fotos'],'listas')}${cel(e,['doc'],'completos')}${cel(e,[''],'listo')}</tr>`).join('')}</tbody>`;
     $$('[data-revir]',t).forEach(b=>b.addEventListener('click',()=>{let x=null;try{x=JSON.parse(b.dataset.revir);}catch(_){}if(x)irA(x);}));}
   // v14 · hoja 66 (solo Cat III, certificado Vayremex nuevo): modelo, presión de ajuste y fecha de emisión que se imprimirán y de dónde sale la fecha
   {const box=$('#revV66'),fx=Fx();if(box){const st=fx?stGen():null,fil=fx?D.equipos.map((e,i)=>({e,i,x:fx.equipoCtx(e,i+1)})).filter(q=>q.x.cat==='III').map(q=>Object.assign(q,{v:fx.vista66(q.e,st)})):[];box.hidden=!fil.length;
     $('table',box).innerHTML=fil.length?`<thead><tr><th>Equipo</th><th>Válvula</th><th>Modelo</th><th>No. de serie</th><th>Presión de ajuste</th><th>CDTP</th><th>Conexión de entrada</th><th>Servicio</th><th>Fecha de emisión</th><th>De dónde sale la fecha</th></tr></thead><tbody>${fil.map(({e,i,x,v})=>{const vt=window.FXPlano&&FXPlano.valvTipo(x.valvTipo);
       return `<tr><td><b>${i+1}. ${esc(e.tag||'sin TAG')}</b></td><td>${esc(vt?vt.ui:x.valvTipo)} Ø ${esc(x.valvDiam||'—')} mm</td><td>${esc(v.modelo||'—')}</td><td>${esc(v.serie||'al azar')}</td><td>${esc(v.ajuste||'—')}</td><td>${esc(v.cdtp||'—')}</td><td>${esc(v.entrada)}</td><td>${esc(v.servicio)}</td><td>${esc(v.fecha)}</td><td>${esc(fuente66(v))}</td></tr>`;}).join('')}</tbody>`:'';}}
   // pendientes y avisos agrupados por paso y equipo
-  {const box=$('#revPend'),grupo=(arr,cls)=>{const por={};arr.forEach((x,k)=>{const g=(PASO_NOM[x.paso]||'Otros')+(x.eq?' · '+eqNom(x.eq):'');(por[g]=por[g]||[]).push(k);});
-      return Object.entries(por).map(([g,ks])=>`<div class="grupo-rev"><h4>${esc(g)}</h4><ul>${ks.map(k=>`<li><button type="button" data-${cls}="${k}">${esc(arr[k].m)}<span class="ir">${esc(arr[k].sec?SEC_EQ_NOM[arr[k].sec]||'':PASO_NOM[arr[k].paso]||'')} →</span></button>${arr[k].unir?`<span class="rev-unir"><button type="button" class="btn mini" data-unir="${k}">Unir en un orificio</button><button type="button" class="btn mini fantasma" data-nounir="${k}">No, van separadas</button></span>`:''}</li>`).join('')}</ul></div>`).join('');};
+  {const box=$('#revPend'),grupo=(arr,cls)=>{const por={};arr.forEach((x,k)=>{const g=(window.FXP2Grupo?window.FXP2Grupo(x):(PASO_NOM[x.paso]||'Otros'))+(x.eq?' · '+eqNom(x.eq):'');(por[g]=por[g]||[]).push(k);});
+      return Object.entries(por).map(([g,ks])=>`<div class="grupo-rev"><h4>${esc(g)}</h4><ul>${ks.map(k=>`<li><button type="button" data-${cls}="${k}">${esc(arr[k].m)}<span class="ir">Ir al campo · ${esc(window.FXP2Donde?window.FXP2Donde(arr[k]):(arr[k].sec?SEC_EQ_NOM[arr[k].sec]||'':PASO_NOM[arr[k].paso]||''))} →</span></button>${arr[k].unir?`<span class="rev-unir"><button type="button" class="btn mini" data-unir="${k}">Unir en un orificio</button><button type="button" class="btn mini fantasma" data-nounir="${k}">No, van separadas</button></span>`:''}</li>`).join('')}</ul></div>`).join('');};
     box.innerHTML=(err.length?`<div class="aviso err"><strong>Falta${err.length>1?'n':''} ${err.length} dato${err.length>1?'s':''} para generar</strong>${grupo(err,'err')}</div>`:'<div class="aviso ok">Sin pendientes: todo listo para generar.</div>')+
       (warn.length?`<div class="aviso warn"><strong>Avisos (${warn.length}) · no impiden generar</strong>${grupo(warn,'warn')}</div>`:'');
     $$('[data-err]',box).forEach(b=>b.addEventListener('click',()=>{mostrarFaltas=true;irA(err[+b.dataset.err]);}));
@@ -11672,8 +12066,8 @@ function camposIndice(){
     out.push({t:'Espesores (16 puntos por columna)',d:`${q} › Espesores`,v:(e.espEnv||[]).filter(Boolean).length+'/16',x:{paso:'equipos',eq:e.id,sec:'esp',esp:'espEnv'}});
     for(const [sel,t] of [['#pl_mc','Material del cuerpo'],['#pl_mt','Material de las tapas'],['#pl_fs','Factor de seguridad'],['#pl_e','Eficiencia de soldadura E'],['#pl_fab','Fabricante'],['#pl_nb','National Board'],['#pl_cod','Código de fabricación'],['#pl_fec','Fecha del plano']]){
       const k=($(sel)&&($(sel).dataset.pl||$(sel).dataset.pe));const v=k?(e.plano&&e.plano[k]!=null?e.plano[k]:e[k]):'';out.push({t,d:`${q} › Plano`,v,x:{paso:'plano',eq:e.id,sel}});}
-    out.push({t:'Dibujó',d:`${q} › Personas › Dibujó`,v:e.plano&&e.plano.dibujo,x:{paso:'personas',sel:`[data-dib="${e.id}"]`}});});
-  return out;
+    out.push({t:'Dibujó',d:`${q} › Plano › Dibujó`,v:e.plano&&e.plano.dibujo,x:{paso:'plano',eq:e.id,sel:`[data-dib="${e.id}"]`}});});
+  return window.FXP2Indice?window.FXP2Indice(out):out;
 }
 const sinAcB=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 let BUS={l:[],i:0};
@@ -11681,7 +12075,7 @@ function buscarAbrir(){const m=$('#mBuscar');m.classList.remove('oculto');const 
 function buscarCerrar(){$('#mBuscar').classList.add('oculto');}
 function buscarPintar(){
   const q=sinAcB($('#buscarTxt').value).trim().split(/\s+/).filter(Boolean),todo=camposIndice();
-  BUS.l=(q.length?todo.filter(c=>{const h=sinAcB(c.t+' '+c.d);return q.every(w=>h.includes(w));}):todo.filter(c=>!c.v)).slice(0,40);BUS.i=0;
+  BUS.l=(q.length?todo.filter(c=>{const h=sinAcB(c.t+' '+c.d);return q.every(w=>h.includes(w));}):todo.filter(c=>!c.v));if(window.FXP2Orden)BUS.l=window.FXP2Orden(BUS.l,q,sinAcB);BUS.l=BUS.l.slice(0,40);BUS.i=0;
   const ul=$('#buscarLista');
   ul.innerHTML=BUS.l.length?BUS.l.map((c,k)=>`<li><button type="button" role="option" data-bk="${k}"${k===0?' class="sel"':''}><b>${esc(c.t)}</b><span class="v${String(c.v??'').trim()?'':' falta'}">${String(c.v??'').trim()?esc(c.v):'vacío'}</span><small>${esc(c.d)}</small></button></li>`).join(''):`<li class="buscar-vacio">${q.length?'Ningún campo coincide.':'Escribe para buscar. Sin texto se listan los campos vacíos.'}</li>`;
 }
@@ -13767,7 +14161,7 @@ const faltaTxt=o=>'Falta '+Object.entries(o).filter(([,v])=>!plOk(v)).map(([k])=
 const hayFalta=o=>Object.values(o).some(v=>!plOk(v));
 function plCalc(d){
   const {e,inp:i,r}=d,X=FXP(),F=plF,D_=i.Dmm/1000,L_=i.Lmm/1000,CR_=i.CR/1000,cap=X.capacidad(d);
-  const SRC={croq:'Equipos › Croquis',pres:'Equipos › Presiones',valv:'Equipos › Válvula',esp:'Equipos › Espesores',ident:'Equipos › Identificación',doc:'Equipos › Documentos'};
+  const SRC={croq:'Equipo › Croquis',pres:'Equipo › Presiones',valv:'Equipo › Válvula',esp:'Equipo › Espesores',ident:'Equipo › Datos',doc:'Equipo › Dictamen'};
   const ir=(sec,k)=>({paso:'equipos',eq:e.id,sec,k}),irE=k=>({paso:'equipos',eq:e.id,sec:'esp',esp:k}),irP=sel=>({paso:'plano',eq:e.id,sel});
   // 1 · geometría, área y capacidad (junto a la C.R.)
   ponVincs('geo',[
@@ -13833,7 +14227,7 @@ function plCalc(d){
     vv('Temperatura de diseño',e.tempDiseno,SRC.pres,ir('pres','tempDiseno'),1,'°C'),vv('Temperatura de operación',e.tempOperacion,SRC.pres,ir('pres','tempOperacion'),0,'°C'),
     vv('Año de fabricación',String(e.anioFabricacion||'').trim()||'S/D',SRC.ident,ir('ident','fechaFabricacion')),vv('Número de serie',e.numeroSerie,SRC.ident,ir('ident','numeroSerie'),1),
     vv('Ubicación',e.ubicacion,SRC.ident,ir('ident','ubicacion'),1),vv('Nombre del equipo',e.nombre,SRC.ident,ir('ident','nombre'),1),vv('TAG',e.tag,SRC.ident,ir('ident','tag'),1),
-    vv('Plano No. (código de memoria)',e.codigoMemoriaCalculo,SRC.doc,ir('doc','codigoMemoriaCalculo'),1),
+    vv('Plano No. (código de memoria)',e.codigoMemoriaCalculo,SRC.ident,ir('ident','codigoMemoriaCalculo'),1),
     vv('Razón social',rsNombre(),'Visita › Empresa',{paso:'visita',sel:'#d_rsp'},1),vv('Domicilio',D.domicilio,'Visita › Empresa',{paso:'visita',sel:'#d_dom'}),
     vv('Revisó y firma',[G.firmanteIzquierdoNombre,G.firmanteIzquierdoCedula&&('Céd. '+G.firmanteIzquierdoCedula)].filter(Boolean).join(' · ')+(IMG['g:firmanteIzquierdoFirma']||!G.firmanteIzquierdoNombre?'':' · sin firma'),'Personas › Responsable técnico',{paso:'personas',sel:'#g_fin'},1),
     vv('Dibujó',e.plano.dibujo,'Personas › Dibujó',{paso:'personas',sel:`[data-dib="${e.id}"]`}),
@@ -15114,6 +15508,474 @@ window.FXNube={canon,huellaDe,huellaActual,fxIdNuevo,qrUrl,RX_FOLIO,RX_CLAVE,cla
     s.value=document.documentElement.getAttribute('data-theme')||'brasa';
     s.addEventListener('change',function(){aplica(s.value);});aplica(s.value);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<script>
+/* FenixMex · rediseño · armazón P2 (barra lateral + pestañas por equipo) · FASE 1 + FASE 2.
+   NO cambia datos, validación, nube ni PDF. Navega con los mismos controles de siempre (botones de paso #pasos li[data-paso],
+   #eqTabs [data-eqt] y la cabecera plegable de cada bloque del equipo, que siguen en la página aunque algunos no se vean) y
+   observa la página (MutationObserver) para pintar el armazón. Lee la validación con window.FXUI (solo lectura) y los datos con
+   window.FXNube.datos(); abre y cierra «Mis expedientes» con las funciones de la app (FXUI.inicio / inicioCerrar).
+   Estado propio: body[data-sub] = empresa | visita (paso visita) · plano | rutas (paso plano) · personas | ajustes (paso personas);
+   html.fx-inicio = página Inicio («Mis expedientes», el bloque #mNube de la app mostrado como página). */
+(function(){
+'use strict';
+const HASH0=location.hash;   // la vista pedida en la dirección, antes de que la app la reemplace con su «#paso» al arrancar
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const B=document.body,H=document.documentElement;
+const SECS=[['ident','Datos'],['pres','Presiones'],['valv','Válvula'],['croq','Croquis'],['esp','Espesores'],['fotos','Fotos PND'],['plano','Plano'],['doc','Dictamen']];
+const EMPRESA_SEL=['#d_rsp','#d_rfc','#d_dom'],EMPRESA_K=['razonSocialPropietario','rfcEmpresa','domicilio'];
+const SUBS={visita:['empresa','visita'],plano:['plano','rutas'],personas:['personas','ajustes']};
+const PASO_SUB={empresa:'visita',visita:'visita',plano:'plano',rutas:'plano',personas:'personas',ajustes:'personas'};
+const UI=()=>window.FXUI;
+const DD=()=>{try{return window.FXNube.datos().D;}catch(_){return null;}};
+const ok=()=>!!(UI()&&DD());
+const escH=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const paso=()=>B.dataset.paso||'visita';
+let sub=null,pend=false,ultSec='ident';
+try{sub=localStorage.getItem('fenixmex-p2-sub');}catch(_){}
+const pon=(el,k,v)=>{if(el&&el[k]!==v)el[k]=v;};
+
+/* ---------- navegación con los controles de la app ---------- */
+let interno=false;   // clic del propio armazón en un botón de paso (irPaso): no es el usuario eligiendo «Visita» o «Personas»
+let restaurando=false;   // (QA 2) volviendo con Atrás / Adelante: la app no debe agregar entradas al historial
+// el paso se cambia con mostrarPaso de la app (FXUI.paso) sin su scroll por paso: cada vista recuerda el suyo (QA 5)
+function irPaso(p){if(paso()===p)return;try{UI().paso(p,{sinScroll:true,sinHash:restaurando||sobreCajon});return;}catch(_){}const b=$(`#pasos li[data-paso="${p}"]>button`);if(b){interno=true;try{b.click();}finally{interno=false;}}}
+function ponSub(s){sub=s;if(B.dataset.sub!==s)B.dataset.sub=s;try{localStorage.setItem('fenixmex-p2-sub',s);}catch(_){}}
+function subValida(){
+  const p=paso(),L=SUBS[p];
+  if(L&&!L.includes(sub))ponSub(L[0]);
+  else if(B.dataset.sub!==(sub||''))B.dataset.sub=sub||'';
+}
+const bloques=()=>$$('#eqForm .bloque');
+const abiertos=()=>bloques().filter(b=>!b.classList.contains('cerrado')).map(b=>b.dataset.sec);
+/* una sección abierta a la vez: se abren y cierran con su cabecera de siempre (guarda ESTADO_SEC y repinta el croquis como antes) */
+function abrirSec(sec){
+  const bs=bloques();if(!bs.length)return;
+  if(!bs.some(b=>b.dataset.sec===sec))sec=bs[0].dataset.sec;
+  bs.forEach(b=>{const quiere=b.dataset.sec===sec,esta=!b.classList.contains('cerrado');if(quiere!==esta){const h=$('.bloque-cab',b);if(h)h.click();}});
+  ultSec=sec;obs.takeRecords();pintar();
+}
+function normaliza(){const ab=abiertos();if(ab.length===1){ultSec=ab[0];return;}abrirSec(ab.includes(ultSec)?ultSec:(ab[0]||ultSec));}
+/* ---------- (QA 2 y 5) cada vista es una clave: historial propio (Atrás / Adelante) y scroll propio ----------
+   inicio · empresa · visita · personas · ajustes · rutas · revision · generar · equipo/<id>/<pestaña> (ident…doc, plano) */
+const VISTAS=['inicio','empresa','visita','personas','ajustes','rutas','revision','generar'];
+function vistaAct(){
+  if(inicioAbierto())return 'inicio';const p=paso();
+  if(p==='visita')return sub==='visita'?'visita':'empresa';
+  if(p==='personas')return sub==='ajustes'?'ajustes':'personas';
+  if(p==='plano'&&sub==='rutas')return 'rutas';
+  if(p==='equipos'||p==='plano'){const e=eqActivo();return e?`equipo/${e.id}/${p==='plano'?'plano':(abiertos()[0]||ultSec)}`:'equipos';}
+  return p;
+}
+const SCR={};let vistaUlt=null,hashUlt=null,scrollPend=null,scrollBloq=false;
+window.addEventListener('scroll',()=>{if(!scrollBloq&&vistaUlt)SCR[vistaUlt]=window.scrollY;},{passive:true});
+// ir a una vista. modo: 'nav' (el usuario: guarda el scroll de la vista que deja y luego pone el de la nueva) · 'hist' (Atrás / Adelante) ·
+// 'pasos' (modo por pasos: siempre arriba)
+function irVista(k,modo){
+  modo=modo||'nav';if(vistaUlt)SCR[vistaUlt]=window.scrollY;scrollBloq=true;scrollPend=modo==='pasos'?'top':'restore';
+  restaurando=modo==='hist';sobreCajon=H.classList.contains('fx-cajon')&&!!(history.state&&history.state.cajon);
+  try{
+    if(k==='inicio'){abrirInicio();return;}
+    cerrarInicio();
+    if(SUBS.visita.includes(k)||SUBS.personas.includes(k)||k==='rutas'){ponSub(k);irPaso(PASO_SUB[k]);}
+    else if(k==='revision'||k==='generar')irPaso(k);
+    else{const m=/^equipo\/([^/]+)\/(\w+)$/.exec(k)||[],D=DD();let id=m[1],s=m[2]||ultSec;
+      if(!D||!D.equipos.length){irPaso('equipos');return;}
+      if(!D.equipos.some(e=>e.id===id))id=(eqActivo()||D.equipos[0]).id;
+      if(!SECS.some(x=>x[0]===s))s='ident';
+      const e=eqActivo();if(!e||e.id!==id){try{UI().setEq(id);}catch(_){const b=$(`#eqTabs [data-eqt="${id}"]`);if(b)b.click();}}
+      if(s==='plano'){ponSub('plano');irPaso('plano');}else{ultSec=s;irPaso('equipos');abrirSec(s);}}
+  }finally{restaurando=false;sobreCajon=false;subValida();pintar();cerrarCajon();}
+}
+// después de pintar: la URL dice la vista (#empresa, #equipo/eq003/croq…). Si la app acaba de poner «#paso» se reemplaza; si no, entrada nueva
+function sincroniza(){
+  const k=vistaAct(),h='#'+k;
+  if(k!==vistaUlt){
+    if(scrollPend){const y=scrollPend==='top'?0:(SCR[k]||0),pon_=()=>window.scrollTo(0,y);pon_();requestAnimationFrame(pon_);setTimeout(pon_,60);setTimeout(()=>{pon_();scrollBloq=false;},160);scrollPend=null;}
+    else scrollBloq=false;
+    vistaUlt=k;
+  }else if(scrollPend){scrollPend=null;setTimeout(()=>{scrollBloq=false;},0);}
+  const S=history.state||{},deCajon=!!S.cajon&&(location.hash!==h||!H.classList.contains('fx-cajon'));
+  if(location.hash!==h||deCajon){
+    const vieja=decodeURIComponent(location.hash.replace(/^#/,'')),ahora=Date.now();
+    // (3.ª QA 2) «ir al campo» (Revisión, buscador, avisos) que pasa por una vista intermedia (la app pone «#visita» → Empresa y luego el
+    // campo resulta estar en Visita): la vista final reemplaza a la intermedia en la MISMA entrada
+    const ajuste=ahora-tDestello<450&&ahora-tEntrada<1500;
+    // primera vez, Atrás / Adelante, la entrada es de un equipo eliminado, o es la del cajón (se navegó desde el cajón): se reemplaza
+    if(hashUlt===null||!eqExiste(vieja)||deCajon||ajuste)history.replaceState({fx:navIdx},'',h);
+    else if(location.hash!==hashUlt){navIdx++;history.replaceState({fx:navIdx},'',h);tEntrada=ahora;}   // la app acaba de agregar «#paso»: esa entrada es la vista
+    else{navIdx++;history.pushState({fx:navIdx},'',h);tEntrada=ahora;}
+  }
+  hashUlt=location.hash;
+}
+// posición en el historial (history.state.fx) para saber si Atrás o Adelante, y saltar las entradas de equipos eliminados
+let navIdx=0,tEntrada=0,tDestello=0,tragarPop=false,sobreCajon=false;
+function eqExiste(k){const m=/^equipo\/([^/]+)\//.exec(k||'');if(!m)return true;const D=DD();return !!(D&&D.equipos.some(e=>e.id===m[1]));}
+// ¿la clave es una vista que se puede abrir tal cual? (al recargar con un hash guardado)
+function vistaValida(k){if(!k||k==='inicio')return false;if(VISTAS.includes(k))return true;const m=/^equipo\/([^/]+)\/(\w+)$/.exec(k);
+  if(!m)return false;const D=DD();return !!D&&D.equipos.some(e=>e.id===m[1])&&SECS.some(s=>s[0]===m[2]);}
+window.addEventListener('popstate',()=>{const k=decodeURIComponent(location.hash.replace(/^#/,'')),S=history.state||{},st=S.fx;
+  const dir=st==null||st<navIdx?-1:1;if(st!=null)navIdx=st;
+  if(tragarPop){tragarPop=false;return;}   // la quitamos nosotros al cerrar el cajón (velo, Esc, ☰)
+  // (3.ª QA 1) con el cajón abierto, Atrás solo lo cierra
+  if(H.classList.contains('fx-cajon')&&!S.cajon){cerrarCajon();return;}
+  // entrada del cajón con el cajón cerrado: Adelante lo vuelve a abrir (teléfono); Atrás la salta
+  if(S.cajon){history.go(dir);return;}
+  // entrada de un equipo eliminado, o igual a la vista que ya se ve (queda así al eliminar el equipo que se mostraba): se salta (2.ª QA, 3)
+  if((/^equipo\//.test(k)&&!eqExiste(k))||(k===vistaUlt&&(VISTAS.includes(k)||/^equipo\//.test(k)))){history.go(dir);setTimeout(pintar,0);return;}
+  if(VISTAS.includes(k)||/^equipo\//.test(k)){hashUlt=null;irVista(k,'hist');}});
+// (2.ª QA, 1) los menús desplegables (Levantamiento ▾, ⋯) se acomodan dentro de la pantalla
+function encajaMenu(d){const c=$('.menu-caja',d);if(!c)return;c.style.transform='';c.style.maxWidth='';if(!d.open)return;
+  const m=8,W=document.documentElement.clientWidth;if(c.getBoundingClientRect().width>W-2*m)c.style.maxWidth=(W-2*m)+'px';
+  const r=c.getBoundingClientRect(),dx=r.left<m?m-r.left:r.right>W-m?W-m-r.right:0;if(dx)c.style.transform=`translateX(${Math.round(dx)}px)`;}
+document.addEventListener('toggle',ev=>{const d=ev.target;if(d&&d.matches&&d.matches('details.menu'))encajaMenu(d);},true);
+window.addEventListener('resize',()=>$$('details.menu[open]').forEach(encajaMenu));
+function irSec(sec){const e=eqActivo();if(e)irVista(`equipo/${e.id}/${sec}`);}
+function irSub(s){irVista(s);}
+
+/* ---------- Inicio: «Mis expedientes» de la app como página ---------- */
+const inicioAbierto=()=>{const m=$('#mNube');return !!m&&!m.classList.contains('oculto');};
+function abrirInicio(){if(inicioAbierto())return;try{UI().inicio();}catch(e){const b=$('#btnNube');if(b)b.click();}window.scrollTo(0,0);}
+function cerrarInicio(){if(!inicioAbierto())return;try{UI().inicioCerrar();}catch(e){const c=$('#mNube [data-cerrar]');if(c)c.click();}}
+function marcaInicio(){const a=inicioAbierto();if(H.classList.contains('fx-inicio')!==a)H.classList.toggle('fx-inicio',a);}
+
+/* ---------- contadores (de la validación de la app: ULT.err / ULT.warn) ---------- */
+function cuenta(f){if(!ok())return{n:0,w:0};const U=UI().ULT;return{n:U.err.filter(f).length,w:U.warn.filter(f).length};}
+const esEmpresa=x=>x.paso==='visita'&&(EMPRESA_SEL.includes(x.sel)||EMPRESA_K.includes(x.k));
+const esRutas=x=>x.sel==='#pc-rutas';
+const esPlanoEq=id=>x=>x.paso==='plano'&&x.eq===id&&!esRutas(x);
+const deSec=(id,s)=>s==='plano'?esPlanoEq(id):(x=>x.eq===id&&x.sec===s);
+// pendientes del paso Personas que viven en Ajustes (personas de FenixMex, logo): se reconocen por dónde está su campo
+function enAjustes(x){if(x.paso!=='personas')return false;let el=null;try{el=x.sel?$(x.sel):x.k?$(`#p-personas [data-campo="${x.k}"]`):null;}catch(_){}return !!(el&&el.closest('#p2Ajustes'));}
+function cnt(el,c){if(!el)return;pon(el,'className','fx-cnt '+(c.n?'err':c.w?'warn':''));pon(el,'textContent',c.n?String(c.n):c.w?'!':'');pon(el,'title',c.n?`${c.n} dato(s) pendiente(s)`:c.w?`${c.w} aviso(s)`:'');}
+function estadoEq(id){const c=cuenta(x=>x.eq===id);return c.n?'err':c.w?'warn':'ok';}
+function ncDe(e){try{return !!UI().resultadoEq(e).nc;}catch(_){return false;}}
+function catTxt(e){try{return UI().catDe(e)||'';}catch(_){return '';}}
+function eqActivo(){const D=DD();if(!D)return null;try{return UI().eqAct();}catch(_){const b=$('#eqTabs [aria-selected="true"]');return b?D.equipos.find(e=>e.id===b.dataset.eqt):D.equipos[0];}}
+
+/* ---------- lista de equipos: los botones de #eqTabs (la app los arma) con piel P2 ---------- */
+function decorar(){
+  const D=DD();if(!ok()||!D)return;
+  $$('#eqTabs .eqtab').forEach(b=>{
+    const e=D.equipos.find(x=>x.id===b.dataset.eqt);if(!e)return;
+    const i=D.equipos.indexOf(e),c=catTxt(e),st=estadoEq(e.id),k=cuenta(x=>x.eq===e.id),nc=ncDe(e);
+    const firma=[e.tag,e.nombre,c,st,k.n,k.w,nc,i].join('|');if(b.dataset.p2f===firma&&$(".fx-eq",b))return;
+    b.dataset.p2f=firma;
+    const res=k.n?`${k.n} pendiente${k.n>1?'s':''}`:k.w?`${k.w} aviso${k.w>1?'s':''}`:'completo';
+    b.title=`${e.tag||'sin TAG'} · ${e.nombre||'Equipo sin nombre'} · Cat ${c||'—'} · ${res}${nc?' · NO CUMPLE':''}`;
+    const old=$('.fx-eq',b);if(old)old.remove();
+    b.insertAdjacentHTML('beforeend',`<span class="fx-eq"><span class="fx-num">${String(i+1).padStart(2,'0')}<i class="fx-pto ${st}"></i></span><span class="fx-lb"><b>${escH(e.tag||'Sin TAG')}</b><small>Cat ${escH(c||'—')} · ${res}</small></span>${nc?'<span class="fx-nc">NO CUMPLE</span>':''}</span>`);
+  });
+}
+/* subtítulo «Construcción y plano» en Datos (antes del material vinculado): la app vuelve a armar el formulario, se repone cada vez */
+function subtitulos(){
+  const m=$('#sec-ident [data-res="mat"]');
+  if(m&&!(m.previousElementSibling&&m.previousElementSibling.classList.contains('fx-subt')))m.insertAdjacentHTML('beforebegin','<h4 class="fx-subt">Construcción y plano</h4>');
+}
+
+/* ================= FASE 3 ================= */
+const SEC_NOM=Object.fromEntries(SECS);
+const PASO_T={visita:'Visita',equipos:'Equipos',plano:'Plano',personas:'Personas',revision:'Revisión',generar:'Generar'};
+// dónde vive un pendiente / aviso de la app (para mostrarlo): «COM-03 · Dictamen», «Personas», «Ajustes»…
+function donde(x){const D=DD(),e=x.eq&&D?D.equipos.find(q=>q.id===x.eq):null,t=e?(e.tag||'Equipo '+(D.equipos.indexOf(e)+1)):'';
+  const s=x.paso==='plano'?(esRutas(x)?'Rutas de evacuación':'Plano'):x.sec?SEC_NOM[x.sec]:esEmpresa(x)?'Empresa':enAjustes(x)?'Ajustes':PASO_T[x.paso]||'';
+  return [t,s].filter(Boolean).join(' · ');}
+const irX=x=>{cerrarInicio();try{UI().ir(x);}catch(e){console.error('ir al campo',e);}};
+// (1) navegador de avisos del equipo: los pendientes (err) y avisos (warn) de la validación de la app cuyo equipo es el activo
+const AV={eq:null,firma:'',i:0,mov:false};
+function avisosDe(id){if(!ok())return[];const U=UI().ULT;return U.err.filter(x=>x.eq===id).map(x=>({x,s:'err'})).concat(U.warn.filter(x=>x.eq===id).map(x=>({x,s:'warn'})));}
+function pintarAvisos(e,enEq){
+  const box=$('#p2Avisos');if(!box)return;
+  if(!enEq){pon(box,'hidden',true);return;}
+  const L=avisosDe(e.id),firma=e.id+'|'+L.map(a=>a.s+a.x.m).join('|');
+  if(AV.eq!==e.id||AV.firma!==firma){if(AV.eq!==e.id){AV.i=0;AV.mov=false;}AV.eq=e.id;AV.firma=firma;if(AV.i>=L.length)AV.i=0;}
+  if(!L.length){pon(box,'hidden',true);return;}
+  const n=L.filter(a=>a.s==='err').length,w=L.length-n,a=L[AV.i],tag=escH(e.tag||'este equipo');
+  const tit=[n?`${n} pendiente${n>1?'s':''}`:'',w?`${w} aviso${w>1?'s':''}`:''].filter(Boolean).join(' y ')+` en ${tag}`;
+  const html=`<span class="fx-av-ico ${n?'err':'warn'}" aria-hidden="true">${n?'✕':'!'}</span><div class="fx-av-t"><b>${tit}</b><span class="fx-av-m"><i class="${a.s}">${a.s==='err'?'Falta':'Atención'}</i>${escH(a.x.m)}<small> · ${escH(donde(a.x))}</small></span></div>
+    <div class="fx-av-nav">${L.length>1?`<button type="button" class="fx-av-fl" data-p2av="prev" aria-label="Aviso anterior" title="Anterior (Alt ↑)">‹</button><span class="fx-av-k">${AV.i+1} de ${L.length}</span><button type="button" class="fx-av-fl" data-p2av="next" aria-label="Aviso siguiente" title="Siguiente (Alt ↓)">›</button>`:''}<button type="button" class="btn chico" data-p2av="ir">${AV.mov?'Ir al campo':'Ir al primero'} →</button></div>`;
+  box.className='fx-avisos '+(n?'err':'warn');
+  if(box._h!==html){box.innerHTML=html;box._h=html;}pon(box,'hidden',false);
+}
+function moverAviso(d){const e=eqActivo();if(!e)return;const L=avisosDe(e.id);if(!L.length)return;
+  AV.i=d==='ir'?AV.i:(AV.i+(d==='next'?1:-1)+L.length)%L.length;AV.mov=true;const x=L[AV.i].x;box_h_reset();irX(x);pintar();}
+function box_h_reset(){const b=$('#p2Avisos');if(b)b._h='';}
+// anillo de avance del equipo: secciones sin pendientes / 8 (mismas reglas que las pestañas)
+function pintarAnillo(e,enEq){
+  const el=$('#p2Anillo');if(!el)return;if(!enEq){pon(el,'hidden',true);return;}
+  const U=UI().ULT,b=SECS.filter(([s])=>!U.err.some(deSec(e.id,s))&&!U.warn.some(deSec(e.id,s))).length,pc=Math.round(100*b/SECS.length),r=21,C=2*Math.PI*r,est=estadoEq(e.id);
+  const html=`<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="${r}" class="f"/><circle cx="26" cy="26" r="${r}" class="v ${est}" stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b>`;
+  if(el._h!==html){el.innerHTML=html;el._h=html;}pon(el,'hidden',false);
+  const k=cuenta(x=>x.eq===e.id),t=`${e.tag||'Equipo'}: ${b} de ${SECS.length} secciones sin pendientes ni avisos (${pc} %)${k.n?` · ${k.n} pendiente${k.n>1?'s':''}`:''}${k.w?` · ${k.w} aviso${k.w>1?'s':''}`:''}`;if(el.title!==t){el.title=t;el.setAttribute('aria-label',t);}
+}
+// (2) Revisión: contadores Faltan / Atención / Avance e «Ir a generar»
+function pintarRevCab(pc){
+  const el=$('#p2RevCab');if(!el||paso()!=='revision')return;const U=UI().ULT,n=U.err.length,w=U.warn.length;
+  const html=`<div class="fx-rc ${n?'err':'ok'}"><span>Faltan</span><b>${n}</b><small>${n?'impiden generar':'nada impide generar'}</small></div><div class="fx-rc ${w?'warn':'ok'}"><span>Atención</span><b>${w}</b><small>avisos · no impiden generar</small></div><div class="fx-rc av"><span>Avance</span><b>${pc}%</b><div class="fx-barra${pc>=100?' ok':''}"><i style="width:${pc}%"></i></div></div><div class="fx-rc-acc"><button type="button" class="btn ${n?'':'prim'}" data-ir-paso="generar">Ir a generar →</button></div>`;
+  if(el._h!==html){el.innerHTML=html;el._h=html;}
+}
+// (3) Generar: lista de lo que falta, cada uno con «Ir al campo»
+let FALTAN=[];
+function pintarFaltan(){
+  const el=$('#p2Faltan');if(!el||paso()!=='generar')return;FALTAN=UI().ULT.err.slice();
+  const html=FALTAN.length?`<ul class="fx-faltan">${FALTAN.map((x,k)=>`<li><span class="m">${escH(x.m)}<small>${escH(donde(x))}</small></span><button type="button" class="btn chico" data-p2falta="${k}">Ir al campo →</button></li>`).join('')}</ul>`:'';
+  if(el._h!==html){el.innerHTML=html;el._h=html;}
+}
+// (4) «deshabilitar con motivo, no ocultar»: folio y «usado o nuevo» fuera de Cat I / II (lo llama actEq de la app en lugar de ocultarlos)
+window.FXP2Bloq=(el,b,c)=>{
+  el.classList.remove('oculto');el.classList.toggle('fx-bloq',!!b);
+  $$('input,select,textarea',el).forEach(i=>{if(i.disabled!==!!b)i.disabled=!!b;});
+  let m=$('.fx-motivo',el);if(b&&!m){m=document.createElement('div');m.className='fx-motivo';el.appendChild(m);}
+  if(m){m.hidden=!b;m.textContent=b?`Solo Cat I y II · este equipo es ${c?'Cat '+c:'sin categoría'}`:'';}
+};
+// (5) buscador: el índice de la app (campos) + equipos, secciones y Ajustes; los de Personas que viven en Ajustes se rotulan «Ajustes»
+window.FXP2Indice=out=>{
+  try{
+    out.forEach(c=>{const s=c.x&&c.x.sel;let el=null;try{el=s?$(s):null;}catch(_){}if(el&&el.closest('#p2Ajustes'))c.d=c.d.replace(/^Personas/,'Ajustes');});
+    const D=DD(),mas=[];if(!D)return out;
+    const sec=(t,d,x,v)=>mas.push({t,d,v:v||'sección',x});
+    sec('Mis expedientes','Inicio · historial en la nube, importar, nuevo expediente',{sel:'#p2IrInicio'},'página');
+    sec('Empresa','Expediente · razón social, RFC, domicilio',{paso:'visita',sel:'#t-empresa'});
+    sec('Visita','Expediente · emergencias, tríptico y documentos',{paso:'visita',sel:'#t-tel94'});
+    sec('Personas y firmas','Expediente · representante legal y testigos',{paso:'personas',sel:'#per-rep'});
+    sec('Rutas de evacuación','Expediente · Anexo No. 1',{paso:'plano',sel:'#pc-rutas'});
+    sec('Ajustes','FenixMex · responsable técnico, técnicos PND, logo',{paso:'personas',sel:'#p2Ajustes'},'página');
+    sec('Revisión','Entregar · pendientes y avisos',{paso:'revision'});
+    sec('Generar','Entregar · expediente, Cat I / II y ZIP',{paso:'generar'});
+    D.equipos.forEach((e,n)=>{const c=catTxt(e),q=e.tag||'Equipo '+(n+1),k=cuenta(x=>x.eq===e.id);
+      mas.push({t:`${q} · ${e.nombre||'Equipo sin nombre'}`,d:`Equipo ${n+1} · ${[e.ubicacion,e.numeroSerie&&'serie '+e.numeroSerie].filter(Boolean).join(' · ')}`,v:`Cat ${c||'—'}${k.n?` · ${k.n} pendiente${k.n>1?'s':''}`:k.w?` · ${k.w} aviso${k.w>1?'s':''}`:' · completo'}`,x:{paso:'equipos',eq:e.id,sec:'ident'}});
+      SECS.forEach(([s,t])=>mas.push({t:`${q} › ${t}`,d:`Equipo ${n+1} · pestaña`,v:'sección',x:s==='plano'?{paso:'plano',eq:e.id,sel:'#pc-geo'}:{paso:'equipos',eq:e.id,sec:s}}));});
+    return mas.concat(out);
+  }catch(e){console.error('índice del buscador',e);return out;}
+};
+// (QA 3) «Dibujó» vive en el cajetín del Plano del equipo: la lista de la app (dibRender) se arma aquí también y solo se ve el renglón del activo
+function dibujo(p,e){
+  const box=$('#dibLista'),D=DD();if(!box||!D)return;
+  const firma=D.equipos.map(q=>q.id+':'+(q.tag||'')+':'+(q.nombre||'')).join('|');
+  if(box._f!==firma||!box.children.length){box._f=firma;try{UI().dib();}catch(_){}}
+  const id=e&&e.id;
+  $$('.dib-fila',box).forEach(r=>{const i=$('[data-dib]',r),o=!!i&&i.dataset.dib!==id;if(r.classList.contains('fx-otro')!==o)r.classList.toggle('fx-otro',o);});
+}
+// (QA 8) obligatorios capturados: campos con «*» fijo (no los que dependen de la categoría) y su valor en el borrador
+function avanceReq(D){
+  let tot=0,hay=0;const G=(window.FXNube.datos()||{}).G||{},lleno=v=>String(v??'').trim()!=='';
+  $$('#p-visita .campo,#p-personas .campo').forEach(c=>{const r=$('label .req',c);if(!r||r.classList.contains('oculto'))return;
+    const i=$('[data-d],[data-g]',c);if(!i)return;tot++;if(lleno(i.dataset.d?D[i.dataset.d]:G[i.dataset.g]))hay++;});
+  const ks=[];$$('#eqForm .campo').forEach(c=>{const r=$('label .req:not([data-req])',c),i=$('[data-e],[data-epl]',c);if(r&&i)ks.push(i.dataset.e?['e',i.dataset.e]:['p',i.dataset.epl]);});
+  D.equipos.forEach(e=>ks.forEach(([t,k])=>{tot++;if(lleno(t==='e'?e[k]:(e.plano||{})[k]))hay++;}));
+  return tot?hay/tot:1;
+}
+// (QA 4) Revisión: grupo y rótulo de «Ir al campo» según dónde vive el campo en el armazón (Ajustes, Empresa, Rutas…)
+const PASO_GRUPO={visita:'Visita',equipos:'Equipos',plano:'Plano',personas:'Personas',revision:'Revisión',generar:'Generar'};
+window.FXP2Grupo=x=>enAjustes(x)?'Ajustes':esEmpresa(x)?'Empresa':esRutas(x)?'Rutas de evacuación':PASO_GRUPO[x.paso]||'Otros';
+window.FXP2Donde=x=>enAjustes(x)?'Ajustes':esEmpresa(x)?'Empresa':esRutas(x)?'Rutas de evacuación':x.paso==='plano'?'Plano':x.sec?(SEC_NOM[x.sec]||''):PASO_GRUPO[x.paso]||'';
+// (QA 6) buscador: primero lo que coincide exacto, luego lo que empieza igual, luego por palabra…; los campos deshabilitados al final
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+window.FXP2Orden=(L,q,nz)=>{
+  const qs=q.join(' '),D=DD();
+  const bloq=c=>{const x=c.x||{};if(!x.eq||!(x.k==='folio'||x.k==='estadoEquipo')||!D)return false;const e=D.equipos.find(z=>z.id===x.eq),k=e&&catTxt(e);return !(k==='I'||k==='II');};
+  const pts=c=>{if(bloq(c))return -1000;if(!qs)return 0;const T=nz(c.t);
+    return T===qs?100:T.startsWith(qs)?80:new RegExp('(^|[^a-z0-9])'+escRe(qs)).test(T)?70:T.includes(qs)?60:q.every(w=>T.includes(w))?40:0;};
+  return L.map((c,i)=>({c,i,p:pts(c)})).sort((a,b)=>b.p-a.p||a.i-b.i).map(o=>o.c);
+};
+// (6) modo por pasos (teléfono): recorre Empresa, Visita, Personas, Rutas, cada equipo pestaña por pestaña, Revisión y Generar
+let PASOS_ON=false;try{PASOS_ON=localStorage.getItem('fenixmex-p2-pasos')==='1';}catch(_){}
+const enTelefono=()=>matchMedia('(max-width:767px)').matches;
+function pasosLista(){const D=DD();if(!D)return[];const L=[{k:'sub',v:'empresa',t:'Empresa'},{k:'sub',v:'visita',t:'Visita'},{k:'sub',v:'personas',t:'Personas y firmas'},{k:'sub',v:'rutas',t:'Rutas de evacuación'}];
+  D.equipos.forEach((e,n)=>SECS.forEach(([s,t])=>L.push({k:'eq',id:e.id,sec:s,t:`${e.tag||'Equipo '+(n+1)} · ${t}`})));
+  L.push({k:'paso',v:'revision',t:'Revisión'},{k:'paso',v:'generar',t:'Generar'});return L;}
+function pasoIdx(L){if(inicioAbierto())return -1;const p=paso(),e=eqActivo();
+  if(p==='visita')return sub==='visita'?1:0;if(p==='personas')return sub==='ajustes'?-1:2;if(p==='plano'&&sub==='rutas')return 3;
+  if((p==='equipos'||p==='plano')&&e){const s=p==='plano'?'plano':(abiertos()[0]||ultSec);return L.findIndex(q=>q.k==='eq'&&q.id===e.id&&q.sec===s);}
+  return L.findIndex(q=>q.k==='paso'&&q.v===p);}
+function irPasoN(q){if(!q)return;irVista(q.k==='eq'?`equipo/${q.id}/${q.sec}`:q.v,'pasos');}
+function modoPasos(on){PASOS_ON=on;try{localStorage.setItem('fenixmex-p2-pasos',on?'1':'');}catch(_){}
+  if(on){cerrarInicio();cerrarCajon();const L=pasosLista();if(pasoIdx(L)<0)irPasoN(L[0]);}pintar();}
+function pintarPasos(){
+  const act=PASOS_ON&&enTelefono();if(H.classList.contains('fx-pasos')!==act)H.classList.toggle('fx-pasos',act);
+  const btn=$('#p2PasosBtn');if(btn&&btn.getAttribute('aria-pressed')!==String(PASOS_ON))btn.setAttribute('aria-pressed',String(PASOS_ON));
+  pon($('#p2PasosSup'),'hidden',!act);pon($('#p2PasosInf'),'hidden',!act);if(!act)return;
+  const L=pasosLista(),i=pasoIdx(L),n=L.length,pc=i<0?0:Math.round(100*(i+1)/n);
+  pon($('#p2PasosTxt'),'textContent',i<0?'Modo por pasos · toca «Siguiente» para empezar':`Paso ${i+1} de ${n} · ${L[i].t}`);
+  const br=$('#p2PasosBarra i');if(br&&br.style.width!==pc+'%')br.style.width=pc+'%';
+  const ant=$('#p2PasosAnt'),sig=$('#p2PasosSig');pon(ant,'disabled',i<=0);
+  pon(sig,'textContent',i>=n-1?'Fin del recorrido':`Siguiente: ${L[Math.min(n-1,i+1)].t} →`);pon(sig,'disabled',i>=n-1);
+}
+
+/* ---------- pintar el armazón ---------- */
+const NOM_SUB={empresa:['Empresa','Datos de la empresa cliente · se capturan una vez y se usan en todo el expediente'],visita:['Visita','Antes de la visita, tríptico, directorio de emergencias y documentos'],rutas:['Rutas de evacuación','Una por expediente · marca todos los equipos (Anexo No. 1)'],
+  personas:['Personas y firmas','De la empresa cliente · solo este expediente'],ajustes:['Ajustes','De FenixMex · se usan en todos los expedientes (en la nube) · logo de las hojas']};
+const NOM_PASO={revision:'Revisión',generar:'Generar'};
+function pintar(){if(pend)return;pend=true;requestAnimationFrame(()=>{pend=false;try{pintarYa();}catch(e){console.error('armazón P2',e);}obs.takeRecords();});}
+function pintarYa(){
+  subValida();marcaInicio();
+  const D=DD();if(!ok()||!D)return;
+  const ini=inicioAbierto(),p=paso(),e=eqActivo(),enEq=!ini&&!!e&&(p==='equipos'||(p==='plano'&&sub!=='rutas'));
+  if(p==='equipos')normaliza();
+  subtitulos();
+  const sec=p==='plano'?'plano':(abiertos()[0]||ultSec);
+  B.dataset.p2ini=ini?'1':'';
+  // lateral: activo y contadores
+  $$('#lat .fx-it,#lat .fx-aj').forEach(b=>{const k=b.dataset.p2,a=ini?k==='inicio':((k==='empresa'&&p==='visita')||(k==='rutas'&&p==='plano')||(k==='ajustes'&&p==='personas'))&&sub===k;
+    if(b.classList.contains('fx-act')!==a)b.classList.toggle('fx-act',a);if(a!==b.hasAttribute('aria-current'))b.toggleAttribute('aria-current',a);});
+  {const otro=(li,c)=>{if(li&&li.classList.contains('fx-sub-otro')!==c)li.classList.toggle('fx-sub-otro',c);};
+   otro($('#pasos li[data-paso="visita"]'),ini||sub==='empresa');otro($('#pasos li[data-paso="personas"]'),ini||sub==='ajustes');
+   ['equipos','revision','generar'].forEach(q=>otro($(`#pasos li[data-paso="${q}"]`),ini));
+   const lp=$('#pasos li[data-paso="equipos"]');if(lp&&lp.classList.contains('fx-plano')!==(p==='plano'&&sub==='rutas'))lp.classList.toggle('fx-plano',p==='plano'&&sub==='rutas');}
+  cnt($('[data-p2cnt="empresa"]'),cuenta(esEmpresa));
+  cnt($('[data-p2cnt="visita"]'),cuenta(x=>x.paso==='visita'&&!esEmpresa(x)));
+  cnt($('[data-p2cnt="rutas"]'),cuenta(esRutas));
+  cnt($('[data-p2cnt="personas"]'),cuenta(x=>x.paso==='personas'&&!enAjustes(x)));
+  cnt($('[data-p2cnt="ajustes"]'),cuenta(enAjustes));
+  // avance: por equipo 7 secciones + su plano, más el paso Visita y el de Personas; completa = sin datos pendientes
+  let pc=0;
+  {const U=UI().ULT;
+    // (QA 8) avance = datos obligatorios capturados / obligatorios (los que la app marca con «*» en Empresa, Personas, Ajustes y en el
+    // formulario del equipo, por cada equipo); 100 % solo sin pendientes. Así un expediente vacío no aparenta avance.
+    pc=Math.floor(100*avanceReq(D));if(U.err.length&&pc>=100)pc=99;if(!U.err.length)pc=100;
+    for(const br of [$('#p2Barra'),$('#p2LocBarra')])if(br){if(br.classList.contains('ok')!==(pc>=100))br.classList.toggle('ok',pc>=100);const i=$('i',br);if(i.style.width!==pc+'%')i.style.width=pc+'%';if(br.getAttribute('aria-valuenow')!==String(pc))br.setAttribute('aria-valuenow',pc);}
+    pon($('#p2AvTxt'),'textContent',pc+' %');}
+  pon($('#p2NumEq'),'textContent',' · '+D.equipos.length);
+  decorar();
+  const rs=String(D.razonSocialPropietario||'').trim()||'Expediente sin nombre';
+  // Inicio: tarjeta del expediente abierto en este navegador
+  if(ini){const U=UI().ULT,n=D.equipos.length,hj=($('#rsPaginas')||{}).textContent||'—';
+    pon($('#p2LocRs'),'textContent',rs);
+    pon($('#p2LocMeta'),'textContent',`${n} equipo${n===1?'':'s'} · ${hj} hojas · ${U.err.length?U.err.length+' pendiente'+(U.err.length>1?'s':''):'listo para generar'}`);
+    pon($('#p2LocAv'),'textContent',pc+' %');}
+  // encabezado y pestañas
+  const enc=$('#p2Encab'),tabs=$('#p2Tabs'),tit=$('#p2Tit'),nom=$('#p2Nom'),acc=$('.fx-acc',enc),conSub=!ini&&NOM_SUB[sub]&&SUBS[p]&&SUBS[p].includes(sub);
+  if(enEq){
+    const c=catTxt(e),nc=ncDe(e);
+    pon(tit,'innerHTML',`${escH(e.tag||'Sin TAG')}<span class="fx-cat ${({I:'c1',II:'c2',III:'c3'})[c]||'c0'}">Cat ${escH(c||'—')}</span>${nc?'<span class="fx-chip nc">✕ No cumple</span>':''}`);
+    pon(nom,'textContent',[e.nombre||'Equipo sin nombre',e.ubicacion].filter(Boolean).join(' · '));
+    pon(enc,'hidden',false);pon(acc,'hidden',false);pon(tabs,'hidden',false);
+    const html=SECS.map(([s,t])=>{const k=cuenta(deSec(e.id,s));
+      const mk=k.n?`<span class="fx-mk err" title="${k.n} dato(s) pendiente(s)" aria-label="${k.n} pendientes">✕</span>`:k.w?`<span class="fx-mk warn" title="${k.w} aviso(s)" aria-label="${k.w} avisos">!</span>`:'';
+      return `<button type="button" role="tab" data-p2tab="${s}" aria-selected="${s===sec}" tabindex="${s===sec?0:-1}">${t}${mk}</button>`;}).join('');
+    if(tabs._h!==html){tabs.innerHTML=html;tabs._h=html;}
+  }else if(conSub){
+    pon(tit,'textContent',NOM_SUB[sub][0]);pon(nom,'textContent',NOM_SUB[sub][1]);pon(enc,'hidden',false);pon(acc,'hidden',true);pon(tabs,'hidden',true);
+  }else{pon(enc,'hidden',true);pon(tabs,'hidden',true);}
+  // migas
+  const rsC=rs.length>34?rs.slice(0,32)+'…':rs,sep='<span class="fx-sep fx-ant">›</span>';
+  let m;
+  if(ini)m=['<b>Mis expedientes</b>'];
+  else if(p==='personas'&&sub==='ajustes')m=['<button type="button" class="fx-ant" data-p2ir="inicio">Inicio</button>',sep,'<b>Ajustes</b>'];
+  else{
+    m=[`<button type="button" class="fx-ant" data-p2ir="empresa" title="${escH(rs)}">${escH(rsC)}</button>`];
+    if(enEq)m.push(sep,'<button type="button" class="fx-ant" data-p2ir="equipos">Equipos</button>',sep,`<b>${escH(e.tag||'Sin TAG')}</b>`,'<span class="fx-sep">›</span>',`<span>${(SECS.find(x=>x[0]===sec)||SECS[0])[1]}</span>`);
+    else if(conSub)m.push(sep,`<b>${NOM_SUB[sub][0]}</b>`);
+    else if(NOM_PASO[p])m.push(sep,`<b>${NOM_PASO[p]}</b>`);
+  }
+  pon($('#p2Migas'),'innerHTML',m.join(''));
+  // fase 3
+  pintarAvisos(e,enEq);pintarAnillo(e,enEq);pintarRevCab(pc);pintarFaltan();pintarPasos();
+  dibujo(p,e);
+  sincroniza();
+}
+
+/* ---------- cajón (teléfono) ---------- */
+function cerrarCajon(atras){if(!H.classList.contains('fx-cajon'))return;H.classList.remove('fx-cajon');const b=$('#p2Menu');if(b)b.setAttribute('aria-expanded','false');
+  if(atras&&history.state&&history.state.cajon)history.replaceState({fx:history.state.fx},'',location.hash);}
+// (3.ª QA 1) el cajón del teléfono es una entrada del historial: Atrás lo cierra sin cambiar de vista
+function abrirCajon(){if(H.classList.contains('fx-cajon'))return;H.classList.add('fx-cajon');const b=$('#p2Menu');if(b)b.setAttribute('aria-expanded','true');
+  if(!(history.state&&history.state.cajon)){navIdx++;history.pushState({fx:navIdx,cajon:1},'',location.hash);}}
+
+/* ---------- clics ---------- */
+document.addEventListener('click',ev=>{
+  const li=ev.target.closest&&ev.target.closest('#pasos li[data-paso]>button');if(!li||interno)return;
+  ev.stopPropagation();ev.preventDefault();const q=li.parentElement.dataset.paso,e=eqActivo();
+  irVista(q==='equipos'||q==='plano'?(e?`equipo/${e.id}/${q==='plano'?'plano':ultSec}`:'equipos'):q);
+},true);
+document.addEventListener('click',ev=>{
+  const t=ev.target;
+  const it=t.closest('#lat [data-p2]');if(it){ev.preventDefault();irSub(it.dataset.p2);return;}
+  // equipo en la lateral: la app lo hace activo (setEq); desde otro paso (o desde Inicio) se abre el equipo
+  if(ev.composedPath().some(n=>n.id==='eqTabs')&&ev.composedPath().some(n=>n.dataset&&n.dataset.eqt)){   // la app re-arma #eqTabs al hacer clic: se mira la ruta del evento
+  const p0=paso(),s0=sub,y0=window.scrollY,k0=vistaUlt;if(k0)SCR[k0]=y0;
+  setTimeout(()=>{const e=eqActivo();if(e)irVista(`equipo/${e.id}/${p0==='plano'&&s0!=='rutas'?'plano':ultSec}`);},0);}
+  const tb=t.closest('[data-p2tab]');if(tb){irSec(tb.dataset.p2tab);return;}
+  const mi=t.closest('[data-p2ir]');if(mi){if(mi.dataset.p2ir==='equipos')irSec(ultSec);else irSub(mi.dataset.p2ir);return;}
+  const av=t.closest('[data-p2av]');if(av){moverAviso(av.dataset.p2av);return;}
+  const fa=t.closest('[data-p2falta]');if(fa){const x=FALTAN[+fa.dataset.p2falta];if(x)irX(x);return;}
+  if(t.closest('#p2PasosBtn')){modoPasos(!PASOS_ON);return;}
+  if(t.closest('#p2PasosSalir')){modoPasos(false);return;}
+  const pa=t.closest('#p2PasosAnt,#p2PasosSig');if(pa){const L=pasosLista(),i=pasoIdx(L);irPasoN(L[Math.max(0,Math.min(L.length-1,i<0?0:i+(pa.id==='p2PasosSig'?1:-1)))]);return;}
+  const ac=t.closest('[data-p2acc]');
+  if(ac){const a=ac.dataset.p2acc;
+    if(a==='continuar'){cerrarInicio();irVista(vistaAct());}
+    else if(a==='nuevo'){const antes=DD(),b=$('#btnNuevo');if(b)b.click();entrarSiCambia(antes);}   // «Nuevo expediente» de la app (pide confirmación)
+    return;}
+  const mb=t.closest('#p2Menu');if(mb){if(H.classList.contains('fx-cajon'))cerrarCajon(true);else{abrirCajon();const f=$('#lat button');if(f)f.focus();}return;}
+  if(t.closest('#p2Velo'))cerrarCajon(true);
+  if(t.closest('#btnNube,#btnBuscar'))cerrarCajon();   // abren Inicio / el buscador: el cajón se cierra (su entrada la toma la vista nueva)
+});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'&&H.classList.contains('fx-cajon')){cerrarCajon(true);const m=$('#p2Menu');if(m)m.focus();}
+  if(ev.altKey&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')&&!$('#p2Avisos').hidden){ev.preventDefault();moverAviso(ev.key==='ArrowDown'?'next':'prev');return;}
+  const tb=ev.target.closest&&ev.target.closest('[data-p2tab]');
+  if(tb&&(ev.key==='ArrowRight'||ev.key==='ArrowLeft')){const bs=$$('#p2Tabs [data-p2tab]'),i=bs.indexOf(tb),n=bs[(i+(ev.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.click();requestAnimationFrame(()=>requestAnimationFrame(()=>{const x=$(`#p2Tabs [data-p2tab="${n.dataset.p2tab}"]`);if(x)x.focus();}));ev.preventDefault();}
+});
+// importar un borrador desde Inicio (o desde Generar): al terminar, se entra al expediente importado
+function entrarSiCambia(antes){let n=0;const t=setInterval(()=>{if(DD()!==antes||++n>100){clearInterval(t);if(DD()!==antes&&inicioAbierto())irSub('empresa');}},100);}
+document.addEventListener('change',ev=>{if(ev.target&&ev.target.id==='fImport'&&inicioAbierto()&&ev.target.files&&ev.target.files.length)entrarSiCambia(DD());},true);
+
+/* ---------- observadores ---------- */
+function asegura(el){   // «ir al campo» (Revisión, buscador, «editar»…) destacó un campo que vive en otra sub-vista o pestaña: mostrarla
+  tDestello=Date.now();cerrarCajon();
+  if(el.id==='p2IrInicio'){el.classList.remove('destello');abrirInicio();pintar();return;}
+  cerrarInicio();
+  if(el.closest('#t-empresa'))ponSub('empresa');else if(el.closest('#p-visita'))ponSub('visita');
+  else if(el.closest('#pc-rutas'))ponSub('rutas');else if(el.closest('#p-plano'))ponSub('plano');
+  else if(el.closest('#p2Ajustes'))ponSub('ajustes');else if(el.closest('#p-personas'))ponSub('personas');
+  else{const b=el.closest('#eqForm .bloque');if(b)abrirSec(b.dataset.sec);}
+  subValida();pintar();setTimeout(()=>{if(el.offsetParent)el.scrollIntoView({block:'center'});},80);
+}
+const obs=new MutationObserver(ms=>{
+  let re=false,abre=null;
+  for(const m of ms){
+    const el=m.target;
+    if(m.type==='childList'){re=true;continue;}
+    if(m.attributeName==='data-paso'&&el===B){if(inicioAbierto())cerrarInicio();subValida();re=true;continue;}   // la app cambió de paso (Revisión, «Listo para generar»…): se sale de Inicio
+    if(m.attributeName==='class'&&el.classList){
+      if(el.id==='mNube'){re=true;continue;}
+      if(el.classList.contains('destello')&&!String(m.oldValue||'').split(/\s+/).includes('destello'))asegura(el);
+      if(el.classList.contains('bloque')&&el.closest('#eqForm')){re=true;if(!el.classList.contains('cerrado')&&String(m.oldValue||'').includes('cerrado'))abre=el.dataset.sec;}
+    }
+  }
+  if(abre&&abiertos().length>1)abrirSec(abre);   // se abrió otra sección (irA, una prueba, el teclado) → pasa a ser la pestaña activa
+  if(re)pintar();
+});
+// al abrir la app se entra por Inicio (P2): cuando la app terminó de cargar (ya no dice «Cargando…»)
+// (fase 3: el arranque de la app puede cambiar de paso o repintar «Mis expedientes» justo después; se reintenta hasta que Inicio quede abierto
+//  y estable, salvo que el usuario ya haya tocado algo)
+let tocado=false;
+['pointerdown','keydown','click','change','input'].forEach(t=>document.addEventListener(t,()=>{tocado=true;},true));
+// (2.ª QA, 2) al recargar o abrir un enlace con la vista en el hash (#equipo/<id>/<pestaña>, #ajustes, #revision…) se abre esa vista;
+// sin hash, con uno viejo o desconocido (#equipos, #plano, #levantamiento, #s-generar…) o de un equipo que ya no existe: Inicio
+function landing(){
+  const k0=decodeURIComponent(HASH0.replace(/^#/,''));
+  let n=0,estable=0,meta=null;const t=setInterval(()=>{const est=($('#estadoGuardado')||{}).textContent||'';
+    if(tocado||++n>300){clearInterval(t);return;}
+    if(!ok()||/Cargando/.test(est)||!est.trim())return;
+    if(meta===null)meta=vistaValida(k0)?k0:'inicio';
+    if(meta==='inicio'){if(inicioAbierto()){if(++estable>=8)clearInterval(t);return;}estable=0;hashUlt=null;abrirInicio();pintar();return;}
+    if(vistaAct()===meta){if(++estable>=8)clearInterval(t);return;}
+    estable=0;hashUlt=null;irVista(meta,'hist');},100);
+}
+function iniciar(){
+  obs.observe(B,{attributes:true,attributeFilter:['data-paso']});
+  obs.observe($('#main'),{subtree:true,attributes:true,attributeFilter:['class'],attributeOldValue:true});
+  obs.observe($('#eqForm'),{childList:true});
+  obs.observe($('#eqTabs'),{childList:true});
+  obs.observe($('#topListo'),{childList:true,subtree:true,characterData:true});
+  subValida();pintar();landing();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);else iniciar();
+window.addEventListener('load',()=>setTimeout(pintar,0));
+window.addEventListener('resize',()=>pintar());
 })();
 </script>
 </body>
