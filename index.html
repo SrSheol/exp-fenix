@@ -8,7 +8,7 @@
 (function(){var M={dark:'brasa',light:'claro'},T=['claro','brasa','pizarra','musgo','indigo','mono','mono-noche'],t='brasa';try{t=localStorage.getItem('fenixmex-theme')||'brasa';}catch(e){}t=M[t]||t;if(T.indexOf(t)<0)t='brasa';var h=document.documentElement;h.setAttribute('data-theme',t);h.setAttribute('data-tono',t==='claro'||t==='mono'?'claro':'oscuro');})();
 </script>
 
-<title>[Fase 3 · P2] FenixMex · Expedientes NOM-020-STPS-2011</title>
+<title>FenixMex · Expedientes NOM-020-STPS-2011</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><rect width='24' height='24' rx='6' fill='%237d1a22'/><path d='M6.63 18.37A7.6 7.6 0 0 1 5.8 8.6' stroke='%236fb3dc' stroke-width='2.3'/><path d='M6.48 7.78A7.6 7.6 0 0 1 11.47 5.42' stroke='%23ecc56f' stroke-width='2.3'/><path d='M12.53 5.42A7.6 7.6 0 0 1 17.37 18.37' stroke='%23ff8f86' stroke-width='2.3'/><path d='M16.3 8.26L12.85 13.77 11.15 12.23z' fill='%23f6ead2'/><circle cx='12' cy='13' r='1.9' fill='%23d4ac60'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14916,7 +14916,7 @@ function nubeIniciar(){
     NB.app=(firebase.apps||[]).find(a=>a.name==='fenix')||firebase.initializeApp(NUBE.firebase,'fenix');
     NB.auth=NB.app.auth();NB.fs=NB.app.firestore();
     const em=NUBE.emulador;if(em){NB.auth.useEmulator(`http://${em.host||'127.0.0.1'}:${em.authPort||9099}`,{disableWarnings:true});NB.fs.useEmulator(em.host||'127.0.0.1',em.firestorePort||8080);}
-    NB.auth.onAuthStateChanged(async u=>{NB.usr=u||null;NB.aut=null;NB.token=null;if(u)await nubeAutorizado();nubePintar();if(NB.aut)pendProcesar();});
+    NB.auth.onAuthStateChanged(async u=>{const antes=NB.usr&&NB.usr.uid;NB.usr=u||null;NB.aut=null;NB.token=null;if(!u||u.uid!==antes){NB.hist=[];NB.histT=0;NB.cargando=false;NB.error='';}if(u)await nubeAutorizado();if(NB.usr!==(u||null))return;nubePintar();if(NB.aut===true&&!$('#mNube').classList.contains('oculto'))histCargar();if(NB.aut)pendProcesar();});
   }catch(e){console.warn('nube fenix',e);NB.error=String(e&&e.message||e);NB.app=null;}
 }
 async function nubeAutorizado(){
@@ -15275,9 +15275,9 @@ function horaRel(t){const d=t&&t.toDate?t.toDate():t?new Date(t):null;if(!d||isN
 const sinAc=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const HF={q:'',estado:''};
 async function histCargar(){
-  if(!NB.fs||!NB.usr||NB.aut!==true)return;NB.cargando=true;histPintar();
-  try{const s=await NB.fs.collection('expedientes').orderBy('updatedAt','desc').limit(1000).get();NB.hist=s.docs.map(d=>d.data());NB.histT=Date.now();NB.error='';}
-  catch(e){NB.error='No se pudo leer el historial: '+(e&&e.message||e);}
+  if(!NB.fs||!NB.usr||NB.aut!==true)return;const yo=NB.usr;NB.cargando=true;histPintar();
+  try{const s=await NB.fs.collection('expedientes').orderBy('updatedAt','desc').limit(1000).get();if(NB.usr!==yo)return;NB.hist=s.docs.map(d=>d.data());NB.histT=Date.now();NB.error='';}
+  catch(e){if(NB.usr!==yo)return;NB.error='No se pudo leer el historial: '+(e&&e.message||e);}
   NB.cargando=false;histPintar();
 }
 function nubeAbrir(){nubeIniciar();$('#mNube').classList.remove('oculto');histPintar();if(NB.aut)histCargar();setTimeout(()=>{const i=$('#histQ');if(i&&!i.disabled)i.focus();},40);}
