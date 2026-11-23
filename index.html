@@ -1664,6 +1664,55 @@ html.fx-inicio body #eqTabs .eqtab[aria-selected="true"]::before{display:none!im
 }
 @media (max-width:1023px) and (min-width:768px){.fx-barra-sup .estado{font-size:12.5px}}
 @media print{.fx-lat,.fx-barra-sup,.fx-tabs,.fx-encab{display:none}}
+
+/* ---------- Borradores (varios expedientes sin registrar en este navegador) · borradores.js ---------- */
+.fx-lat-exp>.fx-lat-bor,html .fx-lat-exp>.fx-lat-bor{display:block!important;min-width:0;max-width:100%}   /* en el cajón, «…» al cortar (un flex no lo pone) */
+.fx-lat-bor{padding:0 4px;font-size:12px;font-weight:600;color:var(--acento);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-lat-exp>.fx-lat-bor:empty{display:none!important}
+.fx-lat-bor[data-s="reg"]{color:var(--ok)}
+.fx-local-et{display:block;margin-top:2px;font-size:12.5px;font-weight:600;color:var(--acento);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-local-et[data-s="reg"]{color:var(--ok)}
+.fx-local-et:empty{display:none}
+.fx-mig-et{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;background:var(--acento-s);color:var(--acento);font-size:11.5px;font-weight:700;vertical-align:1px}
+.fx-bor{display:flex;flex-direction:column;gap:8px;margin:6px 0 4px}
+.fx-bor-cab{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px}
+.fx-bor-cab h3,.fx-reg-t{margin:0;font-size:18px;color:var(--tx)}
+.fx-bor-cab h3 small,.fx-reg-t small{font-size:13px;font-weight:500;color:var(--tx-3);margin-left:6px}
+.fx-bor-est{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fx-bor-nota{margin:0;font-size:13px;color:var(--tx-3);max-width:80ch}
+.fx-reg-cab{display:flex;flex-direction:column;gap:4px;margin-top:14px;padding-top:16px;border-top:1px solid var(--borde)}
+.fx-bor-lista{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.fx-bor-it{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 16px;padding:12px 14px;border:1px solid var(--borde);border-radius:12px;background:var(--sup)}
+.fx-bor-it.abierto{border-color:var(--acento);box-shadow:inset 3px 0 0 var(--acento)}
+.fx-bor-it.remoto{border-style:dashed;background:var(--sup-2)}
+.fx-bor-txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+.fx-bor-a{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
+.fx-bor-rs{font-size:15px;color:var(--tx);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.fx-bor-et{padding:1px 8px;border-radius:999px;background:var(--acento-s);color:var(--acento);font-size:12.5px;font-weight:700;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.fx-bor-ab{padding:1px 8px;border-radius:999px;background:var(--acento);color:var(--sobre-laton);font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.fx-bor-chip{padding:1px 8px;border-radius:999px;border:1px solid var(--borde);color:var(--tx-2);font-size:11.5px;font-weight:600;white-space:nowrap}
+.fx-bor-chip.gen{border-color:var(--ok);color:var(--ok)}
+.fx-bor-chip.corr{border-color:var(--av);color:var(--av)}
+.fx-bor-chip.drive{border-style:dashed}
+.fx-bor-d{font-size:13px;color:var(--tx-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-bor-m{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12.5px;color:var(--tx-3)}
+.fx-bor-dr{font-size:12.5px;color:var(--tx-3);white-space:nowrap}
+.fx-bor-dr.ok{color:var(--ok)}
+.fx-bor-dr.pend,.fx-bor-dr.work{color:var(--acento)}
+.fx-bor-dr.warn{color:var(--av)}
+.fx-bor-conf{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin-top:4px;padding:6px 10px;border-radius:8px;background:var(--av-s);color:var(--tx);font-size:12.5px}
+.fx-bor-acc{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.fx-bor-acc .btn{min-height:36px}
+@media (max-width:1023px){.fx-bor-it{grid-template-columns:minmax(0,1fr)}.fx-bor-acc{justify-content:flex-start}}
+@media (max-width:767px){
+  .fx-bor-it{padding:12px}
+  .fx-bor-acc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .fx-bor-acc .btn{width:100%;justify-content:center;min-height:44px;padding-left:6px;padding-right:6px}
+  .fx-bor-it.remoto .fx-bor-acc{grid-template-columns:minmax(0,1fr)}
+  .fx-bor-rs{white-space:normal;overflow-wrap:anywhere}
+  .fx-bor-d{white-space:normal}
+  .fx-bor-conf .btn{flex:1 1 140px;justify-content:center;min-height:40px}
+}
 </style>
 </head>
 <body>
@@ -1677,6 +1726,7 @@ html.fx-inicio body #eqTabs .eqtab[aria-selected="true"]::before{display:none!im
   <div class="fx-lat-exp" id="ficha">
     <div class="fx-lat-exp-fila"><button type="button" class="ficha-nombre" id="topRs" title="Cambiar el nombre de la empresa"><small>Expediente de</small><span id="topRsTxt">Falta el nombre</span></button><button type="button" class="fx-lat-nube nube-btn" id="btnNube" title="Mis expedientes (nube)" aria-label="Mis expedientes (nube)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/><path d="M9.5 13.5l2 2 3.5-3.5"/></svg><span class="nube-av" id="btnNubeAv" hidden></span><span class="nube-pend" id="btnNubePend" hidden>0</span></button></div>
     <div class="fx-lat-meta"><span class="ficha-dato" id="topEq"></span><span class="ficha-dato" id="topHojas"></span></div>
+    <div class="fx-lat-bor" id="p2BorAct" role="status"></div>
     <div class="fx-lat-av"><div class="fx-barra" id="p2Barra" role="progressbar" aria-label="Avance del expediente" aria-valuemin="0" aria-valuemax="100"><i></i></div><span id="p2AvTxt">—</span></div>
     <button type="button" class="ficha-estado" id="topListo" data-s="err"></button>
   </div>
@@ -1731,11 +1781,13 @@ html.fx-inicio body #eqTabs .eqtab[aria-selected="true"]::before{display:none!im
 <!-- v17 · Mis expedientes (historial en la nube) -->
 <div class="modal oculto fx-pagina" id="mNube" role="region" aria-labelledby="mNubeT">
   <div class="modal-caja nube-caja">
-    <div class="nube-cab"><div><h3 id="mNubeT">Mis expedientes</h3><p class="modal-nota">Historial de FenixMex en la nube: nunca se borra solo y lo ven todas las cuentas autorizadas. Abre uno para corregirlo sin volver a capturar.</p></div><div class="fx-ini-acc"><label class="btn" for="fImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>Importar borrador</label><button type="button" class="btn prim" data-p2acc="nuevo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo expediente</button></div><button type="button" class="btn chico fantasma" data-cerrar aria-label="Cerrar">✕</button></div>
-    <section class="fx-local" id="p2Local" aria-label="Expediente abierto en este navegador"><div class="fx-local-t"><span class="fx-local-k">Abierto en este navegador</span><b id="p2LocRs">—</b><span class="fx-local-m" id="p2LocMeta"></span></div>
+    <div class="nube-cab"><div><h3 id="mNubeT">Mis expedientes</h3><p class="modal-nota">Tus borradores (sin registrar) y los expedientes registrados de FenixMex.</p></div><div class="fx-ini-acc"><label class="btn" for="fImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>Importar borrador</label><button type="button" class="btn prim" data-p2acc="nuevo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo expediente</button></div><button type="button" class="btn chico fantasma" data-cerrar aria-label="Cerrar">✕</button></div>
+    <section class="fx-local" id="p2Local" aria-label="Expediente abierto en este navegador"><div class="fx-local-t"><span class="fx-local-k">Abierto en este navegador</span><b id="p2LocRs">—</b><span class="fx-local-et" id="p2LocEt"></span><span class="fx-local-m" id="p2LocMeta"></span></div>
       <div class="fx-local-c"><span class="fx-local-k">Categorías</span><div class="cats" id="rsCat"></div></div>
       <div class="fx-local-av"><span class="fx-local-k">Avance</span><div class="fx-barra" id="p2LocBarra"><i></i></div><span id="p2LocAv">—</span></div>
       <button type="button" class="btn prim" data-p2acc="continuar">Continuar →</button></section>
+    <section class="fx-bor" id="p2Bor" aria-labelledby="p2BorT"></section>
+    <div class="fx-reg-cab"><h3 class="fx-reg-t" id="p2RegT">Registrados <small>con folio · en la nube</small></h3><p class="fx-bor-nota">Historial de FenixMex en la nube: nunca se borra solo y lo ven todas las cuentas autorizadas. Abre uno para corregirlo sin volver a capturar.</p></div>
     <div id="nubeCuenta"></div>
     <div id="histPend"></div>
     <div class="hist-barra">
@@ -10859,9 +10911,12 @@ async function cloudPull(){
 function guardar(){ if(typeof vincularTodo==='function')vincularTodo(); setEstado('Guardando…'); clearTimeout(dirtyT); dirtyT=setTimeout(async()=>{
   let ok=false;
   try{
+    if(window.FXBor&&!FXBor.puedeGuardar()){setEstado('Guardado en este navegador');return;}   // rediseño · borradores (otra pestaña)
     ok=!!(await DB.set('draft',D)&&await DB.set('globals',G));
+    if(!ok&&window.FXBor)FXBor.sinEspacio();   // rediseño · borradores
     for(const k of Object.keys(IMG)){try{await DB.set('img:'+k,IMG[k]);}catch(_){}}
     if(ok) setEstado('Guardado en este navegador · sincronizando globales…');
+    if(ok&&window.FXBor)FXBor.guardado();   // rediseño · borradores
   }catch(e){console.warn('local save',e); setEstado('Error al guardar en el navegador'); refrescar(); return;}
   let cloud={ok:false,reason:'?'};
   try{ cloud=await withTimeout(cloudPush(),45000,'cloudPush'); }
@@ -12323,12 +12378,13 @@ async function generarExcel(nuevo){
 function u8ToB64(u){let s='';const c=0x8000;for(let i=0;i<u.length;i+=c)s+=String.fromCharCode.apply(null,u.subarray(i,i+c));return btoa(s);}
 async function exportar(){
   const imgs={};for(const k in IMG)if(!k.startsWith('g:'))imgs[k]=u8ToB64(IMG[k]);
-  const txt=JSON.stringify({version:1,draft:D,imgs});jsonAviso(txt,'el borrador');   // v16: los documentos viajan como imágenes del expediente
-  descargar(new Blob([txt],{type:'application/json'}),`borrador_${Fx().sanitizeName(rsNombre())}.json`);
+  const txt=JSON.stringify(Object.assign({version:1,draft:D,imgs},window.FXBor?FXBor.meta():{}));jsonAviso(txt,'el borrador');   // v16: los documentos viajan como imágenes del expediente
+  descargar(new Blob([txt],{type:'application/json'}),(window.FXBor&&FXBor.nombreArchivo())||`borrador_${Fx().sanitizeName(rsNombre())}.json`);
 }
 async function importar(file){
   let j=null;
   try{j=JSON.parse(await file.text());if(!j.draft||!Array.isArray(j.draft.equipos))throw 0;
+    if(window.FXBor){await FXBor.importar(j,file);return;}   // rediseño · borradores
     for(const k of Object.keys(IMG))if(!k.startsWith('g:')){delete IMG[k];await DB.del('img:'+k);}
     D=j.draft;for(const k in (j.imgs||{})){IMG[k]=b64(j.imgs[k]);await DB.set('img:'+k,IMG[k]);}
     await imgMigrarOrientacion();   // v9: fotos con orientación EXIF → horneada
@@ -12336,7 +12392,8 @@ async function importar(file){
     montar('borrador importado (.json)');guardar();toast('Borrador importado');}
   catch(e){toast(j&&(j.schema===LX().SCHEMA||j.schema===VISITA_SCHEMA)?`Ese archivo es ${j.schema===VISITA_SCHEMA?'una visita':'un levantamiento'}: usa «Importar levantamientos o visita (.json)».`:'El archivo no es un borrador válido.');}
 }
-async function nuevo(){
+async function nuevo(){if(window.FXBor)return FXBor.nuevo();   // rediseño · borradores
+
   if(!confirm('¿Iniciar un expediente nuevo? Se borrarán los datos generales y equipos (los activos globales se conservan).'))return;
   for(const k of Object.keys(IMG))if(!k.startsWith('g:')){delete IMG[k];await DB.del('img:'+k);}
   D=nuevoDraft();montar();guardar();
@@ -14916,7 +14973,7 @@ function nubeIniciar(){
     NB.app=(firebase.apps||[]).find(a=>a.name==='fenix')||firebase.initializeApp(NUBE.firebase,'fenix');
     NB.auth=NB.app.auth();NB.fs=NB.app.firestore();
     const em=NUBE.emulador;if(em){NB.auth.useEmulator(`http://${em.host||'127.0.0.1'}:${em.authPort||9099}`,{disableWarnings:true});NB.fs.useEmulator(em.host||'127.0.0.1',em.firestorePort||8080);}
-    NB.auth.onAuthStateChanged(async u=>{const antes=NB.usr&&NB.usr.uid;NB.usr=u||null;NB.aut=null;NB.token=null;if(!u||u.uid!==antes){NB.hist=[];NB.histT=0;NB.cargando=false;NB.error='';}if(u)await nubeAutorizado();if(NB.usr!==(u||null))return;nubePintar();if(NB.aut===true&&!$('#mNube').classList.contains('oculto'))histCargar();if(NB.aut)pendProcesar();});
+    NB.auth.onAuthStateChanged(async u=>{const antes=NB.usr&&NB.usr.uid;NB.usr=u||null;NB.aut=null;NB.token=null;if(!u||u.uid!==antes){NB.hist=[];NB.histT=0;NB.cargando=false;NB.error='';}if(u)await nubeAutorizado();if(NB.usr!==(u||null))return;nubePintar();if(NB.aut===true&&!$('#mNube').classList.contains('oculto'))histCargar();if(NB.aut)pendProcesar();if(window.FXBor)FXBor.sesion();});
   }catch(e){console.warn('nube fenix',e);NB.error=String(e&&e.message||e);NB.app=null;}
 }
 async function nubeAutorizado(){
@@ -15017,7 +15074,7 @@ async function pendProcesar(interactivo){
   try{
     for(const j of lista){
       try{
-        if(!j.reg){const r=await registrar(j);j.reg=r.rev;j.igual=!!r.igual;j.estadoReg=r.estado;j.error='';await pendGuardar();if(D&&D.fxId&&D.fxId.folio===j.folio){D.fxId.revision=r.rev;D.fxId.registrado=new Date().toISOString();guardar();}}
+        if(!j.reg){const r=await registrar(j);j.reg=r.rev;j.igual=!!r.igual;j.estadoReg=r.estado;j.error='';await pendGuardar();if(window.FXBor)FXBor.registrado(j);if(D&&D.fxId&&D.fxId.folio===j.folio){D.fxId.revision=r.rev;D.fxId.registrado=new Date().toISOString();guardar();}}
         if(driveConfig()){
           if(!(await driveListo(interactivo))){j.error='falta conectar Google Drive';await pendGuardar();continue;}
           await driveTrabajo(j,!!interactivo||Date.now()-Date.parse(j.fechaGen||0)<10*60*1000);
@@ -15083,7 +15140,7 @@ async function driveSubir(o){   // o: {nombre, mime, datos: Blob, id (actualizar
   const tot=o.datos.size,CH=8*1024*1024;
   const crear=async(id)=>{
     const url=`${NUBE.driveApi}/upload/drive/v3/files${id?'/'+encodeURIComponent(id):''}?uploadType=resumable&supportsAllDrives=true&fields=id,name,size`;
-    const meta=id?{name:o.nombre}:{name:o.nombre,mimeType:o.mime,parents:[o.padre||NUBE.driveFolderId],description:o.desc||''};
+    const meta=Object.assign(id?{name:o.nombre}:{name:o.nombre,mimeType:o.mime,parents:[o.padre||NUBE.driveFolderId],description:o.desc||''},o.meta||{});
     return dFetch(url,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json; charset=UTF-8','X-Upload-Content-Type':o.mime,'X-Upload-Content-Length':String(tot)},body:JSON.stringify(meta)});
   };
   let r=await crear(o.id),huerfano=null;
@@ -15226,7 +15283,7 @@ async function nubeDespuesDeGenerar({zip,zipNombre,hojas}){
     const imgs={};for(const k in IMG)if(!k.startsWith('g:'))imgs[k]=u8ToB64(IMG[k]);
     const job={folio:id.folio,clave:id.clave,rs:rsNombre(),fecha:fechaEmision(id),externo:dictamenExterno(D),huella:HUELLA_GEN||await huellaActual(),nEq:D.equipos.length,hojas:hojas|0,fechaGen:new Date().toISOString(),
       zipNombre:zipNombre||'',zip:zip||null,borrador:new Blob([JSON.stringify({version:1,draft:D,imgs})],{type:'application/json'})};
-    D.fxId.huella=job.huella;guardar();
+    D.fxId.huella=job.huella;guardar();if(window.FXBor)await FXBor.generado(job);   // rediseño · borradores
     await pendAgregar(job);
     pendProcesar(false);
   }catch(e){console.warn('nube después de generar',e);}
@@ -15315,13 +15372,15 @@ function histPintar(){
 }
 async function histAbrir(folio){
   const x=NB.hist.find(h=>h.folio===folio);if(!x)return;
-  if(!confirm(`¿Abrir ${x.folio} · ${x.razonSocial} para corregirlo?\n\nReemplaza el expediente abierto en este navegador${D&&D.fxId&&D.fxId.folio&&D.fxId.folio!==folio?` (${D.fxId.folio})`:''}. Si tiene cambios sin generar, exporta antes su borrador.`))return;
+  if(window.FXBor&&await FXBor.abrirRegistrado(x))return;   // rediseño · borradores
+  if(!confirm(`¿Abrir ${x.folio} · ${x.razonSocial} para corregirlo?\n\n${window.FXBor?'El expediente abierto ahora no se pierde: queda en «Borradores» (o en «Registrados», si ya está registrado y sin cambios).':`Reemplaza el expediente abierto en este navegador${D&&D.fxId&&D.fxId.folio&&D.fxId.folio!==folio?` (${D.fxId.folio})`:''}. Si tiene cambios sin generar, exporta antes su borrador.`}`))return;
   if(!x.driveBorradorId){toast('Ese expediente aún no tiene borrador en Drive.');return;}
   if(!(await driveToken(true))){toast('Hace falta el permiso de Google Drive para abrirlo.',6000);return;}
   toast('Descargando el borrador de Drive…',20000);
   try{const j=JSON.parse(await driveBajar(x.driveBorradorId));if(!j||!j.draft||!Array.isArray(j.draft.equipos))throw new Error('El archivo de Drive no es un borrador válido.');
     j.draft.fxId=Object.assign({},j.draft.fxId||{},{folio:x.folio,clave:x.clave,rs:j.draft.razonSocialPropietario||x.razonSocial,revision:x.revision});
-    await cargarBorradorObj(j,`borrador de ${x.folio} (Drive)`);nubeCerrar();mostrarPaso('visita');toast(`Abierto ${x.folio} (revisión ${x.revision}). Al generar de nuevo conserva su QR y sube a la revisión ${(x.revision|0)+1}.`,8000);}
+    if(window.FXBor)await FXBor.cargarObjeto(j,{folio:x.folio,rev:x.revision,origen:`borrador de ${x.folio} (Drive)`});   // rediseño · borradores (una transacción)
+    else await cargarBorradorObj(j,`borrador de ${x.folio} (Drive)`);nubeCerrar();mostrarPaso('visita');toast(`Abierto ${x.folio} (revisión ${x.revision}). Al generar de nuevo conserva su QR y sube a la revisión ${(x.revision|0)+1}.`,8000);}
   catch(e){console.error(e);toast('No se pudo abrir: '+(e&&e.message||e),8000);}
 }
 async function cargarBorradorObj(j,origen){   // mismo camino que «Importar borrador»
@@ -15358,7 +15417,7 @@ async function histBorrar(){
         for(const [id,q] of carpetas){const r=await driveBorrarCarpeta(id);if(r!=='ok')dr.push(`${q}: ${r==='sin permiso'?'la creó otra persona; bórrala en Drive':r==='no vacía'?'aún tiene otros archivos; revísala en Drive':r}`);}
       }
     }
-    await registroBorrar(x.folio);
+    await registroBorrar(x.folio);if(window.FXBor)FXBor.desregistrado(x.folio);
     if(D&&D.fxId&&D.fxId.folio===x.folio){delete D.fxId;guardar();}   // el expediente abierto aquí recibirá un folio nuevo si se vuelve a generar
     if(PEND[x.folio]){delete PEND[x.folio];await pendGuardar();}
     $('#mBorrar').classList.add('oculto');BORRAR=null;
@@ -15435,6 +15494,627 @@ window.FXNube={canon,huellaDe,huellaActual,fxIdNuevo,qrUrl,RX_FOLIO,RX_CLAVE,cla
   procesar:i=>pendProcesar(i),histCargar,nb:NB,nube:NUBE,
   datos:()=>({D,G,IMG})};
 
+// ---------- rediseño · borradores (fuente/borradores.js) ----------
+/* FenixMex · rediseño · BORRADORES (varios expedientes sin registrar en este navegador) · 2026-11-23
+   Antes el navegador guardaba UN expediente (IndexedDB «draft» + «img:*»): abrir o importar otro lo reemplazaba.
+   Ahora:
+   · La RANURA de siempre («draft» + «img:*») sigue siendo el expediente ABIERTO: la app lo lee, lo autoguarda y lo genera igual que antes.
+   · Los demás borradores viven aparte: «bor:<id>:draft» y «bor:<id>:img:<clave>». El índice es «bor:lista» = {v, actual, items[]}.
+   · Cambiar de borrador: se guarda el abierto en su espacio (nunca se pierde) y el elegido pasa a la ranura («bor:cargando» marca
+     el cambio a medias: si se cierra la página en ese instante, al volver se termina con la copia guardada).
+   · La primera vez, el «draft» que ya había se vuelve el primer borrador de la lista (no se mueve ni se copia nada).
+   · Respaldo en Google Drive (si hay sesión autorizada y permiso de Drive): un archivo .json por borrador (el mismo JSON de «Exportar»)
+     en la subcarpeta «Borradores» de «Fenix · Expedientes», reemplazado tras cada cambio (con espera). Sin conexión queda pendiente y se
+     sube al volver. Sin registro en Firestore ni folio.
+   · Al registrarse (ZIP con sesión → folio) sale de Borradores: de la lista y su archivo de «Borradores» en Drive.
+   No cambia datos del expediente, validación ni PDF: solo dónde se guarda cada expediente en el navegador. */
+(function(){
+'use strict';
+if(typeof DB==='undefined'||typeof nuevoDraft!=='function'||typeof montar!=='function')return;
+const LS_ACT='fx-bor-actual',LS_CARP='fx-bor-carpeta',ESPERA_DRIVE=8000;
+const $b=(s,r=document)=>r.querySelector(s);
+const escB=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let L=null,MIO=null,CAMBIANDO=false,OCUPADO='',AVISO_PEST=false,LISTO=false;
+let REM=null,REM_T=0,REM_ERR='';
+const SYNC={corr:false,otra:false,t:null,err:'',sube:null,ult:0};
+// candado: las operaciones del almacén (cambiar, crear, eliminar, leer uno guardado para Drive) van una a la vez
+let cola=Promise.resolve();
+const candado=fn=>{const p=cola.then(fn,fn);cola=p.catch(()=>{});return p;};
+const ahora=()=>new Date().toISOString();
+const nuevoId=()=>'b'+Date.now().toString(36)+azar(B32,4).toLowerCase();
+
+/* ---------- IndexedDB: claves por prefijo ---------- */
+function claves(pre){return new Promise(res=>{if(!DB.db)return res([]);try{const r=DB.db.transaction('kv').objectStore('kv').getAllKeys(IDBKeyRange.bound(pre,pre+'￿'));r.onsuccess=()=>res((r.result||[]).map(String));r.onerror=()=>res([]);}catch(e){res([]);}});}
+function borrarPrefijo(pre){return new Promise(res=>{if(!DB.db)return res(false);try{const t=DB.db.transaction('kv','readwrite');t.objectStore('kv').delete(IDBKeyRange.bound(pre,pre+'￿'));t.oncomplete=()=>res(true);t.onerror=()=>res(false);}catch(e){res(false);}});}
+const clavesRanura=async()=>(await claves('img:')).filter(k=>!k.startsWith('img:g:')).map(k=>k.slice(4));
+const u8=v=>v instanceof Uint8Array?v:new Uint8Array(v);
+const item=id=>L&&L.items.find(e=>e.id===id);
+const abierto=()=>L&&item(L.actual);
+
+/* ---------- firma: ¿cambió el expediente? (datos sin fxId + huella de cada imagen) ---------- */
+const HC=new WeakMap();
+async function hImg(v){let h=HC.get(v);if(!h){h=hex(await crypto.subtle.digest('SHA-256',v));HC.set(v,h);}return h;}
+async function firmaDe(d,imgs){
+  const x={};for(const k of Object.keys(d||{}))if(k!=='fxId')x[k]=d[k];
+  const im=[];for(const k of Object.keys(imgs||{}).filter(k=>!k.startsWith('g:')).sort()){const v=imgs[k];if(v&&v.length)im.push(k+'='+await hImg(v));}
+  return (await sha256(canon(x)+'|'+im.join(','))).slice(0,32);
+}
+const imgsRanura=()=>{const o={};for(const k in IMG)if(!k.startsWith('g:')&&IMG[k]&&IMG[k].length)o[k]=IMG[k];return o;};
+// ¿expediente vacío? (igual a uno nuevo, sin imágenes): no se respalda y se reutiliza al crear / importar
+let VACIO_REF=null;
+function sinIds(d){const x=JSON.parse(JSON.stringify(d||{}));for(const k of ['fxId','modelo','conflictos'])delete x[k];(x.equipos||[]).forEach(e=>{if(e&&typeof e==='object')delete e.id;});return canon(x);}
+// referencia: un expediente nuevo tal como queda después de migrar (la app le agrega plano, espesores, documentos…). Se arma en un cambio
+// momentáneo de D, sin esperas en medio (nada más corre mientras tanto) y se restaura de inmediato.
+function refVacio(){
+  if(VACIO_REF)return VACIO_REF;
+  const keep=D,pb=plBqMigrado;
+  try{D=nuevoDraft();migrar('');VACIO_REF=sinIds(D);}catch(e){console.warn('borradores: referencia de vacío',e);VACIO_REF='-';}
+  finally{D=keep;plBqMigrado=pb;}
+  return VACIO_REF;
+}
+function esVacio(d,nImg){if(nImg)return false;try{return sinIds(d)===refVacio();}catch(_){return false;}}
+
+/* ---------- datos para distinguir cada borrador ---------- */
+const domCorto=s=>{s=String(s||'').trim().split(',')[0].trim();return s.length>48?s.slice(0,46).trim()+'…':s;};
+function meta(e,d,nImg){
+  e.rs=String(d.razonSocialPropietario||'').trim();e.dom=domCorto(d.domicilio);
+  const t=(d.equipos||[]).map(x=>String(x&&x.tag||'').trim()).filter(Boolean);e.tags=t.length>2?[t[0],t[t.length-1]]:t;e.nTags=t.length;
+  e.nEq=(d.equipos||[]).length;e.folio=(d.fxId&&d.fxId.folio)||null;e.vacio=esVacio(d,nImg);
+}
+const tagsTxt=e=>!e.tags||!e.tags.length?'':e.tags.length===1?e.tags[0]:e.nTags>2?`${e.tags[0]} … ${e.tags[1]}`:e.tags.join(', ');
+const dist=e=>[e.dom,tagsTxt(e)].filter(Boolean).join(' · ');
+const modTxt=e=>e.act?horaRel(e.act):'antes de esta versión';
+const nombre=e=>(e.etiqueta?e.etiqueta+' · ':'')+(e.rs||'Sin razón social')+(!e.etiqueta&&dist(e)?' · '+dist(e):'');
+// listado en «Borradores»: sin registrar, o registrado y con cambios después de generarlo (corrección en curso)
+const listable=e=>!e.reg||!e.genFirma||e.firma!==e.genFirma;
+// se respalda en Drive: listado, con datos y que no sea un ZIP recién generado sin cambios (eso lo lleva el registro / la cola)
+const respaldable=e=>listable(e)&&!e.vacio&&!(e.folio&&e.genFirma&&e.firma===e.genFirma);
+// (fuera = la otra PC quitó su archivo de Drive al registrarlo o eliminarlo: no se vuelve a subir hasta que cambie aquí)
+const sucioDrive=e=>respaldable(e)&&!e.remoto&&(e.driveFirma!==e.firma||(!e.driveId&&!e.fuera));
+const driveOn=()=>typeof driveConfig==='function'&&driveConfig()&&nubeConfig()&&NUBE.respaldoBorradores!==false;
+
+/* ---------- nombre del archivo (Exportar y Drive): incluye la etiqueta, sin chocar con otros ---------- */
+const san=s=>Fx().sanitizeName(s);
+function baseArchivo(e){
+  const d=e.etiqueta||e.dom||(e.tags&&e.tags[0])||'';
+  let n=`borrador_${san(e.rs||'SIN_NOMBRE')}${d?'_'+san(d).slice(0,40):''}`;
+  const otros=L.items.filter(x=>x!==e&&(x.etiqueta||x.dom||(x.tags&&x.tags[0])||'')===d&&san(x.rs||'SIN_NOMBRE')===san(e.rs||'SIN_NOMBRE'));
+  if(otros.length||!d)n+='_'+e.id.slice(-5);
+  return n;
+}
+const limpioDrive=s=>String(s||'').normalize('NFC').replace(/[\u0000-\u001f\u007f-\u009f]/g,' ').replace(/[\\/:*?"<>|]/g,' ').replace(/\s+/g,' ').trim();
+const nombreDrive=e=>{let n=limpioDrive(`${e.rs||'Sin razón social'} · ${e.etiqueta||dist(e)||'sin etiqueta'}`);if(Array.from(n).length>110)n=Array.from(n).slice(0,110).join('');return `${n} · ${e.id}.json`;};
+const metaJson=e=>({id:e.id,etiqueta:e.etiqueta||'',actualizado:e.act||ahora()});
+
+/* ---------- escritura ATÓMICA (R4): una sola transacción de IndexedDB = se guarda todo o nada ----------
+   ops: ['put', clave, valor] · ['del', clave] · ['delPre', prefijo]. Se aplican en orden dentro de la misma transacción. */
+function tx(ops){
+  return new Promise((res,rej)=>{
+    if(!DB.db)return rej(new Error('Sin almacenamiento del navegador.'));
+    let t=null;
+    try{t=DB.db.transaction('kv','readwrite');const s=t.objectStore('kv');
+      for(const [o,k,v] of ops){if(o==='put')s.put(v,k);else if(o==='del')s.delete(k);else if(o==='delPre')s.delete(IDBKeyRange.bound(k,k+'￿'));}}
+    catch(e){try{t&&t.abort();}catch(_){}return rej(e);}
+    t.oncomplete=()=>res(true);t.onabort=()=>rej(t.error||new Error('No se pudo guardar en el navegador.'));
+  });
+}
+const esLleno=e=>!!e&&(e.name==='QuotaExceededError'||/quota/i.test(String(e.message||'')));
+let LLENO_T=0;
+function avisoLleno(){if(Date.now()-LLENO_T<15000)return;LLENO_T=Date.now();
+  toast('El almacenamiento de este navegador está LLENO: no se pudo guardar. Lo que ya estaba guardado no se perdió. Exporta y elimina los borradores que ya no uses (o libera espacio) y vuelve a intentar.',15000);}
+// lo llama guardar() de la app cuando no pudo escribir: si es por falta de espacio se dice claramente (antes fallaba en silencio)
+function sinEspacio(){try{if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(x=>{if(x&&x.quota&&x.usage/x.quota>0.9)avisoLleno();else toast('No se pudo guardar en este navegador. Exporta el borrador para no perderlo.',9000);},()=>{});}catch(_){}}
+async function guardarLista(){if(!L)return;try{await tx([['put','bor:lista',L]]);}catch(e){if(esLleno(e))avisoLleno();else console.warn('borradores: lista',e);}}
+function errCambio(err,que){console.error(err);if(esLleno(err))avisoLleno();else toast(`No se pudo ${que}: `+(err&&err.message||err)+' (nada cambió).',8000);}
+const copiaL=()=>JSON.parse(JSON.stringify(L));
+
+/* ---------- operaciones en curso de ESTE borrador (R1) ----------
+   Subir o procesar una imagen, el editor de imágenes, firmas, PDF, levantamientos, rutas, documentos y generar escriben en el borrador
+   abierto al TERMINAR. Mientras alguna está en curso (o un editor está abierto) no se cambia de borrador: así nada cae en otro. */
+let BUSY=0,BUSY_QUE='';
+// ¿hay un cambio de borrador en curso? (desde el clic hasta que el otro queda abierto)
+const enCambio=()=>CAMBIANDO||['abrir','nuevo','eliminar','drive','cargar'].includes(OCUPADO);
+let AV_CAMBIO=0;
+function avisoCambio(que){if(Date.now()-AV_CAMBIO<1500)return;AV_CAMBIO=Date.now();
+  toast(`Espera un momento: se está cambiando de borrador${que==='imagen'||que==='firma'?'. La imagen no se guardó: vuelve a elegirla en cuanto abra':''}.`,6000);}
+function envolver(fn,que){
+  if(typeof fn!=='function'||fn.__fxb)return fn;
+  const w=async function(...a){if(enCambio()){avisoCambio(que);return;}   // durante un cambio no empieza (caería en el otro borrador)
+    BUSY++;BUSY_QUE=que;try{return await fn.apply(this,a);}finally{setTimeout(()=>{BUSY=Math.max(0,BUSY-1);if(!BUSY)BUSY_QUE='';},300);}};   // 300 ms: cubre el paso de una a la siguiente
+  w.__fxb=1;return w;
+}
+try{imgCargar=envolver(imgCargar,'imagen');}catch(_){}          try{fotoGuardar=envolver(fotoGuardar,'imagen');}catch(_){}
+try{firmaOrigLista=envolver(firmaOrigLista,'firma');}catch(_){} try{lfGuardar=envolver(lfGuardar,'firma');}catch(_){}
+try{edAplicar=envolver(edAplicar,'imagen');}catch(_){}          try{recortarFirma=envolver(recortarFirma,'firma');}catch(_){}
+try{ponerImg=envolver(ponerImg,'imagen');}catch(_){}            try{camCapturar=envolver(camCapturar,'imagen');}catch(_){}
+try{importarHojaPDF=envolver(importarHojaPDF,'PDF');}catch(_){} try{importarLevantamientos=envolver(importarLevantamientos,'levantamiento');}catch(_){}
+try{visitaAplicarDatos=envolver(visitaAplicarDatos,'levantamiento');}catch(_){}
+try{rtSubirArchivo=envolver(rtSubirArchivo,'rutas');}catch(_){} try{rtPonerSub=envolver(rtPonerSub,'rutas');}catch(_){} try{rtImportar=envolver(rtImportar,'rutas');}catch(_){}
+try{docGuardarArchivo=envolver(docGuardarArchivo,'documento');}catch(_){} try{docEscaneada=envolver(docEscaneada,'documento');}catch(_){}
+try{docAgregarImg=envolver(docAgregarImg,'documento');}catch(_){} try{docAgregarPdf=envolver(docAgregarPdf,'documento');}catch(_){}
+try{docSubir=envolver(docSubir,'documento');}catch(_){} try{docQuitarHoja=envolver(docQuitarHoja,'documento');}catch(_){} try{docQuitar=envolver(docQuitar,'documento');}catch(_){}
+try{docsImportar=envolver(docsImportar,'documento');}catch(_){} try{docsUsarDelArchivo=envolver(docsUsarDelArchivo,'documento');}catch(_){}
+try{scAccion=envolver(scAccion,'documento');}catch(_){} try{scAccion2=envolver(scAccion2,'documento');}catch(_){}
+try{generar=envolver(generar,'generar');}catch(_){}
+// los que abren un editor (imagen, limpiar firma, dibujar firma, cámara, visor de documentos) tampoco se abren durante un cambio
+function sinCambio(fn,que){if(typeof fn!=='function'||fn.__fxc)return fn;const w=function(...a){if(enCambio()){avisoCambio(que);return;}return fn.apply(this,a);};w.__fxc=1;return w;}
+try{edAbrir=sinCambio(edAbrir,'editor');}catch(_){} try{lfAbrir=sinCambio(lfAbrir,'editor');}catch(_){} try{abrirPad=sinCambio(abrirPad,'editor');}catch(_){}
+try{camAbrir=sinCambio(camAbrir,'imagen');}catch(_){} try{fotoTomar=sinCambio(fotoTomar,'imagen');}catch(_){} try{docVer=sinCambio(docVer,'editor');}catch(_){}
+const EDITORES=['mImg','mScan','mCam','mFirma','mLimpia','mDocVer'];
+function motivoOcupado(){
+  if(BUSY>0)return BUSY_QUE==='generar'?'se está generando el expediente. Espera a que termine.':`se está guardando ${BUSY_QUE==='PDF'?'la hoja PDF':BUSY_QUE==='levantamiento'?'el levantamiento':BUSY_QUE==='rutas'?'el plano de rutas':BUSY_QUE==='documento'?'el documento':BUSY_QUE==='firma'?'la firma':'la imagen'} en este borrador. Espera unos segundos.`;
+  const m=EDITORES.map(id=>document.getElementById(id)).find(x=>x&&!x.classList.contains('oculto'));
+  if(m)return 'hay un editor abierto (imagen, firma o documento) de este borrador. Termínalo o ciérralo primero.';
+  return '';
+}
+function puedeCambiar(){const m=motivoOcupado();if(m){toast('No se cambió de borrador: '+m,7000);return false;}return true;}
+
+/* ---------- dos pestañas (R3): ¿esta pestaña tiene cambios sin escribir? ¿otra guardó este borrador después? ---------- */
+const TAB=azar(B62,8),LS_REV='fx-bor-rev';
+let T_GUARDAR=0,T_ESCRIBE=0,REV_VISTO=0,AVISO_REV=false;
+const sucioTab=()=>T_GUARDAR>T_ESCRIBE;   // guardar() pidió escribir y aún no se escribió (espera de 400 ms)
+try{const g0=guardar;guardar=function(){T_GUARDAR=Date.now();return g0.apply(this,arguments);};}catch(_){}
+const leeRev=()=>{try{return JSON.parse(localStorage.getItem(LS_REV)||'null')||{};}catch(_){return {};}};
+function ponRev(id,n){REV_VISTO=n;try{localStorage.setItem(LS_REV,JSON.stringify({id,n,tab:TAB,t:Date.now()}));}catch(_){}}
+const revOtra=()=>{const r=leeRev();return !!MIO&&r.id===MIO&&r.tab!==TAB&&(r.n|0)!==REV_VISTO;};
+// guardar() de la app, justo antes de escribir: false = no escribir
+function puedeGuardar(){
+  if(CAMBIANDO)return false;
+  try{const v=localStorage.getItem(LS_ACT);if(v&&MIO&&v!==MIO){otraPestana();return false;}}catch(_){}
+  if(revOtra()){   // otra pestaña guardó este mismo borrador después de lo último que vio esta: no se pisa en silencio
+    if(!confirm('Este borrador se cambió en OTRA pestaña después de abrirlo aquí.\n\nAceptar = guardar lo de esta pestaña encima (se pierde lo de la otra).\nCancelar = recargar esta pestaña con lo más reciente (se descarta lo último que escribiste aquí).')){
+      AVISO_PEST=true;setTimeout(()=>location.reload(),50);return false;}
+  }
+  T_ESCRIBE=Date.now();return true;
+}
+function trasEscribir(){const r=leeRev();ponRev(MIO,(r.id===MIO?r.n|0:0)+1);}
+
+/* ---------- leer y armar lo que se guarda ---------- */
+async function leerGuardado(id){
+  const d=await DB.get(`bor:${id}:draft`);if(!d||!Array.isArray(d.equipos))return null;
+  const pre=`bor:${id}:img:`,imgs={};for(const c of await claves(pre)){const v=await DB.get(c);if(v)imgs[c.slice(pre.length)]=u8(v);}
+  return {d,imgs};
+}
+async function leerRanura(){const d=await DB.get('draft');const imgs={};for(const k of await clavesRanura()){const v=await DB.get('img:'+k);if(v)imgs[k]=u8(v);}return {d,imgs};}
+// lo que se guarda del abierto al dejarlo: lo de ESTA pestaña solo si tiene cambios sin escribir; si no, lo guardado (que puede ser más
+// nuevo: otra pestaña). Con cambios aquí y una versión más nueva de otra pestaña, se pregunta (R3).
+async function contenidoAbierto(){
+  if(typeof vincularTodo==='function')try{vincularTodo();}catch(_){}
+  const sucio=sucioTab();clearTimeout(dirtyT);
+  let usarMemoria=sucio;
+  if(sucio&&revOtra())usarMemoria=confirm('Este borrador se cambió en OTRA pestaña y aquí hay cambios sin guardar.\n\nAceptar = conservar lo de esta pestaña (se pierde lo de la otra).\nCancelar = conservar lo de la otra pestaña (se descarta lo último que escribiste aquí).');
+  if(!usarMemoria){const r=await leerRanura();if(r.d&&Array.isArray(r.d.equipos))return r;}
+  const ex=await clavesRanura(),imgs={};
+  for(const k of new Set([...Object.keys(IMG).filter(k=>!k.startsWith('g:')),...ex])){let v=IMG[k];if(!v){v=await DB.get('img:'+k);if(v)v=u8(v);}if(v&&v.length)imgs[k]=v;}
+  return {d:D,imgs,memoria:true};
+}
+// operaciones para guardar el abierto en su espacio (van en la MISMA transacción que el cambio)
+async function opsGuardarAbierto(){
+  const e=abierto();if(!e)return {ops:[],sigue:false};
+  const c=await contenidoAbierto(),f=await firmaDe(c.d,c.imgs);
+  if(f!==e.firma){e.firma=f;e.act=ahora();}
+  meta(e,c.d,Object.keys(c.imgs).length);
+  if(e.vacio||(e.reg&&e.genFirma&&f===e.genFirma)){   // vacío, o registrado sin cambios (lo lleva el registro / Drive)
+    if(e.driveId)porBorrar(e.driveId);L.items=L.items.filter(x=>x!==e);return {ops:[['delPre',`bor:${e.id}:`]],sigue:false};}
+  return {ops:[['delPre',`bor:${e.id}:`],...Object.entries(c.imgs).map(([k,v])=>['put',`bor:${e.id}:img:${k}`,v]),['put',`bor:${e.id}:draft`,c.d]],sigue:true};
+}
+// pone un expediente en la ranura (el abierto) EN UNA SOLA TRANSACCIÓN junto con «extra» y la lista; luego la memoria y la pantalla
+async function ponerEnRanura(id,d,imgs,origen,extra){
+  {const m=motivoOcupado();if(m)throw new Error('se canceló el cambio: '+m);}   // última revisión antes de escribir
+  const viejas=await clavesRanura();
+  L.actual=id;
+  await tx([...(extra||[]),...viejas.map(k=>['del','img:'+k]),...Object.entries(imgs).map(([k,v])=>['put','img:'+k,v]),['put','draft',d],['put','bor:lista',L]]);
+  for(const k of Object.keys(IMG))if(!k.startsWith('g:')){delete IMG[k];try{docUrlLibre(k);}catch(_){}}
+  for(const k in imgs)IMG[k]=imgs[k];
+  D=d;ponMio(id);ponRev(id,1);T_GUARDAR=T_ESCRIBE=Date.now();
+  try{rtVerificarImg(origen);}catch(_){}
+  montar(origen);
+  setEstado('Guardado en este navegador');   // lo pendiente del anterior ya se escribió en esta misma transacción
+}
+async function cargarGuardado(id,origen,extra){const g=await leerGuardado(id);if(!g)throw new Error('El borrador guardado no está completo.');await ponerEnRanura(id,g.d,g.imgs,origen,[...(extra||[]),['delPre',`bor:${id}:`]]);}
+function ponMio(id){MIO=id;try{localStorage.setItem(LS_ACT,id);}catch(_){}}
+function nuevaEntrada(o){const e=Object.assign({id:nuevoId(),etiqueta:'',creado:ahora(),act:ahora(),firma:'',reg:false},o||{});L.items.push(e);return e;}
+function porBorrar(id){if(!id)return;L.drivePorBorrar=Array.from(new Set([...(L.drivePorBorrar||[]),id]));}
+
+/* ---------- arranque: índice y migración del borrador único ---------- */
+async function iniciar(){
+  try{
+    L=await DB.get('bor:lista');
+    const nImg=Object.keys(imgsRanura()).length;
+    if(!L||!Array.isArray(L.items)){
+      // migración: el expediente que ya estaba en este navegador es el primer borrador (se queda donde está: la ranura).
+      // La app anterior no guardaba la fecha de la última edición: «Modificado» dice «antes de esta versión» hasta el primer cambio.
+      L={v:1,actual:null,items:[],drivePorBorrar:[]};
+      const e=nuevaEntrada({act:null,migrado:true});L.actual=e.id;
+      meta(e,D,nImg);e.firma=await firmaDe(D,IMG);
+      if(D.fxId&&D.fxId.revision&&D.fxId.huella){try{if(await huellaActual()===D.fxId.huella){e.reg=true;e.rev=D.fxId.revision;e.genFirma=e.firma;}}catch(_){}}
+      await guardarLista();
+    }
+    // (las primeras pruebas marcaban un cambio a medias con «bor:cargando»; hoy cada cambio es una sola transacción)
+    const c=await DB.get('bor:cargando');
+    if(c&&item(c)&&c!==L.actual&&await DB.get(`bor:${c}:draft`)){CAMBIANDO=true;try{await cargarGuardado(c,'borrador guardado en este navegador');}finally{CAMBIANDO=false;}toast('Se terminó de abrir el borrador que quedó a medias.',5000);}
+    if(c)await DB.del('bor:cargando');
+    if(!item(L.actual)){const e=nuevaEntrada();L.actual=e.id;}
+    const e=abierto();meta(e,D,nImg);
+    const f=await firmaDe(D,IMG);if(f!==e.firma){e.firma=f;e.act=ahora();}   // otra versión (o la publicada) cambió la ranura
+    if(await DB.get(`bor:${e.id}:draft`))await borrarPrefijo(`bor:${e.id}:`);   // restos guardados aparte del abierto: la ranura manda
+    await guardarLista();ponMio(L.actual);
+    {const r=leeRev();if(r.id===L.actual)REV_VISTO=r.n|0;else ponRev(L.actual,1);}
+  }catch(err){console.warn('borradores: arranque',err);}
+  LISTO=true;pintar();programar(4000);
+  // que el navegador no borre lo guardado por falta de espacio (se pide una vez)
+  try{if(navigator.storage&&navigator.storage.persist&&!localStorage.getItem('fx-bor-persist')){localStorage.setItem('fx-bor-persist','1');navigator.storage.persisted().then(p=>p||navigator.storage.persist()).catch(()=>{});}}catch(_){}
+  window.addEventListener('storage',ev=>{
+    if(ev.key===LS_ACT&&ev.newValue&&MIO&&ev.newValue!==MIO&&!CAMBIANDO)otraPestana();
+    if(ev.key===LS_REV&&revOtra()&&!AVISO_REV){AVISO_REV=true;toast('Este borrador se cambió en otra pestaña. Si vas a editar aquí, recarga primero esta pestaña.',8000);}
+  });
+  window.addEventListener('online',()=>programar(1500));
+  window.addEventListener('offline',()=>pintar());
+  const m=$b('#mNube');if(m)new MutationObserver(()=>{if(!m.classList.contains('oculto')){pintar();if(Date.now()-REM_T>30000)programar(300,true);}}).observe(m,{attributes:true,attributeFilter:['class']});
+  setInterval(()=>{if(inicioVisible())pintar();},60000);
+}
+function otraPestana(){if(CAMBIANDO||AVISO_PEST)return;AVISO_PEST=true;toast('En otra pestaña se abrió otro borrador. Esta pestaña se actualiza…',4000);setTimeout(()=>location.reload(),1500);}
+
+/* ---------- autoguardado: lo llama guardar() de la app tras escribir en el navegador ---------- */
+let gT=null,gCorr=false;
+function guardado(){if(!LISTO||CAMBIANDO)return;trasEscribir();clearTimeout(gT);gT=setTimeout(async()=>{
+  if(gCorr){guardado();return;}gCorr=true;
+  try{const e=abierto();if(!e||CAMBIANDO)return;const im=imgsRanura(),f=await firmaDe(D,im);if(CAMBIANDO||abierto()!==e)return;
+    const antes=JSON.stringify([e.rs,e.dom,e.tags,e.nEq,e.folio,e.vacio]);meta(e,D,Object.keys(im).length);
+    if(f!==e.firma){e.firma=f;e.act=ahora();await guardarLista();pintar();programar(ESPERA_DRIVE);}
+    else if(antes!==JSON.stringify([e.rs,e.dom,e.tags,e.nEq,e.folio,e.vacio])){await guardarLista();pintar();}}
+  catch(err){console.warn('borradores: guardado',err);}finally{gCorr=false;}},250);}
+
+/* ---------- acciones ---------- */
+function entrar(){try{if(window.FXP2Entrar)window.FXP2Entrar();}catch(_){}}
+async function abrir(id){
+  if(OCUPADO)return;
+  if(id===L.actual){entrar();return;}
+  const e=item(id);if(!e||!puedeCambiar())return;
+  OCUPADO='abrir';pintar();toast('Abriendo '+nombre(e)+'…',20000);
+  try{
+    await candado(async()=>{const L0=copiaL();CAMBIANDO=true;
+      try{const {ops}=await opsGuardarAbierto();await cargarGuardado(id,'borrador «'+nombre(e)+'»',ops);}
+      catch(err){L=L0;throw err;}finally{CAMBIANDO=false;}});
+    toast('Abierto: '+nombre(e),3500);entrar();
+  }catch(err){errCambio(err,'abrir el borrador');guardar();}
+  finally{OCUPADO='';pintar();}
+}
+async function nuevo(){
+  if(OCUPADO||!puedeCambiar())return;OCUPADO='nuevo';
+  try{
+    await candado(async()=>{const L0=copiaL();CAMBIANDO=true;try{
+      const {ops}=await opsGuardarAbierto();   // el abierto se conserva en Borradores (si estaba vacío, se descarta: no se acumulan vacíos)
+      const e=nuevaEntrada();
+      await ponerEnRanura(e.id,nuevoDraft(),{},undefined,ops);
+      meta(e,D,0);e.firma=await firmaDe(D,{});await guardarLista();
+    }catch(err){L=L0;throw err;}finally{CAMBIANDO=false;}});
+    toast('Expediente nuevo. El anterior quedó en «Borradores».',4000);entrar();
+  }catch(err){errCambio(err,'crear el expediente');guardar();}
+  finally{OCUPADO='';pintar();}
+}
+// importar (.json), «Abrir para corregir», abrir de Drive o traer de Drive el abierto: TODO en una transacción (R4)
+// o: {importado:true, fecha} · {folio, rev} · {remoto: archivo de Drive} · {reemplaza: id del abierto}
+async function cargarObjeto(j,o){
+  o=o||{};
+  if(OCUPADO&&OCUPADO!=='drive')throw new Error('hay otro cambio de borrador en curso');
+  {const m=motivoOcupado();if(m)throw new Error(m);}
+  const propio=!OCUPADO;if(propio)OCUPADO='cargar';
+  try{
+  const imgs={};for(const k in (j.imgs||{}))imgs[k]=b64(j.imgs[k]);   // si una imagen viene dañada, falla AQUÍ: nada cambió
+  let copia=false,e=null;
+  await candado(async()=>{const L0=copiaL();CAMBIANDO=true;try{
+    const ree=o.reemplaza&&item(o.reemplaza);
+    let ops=[];
+    if(ree){if(typeof vincularTodo==='function')try{vincularTodo();}catch(_){}clearTimeout(dirtyT);}
+    else ({ops}=await opsGuardarAbierto());
+    const ib=j.borrador||(o.remoto&&o.remoto.meta)||null;
+    if(ree)e=ree;
+    if(!e&&o.folio)e=L.items.find(x=>x.folio===o.folio&&x.reg&&x.id!==L.actual)||null;   // corregir: el mismo si ya estaba (sin duplicar)
+    if(!e&&o.remoto&&o.remoto.bor&&!item(o.remoto.bor))e=nuevaEntrada({id:o.remoto.bor});
+    if(!e&&o.importado&&ib&&ib.id&&/^b[0-9a-z]{6,20}$/.test(ib.id)&&!item(ib.id))e=nuevaEntrada({id:ib.id});
+    // (R2) copia de un borrador que ya está aquí (mismo id, o el folio de otro): es OTRO expediente → sin el folio ni el QR del original
+    if(!o.folio&&!ree){
+      const fol=j.draft.fxId&&j.draft.fxId.folio;
+      copia=!!(o.importado&&ib&&ib.id&&!(e&&e.id===ib.id)&&item(ib.id))||!!(fol&&L.items.some(x=>x.folio===fol&&x!==e));
+      if(copia)delete j.draft.fxId;
+    }
+    if(!e)e=nuevaEntrada();
+    if(ib&&ib.etiqueta&&!e.etiqueta)e.etiqueta=String(ib.etiqueta).slice(0,40);
+    if(copia&&!/\(copia\)/.test(e.etiqueta||''))e.etiqueta=((e.etiqueta||'')+' (copia)').trim().slice(0,40);
+    if(o.folio){e.reg=true;e.rev=o.rev||null;e.folio=o.folio;}
+    if(o.remoto){e.driveId=o.remoto.id;e.driveRev=o.remoto.rev||null;}
+    await ponerEnRanura(e.id,j.draft,imgs,o.origen||'borrador importado (.json)',[...ops,['delPre',`bor:${e.id}:`]]);
+  }catch(err){L=L0;throw err;}finally{CAMBIANDO=false;}});
+  try{await imgMigrarOrientacion();}catch(_){}   // v9: fotos con orientación EXIF → horneada (igual que «Importar»)
+  const im=imgsRanura();meta(e,D,Object.keys(im).length);e.firma=await firmaDe(D,im);
+  if(o.remoto){e.driveFirma=e.firma;e.remoto=null;e.fuera=false;e.act=o.remoto.act||e.act;}
+  else if(o.folio){e.genFirma=e.firma;}
+  else if(o.importado)e.act=(j.borrador&&j.borrador.actualizado&&!isNaN(Date.parse(j.borrador.actualizado))?new Date(j.borrador.actualizado).toISOString():null)||o.fecha||ahora();   // la fecha del archivo
+  await guardarLista();pintar();programar(ESPERA_DRIVE);guardar();
+  if(copia)toast('Era una copia de un borrador que ya está aquí: se guardó como «(copia)» y sin el folio del original (al generarlo tendrá el suyo).',9000);
+  return e;
+  }finally{if(propio){OCUPADO='';pintar();}}
+}
+async function importar(j,file){   // «Importar borrador (.json)»: lo importado entra como un borrador más (el abierto se conserva)
+  try{await cargarObjeto(j,{importado:true,fecha:file&&file.lastModified?new Date(file.lastModified).toISOString():null});toast('Borrador importado');}
+  catch(err){console.warn('borradores: importar',err);
+    if(esLleno(err))avisoLleno();
+    else if(/borrador|editor|guardando|generando|espera/i.test(String(err&&err.message)))toast('No se importó: '+err.message,8000);
+    else toast('El archivo no es un borrador válido (no cambió nada).',7000);}
+}
+async function etiquetar(id){
+  const e=item(id);if(!e)return;
+  const v=prompt(`Etiqueta corta para distinguir este borrador (por ejemplo «Planta Norte» o «Sucursal Toluca»):\n${e.rs||'Sin razón social'}${dist(e)?' · '+dist(e):''}`,e.etiqueta||'');
+  if(v==null)return;
+  e.etiqueta=v.replace(/\s+/g,' ').trim().slice(0,40);e.driveFirma=null;await guardarLista();pintar();programar(ESPERA_DRIVE);
+  toast(e.etiqueta?`Etiqueta: «${e.etiqueta}»`:'Etiqueta quitada',3000);
+}
+async function objDe(id){   // el mismo JSON de «Exportar» (con las imágenes del expediente)
+  const e=item(id);if(!e)throw new Error('No existe ese borrador.');
+  if(id===L.actual){if(CAMBIANDO)throw new Error('cambiando de borrador');if(typeof vincularTodo==='function')try{vincularTodo();}catch(_){}
+    const imgs={};for(const k in IMG)if(!k.startsWith('g:'))imgs[k]=u8ToB64(IMG[k]);return {version:1,draft:D,imgs,borrador:metaJson(e)};}
+  const g=await leerGuardado(id);if(!g)throw new Error('El borrador guardado no está completo.');
+  const imgs={};for(const k in g.imgs)imgs[k]=u8ToB64(g.imgs[k]);
+  return {version:1,draft:g.d,imgs,borrador:metaJson(e)};
+}
+async function exportarUno(id){
+  if(id===L.actual){exportar();return;}
+  try{const e=item(id),txt=JSON.stringify(await candado(()=>objDe(id)));jsonAviso(txt,'el borrador');descargar(new Blob([txt],{type:'application/json'}),baseArchivo(e)+'.json');}
+  catch(err){toast('No se pudo exportar: '+(err&&err.message||err),7000);}
+}
+async function eliminar(id){
+  const e=item(id);if(!e||OCUPADO)return;
+  if(id===L.actual&&!puedeCambiar())return;
+  if(!confirm(`¿Eliminar el borrador «${nombre(e)}»?\n\n${e.nEq|0} equipo${e.nEq===1?'':'s'} · modificado ${modTxt(e)}.\nSe borra de este navegador${e.driveId&&driveOn()?' y su respaldo en Google Drive':''}. No se puede deshacer${e.id===L.actual?'':' (si lo quieres conservar, primero «Exportar»)'}.`))return;
+  OCUPADO='eliminar';pintar();
+  try{await candado(async()=>{const L0=copiaL();CAMBIANDO=true;try{
+      if(e.driveId)porBorrar(e.driveId);
+      L.items=L.items.filter(x=>x!==e);
+      if(id!==L.actual)await tx([['delPre',`bor:${e.id}:`],['put','bor:lista',L]]);
+      else{   // era el abierto: se abre el más reciente (o uno nuevo) en la misma transacción
+        clearTimeout(dirtyT);
+        const sig=L.items.filter(listable).sort((a,b)=>String(b.act||b.creado).localeCompare(String(a.act||a.creado)))[0];
+        if(sig&&await DB.get(`bor:${sig.id}:draft`))await cargarGuardado(sig.id,'borrador «'+nombre(sig)+'»',[['delPre',`bor:${e.id}:`]]);
+        else{const n=nuevaEntrada();await ponerEnRanura(n.id,nuevoDraft(),{},undefined,[['delPre',`bor:${e.id}:`]]);meta(n,D,0);n.firma=await firmaDe(D,{});await guardarLista();}
+      }
+    }catch(err){L=L0;throw err;}finally{CAMBIANDO=false;}});
+    toast('Borrador eliminado.',3500);programar(1500);
+  }catch(err){errCambio(err,'eliminar');}
+  finally{OCUPADO='';pintar();}
+}
+
+/* ---------- registro (los llama la app) · R2: por el id del borrador y la marca de SU generación, nunca solo por folio ---------- */
+async function generado(job){   // ZIP generado con folio (con o sin sesión): el trabajo de la cola lleva el id del borrador y una marca única
+  try{const e=abierto();if(!e||!job)return;e.folio=job.folio;e.genTok=azar(B62,12);job.bor=e.id;job.borGen=e.genTok;
+    e.genFirma=await firmaDe(D,imgsRanura());e.firma=e.genFirma;await guardarLista();pintar();}catch(err){console.warn('borradores: generado',err);}
+}
+function registrado(j){   // el folio quedó registrado: sale de Borradores (lista y archivo de Drive), salvo que tenga cambios después de generarlo
+  if(!L||!j)return;
+  candado(async()=>{
+    let e=null;
+    if(j.bor){const x=item(j.bor);if(x&&(!j.borGen||x.genTok===j.borGen))e=x;}   // el borrador que generó ESE ZIP
+    else{   // trabajos de antes de esta versión (sin id): el abierto si es de ese folio; si no, solo si hay UNO con ese folio
+      const a=abierto();if(a&&D&&D.fxId&&D.fxId.folio===j.folio)e=a;
+      else{const c=L.items.filter(x=>x.folio===j.folio&&!x.reg);if(c.length===1)e=c[0];}
+    }
+    if(!e)return;
+    if(e.id===L.actual&&!CAMBIANDO){e.firma=await firmaDe(D,imgsRanura());meta(e,D,Object.keys(imgsRanura()).length);}
+    e.reg=true;e.rev=j.reg;e.folio=j.folio;
+    if(!e.genFirma){   // sin la marca de cómo era al generarlo no hay prueba de que no cambió: no se quita nada (ni aquí ni en Drive)
+      e.sinPrueba=true;await guardarLista();pintar();
+      toast(`${j.folio} quedó registrado. Su borrador «${nombre(e)}» sigue en Borradores porque no se puede comprobar que no cambió después de generarlo. Si ya no lo necesitas, elimínalo.`,12000);
+      return;
+    }
+    e.sinPrueba=false;
+    if(e.firma===e.genFirma){
+      if(e.driveId){porBorrar(e.driveId);e.driveId=null;e.driveRev=null;e.driveFirma=null;}
+      if(e.id!==L.actual){L.items=L.items.filter(x=>x!==e);await tx([['delPre',`bor:${e.id}:`],['put','bor:lista',L]]);}
+    }
+    await guardarLista();pintar();programar(1500);
+  }).catch(err=>console.warn('borradores: registrado',err));
+}
+function desregistrado(folio){   // se eliminó el registro: si estaba aquí, vuelve a ser un borrador normal
+  if(!L)return;const e=L.items.find(x=>x.folio===folio&&x.reg);if(!e)return;
+  e.reg=false;e.genFirma=null;e.genTok=null;e.rev=null;if(e.id===L.actual)e.folio=null;e.driveFirma=null;guardarLista().then(()=>{pintar();programar(ESPERA_DRIVE);});
+}
+// «Abrir para corregir»: si ya está abierto, se entra; si hay aquí una corrección sin generar de ese folio, se abre esa (sin duplicar)
+async function abrirRegistrado(x){
+  if(!L||!x)return false;
+  if(D&&D.fxId&&D.fxId.folio===x.folio){try{nubeCerrar();mostrarPaso('visita');}catch(_){}toast(`${x.folio} ya está abierto en este navegador.`,4000);return true;}
+  if(!puedeCambiar())return true;
+  const e=L.items.find(y=>y.folio===x.folio&&y.reg);
+  if(e&&listable(e)&&await DB.get(`bor:${e.id}:draft`)){
+    toast(`Este navegador tiene una corrección sin generar de ${x.folio} (modificada ${modTxt(e)}): se abre esa copia.`,7000);
+    await abrir(e.id);return true;
+  }
+  return false;
+}
+
+/* ---------- Google Drive: subcarpeta «Borradores», un archivo por borrador ---------- */
+let CARP=null;try{CARP=localStorage.getItem(LS_CARP);}catch(_){}
+async function carpeta(crear){   // crear=false: solo buscarla (leer la lista no crea una carpeta vacía)
+  if(CARP){const m=await driveMeta(CARP,'id,trashed');if(m.ok&&!m.j.trashed)return CARP;if(!m.ok&&m.status!==403&&m.status!==404)throw new Error(`Drive respondió ${m.status} al revisar «Borradores».`);CARP=null;}
+  const q=`name='Borradores' and mimeType='${MIME_CARPETA}' and '${NUBE.driveFolderId}' in parents and trashed=false`;
+  const r=await dFetch(`${NUBE.driveApi}/drive/v3/files?supportsAllDrives=true&includeItemsFromAllDrives=true&pageSize=10&fields=files(id,name,mimeType)&q=${encodeURIComponent(q)}`);
+  if(r.ok){const f=((await r.json()).files||[]).find(x=>x.name==='Borradores'&&x.mimeType===MIME_CARPETA);if(f)CARP=f.id;}
+  if(!CARP&&!crear)return null;
+  if(!CARP){
+    const c=await dFetch(`${NUBE.driveApi}/drive/v3/files?supportsAllDrives=true&fields=id,name`,{method:'POST',headers:{'Content-Type':'application/json; charset=UTF-8'},
+      body:JSON.stringify({name:'Borradores',mimeType:MIME_CARPETA,parents:[NUBE.driveFolderId],description:'Borradores sin registrar (Expedientes FenixMex). Uno por expediente; se reemplazan solos.'})});
+    if(!c.ok)throw new Error(`Drive respondió ${c.status} al crear «Borradores».`);CARP=(await c.json()).id;
+  }
+  try{localStorage.setItem(LS_CARP,CARP);}catch(_){}
+  return CARP;
+}
+async function subir(e,carp){
+  if(e.driveId){   // ¿alguien (la otra PC) lo cambió desde la última vez? entonces no se pisa: se pregunta
+    const m=await driveMeta(e.driveId,'id,trashed,appProperties');
+    if(m.ok&&!m.j.trashed){const rr=m.j.appProperties&&m.j.appProperties.fxRev;if(rr&&e.driveRev&&rr!==e.driveRev){e.remoto={id:e.driveId,rev:rr,act:m.j.appProperties.fxAct||''};return;}}
+    else if(!m.ok&&m.status!==403&&m.status!==404)throw new Error(`Drive respondió ${m.status}; se reintentará.`);
+    else e.driveId=null;
+  }
+  const firma=e.firma,obj=await candado(()=>objDe(e.id));if(!item(e.id))return;
+  const rev=azar(B62,10),txt=JSON.stringify(obj);
+  SYNC.sube=e.id;pintar();
+  const r=await driveSubir({nombre:nombreDrive(e),mime:'application/json',datos:new Blob([txt],{type:'application/json'}),id:e.driveId||null,padre:carp,
+    desc:`Borrador sin registrar · ${e.rs||'sin razón social'}${e.etiqueta?' · '+e.etiqueta:''} (Expedientes FenixMex)`,
+    meta:{appProperties:{fxBor:e.id,fxRev:rev,fxAct:String(e.act||''),fxEq:String(e.nEq|0)},description:JSON.stringify({rs:e.rs||'',etiqueta:e.etiqueta||'',dom:e.dom||'',tags:e.tags||[],nTags:e.nTags|0,nEq:e.nEq|0,act:e.act||''}).slice(0,3000)}});
+  if(!item(e.id)){porBorrar(r.id);return;}   // se eliminó mientras subía
+  e.driveId=r.id;e.driveRev=rev;e.driveFirma=firma;e.driveAt=ahora();e.fuera=false;
+}
+async function listar(carp){
+  const q=`'${carp}' in parents and trashed=false`,out=[];let tok='';
+  do{const r=await dFetch(`${NUBE.driveApi}/drive/v3/files?supportsAllDrives=true&includeItemsFromAllDrives=true&pageSize=200&fields=nextPageToken,files(id,name,modifiedTime,appProperties,description)&q=${encodeURIComponent(q)}${tok?'&pageToken='+encodeURIComponent(tok):''}`);
+    if(!r.ok)throw new Error(`Drive respondió ${r.status} al leer «Borradores».`);const j=await r.json();out.push(...(j.files||[]));tok=j.nextPageToken||'';}while(tok);
+  REM=out.filter(f=>f.appProperties&&f.appProperties.fxBor).map(f=>{let m={};try{m=JSON.parse(f.description||'{}')||{};}catch(_){}return {id:f.id,bor:f.appProperties.fxBor,rev:f.appProperties.fxRev||'',act:f.appProperties.fxAct||f.modifiedTime||'',nEq:+f.appProperties.fxEq||m.nEq||0,meta:m,name:f.name};});
+  REM_T=Date.now();REM_ERR='';
+  // estado de los locales frente a Drive
+  for(const e of L.items){if(!e.driveId)continue;const f=REM.find(x=>x.id===e.driveId);
+    if(!f){if(!sucioDrive(e)){e.driveId=null;e.driveRev=null;e.fuera=respaldable(e);}continue;}
+    if(f.rev&&e.driveRev&&f.rev!==e.driveRev){if(!e.remoto||e.remoto.rev!==f.rev)e.remoto={id:f.id,rev:f.rev,act:f.act};}
+    else if(e.remoto&&f.rev===e.driveRev)e.remoto=null;}
+}
+function programar(ms,conLista){
+  if(conLista)SYNC.lista=true;
+  clearTimeout(SYNC.t);SYNC.t=setTimeout(()=>sync(false),ms||ESPERA_DRIVE);
+}
+function motivoDrive(){if(!driveOn())return 'sin Drive';const m=pendMotivo();if(m)return m;if(!(NB.token&&Date.now()<NB.tokenExp-60000)||!NB.carpetaOk)return 'falta conectar Google Drive';return '';}
+async function sync(interactivo){
+  if(!LISTO||!driveOn())return;
+  if(SYNC.corr){SYNC.otra=true;return;}
+  if(CAMBIANDO||OCUPADO){programar(1500);return;}
+  try{nubeIniciar();}catch(_){}
+  if(pendMotivo()){if(interactivo){if(!NB.usr&&nubeConfig()&&nubeSdk())nubeEntrar();else toast('Respaldo de borradores pendiente: '+pendMotivo()+'.',5000);}pintar();return;}
+  const sube=L.items.filter(sucioDrive),borra=(L.drivePorBorrar||[]).slice(),lista=SYNC.lista||interactivo||inicioVisible()&&Date.now()-REM_T>30000;
+  // permiso de Drive: la misma regla que la cola de registro (driveListo sin clic = un intento callado por carga de la página; si el navegador
+  // no lo deja, «Respaldar ahora» / «Ver los de Drive» lo piden con un clic)
+  if(!sube.length&&!borra.length&&!lista){pintar();return;}
+  SYNC.corr=true;SYNC.err='';pintar();
+  try{
+    if(!(await driveListo(!!interactivo))){SYNC.err='falta conectar Google Drive';return;}
+    for(const id of borra){const r=await driveBorrar(id).catch(()=>'error');if(r==='ok'||r==='sin permiso'||r==='sin archivo')L.drivePorBorrar=(L.drivePorBorrar||[]).filter(x=>x!==id);}
+    await guardarLista();
+    const carp=await carpeta(L.items.some(sucioDrive));
+    for(const e of carp?L.items.filter(sucioDrive):[]){
+      if(CAMBIANDO||OCUPADO){SYNC.otra=true;break;}
+      try{await subir(e,carp);}catch(err){console.warn('borradores: subir',e.id,err);SYNC.err=String(err&&err.message||err).slice(0,160);}
+      SYNC.sube=null;await guardarLista();pintar();
+    }
+    if(lista){SYNC.lista=false;try{if(carp)await listar(carp);else{REM=[];REM_T=Date.now();REM_ERR='';}await guardarLista();}catch(err){REM_ERR=String(err&&err.message||err).slice(0,160);}}
+    SYNC.ult=Date.now();
+  }catch(err){console.warn('borradores: Drive',err);SYNC.err=String(err&&err.message||err).slice(0,160);}
+  finally{SYNC.corr=false;SYNC.sube=null;pintar();if(SYNC.otra){SYNC.otra=false;programar(2000);}else if(SYNC.err&&navigator.onLine!==false)programar(60000);}
+}
+function sesion(){if(!LISTO)return;if(NB.aut===true)programar(2500,true);else{REM=null;REM_T=0;}pintar();}
+// abrir uno que solo está en Drive (de la otra PC) o traer la versión de Drive de uno que está aquí
+async function abrirRemoto(fid,usarParaId){
+  if(OCUPADO)return;const f=REM&&REM.find(x=>x.id===fid);if(!f)return;
+  const e0=usarParaId?item(usarParaId):null;
+  if((!e0||e0.id===L.actual)&&!puedeCambiar())return;
+  if(e0&&!confirm(`¿Usar la versión de Google Drive de «${nombre(e0)}»?\n\nDrive: modificada ${horaRel(f.act)}.\nEste navegador: modificada ${modTxt(e0)}.\n\nLa copia de este navegador se reemplaza${e0.firma!==e0.driveFirma?' y se pierden sus cambios que no están en Drive (si los quieres conservar, primero «Exportar»)':''}.`))return;
+  OCUPADO='drive';pintar();toast('Descargando el borrador de Drive…',20000);
+  try{
+    if(!(await driveToken(true)))throw new Error('Hace falta el permiso de Google Drive.');
+    const j=JSON.parse(await driveBajar(f.id));if(!j||!j.draft||!Array.isArray(j.draft.equipos))throw new Error('El archivo de Drive no es un borrador válido.');
+    if(e0&&e0.id!==L.actual){   // reemplazar la copia guardada (no abierta): una transacción
+      const im={};for(const k in (j.imgs||{}))im[k]=b64(j.imgs[k]);
+      await candado(async()=>{const L0=copiaL();try{
+        meta(e0,j.draft,Object.keys(im).length);e0.firma=await firmaDe(j.draft,im);e0.driveFirma=e0.firma;e0.driveRev=f.rev;e0.driveId=f.id;e0.remoto=null;e0.act=f.act||e0.act;
+        if(j.borrador&&j.borrador.etiqueta!=null)e0.etiqueta=String(j.borrador.etiqueta).slice(0,40);
+        await tx([['delPre',`bor:${e0.id}:`],...Object.entries(im).map(([k,v])=>['put',`bor:${e0.id}:img:${k}`,v]),['put',`bor:${e0.id}:draft`,j.draft],['put','bor:lista',L]]);
+      }catch(err){L=L0;throw err;}});
+      toast('Se trajo la versión de Drive.',4000);
+    }else{
+      if(e0&&j.borrador&&j.borrador.etiqueta!=null)e0.etiqueta=String(j.borrador.etiqueta).slice(0,40);
+      await cargarObjeto(j,e0?{reemplaza:e0.id,remoto:f,origen:'borrador de Drive'}:{remoto:f,origen:'borrador de Drive'});
+      entrar();toast('Abierto desde Drive: '+nombre(item(L.actual)),4000);
+    }
+  }catch(err){errCambio(err,'abrir de Drive');}
+  finally{OCUPADO='';pintar();}
+}
+async function conservar(id){const e=item(id);if(!e||!e.remoto)return;e.driveRev=e.remoto.rev;e.driveId=e.remoto.id;e.remoto=null;e.driveFirma=null;await guardarLista();pintar();programar(500);}
+
+/* ---------- pantalla: «Borradores» en Inicio, tarjeta del abierto y lateral ---------- */
+const inicioVisible=()=>{const m=$b('#mNube');return !!m&&!m.classList.contains('oculto');};
+function estadoDrive(e){
+  if(!driveOn())return '';
+  if(e.remoto)return `<span class="fx-bor-dr warn" title="Otra PC guardó otra versión en Google Drive (${escB(horaRel(e.remoto.act))})">⚠ Otra versión en Drive</span>`;
+  if(SYNC.sube===e.id)return '<span class="fx-bor-dr work">☁ Subiendo…</span>';
+  if(!respaldable(e))return e.vacio?'':'<span class="fx-bor-dr" title="El registro lleva este expediente">☁ Lo lleva el registro</span>';
+  if(e.driveId&&e.driveFirma===e.firma)return `<span class="fx-bor-dr ok" title="Respaldado en «${escB(NUBE.driveFolderName)} › Borradores»${e.driveAt?' '+escB(horaRel(e.driveAt)):''}">☁ En Drive</span>`;
+  const m=motivoDrive();
+  return `<span class="fx-bor-dr pend" title="${escB(m?'Se respaldará al '+(m==='sin conexión'?'volver la conexión':m==='inicia sesión con Google'?'iniciar sesión':'conectar Google Drive'):'En espera de subir')}">☁ Por respaldar${m&&m!=='comprobando acceso…'?' · '+escB(m):''}</span>`;
+}
+function chipEstado(e){
+  if(e.reg&&e.sinPrueba)return `<span class="fx-bor-chip corr" title="Se registró desde la cola de una versión anterior de la app: no se puede comprobar si cambió después de generarlo">${escB(e.folio||'')} registrado · revisa si cambió</span>`;
+  if(e.reg&&listable(e))return `<span class="fx-bor-chip corr">Corrección de ${escB(e.folio||'')} · sin generar</span>`;
+  if(e.folio&&e.genFirma&&e.firma===e.genFirma)return `<span class="fx-bor-chip gen">${escB(e.folio)} · generado, falta registrar</span>`;
+  if(e.folio)return `<span class="fx-bor-chip">Folio ${escB(e.folio)} · sin registrar</span>`;
+  return '';
+}
+function pintar(){
+  if(!L)return;
+  pintarLat();
+  const box=$b('#p2Bor');if(!box||!inicioVisible())return;
+  const act=L.actual,loc=L.items.filter(listable).sort((a,b)=>(b.id===act)-(a.id===act)||String(b.act||b.creado).localeCompare(String(a.act||a.creado)));
+  const ids=new Set(L.items.map(e=>e.id)),porB=new Set(L.drivePorBorrar||[]);
+  const rem=(REM||[]).filter(f=>!ids.has(f.bor)&&!porB.has(f.id)).sort((a,b)=>String(b.act).localeCompare(String(a.act)));
+  const dis=OCUPADO?' disabled':'';
+  const fila=e=>{const ab=e.id===act;
+    return `<li class="fx-bor-it${ab?' abierto':''}" data-bor="${escB(e.id)}">
+      <div class="fx-bor-txt"><div class="fx-bor-a">${e.etiqueta?`<span class="fx-bor-et">${escB(e.etiqueta)}</span>`:''}<b class="fx-bor-rs">${escB(e.rs||'Sin razón social')}</b>${ab?'<span class="fx-bor-ab">Abierto</span>':''}${chipEstado(e)}</div>
+      <div class="fx-bor-d">${escB(e.vacio?'Expediente nuevo, aún vacío':dist(e)||'Sin domicilio ni TAG')}</div>
+      <div class="fx-bor-m"><span>${e.nEq|0} equipo${e.nEq===1?'':'s'}</span><span title="${escB(e.act?new Date(e.act).toLocaleString('es-MX'):'La versión anterior de la app no guardaba la fecha de la última edición')}">Modificado ${escB(modTxt(e))}</span>${estadoDrive(e)}${e.fuera?'<span class="fx-bor-dr" title="El archivo de Drive se quitó en otra PC (registrado o eliminado ahí). Sigue en este navegador.">Se quitó de Drive en otra PC</span>':''}</div>
+      ${e.remoto?`<div class="fx-bor-conf">Otra PC guardó otra versión en Drive (${escB(horaRel(e.remoto.act))}). <button type="button" class="btn chico" data-bor-acc="usar-drive"${dis}>Usar la de Drive</button>${e.firma!==e.driveFirma?`<button type="button" class="btn chico fantasma" data-bor-acc="conservar"${dis}>Conservar la de aquí</button>`:''}</div>`:''}</div>
+      <div class="fx-bor-acc"><button type="button" class="btn chico${ab?'':' prim'}" data-bor-acc="abrir"${dis}>${ab?'Continuar':'Abrir'}</button><button type="button" class="btn chico" data-bor-acc="etiqueta"${dis} title="Etiqueta corta para distinguirlo">Etiqueta</button><button type="button" class="btn chico" data-bor-acc="exportar"${dis} title="Descargar su borrador (.json)">Exportar</button><button type="button" class="btn chico fantasma peligro" data-bor-acc="eliminar"${dis}>Eliminar</button></div></li>`;};
+  const filaR=f=>{const m=f.meta||{};
+    return `<li class="fx-bor-it remoto" data-bor-rem="${escB(f.id)}">
+      <div class="fx-bor-txt"><div class="fx-bor-a">${m.etiqueta?`<span class="fx-bor-et">${escB(m.etiqueta)}</span>`:''}<b class="fx-bor-rs">${escB(m.rs||'Sin razón social')}</b><span class="fx-bor-chip drive">Solo en Drive</span></div>
+      <div class="fx-bor-d">${escB([m.dom,tagsTxt(m)].filter(Boolean).join(' · ')||f.name||'')}</div>
+      <div class="fx-bor-m"><span>${f.nEq|0} equipo${f.nEq===1?'':'s'}</span><span>Modificado ${escB(horaRel(f.act))}</span><span class="fx-bor-dr">De otra PC o navegador</span></div></div>
+      <div class="fx-bor-acc"><button type="button" class="btn chico prim" data-bor-acc="abrir-drive"${dis}>Abrir</button></div></li>`;};
+  const pend=L.items.filter(sucioDrive).length,m=motivoDrive();
+  let est='';
+  if(driveOn()){
+    if(SYNC.corr)est='<span class="fx-bor-dr work">☁ Respaldando en Drive…</span>';
+    else if(pend)est=`<span class="fx-bor-dr pend">☁ ${pend} por respaldar${m&&m!=='comprobando acceso…'?' · '+escB(m):''}</span>${!m||m==='falta conectar Google Drive'||m==='inicia sesión con Google'?`<button type="button" class="btn chico" data-bor-acc="respaldar"${dis}>${m==='inicia sesión con Google'?'Iniciar sesión y respaldar':'Respaldar ahora'}</button>`:''}`;
+    else if(loc.some(respaldable))est='<span class="fx-bor-dr ok">☁ Respaldados en Drive</span>';
+    if(!SYNC.corr&&!REM_T&&NB.usr&&NB.aut===true&&!m.startsWith('sin conexión'))est+=`<button type="button" class="btn chico fantasma" data-bor-acc="ver-drive"${dis} title="Muestra los borradores respaldados desde otra PC">Ver los de Drive</button>`;
+    if(SYNC.err&&!SYNC.corr)est+=`<span class="fx-bor-dr warn" title="${escB(SYNC.err)}">No se pudo respaldar · se reintentará</span>`;
+  }
+  const html=`<div class="fx-bor-cab"><h3 id="p2BorT">Borradores <small>sin registrar · ${loc.length} en este navegador${rem.length?` · ${rem.length} solo en Drive`:''}</small></h3><div class="fx-bor-est">${est}</div></div>
+    <p class="fx-bor-nota">Cada expediente sin generar se guarda aparte: ábrelos y cambia entre ellos con un clic, sin perder nada.${driveOn()?' Con la sesión iniciada se respaldan en Google Drive («'+escB(NUBE.driveFolderName)+' › Borradores») y se pueden abrir en la otra PC.':''} Al generar el ZIP y registrarse, pasan a «Registrados».</p>
+    <ul class="fx-bor-lista" id="p2BorLista">${loc.map(fila).join('')}${rem.map(filaR).join('')}</ul>${REM_ERR?`<p class="nota mal">${escB(REM_ERR)}</p>`:''}`;
+  if(box._h!==html){const y=window.scrollY;box.innerHTML=html;box._h=html;if(Math.abs(window.scrollY-y)>2)window.scrollTo(0,y);}
+}
+function pintarLat(){
+  const e=abierto();if(!e)return;
+  const txt=e.reg&&!listable(e)?`Registrado · ${e.folio||''}`:e.reg?`Corrección · ${e.folio||''}`:e.vacio?'Borrador nuevo (vacío)':'Borrador'+(e.etiqueta?` · ${e.etiqueta}`:dist(e)?` · ${dist(e)}`:'');
+  const tit=`Abierto en este navegador: ${nombre(e)}${e.folio?' · '+e.folio:''}`;
+  for(const el of [$b('#p2BorAct'),$b('#p2LocEt')])if(el){if(el.textContent!==txt)el.textContent=txt;if(el.title!==tit)el.title=tit;const r=e.reg&&!listable(e)?'reg':'bor';if(el.dataset.s!==r)el.dataset.s=r;}
+  const et=e.etiqueta||'';if(pintarLat.et!==et||pintarLat.id!==e.id){pintarLat.et=et;pintarLat.id=e.id;try{if(window.FXP2Pintar)window.FXP2Pintar();}catch(_){}}   // migas del armazón
+}
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest&&ev.target.closest('[data-bor-acc]');if(!b||!L)return;
+  const a=b.dataset.borAcc,li=b.closest('[data-bor]'),id=li&&li.dataset.bor,ri=b.closest('[data-bor-rem]');
+  if(a==='abrir')abrir(id);else if(a==='etiqueta')etiquetar(id);else if(a==='exportar')exportarUno(id);else if(a==='eliminar')eliminar(id);
+  else if(a==='abrir-drive'&&ri)abrirRemoto(ri.dataset.borRem);
+  else if(a==='usar-drive'){const e=item(id);if(e&&e.remoto){if(!REM||!REM.find(f=>f.id===e.remoto.id))REM=(REM||[]).concat({id:e.remoto.id,bor:e.id,rev:e.remoto.rev,act:e.remoto.act,meta:{}});abrirRemoto(e.remoto.id,id);}}
+  else if(a==='conservar')conservar(id);
+  else if(a==='respaldar'||a==='ver-drive'){SYNC.lista=true;sync(true);}
+});
+
+/* ---------- para la app (exportar, importar, nuevo, guardar, registro) y para las pruebas ---------- */
+window.FXBor={iniciar,guardado,puedeGuardar,sinEspacio,otraPestana,nuevo,importar,cargarObjeto,generado,registrado,desregistrado,abrirRegistrado,sesion,ocupado:motivoOcupado,
+  abrir,eliminar,etiquetar,exportarUno,sync,abrirRemoto,
+  meta:()=>{const e=abierto();return e?{borrador:metaJson(e)}:{};},
+  etiqueta:()=>{const e=abierto();return e&&e.etiqueta||'';},
+  nombreArchivo:()=>{const e=abierto();return e?baseArchivo(e)+'.json':null;},
+  estado:()=>({actual:L&&L.actual,items:L?L.items.map(e=>Object.assign({},e,{listable:listable(e),respaldable:respaldable(e),sucio:sucioDrive(e),nombre:nombre(e),archivo:baseArchivo(e)+'.json'})):[],
+    drivePorBorrar:L&&L.drivePorBorrar||[],remotos:REM,sync:{corr:SYNC.corr,err:SYNC.err,ult:SYNC.ult},carpeta:CARP,cambiando:CAMBIANDO,ocupado:OCUPADO,enCurso:BUSY,listo:LISTO})};
+})();
+
 // ---------- arranque ----------
 (async()=>{
   initPasos();
@@ -15466,7 +16146,8 @@ window.FXNube={canon,huellaDe,huellaActual,fxIdNuevo,qrUrl,RX_FOLIO,RX_CLAVE,cla
   try{initPlano();}catch(e){console.warn('plano',e);}
   initEqBar();initDib();initBuscar();
   montar('borrador guardado en este navegador');
-  if((antes||plBqMigrado)&&DB.db){await DB.set('draft',D);}   // v10: la estructura migrada se guarda una vez (las copias descartadas quedan en D.conflictos) · v12: también las boquillas del plano
+  if((antes||plBqMigrado)&&DB.db){await DB.set('draft',D);}
+  if(window.FXBor)FXBor.iniciar();   // rediseño · borradores   // v10: la estructura migrada se guarda una vez (las copias descartadas quedan en D.conflictos) · v12: también las boquillas del plano
   try{await levLegadoCargar();levLegadoAviso();}catch(e){console.warn('levantamiento anterior',e);}
   if(fromCloud) setEstado('Globales en la nube'+(cloudImgs?' · '+cloudImgs+' img':'')+' · expediente solo aquí');
   else if(!DB.db) setEstado('Sin almacenamiento: los datos no se conservarán');
@@ -15633,6 +16314,9 @@ document.addEventListener('toggle',ev=>{const d=ev.target;if(d&&d.matches&&d.mat
 window.addEventListener('resize',()=>$$('details.menu[open]').forEach(encajaMenu));
 function irSec(sec){const e=eqActivo();if(e)irVista(`equipo/${e.id}/${sec}`);}
 function irSub(s){irVista(s);}
+// (borradores) después de abrir, crear o importar un borrador desde Inicio se entra a su Empresa (como «Nuevo expediente» e «Importar»)
+window.FXP2Entrar=()=>{cerrarCajon();if(inicioAbierto())irSub('empresa');else pintar();};
+window.FXP2Pintar=()=>pintar();
 
 /* ---------- Inicio: «Mis expedientes» de la app como página ---------- */
 const inicioAbierto=()=>{const m=$('#mNube');return !!m&&!m.classList.contains('oculto');};
@@ -15864,7 +16548,9 @@ function pintarYa(){
   if(ini)m=['<b>Mis expedientes</b>'];
   else if(p==='personas'&&sub==='ajustes')m=['<button type="button" class="fx-ant" data-p2ir="inicio">Inicio</button>',sep,'<b>Ajustes</b>'];
   else{
-    m=[`<button type="button" class="fx-ant" data-p2ir="empresa" title="${escH(rs)}">${escH(rsC)}</button>`];
+    // (borradores) la etiqueta del borrador abierto, si tiene, distingue expedientes con la misma razón social
+    const et=(()=>{try{return window.FXBor&&FXBor.etiqueta()||'';}catch(_){return '';}})();
+    m=[`<button type="button" class="fx-ant" data-p2ir="empresa" title="${escH(rs+(et?' · '+et:''))}">${escH(rsC)}${et?`<span class="fx-mig-et">${escH(et.length>18?et.slice(0,17)+'…':et)}</span>`:''}</button>`];
     if(enEq)m.push(sep,'<button type="button" class="fx-ant" data-p2ir="equipos">Equipos</button>',sep,`<b>${escH(e.tag||'Sin TAG')}</b>`,'<span class="fx-sep">›</span>',`<span>${(SECS.find(x=>x[0]===sec)||SECS[0])[1]}</span>`);
     else if(conSub)m.push(sep,`<b>${NOM_SUB[sub][0]}</b>`);
     else if(NOM_PASO[p])m.push(sep,`<b>${NOM_PASO[p]}</b>`);
